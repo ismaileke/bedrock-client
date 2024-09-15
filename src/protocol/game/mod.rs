@@ -9,3 +9,4 @@ pub mod play_status;
 pub mod resource_packs_info;
 pub mod resource_pack_client_response;
 pub mod resource_pack_stack;
+pub mod request_chunk_radius;

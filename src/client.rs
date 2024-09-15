@@ -1,7 +1,7 @@
 use crate::protocol::frame_set::{Datagram, FrameNumberCache, RELIABLE, RELIABLE_ORDERED, UNRELIABLE};
 use crate::protocol::game::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::game::play_status::LoginStatus;
-use crate::protocol::game::{client_to_server_handshake, disconnect, login, network_settings, play_status, req_network_settings, resource_pack_client_response, resource_packs_info, server_to_client_handshake};
+use crate::protocol::game::{client_to_server_handshake, disconnect, login, network_settings, play_status, req_network_settings, request_chunk_radius, resource_pack_client_response, resource_packs_info, server_to_client_handshake};
 use crate::protocol::game_packet::GamePacket;
 use crate::protocol::packet_ids::{PacketType, MAGIC};
 use crate::protocol::{acknowledge, conn_req, conn_req_accepted, connected_ping, connected_pong, frame_set, game_packet, incompatible_protocol, new_incoming_conn, open_conn_reply1, open_conn_reply2, open_conn_req1, open_conn_req2};
@@ -22,7 +22,7 @@ use std::io::Result;
 use std::net::UdpSocket;
 
 //conn_req update
-// maybe encryption disabled on server?
+// maybe encryption disabled on server? or xbox disabled?
 // if there is a skipped packet, wait for it, if you don't wait and try to decrypt it, you will get an 'invalid checksum' error
 // NACK ACK System handler errors
 // fragment packet receiving - sending etc.
@@ -165,6 +165,7 @@ impl Client {
                                 self.socket.send(&nack.encode()).expect("NACK Send Error");
                             }
                         }
+
                         if seq > self.last_received_sequence_number {
                             self.last_received_sequence_number = seq;
                         }
@@ -175,9 +176,12 @@ impl Client {
                             .collect();
                         sorted_sequence_numbers.sort();
 
-
                         //fragment suspect
                         for sequence_number in sorted_sequence_numbers {
+                            if sequence_number < self.last_handled_sequence_number {
+                                self.last_received_packets.remove(&sequence_number);
+                                continue;
+                            }
                             if sequence_number == self.last_handled_sequence_number + 1 {
                                 if let Some(datagram) = self.last_received_packets.get(&sequence_number) {
                                     for frame in &datagram.frames {
@@ -487,7 +491,19 @@ impl Client {
                                                                     LoginStatus::LoginFailedEditorVanilla => println!("Status: {}Login Failed Editor Vanilla{}", color_format::COLOR_RED, COLOR_WHITE),
                                                                     LoginStatus::LoginFailedVanillaEditor => println!("Status: {}Login Failed Vanilla Editor{}", color_format::COLOR_RED, COLOR_WHITE),
                                                                 }
-                                                            }
+                                                            },
+                                                            BedrockPacketType::AvailableCommands => {
+                                                                // REQUEST CHUNK RADIUS PACKET
+                                                                let req_chunk_radius = request_chunk_radius::new(40, 40).encode();
+
+                                                                let game_packet = self.game.encrypt(&req_chunk_radius);
+
+                                                                let datagrams = Datagram::split_packet(game_packet, &mut self.frame_number_cache);
+
+                                                                for datagram in datagrams {
+                                                                    self.socket.send(&datagram.to_binary()).expect("RequestChunkRadius Packet Fragment could not be sent");
+                                                                }
+                                                            },
                                                             _ => {}
                                                         }
                                                     }
