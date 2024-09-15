@@ -7,6 +7,7 @@ RakNet Client written in Rust.
 ```css
 [dependencies]
 raknet-client = { git = "https://github.com/ismaileke/raknet-client.git", branch = "master" }
+tokio = { version = "1.40.0", features = ["rt", "rt-multi-thread", "macros"] }
 ```
 
 
