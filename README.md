@@ -21,7 +21,5 @@ async fn main() {
 }
 ```
 
-## 📍 NOTE
-It is still in development.
-I can't develop the project because I don't have time.
-It still has major problems.
+> [!NOTE]
+> It is still in development. I can't develop the project because I don't have time. It still has major problems.
