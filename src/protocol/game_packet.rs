@@ -1,9 +1,7 @@
 use crate::utils::encryption::Encryption;
 use binary_utils::binary::Stream;
-use flate2::write::ZlibEncoder;
-use flate2::Compression;
+use libdeflater::{CompressionLvl, Compressor};
 use miniz_oxide::inflate::decompress_to_vec;
-use std::io::Write;
 
 pub struct GamePacket {
     pub encryption: Encryption,
@@ -29,30 +27,27 @@ impl GamePacket {
 }
 
 pub fn compress(payload: &Vec<u8>) -> Vec<u8> {
-
     let compression_level = 7;
     let min_compression_size = 256;
     let compressible = payload.len() >= min_compression_size;
-    let level = if compressible { Compression::new(compression_level) } else { Compression::new(0) };
+    let level = if compressible { compression_level } else { 0 };
 
-    let mut encoder = ZlibEncoder::new(Vec::new(), level);
+    let compression_level = CompressionLvl::new(level).expect("Invalid compression level");
+    let mut compressor = Compressor::new(compression_level);
 
-    encoder.write_all(payload.as_slice()).expect("ZLIB ENCODE ERROR");
-    let compressed_data = encoder.finish().expect("ZLIB ENCODE ERROR 2");
+    let mut compressed_data = vec![0u8; compressor.deflate_compress_bound(payload.len())];
 
-    let mut result = vec![0]; // Compression Algorithm (ZLIB=0)
+    let _compressed_size = compressor
+        .deflate_compress(payload.as_slice(), &mut compressed_data)
+        .expect("Compression failed");
+
+    let mut result = vec![0x00];
     result.extend(compressed_data);
+
     result
 }
 
 pub fn decompress(payload: &Vec<u8>) -> Vec<u8> {
-    /*let mut decoder = GzDecoder::new(payload.as_slice());
-    let mut decompressed = Vec::new();
-
-    match decoder.read_to_end(&mut decompressed) {
-        Ok(_) => decompressed.to_vec(),
-        Err(_) => payload.to_vec()
-    }*/
     let decompressed_data = decompress_to_vec(payload.as_slice()).expect("DecompressToVec Error");
     decompressed_data
 }

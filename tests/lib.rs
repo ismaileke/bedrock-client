@@ -7,7 +7,7 @@ mod tests {
 
     #[tokio::test]
     async fn test() {
-        let client = client::create("127.0.0.1", 19132, "1.21.2", true);
+        let client = client::create("127.0.0.1", 19132, "1.21.23", false);
         client.await.unwrap().connect().expect("Target IP Connection Error");
     }
 }

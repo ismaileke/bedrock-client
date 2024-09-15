@@ -116,51 +116,24 @@ impl Encryption {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 pub fn generate_key(secret: &BigNum, salt: Vec<u8>) -> Vec<u8> {
-    // BigNum'u hexadecimal string'e çevir (16 tabanlı gmp_strval karşılığı)
     let mut hex_secret = secret.to_hex_str().unwrap().to_string();
 
-    // Hexadecimal değeri 96 karaktere sıfırlarla (pad) doldur (str_pad karşılığı)
     if hex_secret.len() < 96 {
         hex_secret = format!("{:0>96}", hex_secret);
     }
 
-    // Hexadecimal string'i byte dizisine (binary) çevir
     let secret_bytes = hex::decode(hex_secret).unwrap();
 
-    // Salt ve secret_bytes birleştir
     let combined = [salt, secret_bytes].concat();
 
-    // SHA-256 hash hesapla ve sonucu döndür
     hash(MessageDigest::sha256(), &combined).unwrap().to_vec()
 }
-
-
-
-
-
-
-
-
 
 pub fn generate_shared_secret(local_private: PKey<Private>, remote_public: PKey<Public>) -> BigNum{
     let mut deriver = Deriver::new(&local_private).unwrap();
     deriver.set_peer(&remote_public).unwrap();
     let secret = deriver.derive_to_vec().unwrap();
-
     /*
 	$hexSecret = openssl_pkey_derive($remotePub, $localPriv, 48);
 	return gmp_init(bin2hex($hexSecret), 16);
