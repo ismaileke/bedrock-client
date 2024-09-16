@@ -160,6 +160,90 @@ impl Client {
                         for frame in datagram.frames {
                             if let Some(reliable_frame_index) = frame.reliable_frame_index {
                                 self.last_received_packets.insert(reliable_frame_index, frame);
+                            } else {
+                                // UNRELIABLE PACKET HANDLER
+                                let mut stream = Stream::new(frame.body, 0);
+                                let packet_id = stream.get_byte();
+                                let packet_type = PacketType::from_byte(packet_id);
+
+                                match packet_type {
+                                    PacketType::NACK => {
+                                        let nack = acknowledge::decode(stream.get_buffer());
+                                        //if self.debug {
+                                        println!("--- {}NACK{} ---", color_format::COLOR_RED, COLOR_WHITE);
+                                        println!("Record Count: Record Type {}", if nack.record_count == 0 { "Range" } else { "Single" });
+                                        println!("Single Sequence Number: {}", nack.single_sequence_number);
+                                        println!("Sequence Number: {:?}", nack.sequence_number);
+                                        println!("Start Sequence Number: {:?}", nack.start_sequence_number);
+                                        println!("End Sequence Number: {:?}", nack.end_sequence_number);
+                                        //}
+                                    }
+                                    PacketType::ConnectedPing => {
+                                        let connected_ping = connected_ping::decode(stream.get_buffer());
+                                        if self.debug {
+                                            println!("--- {}ConnectedPing{} ---", color_format::COLOR_GOLD, COLOR_WHITE);
+                                            println!("Ping Time: {:?}", connected_ping.ping_time);
+                                        }
+                                        let connected_pong = connected_pong::create(connected_ping.ping_time, Utc::now().timestamp()).encode();
+                                        let frame = Datagram::create_frame(connected_pong, UNRELIABLE, &self.frame_number_cache, None);
+                                        let datagram = Datagram::create(vec![frame], &self.frame_number_cache).to_binary();
+                                        self.frame_number_cache.sequence_number += 1;
+                                        self.socket.send(&datagram).expect("ConnectedPong Packet could not be sent");
+                                    },
+                                    PacketType::ConnectedPong => {
+                                        let connected_pong = connected_pong::decode(stream.get_buffer());
+                                        if self.debug {
+                                            println!("--- {}ConnectedPong{} ---", color_format::COLOR_GOLD, COLOR_WHITE);
+                                            println!("Ping Time: {:?}", connected_pong.ping_time);
+                                            println!("Pong Time: {:?}", connected_pong.pong_time);
+                                        }
+                                        /*let connected_ping = connected_ping::create(Utc::now().timestamp()).encode();
+                                        let frame = Datagram::create_frame(connected_ping, UNRELIABLE, &self.frame_number_cache, None);
+                                        let datagram = Datagram::create(vec![frame], &self.frame_number_cache).to_binary();
+                                        self.frame_number_cache.sequence_number += 1;
+                                        self.socket.send(&datagram).expect("ConnectedPing Packet could not be sent");*/
+                                    },
+                                    PacketType::ConnReqAccepted => {
+                                        let conn_req_accepted = conn_req_accepted::decode(stream.get_buffer());
+                                        if self.debug {
+                                            println!("--- {}ConnectionRequestAccepted{} ---", color_format::COLOR_GOLD, COLOR_WHITE);
+                                            println!("Client Address: {}:{}", conn_req_accepted.client_address.address, conn_req_accepted.client_address.port);
+                                            println!("System Index: {}", conn_req_accepted.system_index);
+                                            for index in 0..20 {
+                                                println!("System Address {}: {}:{}", index + 1, conn_req_accepted.system_addresses[index].address, conn_req_accepted.system_addresses[index].port);
+                                            }
+                                            println!("Ping Time: {}", conn_req_accepted.ping_time);
+                                            println!("Pong Time: {}", conn_req_accepted.ping_time);
+                                        }
+
+                                        // New Incoming Connection
+                                        let addresses: [InternetAddress; 20] = core::array::from_fn(|_| address::new(4, "0.0.0.0".to_string(), 0));
+                                        let new_incoming_conn = new_incoming_conn::new(address::new(4, self.target_address.to_string(), self.target_port), addresses, Utc::now().timestamp(), Utc::now().timestamp() + 1).encode();
+                                        let frame = Datagram::create_frame(new_incoming_conn, RELIABLE_ORDERED, &self.frame_number_cache, None);
+                                        self.frame_number_cache.reliable_frame_index += 1;
+                                        self.frame_number_cache.ordered_frame_index += 1;
+
+                                        // Connected Ping
+                                        let connected_ping = connected_ping::create(Utc::now().timestamp()).encode();
+                                        let frame_two = Datagram::create_frame(connected_ping, UNRELIABLE, &self.frame_number_cache, None);
+
+                                        // Request Network Settings Packet
+                                        let request_network_settings = req_network_settings::new(712).encode();
+                                        let frame_three = Datagram::create_frame(request_network_settings, RELIABLE_ORDERED, &self.frame_number_cache, None);
+
+                                        let datagram = Datagram::create(vec![frame, frame_two, frame_three], &self.frame_number_cache).to_binary();
+                                        self.frame_number_cache.sequence_number += 1;
+                                        self.frame_number_cache.reliable_frame_index += 1;
+                                        self.frame_number_cache.ordered_frame_index += 1;
+
+                                        self.socket.send(&datagram).expect("NewIncomingConnection & RequestNetworkSettings Packet could not be sent");
+                                        //should_stop = true;
+                                    },
+                                    PacketType::DisconnectionNotification => {
+                                        println!("{}Disconnect Notification Packet Received{}", color_format::COLOR_RED, COLOR_WHITE);
+                                    }
+                                    _ => {}
+                                }
                             }
                         }
 
