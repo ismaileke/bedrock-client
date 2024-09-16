@@ -46,7 +46,7 @@ impl Login {
     }
 }
 
-pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, target_address: &'static str, target_port: u16, client_guid: i64) -> Vec<String> {
+pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, target_address: String, target_port: u16, client_guid: i64) -> Vec<String> {
     let chain_one: Vec<&str> = chain[0].split('.').collect();
     let chain_two: Vec<&str> = chain[1].split('.').collect();
 

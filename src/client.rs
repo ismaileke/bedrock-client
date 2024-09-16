@@ -30,7 +30,7 @@ use std::net::UdpSocket;
 
 pub struct Client {
     socket: UdpSocket,
-    target_address: &'static str,
+    target_address: String,
     target_port: u16,
     client_guid: i64,
     chain: Vec<String>,
@@ -46,7 +46,7 @@ pub struct Client {
     encryption_enabled: bool
 }
 
-pub async fn create(target_address: &'static str, target_port: u16, client_version: &'static str, debug: bool) -> Option<Client> {
+pub async fn create(target_address: String, target_port: u16, client_version: &'static str, debug: bool) -> Option<Client> {
     let mut bedrock = bedrock::new(client_version.to_string(), false);
     if !bedrock.auth().await { return None; }
     let mut rng = rand::thread_rng();
@@ -57,7 +57,7 @@ pub async fn create(target_address: &'static str, target_port: u16, client_versi
         client_guid: rng.gen_range(10000..100000),
         chain: bedrock.get_chain_data(),
         ec_key: bedrock.get_ec_key()?,
-        game: GamePacket{encryption: Encryption::fake_gcm(vec![23, 1, 5, 33, 7, 1, 24, 0, 12, 32, 2, 15, 23, 1, 5, 33, 7, 1, 24, 0, 12, 32, 2, 15, 23, 1, 5, 33, 7, 1, 24, 0]).unwrap()},
+        game: GamePacket{encryption: Encryption::fake_gcm(vec![23, 1, 5, 33, 7, 1, 24, 0, 12, 32, 2, 15, 23, 1, 5, 33, 7, 1, 24, 0, 12, 32, 2, 15, 23, 1, 5, 33, 7, 1, 24, 0]).unwrap()}, // that's random ^.^
         frame_number_cache: frame_set::start_number_cache(),
         last_received_packets: HashMap::new(),
         last_received_fragment_packets: HashMap::new(),
@@ -306,7 +306,7 @@ impl Client {
 
                                                                 // DATA SENT AS FRAGMENT
                                                                 let pkey = PKey::from_ec_key(self.ec_key.clone()).expect("PKey Error");
-                                                                let login_data_detail = login::convert_login_chain(&mut self.chain, pkey, self.target_address, self.target_port, self.client_guid);
+                                                                let login_data_detail = login::convert_login_chain(&mut self.chain, pkey, self.target_address.clone(), self.target_port, self.client_guid);
                                                                 let login = login::new(712, login_data_detail[0].clone(), login_data_detail[1].clone()).encode();
 
                                                                 let datagrams = Datagram::split_packet(login, &mut self.frame_number_cache);

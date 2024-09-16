@@ -7,7 +7,7 @@ RakNet Client written in Rust.
 ```css
 [dependencies]
 raknet-client = { git = "https://github.com/ismaileke/raknet-client.git", branch = "master" }
-tokio = { version = "1.40.0", features = ["rt", "rt-multi-thread", "macros"] }
+tokio = "1.40.0"
 ```
 
 
@@ -17,7 +17,7 @@ use raknet_client::client;
 
 #[tokio::main]
 async fn main() {
-    let client = client::create("127.0.0.1", 19132, "1.21.2", true); // target address, target port, client version, debug mode
+    let client = client::create("127.0.0.1".to_string(), 19132, "1.21.23", true); // target address, target port, client version, debug mode
     client.await.unwrap().connect().expect("Target IP Connection Error");
 }
 ```
