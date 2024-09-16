@@ -1,7 +1,7 @@
 use crate::protocol::frame_set::{Datagram, Frame, FrameNumberCache, RELIABLE, RELIABLE_ORDERED, UNRELIABLE};
 use crate::protocol::game::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::game::play_status::LoginStatus;
-use crate::protocol::game::{client_to_server_handshake, disconnect, login, network_settings, play_status, req_network_settings, request_chunk_radius, resource_pack_client_response, resource_packs_info, server_to_client_handshake};
+use crate::protocol::game::{client_to_server_handshake, disconnect, login, network_settings, play_status, req_network_settings, request_chunk_radius, resource_pack_client_response, resource_packs_info, server_to_client_handshake, set_local_player_as_initialized};
 use crate::protocol::game_packet::GamePacket;
 use crate::protocol::packet_ids::{PacketType, MAGIC};
 use crate::protocol::{acknowledge, conn_req, conn_req_accepted, connected_ping, connected_pong, frame_set, game_packet, incompatible_protocol, new_incoming_conn, open_conn_reply1, open_conn_reply2, open_conn_req1, open_conn_req2};
@@ -483,6 +483,18 @@ impl Client {
                                                         BedrockPacketType::PlayStatus => {
                                                             let play_status = play_status::decode(packet_stream.get_remaining().unwrap());
                                                             let status = LoginStatus::try_from(play_status.status).unwrap();
+                                                            if play_status.status == 3 { // Player Spawn
+                                                                // SET LOCAL PLAYER AS INITIALIZED PACKET
+                                                                let set_local_player_as_init = set_local_player_as_initialized::new(0).encode();
+
+                                                                let game_packet = self.game.encrypt(&set_local_player_as_init);
+
+                                                                let datagrams = Datagram::split_packet(game_packet, &mut self.frame_number_cache);
+
+                                                                for datagram in datagrams {
+                                                                    self.socket.send(&datagram.to_binary()).expect("SetLocalPlayerAsInitialized Packet Fragment could not be sent");
+                                                                }
+                                                            }
                                                             match status {
                                                                 LoginStatus::LoginSuccess => println!("Status: {}Login Success{}", color_format::COLOR_GREEN, COLOR_WHITE),
                                                                 LoginStatus::LoginFailedClient => println!("Status: {}Login Failed Client{}", color_format::COLOR_RED, COLOR_WHITE),

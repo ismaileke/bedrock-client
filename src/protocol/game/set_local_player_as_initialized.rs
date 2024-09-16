@@ -1,22 +1,20 @@
 use crate::protocol::game::bedrock_packet_ids::BedrockPacketType;
 use binary_utils::binary::Stream;
 
-pub struct RequestChunkRadius {
-    radius: i32,
-    max_radius: u8
+pub struct SetLocalPlayerAsInitializedPacket {
+    actor_runtime_id: u64
 }
 
-pub fn new(radius: i32, max_radius: u8) -> RequestChunkRadius {
-    RequestChunkRadius{ radius, max_radius }
+pub fn new(actor_runtime_id: u64) -> SetLocalPlayerAsInitializedPacket {
+    SetLocalPlayerAsInitializedPacket { actor_runtime_id }
 }
 
-impl RequestChunkRadius {
+impl SetLocalPlayerAsInitializedPacket {
     pub fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(BedrockPacketType::get_byte(BedrockPacketType::RequestChunkRadius) as u32);
+        stream.put_unsigned_var_int(BedrockPacketType::get_byte(BedrockPacketType::SetLocalPlayerAsInitialized) as u32);
 
-        stream.put_var_int(self.radius);
-        stream.put_byte(self.max_radius);
+        stream.put_unsigned_var_long(self.actor_runtime_id);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
