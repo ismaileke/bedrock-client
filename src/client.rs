@@ -1,7 +1,7 @@
 use crate::protocol::frame_set::{Datagram, Frame, FrameNumberCache, RELIABLE, RELIABLE_ORDERED, UNRELIABLE};
 use crate::protocol::game::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::game::play_status::LoginStatus;
-use crate::protocol::game::{client_to_server_handshake, disconnect, login, network_settings, play_status, req_network_settings, request_chunk_radius, resource_pack_client_response, resource_packs_info, server_to_client_handshake, set_local_player_as_initialized};
+use crate::protocol::game::{client_to_server_handshake, disconnect, login, network_settings, play_status, req_network_settings, request_chunk_radius, resource_pack_client_response, resource_packs_info, server_to_client_handshake, set_local_player_as_initialized, text};
 use crate::protocol::game_packet::GamePacket;
 use crate::protocol::packet_ids::{PacketType, MAGIC};
 use crate::protocol::{acknowledge, conn_req, conn_req_accepted, connected_ping, connected_pong, frame_set, game_packet, incompatible_protocol, new_incoming_conn, open_conn_reply1, open_conn_reply2, open_conn_req1, open_conn_req2};
@@ -46,8 +46,8 @@ pub struct Client {
     encryption_enabled: bool
 }
 
-pub async fn create(target_address: String, target_port: u16, client_version: &'static str, debug: bool) -> Option<Client> {
-    let mut bedrock = bedrock::new(client_version.to_string(), false);
+pub async fn create(target_address: String, target_port: u16, client_version: String, debug: bool) -> Option<Client> {
+    let mut bedrock = bedrock::new(client_version, false);
     if !bedrock.auth().await { return None; }
     let mut rng = rand::thread_rng();
     Option::from(Client{
@@ -602,6 +602,16 @@ impl Client {
 
                                                             for datagram in datagrams {
                                                                 self.socket.send(&datagram.to_binary()).expect("RequestChunkRadius Packet Fragment could not be sent");
+                                                            }
+                                                        },
+                                                        BedrockPacketType::Text => {
+                                                            let text = text::decode(packet_stream.get_remaining().unwrap());
+                                                            if let Some(source_name) = text.source_name {
+                                                                println!("Source Name: {}", source_name);
+                                                            }
+                                                            println!("Message: {}", text.message);
+                                                            if let Some(parameters) = text.parameters {
+                                                                println!("Parameters: {}", parameters.join(" "));
                                                             }
                                                         },
                                                         _ => {}

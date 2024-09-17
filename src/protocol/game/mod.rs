@@ -11,3 +11,4 @@ pub mod resource_pack_client_response;
 pub mod resource_pack_stack;
 pub mod request_chunk_radius;
 pub mod set_local_player_as_initialized;
+pub mod text;

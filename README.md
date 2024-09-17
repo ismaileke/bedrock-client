@@ -17,7 +17,7 @@ use raknet_client::client;
 
 #[tokio::main]
 async fn main() {
-    let client = client::create("127.0.0.1".to_string(), 19132, "1.21.23", true); // target address, target port, client version, debug mode
+    let client = client::create("127.0.0.1".to_string(), 19132, "1.21.23".to_string(), true); // target address, target port, client version, debug mode
     client.await.unwrap().connect().expect("Target IP Connection Error");
 }
 ```

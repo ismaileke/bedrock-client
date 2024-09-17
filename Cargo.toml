@@ -20,3 +20,6 @@ hex = "0.4.3"
 aes = "0.9.0-pre.2"
 ctr = "0.10.0-pre.2"
 libdeflater = "1.21.0"
+
+#[lib]
+#crate-type = ["cdylib"]*/
