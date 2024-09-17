@@ -411,9 +411,8 @@ impl Client {
                                                         },
                                                         BedrockPacketType::Disconnect => {
                                                             let disconnect = disconnect::decode(stream.get_remaining().unwrap());
-                                                            println!("Disconnect (string): {}", String::from_utf8(stream.get_remaining().unwrap()).unwrap());
                                                             println!("Reason: {}", disconnect.reason);
-                                                            if disconnect.skip_message {
+                                                            if !disconnect.skip_message {
                                                                 println!("Message: {}", disconnect.message.unwrap());
                                                                 println!("Filtered Message: {}", disconnect.filtered_message.unwrap());
                                                             }
@@ -472,6 +471,15 @@ impl Client {
                                                                 self.socket.send(&datagram.to_binary()).expect("ClientToServerHandshake Packet Fragment could not be sent");
                                                             }
                                                         },
+                                                        BedrockPacketType::Disconnect => {
+                                                            let disconnect = disconnect::decode(stream.get_remaining().unwrap());
+                                                            println!("Reason: {}", disconnect.reason);
+                                                            if !disconnect.skip_message {
+                                                                println!("Message: {}", disconnect.message.unwrap());
+                                                                println!("Filtered Message: {}", disconnect.filtered_message.unwrap());
+                                                            }
+                                                            should_stop = true;
+                                                        }
                                                         _ => {}
                                                     }
                                                 }
@@ -614,6 +622,15 @@ impl Client {
                                                                 println!("Parameters: {}", parameters.join(" "));
                                                             }
                                                         },
+                                                        BedrockPacketType::Disconnect => {
+                                                            let disconnect = disconnect::decode(stream.get_remaining().unwrap());
+                                                            println!("Reason: {}", disconnect.reason);
+                                                            if !disconnect.skip_message {
+                                                                println!("Message: {}", disconnect.message.unwrap());
+                                                                println!("Filtered Message: {}", disconnect.filtered_message.unwrap());
+                                                            }
+                                                            should_stop = true;
+                                                        }
                                                         _ => {}
                                                     }
                                                 }

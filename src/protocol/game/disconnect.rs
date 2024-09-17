@@ -13,7 +13,7 @@ pub fn decode(bytes: Vec<u8>) -> Disconnect {
     let reason = stream.get_var_int();//bunda da sıkıntı var gibi?
     let skip_message = stream.get_bool();
 
-    if skip_message {
+    if !skip_message {
         let mut length = stream.get_unsigned_var_int();
         let message = String::from_utf8(stream.get(length).unwrap()).unwrap();
         length = stream.get_unsigned_var_int();
