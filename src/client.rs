@@ -1,3 +1,4 @@
+use crate::*;
 use crate::protocol::*;
 use crate::protocol::game::*;
 use crate::protocol::frame_set::{Datagram, Frame, FrameNumberCache, RELIABLE, RELIABLE_ORDERED, UNRELIABLE};
@@ -20,6 +21,8 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::io::Result;
 use std::net::UdpSocket;
+//use crate::handle_incoming_data;
+
 
 // conn_req update
 // maybe encryption disabled on server? or xbox disabled?
@@ -83,7 +86,7 @@ impl Client {
     }
 
     fn read_raknet_socket(&mut self) {
-        let req1: Vec<u8> = open_conn_req1::new(MAGIC, 11, 1492).encode();
+        let req1: Vec<u8> = open_conn_req1::new(MAGIC, RAKNET_PROTOCOL_VERSION, 1492).encode();
         self.socket.send(&req1).expect("Packet could not be sent");
 
         let mut buffer = vec![0; 2048];
@@ -228,7 +231,7 @@ impl Client {
                                         let frame_two = Datagram::create_frame(connected_ping, UNRELIABLE, &self.frame_number_cache, None);
 
                                         // Request Network Settings Packet
-                                        let request_network_settings = req_network_settings::new(712).encode();
+                                        let request_network_settings = req_network_settings::new(BEDROCK_PROTOCOL_VERSION).encode();
                                         let frame_three = Datagram::create_frame(request_network_settings, RELIABLE_ORDERED, &self.frame_number_cache, None);
 
                                         let datagram = Datagram::create(vec![frame, frame_two, frame_three], &self.frame_number_cache).to_binary();
@@ -369,7 +372,7 @@ impl Client {
                                             let frame_two = Datagram::create_frame(connected_ping, UNRELIABLE, &self.frame_number_cache, None);
 
                                             // Request Network Settings Packet
-                                            let request_network_settings = req_network_settings::new(712).encode();
+                                            let request_network_settings = req_network_settings::new(BEDROCK_PROTOCOL_VERSION).encode();
                                             let frame_three = Datagram::create_frame(request_network_settings, RELIABLE_ORDERED, &self.frame_number_cache, None);
 
                                             let datagram = Datagram::create(vec![frame, frame_two, frame_three], &self.frame_number_cache).to_binary();
@@ -401,7 +404,7 @@ impl Client {
                                                             // LOGIN PACKET
                                                             let pkey = PKey::from_ec_key(self.ec_key.clone()).expect("PKey Error");
                                                             let login_data_detail = login::convert_login_chain(&mut self.chain, pkey, self.target_address.clone(), self.target_port, self.client_guid);
-                                                            let login = login::new(712, login_data_detail[0].clone(), login_data_detail[1].clone()).encode();
+                                                            let login = login::new(BEDROCK_PROTOCOL_VERSION, login_data_detail[0].clone(), login_data_detail[1].clone()).encode();
 
                                                             let datagrams = Datagram::split_packet(login, &mut self.frame_number_cache);
 
@@ -510,21 +513,6 @@ impl Client {
                                                             println!("Must Accept: {}", resource_packs_info.must_accept);
                                                             println!("Has Addons: {}", resource_packs_info.has_addons);
                                                             println!("Has Scripts: {}", resource_packs_info.has_scripts);
-                                                            println!("Force Server Packs: {}", resource_packs_info.force_server_packs);
-                                                            let behaviour_pack_count = resource_packs_info.behaviour_packs.len();
-                                                            println!("Behaviour Pack Count: {}", behaviour_pack_count);
-                                                            for (i, behaviour_pack) in resource_packs_info.behaviour_packs.iter().enumerate() {
-                                                                println!("- Behaviour Pack {} -", i + 1);
-                                                                println!(" - UUID: {}", behaviour_pack.uuid);
-                                                                println!(" - Version: {}", behaviour_pack.version);
-                                                                println!(" - Size Bytes: {}", behaviour_pack.size_bytes);
-                                                                println!(" - Encryption Key: {}", behaviour_pack.encryption_key);
-                                                                println!(" - Sub Pack Name: {}", behaviour_pack.sub_pack_name);
-                                                                println!(" - Content ID: {}", behaviour_pack.content_id);
-                                                                println!(" - Has Scripts: {}", behaviour_pack.has_scripts);
-                                                                println!(" - Is Addon Pack: {}", behaviour_pack.is_addon_pack);
-                                                                println!("--------------------");
-                                                            }
                                                             let resource_pack_count = resource_packs_info.resource_packs.len();
                                                             println!("Resource Pack Count: {}", resource_pack_count);
                                                             for (i, resource_pack) in resource_packs_info.resource_packs.iter().enumerate() {
@@ -561,16 +549,16 @@ impl Client {
                                                                 self.socket.send(&datagram.to_binary()).expect("ResourcePackClientResponse Packet Fragment could not be sent");
                                                             }
 
-                                                        },
-                                                        BedrockPacketType::ResourcePackStack => {
-                                                        },
-                                                        BedrockPacketType::StartGame => {
-                                                        },
-                                                        BedrockPacketType::CreativeContent => {
-                                                        },
-                                                        BedrockPacketType::BiomeDefinitionList => {
-                                                        },
-                                                        BedrockPacketType::LevelChunk => {
+                                                            // CLIENT CACHE STATUS PACKET
+                                                            let client_cache_status = client_cache_status::new(false).encode();
+
+                                                            let game_packet = self.game.encrypt(&client_cache_status);
+
+                                                            let datagrams = Datagram::split_packet(game_packet, &mut self.frame_number_cache);
+
+                                                            for datagram in datagrams {
+                                                                self.socket.send(&datagram.to_binary()).expect("ClientCacheStatus Packet Fragment could not be sent");
+                                                            }
                                                         },
                                                         BedrockPacketType::PlayStatus => {
                                                             let play_status = play_status::decode(packet_stream.get_remaining().unwrap());
@@ -621,6 +609,7 @@ impl Client {
                                                             if let Some(parameters) = text.parameters {
                                                                 println!("Parameters: {}", parameters.join(" "));
                                                             }
+                                                            //handle_incoming_data(text.message.into_bytes());
                                                         },
                                                         BedrockPacketType::Disconnect => {
                                                             let disconnect = disconnect::decode(stream.get_remaining().unwrap());
