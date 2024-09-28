@@ -23,4 +23,4 @@ async fn main() {
 ```
 
 > [!NOTE]
-> It is still in development. I can't develop the project because I don't have time. There are still some shortcomings. This library will be used as a .dll
+> It is still in development. I can't develop the project because I don't have time. There are still some shortcomings.
