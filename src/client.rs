@@ -608,9 +608,23 @@ impl Client {
                                                             println!("Message: {}", text.message);
                                                             if let Some(parameters) = text.parameters {
                                                                 println!("Parameters: {}", parameters.join(" "));
+                                                                //handle_incoming_data(parameters.join(" ").into_bytes());
+                                                            } else {
+                                                                //handle_incoming_data(text.message.into_bytes());
                                                             }
-                                                            //handle_incoming_data(text.message.into_bytes());
+
                                                         },
+                                                        BedrockPacketType::LevelChunk => {
+                                                            let level_chunk = level_chunk::decode(packet_stream.get_remaining().unwrap());
+                                                            println!("Chunk X: {}", level_chunk.chunk_x);
+                                                            println!("Chunk Z: {}", level_chunk.chunk_z);
+                                                            println!("Dimension ID: {}", level_chunk.dimension_id);
+                                                            println!("Sub Chunk Count: {}", level_chunk.sub_chunk_count);
+                                                            println!("Client Sub Chunk Requests Enabled: {}", level_chunk.client_sub_chunk_requests_enabled);
+                                                            println!("Used Blob Hashes: {:?}", level_chunk.used_blob_hashes);
+                                                            println!("Extra Payload: {:?}", level_chunk.extra_payload);
+                                                            //ChunkResolve::new(level_chunk);
+                                                        }
                                                         BedrockPacketType::Disconnect => {
                                                             let disconnect = disconnect::decode(stream.get_remaining().unwrap());
                                                             println!("Reason: {}", disconnect.reason);
