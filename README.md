@@ -22,5 +22,8 @@ async fn main() {
 }
 ```
 
+![serveauth](https://github.com/user-attachments/assets/71936fa9-27c0-4d86-86c2-abb10da68c07)
+
+
 > [!NOTE]
 > It is still in development. I can't develop the project because I don't have time. There are still some shortcomings.
