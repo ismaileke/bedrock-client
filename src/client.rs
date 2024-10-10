@@ -622,7 +622,7 @@ impl Client {
                                                             println!("Sub Chunk Count: {}", level_chunk.sub_chunk_count);
                                                             println!("Client Sub Chunk Requests Enabled: {}", level_chunk.client_sub_chunk_requests_enabled);
                                                             println!("Used Blob Hashes: {:?}", level_chunk.used_blob_hashes);
-                                                            println!("Extra Payload: {:?}", level_chunk.extra_payload);
+                                                            println!("Extra Payload: {:?}", level_chunk.extra_payload.len());
                                                             //ChunkResolve::new(level_chunk);
                                                         }
                                                         BedrockPacketType::Disconnect => {

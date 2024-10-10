@@ -24,7 +24,6 @@ pub fn network_decode(sub_chunk_count: isize, extra_payload: Vec<u8>, air: u32) 
     for i in 0..sub_chunk_count {
         let mut index = i as u8;
         chunk.sub_chunks.insert(index as usize, decode_sub_chunk(&mut chunk_stream, &mut index, &chunk));
-
     }
 
     let mut last: PalettedStorage = PalettedStorage {}; /////////////////////////////////////////
@@ -43,7 +42,7 @@ pub fn network_decode(sub_chunk_count: isize, extra_payload: Vec<u8>, air: u32) 
             }
             b = Some(last);
         }
-        chunk.biomes[i] = b.clone().expect("biomes clone error, fn name: network_decode");
+        chunk.biomes.insert(i, b.clone().expect("biomes clone error, fn name: network_decode"));
     }
 
     chunk

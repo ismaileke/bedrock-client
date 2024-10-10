@@ -88,7 +88,7 @@ impl LevelSettings {
         let is_texture_packs_required = stream.get_bool();
         let count = stream.get_unsigned_var_int();
         let mut game_rules = HashMap::new();
-        for i in 0..count {
+        for _ in 0..count {
             length = stream.get_unsigned_var_int();
             let name = String::from_utf8(stream.get(length).unwrap()).unwrap();
             let _is_player_modifiable = stream.get_bool();

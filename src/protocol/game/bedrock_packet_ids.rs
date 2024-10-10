@@ -200,6 +200,8 @@ pub enum BedrockPacketType {
     JigsawStructureData,
     CurrentStructureFeature,
     ServerboundDiagnostics,
+    CameraAimAssist,
+    ContainerRegistryCleanup,
     Unknown
 }
 
@@ -406,6 +408,8 @@ impl BedrockPacketType {
             0x139 => BedrockPacketType::JigsawStructureData,
             0x13a => BedrockPacketType::CurrentStructureFeature,
             0x13b => BedrockPacketType::ServerboundDiagnostics,
+            0x13c => BedrockPacketType::CameraAimAssist,
+            0x13d => BedrockPacketType::ContainerRegistryCleanup,
             _ => BedrockPacketType::Unknown,
         }
     }
@@ -611,6 +615,8 @@ impl BedrockPacketType {
             BedrockPacketType::JigsawStructureData => 0x139,
             BedrockPacketType::CurrentStructureFeature => 0x13a,
             BedrockPacketType::ServerboundDiagnostics => 0x13b,
+            BedrockPacketType::CameraAimAssist => 0x13c,
+            BedrockPacketType::ContainerRegistryCleanup => 0x13d,
             _ => 0
         }
     }
@@ -798,7 +804,26 @@ impl BedrockPacketType {
             0xc1 => "Request Network Settings",
             0xc2 => "Game Test Request",
             0xc3 => "Game Test Results",
-            0xc4 => "Update Client Input Lock",
+            0xc4 => "Update Client Input Locks",
+            0xc6 => "Camera Presets",
+            0xc7 => "Unlocked Recipes",
+            0x12c => "Camera Instruction",
+            0x12d => "Compressed Biome Definition List",
+            0x12e => "Trim Data",
+            0x12f => "Open Sign",
+            0x130 => "Agent Animation",
+            0x131 => "Refresh Entitlements",
+            0x132 => "Player Toggle Crafter Slot Request",
+            0x133 => "Set Player Inventory Options",
+            0x134 => "Set Hud",
+            0x135 => "Award Achievement",
+            0x136 => "Clientbound Close Form",
+            0x138 => "Serverbound Loading Screen",
+            0x139 => "Jigsaw Structure Data",
+            0x13a => "Current Structure Feature",
+            0x13b => "Serverbound Diagnostics",
+            0x13c => "Camera Aim Assist",
+            0x13d => "Container Registry Cleanup",
             _ => "Unknown Packet"
         }
     }
