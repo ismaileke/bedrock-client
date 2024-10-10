@@ -22,7 +22,7 @@ async fn main() {
 }
 ```
 
-![serveauth](https://github.com/user-attachments/assets/71936fa9-27c0-4d86-86c2-abb10da68c07)
+![raknet-client](https://github.com/user-attachments/assets/7de7d6ac-9235-45ad-a8ed-2a90514237d5)
 
 
 > [!NOTE]
