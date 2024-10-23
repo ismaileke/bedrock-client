@@ -1,7 +1,8 @@
 use binary_utils::binary::Stream;
 
+#[derive(Debug)]
 pub struct NetworkPermissions {
-    disable_client_sounds: bool
+    pub disable_client_sounds: bool
 }
 
 impl NetworkPermissions {

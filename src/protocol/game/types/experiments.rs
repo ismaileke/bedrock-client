@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use binary_utils::binary::Stream;
 
+#[derive(Debug)]
 pub struct Experiments {
     experiments: HashMap<String, bool>,
     has_previously_used_experiments: bool

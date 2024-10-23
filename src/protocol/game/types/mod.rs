@@ -4,3 +4,6 @@ pub mod experiments;
 pub mod education_uri_resource;
 pub mod player_movement_settings;
 pub mod network_permissions;
+pub mod cacheable_nbt;
+pub mod block_palette_entry;
+pub mod item_type_entry;

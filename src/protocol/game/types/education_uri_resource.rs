@@ -1,5 +1,6 @@
 use binary_utils::binary::Stream;
 
+#[derive(Debug)]
 pub struct EducationUriResource {
     button_name: String,
     link_uri: String

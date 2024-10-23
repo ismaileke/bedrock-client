@@ -4,15 +4,16 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-binary-utils = { git = "https://github.com/ismaileke/binary-utils.git", branch = "master"}
-minecraft-auth = { git = "https://github.com/ismaileke/minecraft-auth.git", branch = "master"}
+binary-utils = { git = "https://github.com/ismaileke/binary-utils.git", branch = "master" }
+minecraft-auth = { git = "https://github.com/ismaileke/minecraft-auth.git", branch = "master" }
+mojang-nbt = { git = "https://github.com/ismaileke/mojang-nbt.git", branch = "master" }
 log = "0.4.22"
 rand = "0.9.0-alpha.2"
 tokio = "1.40.0"
 base64 = "0.22.1"
 openssl = "0.10.66"
 serde = { version = "1.0.210", features = ["derive"] }
-serde_json = "1.0.128"
+serde_json = "1.0.131"
 flate2 = "1.0.34"
 chrono = "0.4.38"
 miniz_oxide = "0.8.0"

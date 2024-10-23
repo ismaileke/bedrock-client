@@ -16,3 +16,4 @@ pub mod client_cache_status;
 pub mod level_chunk;
 pub mod start_game;
 pub mod types;
+pub mod serializer;

@@ -4,59 +4,59 @@ use crate::protocol::game::types::education_uri_resource::EducationUriResource;
 use crate::protocol::game::types::experiments::Experiments;
 use crate::protocol::game::types::spawn_settings::SpawnSettings;
 
+#[derive(Debug)]
 pub struct LevelSettings {
-    seed: i64,
-    spawn_settings: SpawnSettings,
-    generator: i32,
-    world_game_mode: i32,
-    hardcore: bool,
-    difficulty: i32,
-    spawn_position: Vec<i32>,
-    has_achievements_disabled: bool,
-    editor_world_type: i32,
-    created_in_editor_mode: bool,
-    exported_from_editor_mode: bool,
-    time: i32,
-    edu_edition_offer: i32,
-    has_edu_features_enabled: bool,
-    edu_product_uuid: String,
-    rain_level: f32,
-    lightning_level: f32,
-    has_confirmed_platform_locked_content: bool,
-    is_multiplayer_game: bool,
-    has_lan_broadcast: bool,
-    xbox_live_broadcast_mode: i32,
-    platform_broadcast_mode: i32,
-    commands_enabled: bool,
-    is_texture_packs_required: bool,
-    game_rules: HashMap<String, u32>,
-    experiments: Experiments,
-    has_bonus_chest_enabled: bool,
-    has_start_with_map_enabled: bool,
-    default_player_permission: i32,
-    server_chunk_tick_radius: u32,
-    has_locked_behavior_pack: bool,
-    has_locked_resource_pack: bool,
-    is_from_locked_world_template: bool,
-    use_msa_gamer_tags_only: bool,
-    is_from_world_template: bool,
-    is_world_template_option_locked: bool,
-    only_spawn_v1_villagers: bool,
-    disable_persona: bool,
-    disable_custom_skins: bool,
-    mute_emote_announcements: bool,
-    vanilla_version: String,
-    limited_world_width: u32,
-    limited_world_length: u32,
-    is_new_nether: bool,
-    edu_shared_uri_resource: EducationUriResource,
-    experimental_gameplay_override: bool,
-    chat_restriction_level: u8,
-    disable_player_interactions: bool,
-    server_identifier: String,
-    world_identifier: String,
-    scenario_identifier: String
-
+    pub seed: i64,
+    pub spawn_settings: SpawnSettings,
+    pub generator: i32,
+    pub world_game_mode: i32,
+    pub hardcore: bool,
+    pub difficulty: i32,
+    pub spawn_position: Vec<i32>,
+    pub has_achievements_disabled: bool,
+    pub editor_world_type: i32,
+    pub created_in_editor_mode: bool,
+    pub exported_from_editor_mode: bool,
+    pub time: i32,
+    pub edu_edition_offer: i32,
+    pub has_edu_features_enabled: bool,
+    pub edu_product_uuid: String,
+    pub rain_level: f32,
+    pub lightning_level: f32,
+    pub has_confirmed_platform_locked_content: bool,
+    pub is_multiplayer_game: bool,
+    pub has_lan_broadcast: bool,
+    pub xbox_live_broadcast_mode: i32,
+    pub platform_broadcast_mode: i32,
+    pub commands_enabled: bool,
+    pub is_texture_packs_required: bool,
+    pub game_rules: HashMap<String, u32>,
+    pub experiments: Experiments,
+    pub has_bonus_chest_enabled: bool,
+    pub has_start_with_map_enabled: bool,
+    pub default_player_permission: i32,
+    pub server_chunk_tick_radius: u32,
+    pub has_locked_behavior_pack: bool,
+    pub has_locked_resource_pack: bool,
+    pub is_from_locked_world_template: bool,
+    pub use_msa_gamer_tags_only: bool,
+    pub is_from_world_template: bool,
+    pub is_world_template_option_locked: bool,
+    pub only_spawn_v1_villagers: bool,
+    pub disable_persona: bool,
+    pub disable_custom_skins: bool,
+    pub mute_emote_announcements: bool,
+    pub vanilla_version: String,
+    pub limited_world_width: u32,
+    pub limited_world_length: u32,
+    pub is_new_nether: bool,
+    pub edu_shared_uri_resource: EducationUriResource,
+    pub experimental_gameplay_override: bool,
+    pub chat_restriction_level: u8,
+    pub disable_player_interactions: bool,
+    pub server_identifier: String,
+    pub world_identifier: String,
+    pub scenario_identifier: String
 }
 
 impl LevelSettings {
@@ -93,6 +93,19 @@ impl LevelSettings {
             let name = String::from_utf8(stream.get(length).unwrap()).unwrap();
             let _is_player_modifiable = stream.get_bool();
             let game_type = stream.get_unsigned_var_int();
+            match game_type {
+                1 => { // Bool Game Rule
+                    stream.get_bool();
+                },
+                2 => { // Int Game Rule
+                    stream.get_unsigned_var_int();
+                },
+                3 => { // Float Game Rule
+                    stream.get_l_float();
+                },
+                _ => { panic!("Unknown game type {}", game_type); }
+            }
+
             game_rules.insert(name, game_type);
         }
         let experiments = Experiments::read(stream);

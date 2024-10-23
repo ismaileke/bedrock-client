@@ -1,5 +1,6 @@
 use binary_utils::binary::Stream;
 
+#[derive(Debug)]
 pub struct SpawnSettings {
     biome_type: u16,
     biome_name: String,

@@ -1,15 +1,15 @@
-use crate::*;
-use crate::protocol::*;
-use crate::protocol::game::*;
 use crate::protocol::frame_set::{Datagram, Frame, FrameNumberCache, RELIABLE, RELIABLE_ORDERED, UNRELIABLE};
 use crate::protocol::game::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::game::play_status::LoginStatus;
+use crate::protocol::game::*;
 use crate::protocol::game_packet::GamePacket;
 use crate::protocol::packet_ids::{PacketType, MAGIC};
+use crate::protocol::*;
 use crate::utils::address::InternetAddress;
-use crate::utils::encryption::Encryption;
 use crate::utils::color_format::COLOR_WHITE;
+use crate::utils::encryption::Encryption;
 use crate::utils::{address, color_format, encryption};
+use crate::*;
 use binary_utils::binary::Stream;
 use chrono::Utc;
 use minecraft_auth::bedrock;
@@ -21,6 +21,8 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::io::Result;
 use std::net::UdpSocket;
+use mojang_nbt::tag::compound_tag::CompoundTag;
+use mojang_nbt::tag::list_tag::ListTag;
 //use crate::handle_incoming_data;
 
 
@@ -587,6 +589,63 @@ impl Client {
                                                                 LoginStatus::LoginFailedEditorVanilla => println!("Status: {}Login Failed Editor Vanilla{}", color_format::COLOR_RED, COLOR_WHITE),
                                                                 LoginStatus::LoginFailedVanillaEditor => println!("Status: {}Login Failed Vanilla Editor{}", color_format::COLOR_RED, COLOR_WHITE),
                                                             }
+                                                        },
+                                                        BedrockPacketType::StartGame => {
+                                                            let start_game = start_game::decode(packet_stream.get_remaining().unwrap());
+                                                            println!("actor_unique_id: {}", start_game.actor_unique_id);
+                                                            println!("actor_runtime_id: {}", start_game.actor_runtime_id);
+                                                            println!("server_software_version: {}", start_game.server_software_version);
+                                                            println!("player_game_mode: {}", start_game.player_game_mode);
+                                                            println!("player_position: {:?}", start_game.player_position);
+                                                            println!("yaw: {}", start_game.yaw);
+                                                            println!("pitch: {}", start_game.pitch);
+                                                            println!("level_settings: {:?}", start_game.level_settings);
+                                                            println!("level_id: {}", start_game.level_id);
+                                                            println!("world_name: {}", start_game.world_name);
+                                                            println!("premium_world_template_id: {}", start_game.premium_world_template_id);
+                                                            println!("is_trial: {}", start_game.is_trial);
+                                                            println!("player_movement_settings: {:?}", start_game.player_movement_settings);
+                                                            println!("current_tick: {}", start_game.current_tick);
+                                                            println!("enchantment_seed: {}", start_game.enchantment_seed);
+
+
+                                                            println!("multiplayer_correlation_id: {}", start_game.multiplayer_correlation_id);
+                                                            println!("enable_new_inventory_system: {}", start_game.enable_new_inventory_system);
+                                                            println!("server_software_version: {}", start_game.server_software_version);
+
+                                                            //println!("player_actor_properties: {}", start_game.player_actor_properties);
+
+                                                            println!("block_palette_checksum: {:?}", start_game.block_palette_checksum);
+                                                            println!("world_template_id: {:?}", start_game.world_template_id);
+                                                            println!("enable_client_side_chunk_generation: {}", start_game.enable_client_side_chunk_generation);
+                                                            println!("block_network_ids_are_hashes: {}", start_game.block_network_ids_are_hashes);
+                                                            println!("network_permissions: {:?}", start_game.network_permissions);
+
+
+                                                            let block_palette = start_game.block_palette;
+                                                            for block in &block_palette {
+                                                                println!("block_name: {}", block.get_name());
+                                                                let root = block.get_states().get_root();
+                                                                //println!("type: {}", root.get_type());
+                                                                let bct = root.as_any().downcast_ref::<CompoundTag>().unwrap();
+
+
+                                                                let vanilla_block_data = bct.get_compound_tag("vanilla_block_data".to_string()).unwrap();
+                                                                let block_id = vanilla_block_data.get_int("block_id").unwrap();
+                                                                println!("Block ID: {}", block_id);
+                                                                /*let menu_category = bct.get_compound_tag("menu_category".to_string()).unwrap();
+                                                                println!("group: {:?}", menu_category.get_string("group").unwrap());
+                                                                println!("category: {:?}", menu_category.get_string("category").unwrap());*/
+                                                            }
+
+                                                            /*let item_table = start_game.item_table;
+                                                            for item in &item_table {
+                                                                println!("-----\nstring_id: {}", item.get_string_id());
+                                                                println!("numeric_id: {}", item.get_numeric_id());
+                                                                println!("component_based: {}", item.is_component_based());
+                                                            }*/
+
+
                                                         },
                                                         BedrockPacketType::AvailableCommands => {
                                                             // REQUEST CHUNK RADIUS PACKET

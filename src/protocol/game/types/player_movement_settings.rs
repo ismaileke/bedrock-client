@@ -1,9 +1,10 @@
 use binary_utils::binary::Stream;
 
+#[derive(Debug)]
 pub struct PlayerMovementSettings {
-    movement_type: i32,
-    rewind_history_size: i32,
-    server_auth_block_breaking: bool
+    pub movement_type: i32,
+    pub rewind_history_size: i32,
+    pub server_auth_block_breaking: bool
 }
 
 impl PlayerMovementSettings {
