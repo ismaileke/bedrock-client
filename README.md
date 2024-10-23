@@ -22,5 +22,8 @@ async fn main() {
 }
 ```
 
+![raknet-client](https://github.com/user-attachments/assets/7de7d6ac-9235-45ad-a8ed-2a90514237d5)
+
+
 > [!NOTE]
 > It is still in development. I can't develop the project because I don't have time. There are still some shortcomings.
