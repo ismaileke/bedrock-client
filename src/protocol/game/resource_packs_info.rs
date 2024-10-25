@@ -4,8 +4,7 @@ pub struct ResourcePacksInfo {
     pub must_accept: bool,
     pub has_addons: bool,
     pub has_scripts: bool,
-    pub resource_packs: Vec<ResourcePack>,
-    pub cdn_urls: Vec<CdnURL>
+    pub resource_packs: Vec<ResourcePack>
 
 }
 
@@ -18,11 +17,7 @@ pub struct ResourcePack {
     pub content_id: String,
     pub has_scripts: bool,
     pub is_addon_pack: bool,
-    pub is_rtx_capable: bool
-}
-
-pub struct CdnURL {
-    pub pack_id: String,
+    pub is_rtx_capable: bool,
     pub cdn_url: String
 }
 
@@ -50,18 +45,11 @@ pub fn decode(bytes: Vec<u8>) -> ResourcePacksInfo {
         let has_scripts = stream.get_bool();
         let is_addon_pack = stream.get_bool();
         let is_rtx_capable = stream.get_bool();
-        resource_packs.push(ResourcePack{ uuid, version, size_bytes, encryption_key, sub_pack_name, content_id, has_scripts, is_addon_pack, is_rtx_capable });
-    }
-
-    let cdn_url_count = stream.get_unsigned_var_int();
-    let mut cdn_urls = Vec::new();
-    for _ in 0..cdn_url_count {
-        let mut length = stream.get_unsigned_var_int();
-        let pack_id = String::from_utf8(stream.get(length).unwrap()).unwrap();
         length = stream.get_unsigned_var_int();
         let cdn_url = String::from_utf8(stream.get(length).unwrap()).unwrap();
-        cdn_urls.push(CdnURL{ pack_id, cdn_url });
+
+        resource_packs.push(ResourcePack{ uuid, version, size_bytes, encryption_key, sub_pack_name, content_id, has_scripts, is_addon_pack, is_rtx_capable, cdn_url });
     }
 
-    ResourcePacksInfo { must_accept, has_addons, has_scripts, resource_packs, cdn_urls }
+    ResourcePacksInfo { must_accept, has_addons, has_scripts, resource_packs }
 }

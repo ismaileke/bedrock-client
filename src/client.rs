@@ -13,6 +13,7 @@ use crate::*;
 use binary_utils::binary::Stream;
 use chrono::Utc;
 use minecraft_auth::bedrock;
+use mojang_nbt::tag::compound_tag::CompoundTag;
 use openssl::base64::decode_block;
 use openssl::ec::EcKey;
 use openssl::pkey::{PKey, Private};
@@ -21,8 +22,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::io::Result;
 use std::net::UdpSocket;
-use mojang_nbt::tag::compound_tag::CompoundTag;
-use mojang_nbt::tag::list_tag::ListTag;
+use mojang_nbt::tag::tag::Tag;
 //use crate::handle_incoming_data;
 
 
@@ -62,7 +62,7 @@ pub async fn create(target_address: String, target_port: u16, client_version: St
         client_guid: rng.gen_range(10000..100000),
         chain: bedrock.get_chain_data(),
         ec_key: bedrock.get_ec_key()?,
-        game: GamePacket{encryption: Encryption::fake_gcm(vec![23, 1, 5, 33, 7, 1, 24, 0, 12, 32, 2, 15, 23, 1, 5, 33, 7, 1, 24, 0, 12, 32, 2, 15, 23, 1, 5, 33, 7, 1, 24, 0]).unwrap()}, // that's random ^.^
+        game: GamePacket{ encryption: Encryption::fake_gcm(vec![23, 1, 5, 33, 7, 1, 24, 0, 12, 32, 2, 15, 23, 1, 5, 33, 7, 1, 24, 0, 12, 32, 2, 15, 23, 1, 5, 33, 7, 1, 24, 0]).unwrap() }, // that's random ^.^
         frame_number_cache: frame_set::start_number_cache(),
         last_received_packets: HashMap::new(),
         last_received_fragment_packets: HashMap::new(),
@@ -529,15 +529,8 @@ impl Client {
                                                                 println!(" - Has Scripts: {}", resource_pack.has_scripts);
                                                                 println!(" - Is Addon Pack: {}", resource_pack.is_addon_pack);
                                                                 println!(" - Is RTX Capable: {}", resource_pack.is_rtx_capable);
+                                                                println!(" - CDN URL: {}", resource_pack.cdn_url);
                                                                 println!("-------------------");
-                                                            }
-                                                            let cdn_url_count = resource_packs_info.cdn_urls.len();
-                                                            println!("CDN URL Count: {}", cdn_url_count);
-                                                            for (i, cdn_url) in resource_packs_info.cdn_urls.iter().enumerate() {
-                                                                println!("- CDN URL {} -", i);
-                                                                println!(" - Pack ID: {}", cdn_url.pack_id);
-                                                                println!(" - CDN URL: {}", cdn_url.cdn_url);
-                                                                println!("-------------");
                                                             }
 
                                                             // RESOURCE PACK CLIENT RESPONSE PACKET {COMPLETED}
@@ -592,6 +585,13 @@ impl Client {
                                                         },
                                                         BedrockPacketType::StartGame => {
                                                             let start_game = start_game::decode(packet_stream.get_remaining().unwrap());
+
+                                                            if start_game.block_network_ids_are_hashes {
+
+                                                            } else {
+
+                                                            }
+
                                                             println!("actor_unique_id: {}", start_game.actor_unique_id);
                                                             println!("actor_runtime_id: {}", start_game.actor_runtime_id);
                                                             println!("server_software_version: {}", start_game.server_software_version);
@@ -608,6 +608,43 @@ impl Client {
                                                             println!("current_tick: {}", start_game.current_tick);
                                                             println!("enchantment_seed: {}", start_game.enchantment_seed);
 
+                                                            let block_palette = start_game.block_palette;
+                                                            for block in &block_palette {
+                                                                println!("block_name: {}", block.get_name());
+                                                                let root = block.get_states().get_root();
+
+                                                                let bct = root.as_any().downcast_ref::<CompoundTag>().unwrap();
+                                                                /*for (key, value) in bct.get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
+                                                                    println!(" - {} - {}", key, value.get_type());
+                                                                }*/
+
+
+
+                                                                let vanilla_block_data = bct.get_list_tag("properties".to_string());
+                                                                if let Some(data) = vanilla_block_data {
+                                                                    for value in data.get_value().downcast_ref::<Vec<Box<dyn Tag>>>().unwrap() {
+                                                                        let c_tag = value.as_any().downcast_ref::<CompoundTag>().unwrap();
+                                                                        println!("----------");
+                                                                        println!("name: {}", c_tag.get_string("name").unwrap());
+                                                                        let list_enum = c_tag.get_list_tag("enum".to_string()).unwrap();
+
+                                                                        for value in list_enum.get_value().downcast_ref::<Vec<Box<dyn Tag>>>().unwrap() {
+                                                                            let inner_value = value.get_value();
+                                                                            if let Some(v) = inner_value.downcast_ref::<String>() {
+                                                                                println!("enum: value - String({})", v);
+                                                                            } else if let Some(v) = inner_value.downcast_ref::<u32>() {
+                                                                                println!("enum: value - u32({})", v);
+                                                                            } else if let Some(v) = inner_value.downcast_ref::<bool>() {
+                                                                                println!("enum: value - bool({})", v);
+                                                                            } else {
+                                                                                println!("enum: value - Unknown type");
+                                                                            }
+                                                                        }
+                                                                        println!("----------");
+                                                                    }
+                                                                }
+
+                                                            }
 
                                                             println!("multiplayer_correlation_id: {}", start_game.multiplayer_correlation_id);
                                                             println!("enable_new_inventory_system: {}", start_game.enable_new_inventory_system);
@@ -621,31 +658,12 @@ impl Client {
                                                             println!("block_network_ids_are_hashes: {}", start_game.block_network_ids_are_hashes);
                                                             println!("network_permissions: {:?}", start_game.network_permissions);
 
-
-                                                            let block_palette = start_game.block_palette;
-                                                            for block in &block_palette {
-                                                                println!("block_name: {}", block.get_name());
-                                                                let root = block.get_states().get_root();
-                                                                //println!("type: {}", root.get_type());
-                                                                let bct = root.as_any().downcast_ref::<CompoundTag>().unwrap();
-
-
-                                                                let vanilla_block_data = bct.get_compound_tag("vanilla_block_data".to_string()).unwrap();
-                                                                let block_id = vanilla_block_data.get_int("block_id").unwrap();
-                                                                println!("Block ID: {}", block_id);
-                                                                /*let menu_category = bct.get_compound_tag("menu_category".to_string()).unwrap();
-                                                                println!("group: {:?}", menu_category.get_string("group").unwrap());
-                                                                println!("category: {:?}", menu_category.get_string("category").unwrap());*/
-                                                            }
-
                                                             /*let item_table = start_game.item_table;
                                                             for item in &item_table {
                                                                 println!("-----\nstring_id: {}", item.get_string_id());
                                                                 println!("numeric_id: {}", item.get_numeric_id());
                                                                 println!("component_based: {}", item.is_component_based());
                                                             }*/
-
-
                                                         },
                                                         BedrockPacketType::AvailableCommands => {
                                                             // REQUEST CHUNK RADIUS PACKET
