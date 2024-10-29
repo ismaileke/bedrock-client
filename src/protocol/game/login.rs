@@ -1,5 +1,5 @@
 use crate::protocol::game::bedrock_packet_ids::BedrockPacketType;
-use crate::protocol::game_packet;
+use crate::protocol::game_packet::GamePacket;
 use crate::utils::encryption::Encryption;
 use binary_utils::binary::Stream;
 use chrono::Utc;
@@ -40,7 +40,7 @@ impl Login {
         compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
         compress_stream.put(stream.get_buffer());
 
-        main_stream.put(game_packet::compress(&compress_stream.get_buffer()));
+        main_stream.put(GamePacket::compress(&compress_stream.get_buffer()));
 
         main_stream.get_buffer()
     }

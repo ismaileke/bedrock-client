@@ -7,13 +7,13 @@ pub struct ConnReq {
     secure: bool
 }
 
-pub fn new(client_guid: i64, request_time: i64, secure: bool) -> ConnReq {
-    ConnReq{ client_guid, request_time, secure }
-}
-
 impl ConnReq {
-    pub fn encode(&self) -> Vec<u8> {
 
+    pub fn new(client_guid: i64, request_time: i64, secure: bool) -> ConnReq {
+        ConnReq{ client_guid, request_time, secure }
+    }
+
+    pub fn encode(&self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
 
         stream.put_byte(PacketType::get_byte(PacketType::ConnReq));

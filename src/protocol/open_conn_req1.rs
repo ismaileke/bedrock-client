@@ -7,11 +7,12 @@ pub struct OpenConnReq1 {
     mtu_size: u16
 }
 
-pub fn new(magic: [u8; 16], protocol: u8, mtu_size: u16) -> OpenConnReq1 {
-    OpenConnReq1{ magic, protocol, mtu_size }
-}
-
 impl OpenConnReq1 {
+
+    pub fn new(magic: [u8; 16], protocol: u8, mtu_size: u16) -> OpenConnReq1 {
+        OpenConnReq1{ magic, protocol, mtu_size }
+    }
+
     pub fn encode(&self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
         stream.put_byte(PacketType::get_byte(PacketType::OpenConnReq1));

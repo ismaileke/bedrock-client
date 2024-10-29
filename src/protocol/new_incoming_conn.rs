@@ -9,11 +9,12 @@ pub struct NewIncomingConn {
     pub pong_time: i64
 }
 
-pub fn new(server_address: InternetAddress, system_addresses: [InternetAddress; 20], ping_time: i64, pong_time: i64) -> NewIncomingConn {
-    NewIncomingConn{ server_address, system_addresses, ping_time, pong_time }
-}
-
 impl NewIncomingConn {
+
+    pub fn new(server_address: InternetAddress, system_addresses: [InternetAddress; 20], ping_time: i64, pong_time: i64) -> NewIncomingConn {
+        NewIncomingConn{ server_address, system_addresses, ping_time, pong_time }
+    }
+
     pub fn encode(&self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
 

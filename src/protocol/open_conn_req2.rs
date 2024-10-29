@@ -11,11 +11,12 @@ pub struct OpenConnReq2 {
     client_guid: i64
 }
 
-pub fn new(magic: [u8;16], server_address: InternetAddress, cookie: Option<u32>, client_supports_security: bool, mtu: u16, client_guid: i64) -> OpenConnReq2 {
-    OpenConnReq2{ magic, server_address, cookie, client_supports_security, mtu, client_guid }
-}
-
 impl OpenConnReq2 {
+
+    pub fn new(magic: [u8;16], server_address: InternetAddress, cookie: Option<u32>, client_supports_security: bool, mtu: u16, client_guid: i64) -> OpenConnReq2 {
+        OpenConnReq2{ magic, server_address, cookie, client_supports_security, mtu, client_guid }
+    }
+
     pub fn encode(&self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
 
