@@ -152,7 +152,6 @@ impl Client {
                         self.last_received_sequence_number = seq;
                     }
 
-
                     let mut sorted_reliable_frame_index: Vec<i32> = self.last_received_packets
                         .keys()
                         .cloned()
@@ -517,6 +516,7 @@ impl Client {
                                     },
                                     PacketType::DisconnectionNotification => {
                                         println!("{}Disconnect Notification Packet Received{}", color_format::COLOR_RED, COLOR_WHITE);
+                                        should_stop = true;
                                     }
                                     _ => {}
                                 }

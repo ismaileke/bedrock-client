@@ -202,6 +202,8 @@ pub enum BedrockPacketType {
     ServerboundDiagnostics,
     CameraAimAssist,
     ContainerRegistryCleanup,
+    MovementEffect,
+    SetMovementAuthority,
     Unknown
 }
 
@@ -410,6 +412,8 @@ impl BedrockPacketType {
             0x13b => BedrockPacketType::ServerboundDiagnostics,
             0x13c => BedrockPacketType::CameraAimAssist,
             0x13d => BedrockPacketType::ContainerRegistryCleanup,
+            0x13e => BedrockPacketType::MovementEffect,
+            0x13f => BedrockPacketType::SetMovementAuthority,
             _ => BedrockPacketType::Unknown,
         }
     }
@@ -617,6 +621,8 @@ impl BedrockPacketType {
             BedrockPacketType::ServerboundDiagnostics => 0x13b,
             BedrockPacketType::CameraAimAssist => 0x13c,
             BedrockPacketType::ContainerRegistryCleanup => 0x13d,
+            BedrockPacketType::MovementEffect => 0x13e,
+            BedrockPacketType::SetMovementAuthority => 0x13f,
             _ => 0
         }
     }
@@ -824,6 +830,8 @@ impl BedrockPacketType {
             0x13b => "Serverbound Diagnostics",
             0x13c => "Camera Aim Assist",
             0x13d => "Container Registry Cleanup",
+            0x13e => "Movement Effect",
+            0x13f => "Set Movement Authority",
             _ => "Unknown Packet"
         }
     }
