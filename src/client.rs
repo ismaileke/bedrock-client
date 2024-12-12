@@ -19,7 +19,7 @@ use openssl::ec::EcKey;
 use openssl::pkey::{PKey, Private};
 use rand::Rng;
 use serde_json::Value;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::io::Result;
 use std::net::UdpSocket;
 use mojang_nbt::tag::tag::Tag;
@@ -33,7 +33,7 @@ use crate::protocol::open_conn_reply1::OpenConnReply1;
 use crate::protocol::open_conn_reply2::OpenConnReply2;
 use crate::protocol::open_conn_req1::OpenConnReq1;
 use crate::protocol::open_conn_req2::OpenConnReq2;
-use crate::utils::chunk::block::{BlockType, PropertyValues};
+use crate::utils::chunk::block::{BlockMapBuilder, BlockType, PropertyValues};
 //use crate::handle_incoming_data;
 
 
@@ -63,6 +63,7 @@ pub struct Client {
 }
 
 pub async fn create(target_address: String, target_port: u16, client_version: String, debug: bool) -> Option<Client> {
+    //block::vanilla_block_map(false, &vec![]);
     let mut bedrock = bedrock::new(client_version, false);
     if !bedrock.auth().await { return None; }
     let mut rng = rand::thread_rng();
@@ -401,11 +402,16 @@ impl Client {
                                                     println!("current_tick: {}", start_game.current_tick);
                                                     println!("enchantment_seed: {}", start_game.enchantment_seed);
 
+                                                    //block::vanilla_block_map();
+
+                                                    let mut builder = BlockMapBuilder::new();
+
                                                     let block_palette = start_game.block_palette;
                                                     for block in &block_palette {
 
+                                                        println!("Block Name: {}", block.get_name().clone());
                                                         let mut block_type: BlockType = BlockType::new(block.get_name());
-                                                        let mut block_properties: HashMap<String, PropertyValues> = HashMap::new();
+                                                        let mut block_properties: BTreeMap<String, PropertyValues> = BTreeMap::new();
 
                                                         let root = block.get_states().get_root();
                                                         let bct = root.as_any().downcast_ref::<CompoundTag>().unwrap();
@@ -420,6 +426,7 @@ impl Client {
                                                                 let c_tag = value.as_any().downcast_ref::<CompoundTag>().unwrap();
 
                                                                 let property_name = c_tag.get_string("name").unwrap();
+                                                                println!(" - Property name: {}", property_name);
                                                                 let list_enum = c_tag.get_list_tag("enum".to_string()).unwrap();
 
                                                                 let mut strings = Vec::new();
@@ -428,10 +435,13 @@ impl Client {
                                                                 for value in list_enum.get_value().downcast_ref::<Vec<Box<dyn Tag>>>().unwrap() {
                                                                     let inner_value = value.get_value();
                                                                     if let Some(v) = inner_value.downcast_ref::<String>() {
+                                                                        println!(" - Enum (String): {}", v);
                                                                         strings.push(v.to_string());
                                                                     } else if let Some(v) = inner_value.downcast_ref::<u32>() {
+                                                                        println!(" - Enum (u32): {}", v);
                                                                         ints.push(v.clone());
                                                                     } else if let Some(v) = inner_value.downcast_ref::<bool>() {
+                                                                        println!(" - Enum (bool): {}", v);
                                                                         bools.push(v.clone());
                                                                     } else {
                                                                         println!("enum: value - Unknown type");
@@ -442,10 +452,13 @@ impl Client {
                                                                 block_properties.insert(property_name, enums);
                                                                 block_type.properties = block_properties.clone();
 
+                                                                builder.insert_block(block_type.clone());
                                                             }
                                                         }
 
                                                     }
+
+                                                    let _block_map = builder.build();
 
                                                     println!("multiplayer_correlation_id: {}", start_game.multiplayer_correlation_id);
                                                     println!("enable_new_inventory_system: {}", start_game.enable_new_inventory_system);
