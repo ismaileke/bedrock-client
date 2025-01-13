@@ -1,5 +1,6 @@
 use crate::protocol::game::bedrock_packet_ids::BedrockPacketType;
 use binary_utils::binary::Stream;
+use uuid::Uuid;
 
 pub const NONE: u8 = 0;
 pub const REFUSED: u8 = 1;
@@ -9,10 +10,10 @@ pub const COMPLETED: u8 = 4;
 
 pub struct ResourcePackClientResponse {
     status: u8,
-    pack_ids: Vec<String>
+    pack_ids: Vec<Uuid>
 }
 
-pub fn new(status: u8, pack_ids: Vec<String>) -> ResourcePackClientResponse {
+pub fn new(status: u8, pack_ids: Vec<Uuid>) -> ResourcePackClientResponse {
     ResourcePackClientResponse{ status, pack_ids }
 }
 
@@ -27,7 +28,7 @@ impl ResourcePackClientResponse {
         for pack_id in &self.pack_ids {
             let pack_id_as_bytes = pack_id.clone().into_bytes();
             stream.put_unsigned_var_int(pack_id_as_bytes.len() as u32);
-            stream.put(pack_id_as_bytes);
+            stream.put(Vec::from(pack_id_as_bytes));
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);

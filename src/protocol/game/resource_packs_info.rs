@@ -1,4 +1,5 @@
 use binary_utils::binary::Stream;
+use uuid::Uuid;
 
 pub struct ResourcePacksInfo {
     pub must_accept: bool,
@@ -11,7 +12,7 @@ pub struct ResourcePacksInfo {
 }
 
 pub struct ResourcePack {
-    pub uuid: Vec<u8>,
+    pub uuid: Uuid,
     pub version: String,
     pub size_bytes: i64,
     pub encryption_key: String,
@@ -37,7 +38,7 @@ pub fn decode(bytes: Vec<u8>) -> ResourcePacksInfo {
     let resource_pack_count = stream.get_l_short();
     let mut resource_packs = Vec::new();
     for _ in 0..resource_pack_count {
-        let uuid = stream.get(16).unwrap();
+        let uuid = Uuid::from_slice(&stream.get(16).unwrap()).unwrap();
         let mut length = stream.get_unsigned_var_int();
         let version = String::from_utf8(stream.get(length).unwrap()).unwrap();
         let size_bytes = stream.get_l_long();
