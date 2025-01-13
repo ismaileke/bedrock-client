@@ -1,9 +1,9 @@
 #[cfg(test)]
 
 mod tests {
-    extern crate raknet_client;
+    extern crate bedrock_client;
 
-    use raknet_client::client;
+    use bedrock_client::client;
 
     #[tokio::test]
     async fn test() {

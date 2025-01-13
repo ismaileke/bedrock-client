@@ -1,5 +1,5 @@
 [package]
-name = "raknet-client"
+name = "bedrock-client"
 version = "0.1.0"
 edition = "2021"
 
