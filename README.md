@@ -1,5 +1,5 @@
-# raknet-client
-RakNet Client written in Rust.
+# bedrock-client
+Bedrock Client written in Rust.
 
 ## Usage
 
@@ -7,7 +7,7 @@ RakNet Client written in Rust.
 ```css
 [dependencies]
 raknet-client = { git = "https://github.com/ismaileke/raknet-client.git", branch = "master" }
-tokio = "1.41.0"
+tokio = "1.43.0"
 ```
 
 
@@ -22,8 +22,10 @@ async fn main() {
 }
 ```
 
-![raknet-client](https://github.com/user-attachments/assets/7de7d6ac-9235-45ad-a8ed-2a90514237d5)
+![bedrock-client](https://github.com/user-attachments/assets/7de7d6ac-9235-45ad-a8ed-2a90514237d5)
 
 
 > [!NOTE]
-> It is still in development. I can't develop the project because I don't have time. There are still some shortcomings.
+> This project is mainly designed for [Abyssal Eclipse](https://github.com/ismaileke/abyssal-eclipse), but you can get ideas and develop something from the code I wrote.
+>
+> It is still in development. I can't develop the project because I don't have time. Access to the servers is generally successful. I need to create the Chunk system for [Abyssal Eclipse](https://github.com/ismaileke/abyssal-eclipse).
