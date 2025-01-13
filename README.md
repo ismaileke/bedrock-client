@@ -6,14 +6,14 @@ Bedrock Client written in Rust.
 📄Cargo.toml
 ```css
 [dependencies]
-raknet-client = { git = "https://github.com/ismaileke/raknet-client.git", branch = "master" }
+bedrock-client = { git = "https://github.com/ismaileke/bedrock-client.git", branch = "master" }
 tokio = "1.43.0"
 ```
 
 
 📄main.rs
 ```rust
-use raknet_client::client;
+use bedrock_client::client;
 
 #[tokio::main]
 async fn main() {
