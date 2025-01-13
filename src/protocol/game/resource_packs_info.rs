@@ -4,12 +4,14 @@ pub struct ResourcePacksInfo {
     pub must_accept: bool,
     pub has_addons: bool,
     pub has_scripts: bool,
+    pub world_template_id: Vec<u8>,
+    pub world_template_version: String,
     pub resource_packs: Vec<ResourcePack>
 
 }
 
 pub struct ResourcePack {
-    pub uuid: String,
+    pub uuid: Vec<u8>,
     pub version: String,
     pub size_bytes: i64,
     pub encryption_key: String,
@@ -28,12 +30,15 @@ pub fn decode(bytes: Vec<u8>) -> ResourcePacksInfo {
     let has_addons = stream.get_bool();
     let has_scripts = stream.get_bool();
 
+    let world_template_id = stream.get(16).unwrap();
+    let length = stream.get_unsigned_var_int();
+    let world_template_version = String::from_utf8(stream.get(length).unwrap()).unwrap();
+
     let resource_pack_count = stream.get_l_short();
     let mut resource_packs = Vec::new();
     for _ in 0..resource_pack_count {
+        let uuid = stream.get(16).unwrap();
         let mut length = stream.get_unsigned_var_int();
-        let uuid = String::from_utf8(stream.get(length).unwrap()).unwrap();
-        length = stream.get_unsigned_var_int();
         let version = String::from_utf8(stream.get(length).unwrap()).unwrap();
         let size_bytes = stream.get_l_long();
         length = stream.get_unsigned_var_int();
@@ -51,5 +56,5 @@ pub fn decode(bytes: Vec<u8>) -> ResourcePacksInfo {
         resource_packs.push(ResourcePack{ uuid, version, size_bytes, encryption_key, sub_pack_name, content_id, has_scripts, is_addon_pack, is_rtx_capable, cdn_url });
     }
 
-    ResourcePacksInfo { must_accept, has_addons, has_scripts, resource_packs }
+    ResourcePacksInfo { must_accept, has_addons, has_scripts, world_template_id, world_template_version, resource_packs }
 }

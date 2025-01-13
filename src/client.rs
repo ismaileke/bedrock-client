@@ -23,6 +23,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::io::Result;
 use std::net::UdpSocket;
 use mojang_nbt::tag::tag::Tag;
+use uuid::Uuid;
 use crate::protocol::acknowledge::Acknowledge;
 use crate::protocol::conn_req::ConnReq;
 use crate::protocol::conn_req_accepted::ConnReqAccepted;
@@ -315,12 +316,14 @@ impl Client {
                                                     println!("Must Accept: {}", resource_packs_info.must_accept);
                                                     println!("Has Addons: {}", resource_packs_info.has_addons);
                                                     println!("Has Scripts: {}", resource_packs_info.has_scripts);
+                                                    println!("World Template ID (Vec<u8>): {:?}", resource_packs_info.world_template_id);
+                                                    println!("World Template Version: {}", resource_packs_info.world_template_version);
                                                     let resource_pack_count = resource_packs_info.resource_packs.len();
                                                     println!("Resource Pack Count: {}", resource_pack_count);
                                                     for (i, resource_pack) in resource_packs_info.resource_packs.iter().enumerate() {
-                                                        rp_uuids.push(resource_pack.uuid.clone());
+                                                        rp_uuids.push(Uuid::from_slice(&resource_pack.uuid.clone()).unwrap());
                                                         println!("- Resource Pack {} -", i + 1);
-                                                        println!(" - UUID: {}", resource_pack.uuid);
+                                                        println!(" - UUID (Vec<u8>): {:?}", resource_pack.uuid);
                                                         println!(" - Version: {}", resource_pack.version);
                                                         println!(" - Size Bytes: {}", resource_pack.size_bytes);
                                                         println!(" - Encryption Key: {}", resource_pack.encryption_key);

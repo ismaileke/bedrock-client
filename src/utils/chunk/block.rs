@@ -1,15 +1,6 @@
-use crate::utils::color_format::{COLOR_GREEN, COLOR_LIGHT_PURPLE, COLOR_WHITE};
-use binary_utils::binary::Stream;
-use flate2::read::GzDecoder;
-use mojang_nbt::base_nbt_serializer::BaseNBTSerializer;
-use mojang_nbt::big_endian_nbt_serializer::BigEndianNBTSerializer;
-use mojang_nbt::tag::compound_tag::CompoundTag;
-use mojang_nbt::tag::tag::Tag;
 use std::any::{Any, TypeId};
 use std::collections::{BTreeMap, HashMap, HashSet};
-use std::fs::File;
 use std::hash::{Hash, Hasher};
-use std::io::Read;
 
 #[derive(Eq, PartialEq, Clone)]
 pub struct BlockType {
