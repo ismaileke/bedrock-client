@@ -24,6 +24,7 @@ async fn main() {
 
 ![bedrock-client](https://github.com/user-attachments/assets/7de7d6ac-9235-45ad-a8ed-2a90514237d5)
 
+![Alt](https://repobeats.axiom.co/api/embed/70276ac33a6a218bad362509eacf217169042d47.svg "Repobeats analytics image")
 
 > [!NOTE]
 > This project is mainly designed for [Abyssal Eclipse](https://github.com/ismaileke/abyssal-eclipse), but you can get ideas and develop something from the code I wrote.
