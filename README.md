@@ -4,6 +4,8 @@
 
 [![latest release](https://shields.io/github/v/release/ismaileke/bedrock-client)](https://github.com/ismaileke/bedrock-client/releases/latest)
 ![GitHub License](https://img.shields.io/github/license/ismaileke/bedrock-client)
+![GitHub Downloads](https://img.shields.io/github/downloads/ismaileke/bedrock-client/total)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ismaileke/bedrock-client/rust.yml)
 
 </div>
 
