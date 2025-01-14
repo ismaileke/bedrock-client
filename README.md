@@ -3,6 +3,7 @@
 # 🦀 Bedrock Client
 
 [![latest release](https://shields.io/github/v/release/ismaileke/bedrock-client)](https://github.com/ismaileke/bedrock-client/releases/latest)
+![GitHub License](https://img.shields.io/github/license/ismaileke/bedrock-client)
 
 </div>
 
