@@ -5,7 +5,7 @@ pub struct ResourcePacksInfo {
     pub must_accept: bool,
     pub has_addons: bool,
     pub has_scripts: bool,
-    pub world_template_id: Vec<u8>,
+    pub world_template_id: Uuid,
     pub world_template_version: String,
     pub resource_packs: Vec<ResourcePack>
 
@@ -31,7 +31,7 @@ pub fn decode(bytes: Vec<u8>) -> ResourcePacksInfo {
     let has_addons = stream.get_bool();
     let has_scripts = stream.get_bool();
 
-    let world_template_id = stream.get(16).unwrap();
+    let world_template_id = Uuid::from_slice(&stream.get(16).unwrap()).unwrap();
     let length = stream.get_unsigned_var_int();
     let world_template_version = String::from_utf8(stream.get(length).unwrap()).unwrap();
 

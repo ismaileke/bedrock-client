@@ -49,6 +49,7 @@ pub struct Client {
     target_address: String,
     target_port: u16,
     client_guid: i64,
+    client_version: String,
     chain: Vec<String>,
     ec_key: EcKey<Private>,
     game: GamePacket,
@@ -64,7 +65,7 @@ pub struct Client {
 
 pub async fn create(target_address: String, target_port: u16, client_version: String, debug: bool) -> Option<Client> {
     //block::vanilla_block_map(false, &vec![]);
-    let mut bedrock = bedrock::new(client_version, false);
+    let mut bedrock = bedrock::new(client_version.clone(), false);
     if !bedrock.auth().await { return None; }
     let mut rng = rand::thread_rng();
     Option::from(Client{
@@ -72,6 +73,7 @@ pub async fn create(target_address: String, target_port: u16, client_version: St
         target_address,
         target_port,
         client_guid: rng.gen_range(10000..100000),
+        client_version,
         chain: bedrock.get_chain_data(),
         ec_key: bedrock.get_ec_key()?,
         game: GamePacket::new(None, false),
@@ -261,11 +263,13 @@ impl Client {
                                                     println!("Enable Client Throttling: {}", network_settings.enable_client_throttling);
                                                     println!("Client Throttle Threshold: {}", network_settings.client_throttle_threshold);
                                                     println!("Client Throttle Scalar: {}", network_settings.client_throttle_scalar);
+
+                                                    self.game = GamePacket::new(None, true);
                                                     self.compression_enabled = true;
 
                                                     // LOGIN PACKET
                                                     let pkey = PKey::from_ec_key(self.ec_key.clone()).expect("PKey Error");
-                                                    let login_data_detail = login::convert_login_chain(&mut self.chain, pkey, self.target_address.clone(), self.target_port, self.client_guid);
+                                                    let login_data_detail = login::convert_login_chain(&mut self.chain, pkey, self.target_address.clone(), self.target_port, self.client_guid, self.client_version.clone());
                                                     let login = login::new(BEDROCK_PROTOCOL_VERSION, login_data_detail[0].clone(), login_data_detail[1].clone()).encode();
 
                                                     let datagrams = Datagram::split_packet(login, &mut self.frame_number_cache);
@@ -277,7 +281,7 @@ impl Client {
                                                 BedrockPacketType::ServerToClientHandshake => {
                                                     let s_to_c_handshake = server_to_client_handshake::decode(packet_stream.get_remaining().unwrap());
                                                     let jwt = String::from_utf8(s_to_c_handshake.jwt).unwrap();
-                                                    println!("JWT: {:?}", jwt);
+                                                    println!("JWT: {}", jwt);
                                                     let jwt_split: Vec<&str> = jwt.split('.').collect();
 
                                                     let jwt_header = Encryption::b64_url_decode(jwt_split[0]).unwrap();
@@ -315,7 +319,7 @@ impl Client {
                                                     println!("Must Accept: {}", resource_packs_info.must_accept);
                                                     println!("Has Addons: {}", resource_packs_info.has_addons);
                                                     println!("Has Scripts: {}", resource_packs_info.has_scripts);
-                                                    println!("World Template ID (Vec<u8>): {:?}", resource_packs_info.world_template_id);
+                                                    println!("World Template ID: {}", resource_packs_info.world_template_id);
                                                     println!("World Template Version: {}", resource_packs_info.world_template_version);
                                                     let resource_pack_count = resource_packs_info.resource_packs.len();
                                                     println!("Resource Pack Count: {}", resource_pack_count);
