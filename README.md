@@ -2,6 +2,8 @@
     
 # 🦀 Bedrock Client
 
+[![latest release](https://shields.io/github/v/release/ismaileke/bedrock-client)](https://github.com/ismaileke/bedrock-client/releases/latest)
+
 </div>
 
 ## ⚙️ Demo
@@ -33,8 +35,7 @@ async fn main() {
 ```
 
 
-
-![Alt](https://repobeats.axiom.co/api/embed/70276ac33a6a218bad362509eacf217169042d47.svg "Repobeats analytics image")
+![github stats](https://repobeats.axiom.co/api/embed/70276ac33a6a218bad362509eacf217169042d47.svg "Repobeats analytics image")
 
 > [!NOTE]
 > This project is mainly designed for [Abyssal Eclipse](https://github.com/ismaileke/abyssal-eclipse), but you can get ideas and develop something from the code I wrote.
