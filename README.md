@@ -1,7 +1,17 @@
-# bedrock-client
-Bedrock Client written in Rust.
+<div align="center">
+    
+# 🦀 Bedrock Client
 
-## Usage
+</div>
+
+## ⚙️ Demo
+<div align="center">
+    
+![bedrock-client](https://github.com/user-attachments/assets/7de7d6ac-9235-45ad-a8ed-2a90514237d5)
+
+</div>
+
+## 🧩 Usage
 
 📄Cargo.toml
 ```css
@@ -22,7 +32,7 @@ async fn main() {
 }
 ```
 
-![bedrock-client](https://github.com/user-attachments/assets/7de7d6ac-9235-45ad-a8ed-2a90514237d5)
+
 
 ![Alt](https://repobeats.axiom.co/api/embed/70276ac33a6a218bad362509eacf217169042d47.svg "Repobeats analytics image")
 
