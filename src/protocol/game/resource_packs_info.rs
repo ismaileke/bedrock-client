@@ -8,7 +8,6 @@ pub struct ResourcePacksInfo {
     pub world_template_id: Uuid,
     pub world_template_version: String,
     pub resource_packs: Vec<ResourcePack>
-
 }
 
 pub struct ResourcePack {

@@ -16,7 +16,6 @@ use crate::protocol::open_conn_req2::OpenConnReq2;
 use crate::protocol::packet_ids::{PacketType, MAGIC};
 use crate::protocol::*;
 use crate::utils::address::InternetAddress;
-use crate::utils::chunk::block::{BlockMapBuilder, BlockType, PropertyValues};
 use crate::utils::color_format::COLOR_WHITE;
 use crate::utils::encryption::Encryption;
 use crate::utils::{address, color_format, encryption};
@@ -24,14 +23,12 @@ use crate::*;
 use binary_utils::binary::Stream;
 use chrono::Utc;
 use minecraft_auth::bedrock;
-use mojang_nbt::tag::compound_tag::CompoundTag;
-use mojang_nbt::tag::tag::Tag;
 use openssl::base64::decode_block;
 use openssl::ec::EcKey;
 use openssl::pkey::{PKey, Private};
-use rand::Rng;
+use rand::{thread_rng, Rng};
 use serde_json::Value;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::io::Result;
 use std::net::UdpSocket;
 //use crate::handle_incoming_data;
@@ -60,14 +57,15 @@ pub struct Client {
     last_handled_reliable_frame_index: i32,
     debug: bool,
     compression_enabled: bool,
-    encryption_enabled: bool
+    encryption_enabled: bool,
+    packet_callback: Option<Box<dyn Fn(&str) + Send>>,
 }
 
 pub async fn create(target_address: String, target_port: u16, client_version: String, debug: bool) -> Option<Client> {
     //block::vanilla_block_map(false, &vec![]);
     let mut bedrock = bedrock::new(client_version.clone(), false);
     if !bedrock.auth().await { return None; }
-    let mut rng = rand::thread_rng();
+    let mut rng = thread_rng();
     Option::from(Client{
         socket: UdpSocket::bind("0.0.0.0:0").expect("Socket Bind Error"),
         target_address,
@@ -84,7 +82,8 @@ pub async fn create(target_address: String, target_port: u16, client_version: St
         last_handled_reliable_frame_index: -1,
         debug,
         compression_enabled: false,
-        encryption_enabled: false
+        encryption_enabled: false,
+        packet_callback: None,
     })
 }
 
@@ -161,7 +160,7 @@ impl Client {
                         .collect();
                     sorted_reliable_frame_index.sort();
 
-                    //fragment suspect
+                    // fragment suspect
                     for reliable_frame_index in sorted_reliable_frame_index {
                         if reliable_frame_index <= self.last_handled_reliable_frame_index { //////////////////////////////////////////////////////////////////////////////
                             self.last_received_packets.remove(&reliable_frame_index);
@@ -204,6 +203,12 @@ impl Client {
                                 let packet_id = stream.get_byte();
                                 let packet_type = PacketType::from_byte(packet_id);
 
+                                // Call callback
+                                if let Some(callback) = &self.packet_callback {
+                                    let packet_name = BedrockPacketType::get_packet_name(packet_id as u16);
+                                    callback(packet_name);
+                                }
+
                                 match packet_type {
                                     PacketType::NACK => {
                                         let nack = Acknowledge::decode(stream.get_buffer());
@@ -239,7 +244,11 @@ impl Client {
                                         if self.compression_enabled {
                                             let compression_type = stream.get_byte();
 
-                                            println!("Compression Type: {}", if compression_type == 0 { format!("{}ZLIB{}", color_format::COLOR_AQUA, COLOR_WHITE) } else if compression_type == 1 { format!("{}SNAPPY{}", color_format::COLOR_AQUA, COLOR_WHITE) } else { format!("{}NONE{}", color_format::COLOR_AQUA, COLOR_WHITE) });
+                                            if self.debug {
+                                                println!("Compression Type: {}", if compression_type == 0 { format!("{}ZLIB{}", color_format::COLOR_AQUA, COLOR_WHITE) } else if compression_type == 1 { format!("{}SNAPPY{}", color_format::COLOR_AQUA, COLOR_WHITE) } else { format!("{}NONE{}", color_format::COLOR_AQUA, COLOR_WHITE) });
+                                            
+                                            }
+
                                             if compression_type == 0 {
                                                 stream = Stream::new(GamePacket::decompress(&stream.get_remaining().unwrap()), 0);
                                             }
@@ -254,15 +263,25 @@ impl Client {
                                             let packet_id = packet_stream.get_unsigned_var_int();
                                             let packet_type = BedrockPacketType::from_byte(packet_id as u16);
 
-                                            println!("--- {}{}{} ---", color_format::COLOR_GOLD, BedrockPacketType::get_packet_name(packet_id as u16), COLOR_WHITE);
+                                            // Call callback
+                                            if let Some(callback) = &self.packet_callback {
+                                                let packet_name = BedrockPacketType::get_packet_name(packet_id as u16);
+                                                callback(packet_name);
+                                            }
+
+                                            if self.debug {
+                                                println!("--- {}{}{} ---", color_format::COLOR_GOLD, BedrockPacketType::get_packet_name(packet_id as u16), COLOR_WHITE);
+                                            }
                                             match packet_type {
                                                 BedrockPacketType::NetworkSettings => {
                                                     let network_settings = network_settings::decode(packet_stream.get_remaining().unwrap());
-                                                    println!("Compression Threshold: {}", if network_settings.compression_threshold == 1 { "COMPRESS_EVERYTHING" } else { "COMPRESS_NOTHING" });
-                                                    println!("Compression Algorithm: {}", if network_settings.compression_algorithm == 0 { "ZLIB" } else if network_settings.compression_algorithm == 1 { "SNAPPY" } else { "NONE" });
-                                                    println!("Enable Client Throttling: {}", network_settings.enable_client_throttling);
-                                                    println!("Client Throttle Threshold: {}", network_settings.client_throttle_threshold);
-                                                    println!("Client Throttle Scalar: {}", network_settings.client_throttle_scalar);
+                                                    if self.debug {
+                                                        println!("Compression Threshold: {}", if network_settings.compression_threshold == 1 { "COMPRESS_EVERYTHING" } else { "COMPRESS_NOTHING" });
+                                                        println!("Compression Algorithm: {}", if network_settings.compression_algorithm == 0 { "ZLIB" } else if network_settings.compression_algorithm == 1 { "SNAPPY" } else { "NONE" });
+                                                        println!("Enable Client Throttling: {}", network_settings.enable_client_throttling);
+                                                        println!("Client Throttle Threshold: {}", network_settings.client_throttle_threshold);
+                                                        println!("Client Throttle Scalar: {}", network_settings.client_throttle_scalar);
+                                                    }
 
                                                     self.game = GamePacket::new(None, true);
                                                     self.compression_enabled = true;
@@ -281,7 +300,9 @@ impl Client {
                                                 BedrockPacketType::ServerToClientHandshake => {
                                                     let s_to_c_handshake = server_to_client_handshake::decode(packet_stream.get_remaining().unwrap());
                                                     let jwt = String::from_utf8(s_to_c_handshake.jwt).unwrap();
-                                                    println!("JWT: {}", jwt);
+                                                    if self.debug {
+                                                        println!("JWT: {}", jwt);
+                                                    }
                                                     let jwt_split: Vec<&str> = jwt.split('.').collect();
 
                                                     let jwt_header = Encryption::b64_url_decode(jwt_split[0]).unwrap();
@@ -292,7 +313,7 @@ impl Client {
 
                                                     let x5u = jwt_header_value.get("x5u").and_then(Value::as_str).unwrap().to_string();
                                                     let server_private = encryption::parse_der_public_key(decode_block(x5u.as_str()).unwrap().as_slice());
-                                                    let salt = decode_block(jwt_payload_value.get("salt").and_then(Value::as_str).unwrap()).unwrap();
+                                                    let salt = decode_block(jwt_payload_value.get("salt").and_then(Value::as_str).unwrap()).expect("Salt value can not be decoded.");
 
                                                     let local_pkey = PKey::from_ec_key(self.ec_key.clone()).expect("Local PKey Error");
                                                     let shared_secret = encryption::generate_shared_secret(local_pkey, server_private);
@@ -316,27 +337,31 @@ impl Client {
                                                 BedrockPacketType::ResourcePacksInfo => {
                                                     let resource_packs_info = resource_packs_info::decode(packet_stream.get_remaining().unwrap());
                                                     let mut rp_uuids = Vec::new();
-                                                    println!("Must Accept: {}", resource_packs_info.must_accept);
-                                                    println!("Has Addons: {}", resource_packs_info.has_addons);
-                                                    println!("Has Scripts: {}", resource_packs_info.has_scripts);
-                                                    println!("World Template ID: {}", resource_packs_info.world_template_id);
-                                                    println!("World Template Version: {}", resource_packs_info.world_template_version);
-                                                    let resource_pack_count = resource_packs_info.resource_packs.len();
-                                                    println!("Resource Pack Count: {}", resource_pack_count);
+                                                    if self.debug {
+                                                        println!("Must Accept: {}", resource_packs_info.must_accept);
+                                                        println!("Has Addons: {}", resource_packs_info.has_addons);
+                                                        println!("Has Scripts: {}", resource_packs_info.has_scripts);
+                                                        println!("World Template ID: {}", resource_packs_info.world_template_id);
+                                                        println!("World Template Version: {}", resource_packs_info.world_template_version);
+                                                        let resource_pack_count = resource_packs_info.resource_packs.len();
+                                                        println!("Resource Pack Count: {}", resource_pack_count);
+                                                    }
                                                     for (i, resource_pack) in resource_packs_info.resource_packs.iter().enumerate() {
                                                         rp_uuids.push(resource_pack.uuid.clone());
-                                                        println!("- Resource Pack {} -", i + 1);
-                                                        println!(" - UUID: {}", resource_pack.uuid);
-                                                        println!(" - Version: {}", resource_pack.version);
-                                                        println!(" - Size Bytes: {}", resource_pack.size_bytes);
-                                                        println!(" - Encryption Key: {}", resource_pack.encryption_key);
-                                                        println!(" - Sub Pack Name: {}", resource_pack.sub_pack_name);
-                                                        println!(" - Content ID: {}", resource_pack.content_id);
-                                                        println!(" - Has Scripts: {}", resource_pack.has_scripts);
-                                                        println!(" - Is Addon Pack: {}", resource_pack.is_addon_pack);
-                                                        println!(" - Is RTX Capable: {}", resource_pack.is_rtx_capable);
-                                                        println!(" - CDN URL: {}", resource_pack.cdn_url);
-                                                        println!("-------------------");
+                                                        if self.debug {
+                                                            println!("- Resource Pack {} -", i + 1);
+                                                            println!(" - UUID: {}", resource_pack.uuid);
+                                                            println!(" - Version: {}", resource_pack.version);
+                                                            println!(" - Size Bytes: {}", resource_pack.size_bytes);
+                                                            println!(" - Encryption Key: {}", resource_pack.encryption_key);
+                                                            println!(" - Sub Pack Name: {}", resource_pack.sub_pack_name);
+                                                            println!(" - Content ID: {}", resource_pack.content_id);
+                                                            println!(" - Has Scripts: {}", resource_pack.has_scripts);
+                                                            println!(" - Is Addon Pack: {}", resource_pack.is_addon_pack);
+                                                            println!(" - Is RTX Capable: {}", resource_pack.is_rtx_capable);
+                                                            println!(" - CDN URL: {}", resource_pack.cdn_url);
+                                                            println!("-------------------");
+                                                        }
                                                     }
 
                                                     // RESOURCE PACK CLIENT RESPONSE PACKET {COMPLETED}
@@ -376,41 +401,56 @@ impl Client {
                                                             self.socket.send(&datagram.to_binary()).expect("SetLocalPlayerAsInitialized Packet Fragment could not be sent");
                                                         }
                                                     }
-                                                    match status {
-                                                        LoginStatus::LoginSuccess => println!("Status: {}Login Success{}", color_format::COLOR_GREEN, COLOR_WHITE),
-                                                        LoginStatus::LoginFailedClient => println!("Status: {}Login Failed Client{}", color_format::COLOR_RED, COLOR_WHITE),
-                                                        LoginStatus::LoginFailedServer => println!("Status: {}Login Failed Server{}", color_format::COLOR_RED, COLOR_WHITE),
-                                                        LoginStatus::PlayerSpawn => println!("Status: {}Player Spawn{}", color_format::COLOR_GREEN, COLOR_WHITE),
-                                                        LoginStatus::LoginFailedInvalidTenant => println!("Status: {}Login Failed Invalid Tenant{}", color_format::COLOR_RED, COLOR_WHITE),
-                                                        LoginStatus::LoginFailedVanillaEdu => println!("Status: {}Login Failed Vanilla Edu{}", color_format::COLOR_RED, COLOR_WHITE),
-                                                        LoginStatus::LoginFailedEduVanilla => println!("Status: {}Login Failed Edu Vanilla{}", color_format::COLOR_RED, COLOR_WHITE),
-                                                        LoginStatus::LoginFailedServerFull => println!("Status: {}Login Failed Server Full{}", color_format::COLOR_RED, COLOR_WHITE),
-                                                        LoginStatus::LoginFailedEditorVanilla => println!("Status: {}Login Failed Editor Vanilla{}", color_format::COLOR_RED, COLOR_WHITE),
-                                                        LoginStatus::LoginFailedVanillaEditor => println!("Status: {}Login Failed Vanilla Editor{}", color_format::COLOR_RED, COLOR_WHITE),
+
+                                                    if self.debug {
+                                                        match status {
+                                                            LoginStatus::LoginSuccess => println!("Status: {}Login Success{}", color_format::COLOR_GREEN, COLOR_WHITE),
+                                                            LoginStatus::LoginFailedClient => println!("Status: {}Login Failed Client{}", color_format::COLOR_RED, COLOR_WHITE),
+                                                            LoginStatus::LoginFailedServer => println!("Status: {}Login Failed Server{}", color_format::COLOR_RED, COLOR_WHITE),
+                                                            LoginStatus::PlayerSpawn => println!("Status: {}Player Spawn{}", color_format::COLOR_GREEN, COLOR_WHITE),
+                                                            LoginStatus::LoginFailedInvalidTenant => println!("Status: {}Login Failed Invalid Tenant{}", color_format::COLOR_RED, COLOR_WHITE),
+                                                            LoginStatus::LoginFailedVanillaEdu => println!("Status: {}Login Failed Vanilla Edu{}", color_format::COLOR_RED, COLOR_WHITE),
+                                                            LoginStatus::LoginFailedEduVanilla => println!("Status: {}Login Failed Edu Vanilla{}", color_format::COLOR_RED, COLOR_WHITE),
+                                                            LoginStatus::LoginFailedServerFull => println!("Status: {}Login Failed Server Full{}", color_format::COLOR_RED, COLOR_WHITE),
+                                                            LoginStatus::LoginFailedEditorVanilla => println!("Status: {}Login Failed Editor Vanilla{}", color_format::COLOR_RED, COLOR_WHITE),
+                                                            LoginStatus::LoginFailedVanillaEditor => println!("Status: {}Login Failed Vanilla Editor{}", color_format::COLOR_RED, COLOR_WHITE),
+                                                        }
                                                     }
                                                 },
                                                 BedrockPacketType::StartGame => {
                                                     let start_game = start_game::decode(packet_stream.get_remaining().unwrap());
 
-                                                    println!("actor_unique_id: {}", start_game.actor_unique_id);
-                                                    println!("actor_runtime_id: {}", start_game.actor_runtime_id);
-                                                    println!("server_software_version: {}", start_game.server_software_version);
-                                                    println!("player_game_mode: {}", start_game.player_game_mode);
-                                                    println!("player_position: {:?}", start_game.player_position);
-                                                    println!("yaw: {}", start_game.yaw);
-                                                    println!("pitch: {}", start_game.pitch);
-                                                    println!("level_settings: {:?}", start_game.level_settings);
-                                                    println!("level_id: {}", start_game.level_id);
-                                                    println!("world_name: {}", start_game.world_name);
-                                                    println!("premium_world_template_id: {}", start_game.premium_world_template_id);
-                                                    println!("is_trial: {}", start_game.is_trial);
-                                                    println!("player_movement_settings: {:?}", start_game.player_movement_settings);
-                                                    println!("current_tick: {}", start_game.current_tick);
-                                                    println!("enchantment_seed: {}", start_game.enchantment_seed);
+                                                    if self.debug {
+                                                        println!("actor_unique_id: {}", start_game.actor_unique_id);
+                                                        println!("actor_runtime_id: {}", start_game.actor_runtime_id);
+                                                        println!("server_software_version: {}", start_game.server_software_version);
+                                                        println!("player_game_mode: {}", start_game.player_game_mode);
+                                                        println!("player_position: {:?}", start_game.player_position);
+                                                        println!("yaw: {}", start_game.yaw);
+                                                        println!("pitch: {}", start_game.pitch);
+                                                        println!("level_settings: {:?}", start_game.level_settings);
+                                                        println!("level_id: {}", start_game.level_id);
+                                                        println!("world_name: {}", start_game.world_name);
+                                                        println!("premium_world_template_id: {}", start_game.premium_world_template_id);
+                                                        println!("is_trial: {}", start_game.is_trial);
+                                                        println!("player_movement_settings: {:?}", start_game.player_movement_settings);
+                                                        println!("current_tick: {}", start_game.current_tick);
+                                                        println!("enchantment_seed: {}", start_game.enchantment_seed);
+                                                        println!("multiplayer_correlation_id: {}", start_game.multiplayer_correlation_id);
+                                                        println!("enable_new_inventory_system: {}", start_game.enable_new_inventory_system);
+                                                        println!("server_software_version: {}", start_game.server_software_version);
+                                                        //println!("player_actor_properties: {}", start_game.player_actor_properties);
+                                                        println!("block_palette_checksum: {:?}", start_game.block_palette_checksum);
+                                                        println!("world_template_id: {:?}", start_game.world_template_id);
+                                                        println!("enable_client_side_chunk_generation: {}", start_game.enable_client_side_chunk_generation);
+                                                        println!("block_network_ids_are_hashes: {}", start_game.block_network_ids_are_hashes);
+                                                        println!("network_permissions: {:?}", start_game.network_permissions);
+                                                    }
+                                                    
 
-                                                    //block::vanilla_block_map();
+                                                    //block::vanilla_block_map(false, &vec![]);
 
-                                                    let mut builder = BlockMapBuilder::new();
+                                                    /*let mut builder = BlockMapBuilder::new();
 
                                                     let block_palette = start_game.block_palette;
                                                     for block in &block_palette {
@@ -464,17 +504,9 @@ impl Client {
 
                                                     }
 
-                                                    let _block_map = builder.build();
+                                                    let _block_map = builder.build();*/
 
-                                                    println!("multiplayer_correlation_id: {}", start_game.multiplayer_correlation_id);
-                                                    println!("enable_new_inventory_system: {}", start_game.enable_new_inventory_system);
-                                                    println!("server_software_version: {}", start_game.server_software_version);
-                                                    //println!("player_actor_properties: {}", start_game.player_actor_properties);
-                                                    println!("block_palette_checksum: {:?}", start_game.block_palette_checksum);
-                                                    println!("world_template_id: {:?}", start_game.world_template_id);
-                                                    println!("enable_client_side_chunk_generation: {}", start_game.enable_client_side_chunk_generation);
-                                                    println!("block_network_ids_are_hashes: {}", start_game.block_network_ids_are_hashes);
-                                                    println!("network_permissions: {:?}", start_game.network_permissions);
+                                                    
                                                     /*let item_table = start_game.item_table;
                                                     for item in &item_table {
                                                         println!("-----\nstring_id: {}", item.get_string_id());
@@ -497,35 +529,40 @@ impl Client {
                                                 },
                                                 BedrockPacketType::Text => {
                                                     let text = text::decode(packet_stream.get_remaining().unwrap());
-                                                    if let Some(source_name) = text.source_name {
-                                                        println!("Source Name: {}", source_name);
-                                                    }
-                                                    println!("Message: {}", text.message);
-                                                    if let Some(parameters) = text.parameters {
-                                                        println!("Parameters: {}", parameters.join(" "));
-                                                        //handle_incoming_data(parameters.join(" ").into_bytes());
-                                                    } else {
-                                                        //handle_incoming_data(text.message.into_bytes());
-                                                    }
 
+                                                    if self.debug {
+                                                        if let Some(source_name) = text.source_name {
+                                                            println!("Source Name: {}", source_name);
+                                                        }
+                                                        println!("Message: {}", text.message);
+                                                        if let Some(parameters) = text.parameters {
+                                                            println!("Parameters: {}", parameters.join(" "));
+                                                        }
+                                                    }
                                                 },
                                                 BedrockPacketType::LevelChunk => {
                                                     let level_chunk = level_chunk::decode(packet_stream.get_remaining().unwrap());
-                                                    println!("Chunk X: {}", level_chunk.chunk_x);
-                                                    println!("Chunk Z: {}", level_chunk.chunk_z);
-                                                    println!("Dimension ID: {}", level_chunk.dimension_id);
-                                                    println!("Sub Chunk Count: {}", level_chunk.sub_chunk_count);
-                                                    println!("Client Sub Chunk Requests Enabled: {}", level_chunk.client_sub_chunk_requests_enabled);
-                                                    println!("Used Blob Hashes: {:?}", level_chunk.used_blob_hashes);
-                                                    println!("Extra Payload: {:?}", level_chunk.extra_payload.len());
+
+                                                    if self.debug {
+                                                        println!("Chunk X: {}", level_chunk.chunk_x);
+                                                        println!("Chunk Z: {}", level_chunk.chunk_z);
+                                                        println!("Dimension ID: {}", level_chunk.dimension_id);
+                                                        println!("Sub Chunk Count: {}", level_chunk.sub_chunk_count);
+                                                        println!("Client Sub Chunk Requests Enabled: {}", level_chunk.client_sub_chunk_requests_enabled);
+                                                        println!("Used Blob Hashes: {:?}", level_chunk.used_blob_hashes);
+                                                        println!("Extra Payload: {:?}", level_chunk.extra_payload.len());
+                                                    }
                                                     //ChunkResolve::new(level_chunk);
-                                                }
+                                                },
                                                 BedrockPacketType::Disconnect => {
                                                     let disconnect = disconnect::decode(packet_stream.get_remaining().unwrap());
-                                                    println!("Reason: {}", disconnect.reason);
-                                                    if !disconnect.skip_message {
-                                                        println!("Message: {}", disconnect.message.unwrap());
-                                                        println!("Filtered Message: {}", disconnect.filtered_message.unwrap());
+
+                                                    if self.debug {
+                                                        println!("Reason: {}", disconnect.reason);
+                                                        if !disconnect.skip_message {
+                                                            println!("Message: {}", disconnect.message.unwrap());
+                                                            println!("Filtered Message: {}", disconnect.filtered_message.unwrap());
+                                                        }
                                                     }
                                                     should_stop = true;
                                                 }
@@ -618,5 +655,13 @@ impl Client {
         };
 
         should_stop
+    }
+
+    // Callback setter function
+    pub fn set_packet_callback<F>(&mut self, callback: F)
+    where
+        F: Fn(&str) + Send + 'static,
+    {
+        self.packet_callback = Some(Box::new(callback));
     }
 }
