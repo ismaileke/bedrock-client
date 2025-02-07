@@ -26,11 +26,13 @@ use minecraft_auth::bedrock;
 use openssl::base64::decode_block;
 use openssl::ec::EcKey;
 use openssl::pkey::{PKey, Private};
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::io::Result;
 use std::net::UdpSocket;
+use std::sync::Arc;
+use std::sync::Mutex;
 //use crate::handle_incoming_data;
 
 
@@ -59,18 +61,37 @@ pub struct Client {
     compression_enabled: bool,
     encryption_enabled: bool,
     packet_callback: Option<Box<dyn Fn(&str) + Send>>,
+    auth_callback: Arc<Mutex<Option<Box<dyn Fn(&str, &str) + Send>>>>,
 }
 
-pub async fn create(target_address: String, target_port: u16, client_version: String, debug: bool) -> Option<Client> {
-    //block::vanilla_block_map(false, &vec![]);
+pub async fn create<F>(
+    target_address: String,
+    target_port: u16,
+    client_version: String,
+    debug: bool,
+    auth_callback_fn: F
+) -> Option<Client>
+where
+    F: Fn(&str, &str) + Send + 'static
+{
+    let auth_callback: Arc<Mutex<Option<Box<dyn Fn(&str, &str) + Send>>>> =
+        Arc::new(Mutex::new(Some(Box::new(auth_callback_fn))));
+    let auth_callback_clone = auth_callback.clone();
+
     let mut bedrock = bedrock::new(client_version.clone(), false);
-    if !bedrock.auth().await { return None; }
-    let mut rng = thread_rng();
+    bedrock.set_auth_callback(move |code, url| {
+        if let Some(callback) = &*auth_callback_clone.lock().unwrap() {
+            callback(code, url);
+        }
+    });
+    bedrock.auth().await;
+
+    let mut rng = rng();
     Option::from(Client{
         socket: UdpSocket::bind("0.0.0.0:0").expect("Socket Bind Error"),
         target_address,
         target_port,
-        client_guid: rng.gen_range(10000..100000),
+        client_guid: rng.random_range(10000..100000),
         client_version,
         chain: bedrock.get_chain_data(),
         ec_key: bedrock.get_ec_key()?,
@@ -84,6 +105,7 @@ pub async fn create(target_address: String, target_port: u16, client_version: St
         compression_enabled: false,
         encryption_enabled: false,
         packet_callback: None,
+        auth_callback,
     })
 }
 
@@ -237,6 +259,7 @@ impl Client {
                                         self.raknet_packet_handler(PacketType::ConnReqAccepted, &mut stream);
                                     },
                                     PacketType::Game => {
+                                        //println!("Encryption {}, Compression {}", self.encryption_enabled, self.compression_enabled);
                                         if self.encryption_enabled {
                                             stream = Stream::new(self.game.decrypt(&stream.get_remaining().unwrap()), 0);
                                         }
@@ -246,7 +269,7 @@ impl Client {
 
                                             if self.debug {
                                                 println!("Compression Type: {}", if compression_type == 0 { format!("{}ZLIB{}", color_format::COLOR_AQUA, COLOR_WHITE) } else if compression_type == 1 { format!("{}SNAPPY{}", color_format::COLOR_AQUA, COLOR_WHITE) } else { format!("{}NONE{}", color_format::COLOR_AQUA, COLOR_WHITE) });
-                                            
+
                                             }
 
                                             if compression_type == 0 {
@@ -446,7 +469,7 @@ impl Client {
                                                         println!("block_network_ids_are_hashes: {}", start_game.block_network_ids_are_hashes);
                                                         println!("network_permissions: {:?}", start_game.network_permissions);
                                                     }
-                                                    
+
 
                                                     //block::vanilla_block_map(false, &vec![]);
 
@@ -506,7 +529,7 @@ impl Client {
 
                                                     let _block_map = builder.build();*/
 
-                                                    
+
                                                     /*let item_table = start_game.item_table;
                                                     for item in &item_table {
                                                         println!("-----\nstring_id: {}", item.get_string_id());
@@ -663,5 +686,13 @@ impl Client {
         F: Fn(&str) + Send + 'static,
     {
         self.packet_callback = Some(Box::new(callback));
+    }
+
+    // Auth callback setter function
+    pub fn set_auth_callback<F>(&mut self, callback: F)
+    where
+        F: Fn(&str, &str) + Send + 'static,
+    {
+        *self.auth_callback.lock().unwrap() = Some(Box::new(callback));
     }
 }

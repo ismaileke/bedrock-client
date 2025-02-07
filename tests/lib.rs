@@ -7,9 +7,16 @@ mod tests {
 
     #[tokio::test]
     async fn test() {
-        let mut client = client::create("127.0.0.1".to_string(), 19132, "1.21.50".to_string(), false).await.unwrap();
+        let mut client = client::create(
+            "127.0.0.1".to_string(),
+            19132,
+            "1.21.50".to_string(),
+            false,
+            |code, url| {
+                println!("Auth Code: {} URL: {}", code, url);
+            }
+        ).await.unwrap();
 
-        // Set callback (I have added this for later use elsewhere)
         client.set_packet_callback(|packet_name| {
             println!("New packet received: {}", packet_name);
         });

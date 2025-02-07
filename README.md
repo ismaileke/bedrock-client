@@ -32,8 +32,23 @@ use bedrock_client::client;
 
 #[tokio::main]
 async fn main() {
-    let client = client::create("127.0.0.1".to_string(), 19132, "1.21.50".to_string(), true); // target address, target port, client version, debug mode
-    client.await.unwrap().connect().expect("Target IP Connection Error");
+    let mut client = client::create(
+        "127.0.0.1".to_string(),    // target address
+        19132,                      // target port
+        "1.21.50".to_string(),      // client version
+        false,                      // debug mode
+        |code, url| {
+            // If you turn on debug, the login code and url will already appear in the console, but you can use this if you want to edit it yourself.
+            println!("Auth Code: {} URL: {}", code, url);
+        }
+    ).await.unwrap();
+    
+    client.set_packet_callback(|packet_name| {
+        // It can be used to try different things with incoming packages. Different features will be added later.
+        println!("New packet received: {}", packet_name);
+    });
+
+    client.connect().expect("Target IP Connection Error");
 }
 ```
 

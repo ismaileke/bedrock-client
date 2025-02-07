@@ -1,6 +1,15 @@
+use crate::utils::color_format::{COLOR_GREEN, COLOR_LIGHT_PURPLE, COLOR_WHITE};
+use binary_utils::binary::Stream;
+use flate2::read::GzDecoder;
+use mojang_nbt::base_nbt_serializer::BaseNBTSerializer;
+use mojang_nbt::big_endian_nbt_serializer::BigEndianNBTSerializer;
+use mojang_nbt::tag::compound_tag::CompoundTag;
+use mojang_nbt::tag::tag::Tag;
 use std::any::{Any, TypeId};
 use std::collections::{BTreeMap, HashMap, HashSet};
+use std::fs::File;
 use std::hash::{Hash, Hasher};
+use std::io::Read;
 
 #[derive(Eq, PartialEq, Clone)]
 pub struct BlockType {
@@ -132,11 +141,11 @@ fn hash_identifier(id: &str) -> u64 {
     hash
 }
 
-/*pub fn vanilla_block_map(is_hashed: bool, custom_block_states: &Vec<Box<dyn Tag>>) -> HashMap<usize, Box<dyn Tag>>/* -> BlockMapBuilder */{
+pub fn vanilla_block_map(is_hashed: bool, custom_block_states: &Vec<Box<dyn Tag>>)/* -> HashMap<usize, Box<dyn Tag>>*//* -> BlockMapBuilder */{
 
-    //const BLOCK_STATES: &[u8] = include_bytes!("block_palette_748.nbt");
+    //const BLOCK_STATES: &[u8] = include_bytes!("block_palette_766.nbt");
 
-    let file = File::open("src/utils/chunk/block_palette_748.nbt").unwrap();
+    let file = File::open("src/utils/chunk/block_palette_766.nbt").unwrap();
     let mut decoder = GzDecoder::new(file);
 
 
@@ -185,7 +194,7 @@ fn hash_identifier(id: &str) -> u64 {
             }
         }
 
-        let mut sorted_hashes: Vec<_> = name_hashes.keys().cloned().collect();
+        /*let mut sorted_hashes: Vec<_> = name_hashes.keys().cloned().collect();
         sorted_hashes.sort();
 
         for key in &sorted_hashes {
@@ -193,7 +202,7 @@ fn hash_identifier(id: &str) -> u64 {
             let tag = blocks.get(*index);
             let compound_tag = tag.as_any().downcast_ref::<CompoundTag>().unwrap();
 
-        }
+        }*/
 
     }
 
@@ -300,4 +309,4 @@ fn hash_identifier(id: &str) -> u64 {
     }
 
     block_map*/
-}*/
+}
