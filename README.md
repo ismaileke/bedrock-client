@@ -1,7 +1,22 @@
-# bedrock-client
-Bedrock Client written in Rust.
+<div align="center">
+    
+# 🦀 Bedrock Client
 
-## Usage
+[![latest release](https://shields.io/github/v/release/ismaileke/bedrock-client)](https://github.com/ismaileke/bedrock-client/releases/latest)
+![GitHub License](https://img.shields.io/github/license/ismaileke/bedrock-client)
+![GitHub Downloads](https://img.shields.io/github/downloads/ismaileke/bedrock-client/total)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ismaileke/bedrock-client/rust.yml)
+
+</div>
+
+## ⚙️ Demo
+<div align="center">
+    
+![bedrock-client](https://github.com/user-attachments/assets/7de7d6ac-9235-45ad-a8ed-2a90514237d5)
+
+</div>
+
+## 🧩 Usage
 
 📄Cargo.toml
 ```css
@@ -22,8 +37,8 @@ async fn main() {
 }
 ```
 
-![bedrock-client](https://github.com/user-attachments/assets/7de7d6ac-9235-45ad-a8ed-2a90514237d5)
 
+![github stats](https://repobeats.axiom.co/api/embed/70276ac33a6a218bad362509eacf217169042d47.svg "Repobeats analytics image")
 
 > [!NOTE]
 > This project is mainly designed for [Abyssal Eclipse](https://github.com/ismaileke/abyssal-eclipse), but you can get ideas and develop something from the code I wrote.
