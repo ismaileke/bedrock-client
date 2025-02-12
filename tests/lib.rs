@@ -10,10 +10,10 @@ mod tests {
         let mut client = client::create(
             "127.0.0.1".to_string(),
             19132,
-            "1.21.50".to_string(),
+            "1.21.60".to_string(),
             false,
             |code, url| {
-                println!("Auth Code: {} URL: {}", code, url);
+                println!("You can log in with the code {} at {}", code, url);
             }
         ).await.unwrap();
 

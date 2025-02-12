@@ -143,9 +143,9 @@ fn hash_identifier(id: &str) -> u64 {
 
 pub fn vanilla_block_map(is_hashed: bool, custom_block_states: &Vec<Box<dyn Tag>>)/* -> HashMap<usize, Box<dyn Tag>>*//* -> BlockMapBuilder */{
 
-    //const BLOCK_STATES: &[u8] = include_bytes!("block_palette_766.nbt");
+    //const BLOCK_STATES: &[u8] = include_bytes!("block_palette_776.nbt");
 
-    let file = File::open("src/utils/chunk/block_palette_766.nbt").unwrap();
+    let file = File::open("src/utils/chunk/block_palette_776.nbt").unwrap();
     let mut decoder = GzDecoder::new(file);
 
 

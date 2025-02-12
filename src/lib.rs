@@ -4,7 +4,7 @@ pub mod protocol;
 pub mod utils;
 
 const RAKNET_PROTOCOL_VERSION: u8 = 11;
-const BEDROCK_PROTOCOL_VERSION: u32 = 766;
+const BEDROCK_PROTOCOL_VERSION: u32 = 776;
 
 /*
 use std::ffi::CStr;
@@ -19,11 +19,10 @@ pub extern "C" fn connect_to_server(address: *const c_char, port: u16, version: 
     let rt = Runtime::new().unwrap();
 
     rt.block_on(async {
-        let client = client::create(
-            c_str_address,
-            port,
-            c_str_version,
-            debug_mode,
+        let client = client::create(c_str_address, port, c_str_version, debug_mode, |code, url| {
+            // If you turn on debug, the login code and url will already appear in the console, but you can use this if you want to edit it yourself.
+            println!("You can log in with the code {} at {}", code, url);
+        }
         );
 
         client.await.unwrap().connect().expect("Connection Error!");

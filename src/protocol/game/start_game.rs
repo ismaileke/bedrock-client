@@ -3,7 +3,6 @@ use mojang_nbt::base_nbt_serializer::BaseNBTSerializer;
 use crate::protocol::game::serializer::network_nbt_serializer::NetworkNBTSerializer;
 use crate::protocol::game::types::block_palette_entry::BlockPaletteEntry;
 use crate::protocol::game::types::cacheable_nbt::CacheableNBT;
-use crate::protocol::game::types::item_type_entry::ItemTypeEntry;
 use crate::protocol::game::types::level_settings::LevelSettings;
 use crate::protocol::game::types::network_permissions::NetworkPermissions;
 use crate::protocol::game::types::player_movement_settings::PlayerMovementSettings;
@@ -24,7 +23,6 @@ pub struct StartGame {
     pub current_tick: i64,
     pub enchantment_seed: i32,
     pub block_palette: Vec<BlockPaletteEntry>,
-    pub item_table: Vec<ItemTypeEntry>,
     pub multiplayer_correlation_id: String,
     pub enable_new_inventory_system: bool,
     pub server_software_version: String,
@@ -83,18 +81,6 @@ pub fn decode(bytes: Vec<u8>) -> StartGame {
         block_palette.push(BlockPaletteEntry::new(block_name, CacheableNBT::new(state)));
     }
 
-    let mut item_table: Vec<ItemTypeEntry> = vec![];
-    let table_len = stream.get_unsigned_var_int();
-    for _ in 0..table_len {
-        length = stream.get_unsigned_var_int();
-        let string_id = String::from_utf8(stream.get(length).unwrap()).unwrap();
-        let numeric_id = stream.get_signed_l_short();
-        let is_component_based = stream.get_bool();
-
-        item_table.push(ItemTypeEntry::new(string_id, numeric_id, is_component_based));
-
-    }
-
     length = stream.get_unsigned_var_int();
     let multiplayer_correlation_id = String::from_utf8(stream.get(length).unwrap()).unwrap();
 
@@ -135,7 +121,6 @@ pub fn decode(bytes: Vec<u8>) -> StartGame {
         current_tick,
         enchantment_seed,
         block_palette,
-        item_table,
         multiplayer_correlation_id,
         enable_new_inventory_system,
         server_software_version,

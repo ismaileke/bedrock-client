@@ -529,14 +529,6 @@ impl Client {
 
                                                     let _block_map = builder.build();*/
 
-
-                                                    /*let item_table = start_game.item_table;
-                                                    for item in &item_table {
-                                                        println!("-----\nstring_id: {}", item.get_string_id());
-                                                        println!("numeric_id: {}", item.get_numeric_id());
-                                                        println!("component_based: {}", item.is_component_based());
-                                                    }*/
-
                                                 },
                                                 BedrockPacketType::AvailableCommands => {
                                                     // REQUEST CHUNK RADIUS PACKET

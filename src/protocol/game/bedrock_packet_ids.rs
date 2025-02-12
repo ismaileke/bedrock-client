@@ -150,7 +150,7 @@ pub enum BedrockPacketType {
     CameraShake,
     PlayerFog,
     CorrectPlayerMovePrediction,
-    ItemComponent,
+    ItemRegistry,
     ClientboundDebugRenderer,
     SyncActorProperty,
     AddVolumeEntity,
@@ -205,6 +205,8 @@ pub enum BedrockPacketType {
     MovementEffect,
     SetMovementAuthority,
     CameraAimAssistPresets,
+    CameraAimAssistInstruction,
+    MovementPredictionSync,
     Unknown
 }
 
@@ -361,7 +363,7 @@ impl BedrockPacketType {
             0x9f => BedrockPacketType::CameraShake,
             0xa0 => BedrockPacketType::PlayerFog,
             0xa1 => BedrockPacketType::CorrectPlayerMovePrediction,
-            0xa2 => BedrockPacketType::ItemComponent,
+            0xa2 => BedrockPacketType::ItemRegistry,
             0xa4 => BedrockPacketType::ClientboundDebugRenderer,
             0xa5 => BedrockPacketType::SyncActorProperty,
             0xa6 => BedrockPacketType::AddVolumeEntity,
@@ -416,6 +418,8 @@ impl BedrockPacketType {
             0x13e => BedrockPacketType::MovementEffect,
             0x13f => BedrockPacketType::SetMovementAuthority,
             0x140 => BedrockPacketType::CameraAimAssistPresets,
+            0x141 => BedrockPacketType::CameraAimAssistInstruction,
+            0x142 => BedrockPacketType::MovementPredictionSync,
             _ => BedrockPacketType::Unknown,
         }
     }
@@ -571,7 +575,7 @@ impl BedrockPacketType {
             BedrockPacketType::CameraShake => 0x9f,
             BedrockPacketType::PlayerFog => 0xa0,
             BedrockPacketType::CorrectPlayerMovePrediction => 0xa1,
-            BedrockPacketType::ItemComponent => 0xa2,
+            BedrockPacketType::ItemRegistry => 0xa2,
             BedrockPacketType::ClientboundDebugRenderer => 0xa4,
             BedrockPacketType::SyncActorProperty => 0xa5,
             BedrockPacketType::AddVolumeEntity => 0xa6,
@@ -626,6 +630,8 @@ impl BedrockPacketType {
             BedrockPacketType::MovementEffect => 0x13e,
             BedrockPacketType::SetMovementAuthority => 0x13f,
             BedrockPacketType::CameraAimAssistPresets => 0x140,
+            BedrockPacketType::CameraAimAssistInstruction => 0x141,
+            BedrockPacketType::MovementPredictionSync => 0x142,
             _ => 0
         }
     }
@@ -781,7 +787,7 @@ impl BedrockPacketType {
             0x9f => "Camera Shake",
             0xa0 => "Player Fog",
             0xa1 => "Correct Player Move Prediction",
-            0xa2 => "Item Component",
+            0xa2 => "Item Registry",
             0xa4 => "Clientbound Debug Renderer",
             0xa5 => "Sync Actor Property",
             0xa6 => "Add Volume Entity",
@@ -836,6 +842,8 @@ impl BedrockPacketType {
             0x13e => "Movement Effect",
             0x13f => "Set Movement Authority",
             0x140 => "Camera Aim Assist Presets",
+            0x141 => "Camera Aim Assist Instruction",
+            0x142 => "Movement Prediction Sync",
             _ => "Unknown Packet"
         }
     }
