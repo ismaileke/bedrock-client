@@ -225,12 +225,6 @@ impl Client {
                                 let packet_id = stream.get_byte();
                                 let packet_type = PacketType::from_byte(packet_id);
 
-                                // Call callback
-                                if let Some(callback) = &self.packet_callback {
-                                    let packet_name = BedrockPacketType::get_packet_name(packet_id as u16);
-                                    callback(packet_name);
-                                }
-
                                 match packet_type {
                                     PacketType::NACK => {
                                         let nack = Acknowledge::decode(stream.get_buffer());
