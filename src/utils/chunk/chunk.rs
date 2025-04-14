@@ -24,8 +24,8 @@ impl Chunk {
         let (max, min) = chunk_resolve::get_dimension_chunk_bounds(0);
         let n =  (((max - min) >> 4) + 1) as usize;
 
-        let mut sub_chunks: Vec<SubChunk> = Vec::with_capacity(n);
-        let mut biomes: Vec<PalettedStorage> = Vec::with_capacity(n);
+        let sub_chunks: Vec<SubChunk> = Vec::with_capacity(n);
+        let biomes: Vec<PalettedStorage> = Vec::with_capacity(n);
 
         for _ in 0..n {
             //sub_chunks.push(NewSubChunk(air));

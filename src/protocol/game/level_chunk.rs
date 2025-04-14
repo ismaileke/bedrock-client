@@ -30,8 +30,8 @@ pub fn decode(bytes: Vec<u8>) -> LevelChunk {
     let chunk_z = stream.get_var_int();
     let dimension_id = stream.get_var_int();
 
-    let mut sub_chunk_count: isize = 0;
-    let mut client_sub_chunk_requests_enabled: bool = false;
+    let sub_chunk_count: isize;
+    let client_sub_chunk_requests_enabled: bool;
 
 
     let sub_chunk_count_but_not_really = stream.get_unsigned_var_int();
