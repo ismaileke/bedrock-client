@@ -2,9 +2,9 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct SpawnSettings {
-    biome_type: u16,
-    biome_name: String,
-    dimension_id: i32
+    pub biome_type: u16,
+    pub biome_name: String,
+    pub dimension_id: i32
 }
 
 impl SpawnSettings {

@@ -13,15 +13,15 @@ pub struct LevelChunk {
 /**
  * Client will request all sub chunks as needed up to the top of the world
  */
-const CLIENT_REQUEST_FULL_COLUMN_FAKE_COUNT: u32 = u32::MAX;
+pub const CLIENT_REQUEST_FULL_COLUMN_FAKE_COUNT: u32 = u32::MAX;
 /**
  * Client will request sub chunks as needed up to the height written in the packet, and assume that anything above
  * that height is air (wtf mojang ...)
  */
-const CLIENT_REQUEST_TRUNCATED_COLUMN_FAKE_COUNT: u32 = u32::MAX - 1;
+pub const CLIENT_REQUEST_TRUNCATED_COLUMN_FAKE_COUNT: u32 = u32::MAX - 1;
 
 //this appears large enough for a world height of 1024 blocks - it may need to be increased in the future
-const MAX_BLOB_HASHES: u32 = 64;
+pub const MAX_BLOB_HASHES: u32 = 64;
 
 pub fn decode(bytes: Vec<u8>) -> LevelChunk {
     let mut stream = Stream::new(bytes, 0);

@@ -112,7 +112,6 @@ pub enum BedrockPacketType {
     NetworkStackLatency,
     SpawnParticleEvent,
     AvailableActorIdentifiers,
-    LevelSoundEventV2,
     NetworkChunkPublisherUpdate,
     BiomeDefinitionList,
     LevelSoundEvent,
@@ -207,6 +206,9 @@ pub enum BedrockPacketType {
     CameraAimAssistPresets,
     CameraAimAssistInstruction,
     MovementPredictionSync,
+    UpdateClientOptions,
+    PlayerVideoCapture,
+    PlayerUpdateEntityOverrides,
     Unknown
 }
 
@@ -325,7 +327,6 @@ impl BedrockPacketType {
             0x73 => BedrockPacketType::NetworkStackLatency,
             0x76 => BedrockPacketType::SpawnParticleEvent,
             0x77 => BedrockPacketType::AvailableActorIdentifiers,
-            0x78 => BedrockPacketType::LevelSoundEventV2,
             0x79 => BedrockPacketType::NetworkChunkPublisherUpdate,
             0x7a => BedrockPacketType::BiomeDefinitionList,
             0x7b => BedrockPacketType::LevelSoundEvent,
@@ -420,6 +421,9 @@ impl BedrockPacketType {
             0x140 => BedrockPacketType::CameraAimAssistPresets,
             0x141 => BedrockPacketType::CameraAimAssistInstruction,
             0x142 => BedrockPacketType::MovementPredictionSync,
+            0x143 => BedrockPacketType::UpdateClientOptions,
+            0x144 => BedrockPacketType::PlayerVideoCapture,
+            0x145 => BedrockPacketType::PlayerUpdateEntityOverrides,
             _ => BedrockPacketType::Unknown,
         }
     }
@@ -537,7 +541,6 @@ impl BedrockPacketType {
             BedrockPacketType::NetworkStackLatency => 0x73,
             BedrockPacketType::SpawnParticleEvent => 0x76,
             BedrockPacketType::AvailableActorIdentifiers => 0x77,
-            BedrockPacketType::LevelSoundEventV2 => 0x78,
             BedrockPacketType::NetworkChunkPublisherUpdate => 0x79,
             BedrockPacketType::BiomeDefinitionList => 0x7a,
             BedrockPacketType::LevelSoundEvent => 0x7b,
@@ -632,6 +635,9 @@ impl BedrockPacketType {
             BedrockPacketType::CameraAimAssistPresets => 0x140,
             BedrockPacketType::CameraAimAssistInstruction => 0x141,
             BedrockPacketType::MovementPredictionSync => 0x142,
+            BedrockPacketType::UpdateClientOptions => 0x143,
+            BedrockPacketType::PlayerVideoCapture => 0x144,
+            BedrockPacketType::PlayerUpdateEntityOverrides => 0x145,
             _ => 0
         }
     }
@@ -749,7 +755,6 @@ impl BedrockPacketType {
             0x73 => "Network Stack Latency",
             0x76 => "Spawn Particle Event",
             0x77 => "Available Actor Identifiers",
-            0x78 => "Level Sound Event V2",
             0x79 => "Network Chunk Publisher Update",
             0x7a => "Biome Definition List",
             0x7b => "Level Sound Event",
@@ -844,6 +849,9 @@ impl BedrockPacketType {
             0x140 => "Camera Aim Assist Presets",
             0x141 => "Camera Aim Assist Instruction",
             0x142 => "Movement Prediction Sync",
+            0x143 => "Update Client Options",
+            0x144 => "Player Video Capture",
+            0x145 => "Player Update Entity Overrides",
             _ => "Unknown Packet"
         }
     }

@@ -93,6 +93,7 @@ pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, target_
         "DeviceModel": "System Product Name ASUS",
         "DeviceOS": 1, //:D
         "GameVersion": client_version,
+        "GraphicsMode": 0, // SIMPLE = 0 FANCY = 1 ADVANCED = 2 RAY_TRACED = 3;
         "GuiScale": -1,
         "IsEditorMode": false,
         "LanguageCode": "en_US",
