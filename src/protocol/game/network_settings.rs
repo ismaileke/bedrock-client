@@ -9,10 +9,10 @@ pub const NONE: u8 = 255;
 
 pub struct NetworkSettings {
     pub compression_threshold: u16,
-    pub compression_algorithm : u16,
-    pub enable_client_throttling : bool,
-    pub client_throttle_threshold : u8,
-    pub client_throttle_scalar : f32
+    pub compression_algorithm: u16,
+    pub enable_client_throttling: bool,
+    pub client_throttle_threshold: u8,
+    pub client_throttle_scalar: f32
 }
 
 pub fn decode(bytes: Vec<u8>) -> NetworkSettings {

@@ -4,7 +4,7 @@ pub mod protocol;
 pub mod utils;
 
 const RAKNET_PROTOCOL_VERSION: u8 = 11;
-const BEDROCK_PROTOCOL_VERSION: u32 = 786;
+const BEDROCK_PROTOCOL_VERSION: u32 = 800;
 
 /*
 use std::ffi::CStr;

@@ -42,6 +42,5 @@ pub struct PlayStatus {
 pub fn decode(bytes: Vec<u8>) -> PlayStatus {
     let mut stream = Stream::new(bytes, 0);
 
-
     PlayStatus { status: stream.get_int() }
 }
