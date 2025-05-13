@@ -41,6 +41,7 @@ use std::sync::Mutex;
 // if there is a skipped packet, wait for it, if you don't wait and try to decrypt it, you will get an 'invalid checksum' error
 // NACK ACK System handler errors
 // fragment packet receiving - sending etc.
+// max decompression size?
 // gönderdiğimiz paketleri buna kaydetme: FrameCache { //sequencenumber => framecache eğer nack gelirse birdaha göndeririz
 
 pub struct Client {

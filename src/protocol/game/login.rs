@@ -10,12 +10,12 @@ use serde_json::{json, to_vec, Value};
 
 pub struct Login {
     client_protocol: u32,
-    chain_data_jwt: String,
+    auth_info_json: String,
     client_data_jwt: String
 }
 
-pub fn new(client_protocol: u32, chain_data_jwt: String, client_data_jwt: String) -> Login {
-    Login{ client_protocol, chain_data_jwt, client_data_jwt }
+pub fn new(client_protocol: u32, auth_info_json: String, client_data_jwt: String) -> Login {
+    Login{ client_protocol, auth_info_json, client_data_jwt }
 }
 
 impl Login {
@@ -26,8 +26,8 @@ impl Login {
         stream.put_int(self.client_protocol);
 
         let mut jwt_stream = Stream::new(Vec::new(), 0);
-        jwt_stream.put_l_int(self.chain_data_jwt.len() as u32);
-        jwt_stream.put(self.chain_data_jwt.clone().into_bytes());
+        jwt_stream.put_l_int(self.auth_info_json.len() as u32);
+        jwt_stream.put(self.auth_info_json.clone().into_bytes());
         jwt_stream.put_l_int(self.client_data_jwt.len() as u32);
         jwt_stream.put(self.client_data_jwt.clone().into_bytes());
 
@@ -120,7 +120,6 @@ pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, target_
         "SkinImageWidth": 64,
         "SkinResourcePatch": "ewogICAiZ2VvbWV0cnkiIDogewogICAgICAiZGVmYXVsdCIgOiAiZ2VvbWV0cnkuaHVtYW5vaWQuY3VzdG9tIgogICB9Cn0K",
         "ThirdPartyName": display_name,
-        "ThirdPartyNameOnly": false,
         "TrustedSkin": false,
         "UIProfile": 0,
     });
@@ -147,10 +146,17 @@ pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, target_
     let jwt = format!("{}.{}.{}", encoded_header, encoded_payload, encoded_signature);
     chain.insert(0, jwt);
 
-    let real_chain = json!({
+    /* OLD CODE
+    let mut real_chain = json!({
         "chain": chain
     });
+    */
 
+    let real_chain = json!({
+        "AuthenticationType": 0,
+        "Certificate": json!({"chain": chain}).to_string(),
+        "Token": ""
+    });
 
     let data_to_sign_two = format!("{}.{}", encoded_header, encoded_payload_two);
     let mut signer_two = Signer::new(openssl::hash::MessageDigest::sha384(), &pkey).expect("Signer not created.");

@@ -208,6 +208,7 @@ pub enum BedrockPacketType {
     PlayerUpdateEntityOverrides,
     PlayerLocation,
     ClientBoundControlSchemeSet,
+    ServerScriptDebugDrawer,
     Unknown
 }
 
@@ -413,7 +414,6 @@ impl BedrockPacketType {
             0x13c => BedrockPacketType::CameraAimAssist,
             0x13d => BedrockPacketType::ContainerRegistryCleanup,
             0x13e => BedrockPacketType::MovementEffect,
-            0x13f => BedrockPacketType::SetMovementAuthority,
             0x140 => BedrockPacketType::CameraAimAssistPresets,
             0x141 => BedrockPacketType::CameraAimAssistInstruction,
             0x142 => BedrockPacketType::MovementPredictionSync,
@@ -422,6 +422,7 @@ impl BedrockPacketType {
             0x145 => BedrockPacketType::PlayerUpdateEntityOverrides,
             0x146 => BedrockPacketType::PlayerLocation,
             0x147 => BedrockPacketType::ClientBoundControlSchemeSet,
+            0x148 => BedrockPacketType::ServerScriptDebugDrawer,
             _ => BedrockPacketType::Unknown,
         }
     }
@@ -626,7 +627,6 @@ impl BedrockPacketType {
             BedrockPacketType::CameraAimAssist => 0x13c,
             BedrockPacketType::ContainerRegistryCleanup => 0x13d,
             BedrockPacketType::MovementEffect => 0x13e,
-            BedrockPacketType::SetMovementAuthority => 0x13f,
             BedrockPacketType::CameraAimAssistPresets => 0x140,
             BedrockPacketType::CameraAimAssistInstruction => 0x141,
             BedrockPacketType::MovementPredictionSync => 0x142,
@@ -635,6 +635,7 @@ impl BedrockPacketType {
             BedrockPacketType::PlayerUpdateEntityOverrides => 0x145,
             BedrockPacketType::PlayerLocation => 0x146,
             BedrockPacketType::ClientBoundControlSchemeSet => 0x147,
+            BedrockPacketType::ServerScriptDebugDrawer => 0x148,
             _ => 0
         }
     }
@@ -840,7 +841,6 @@ impl BedrockPacketType {
             0x13c => "Camera Aim Assist",
             0x13d => "Container Registry Cleanup",
             0x13e => "Movement Effect",
-            0x13f => "Set Movement Authority",
             0x140 => "Camera Aim Assist Presets",
             0x141 => "Camera Aim Assist Instruction",
             0x142 => "Movement Prediction Sync",
@@ -849,6 +849,7 @@ impl BedrockPacketType {
             0x145 => "Player Update Entity Overrides",
             0x146 => "Player Location",
             0x147 => "Client Bound Control Scheme Set",
+            0x148 => "Server Script Debug Drawer",
             _ => "Unknown Packet"
         }
     }

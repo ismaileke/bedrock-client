@@ -7,6 +7,7 @@ pub struct ResourcePacksInfo {
     pub has_scripts: bool,
     pub world_template_id: Uuid,
     pub world_template_version: String,
+    pub force_disable_vibrant_visuals: bool,
     pub resource_packs: Vec<ResourcePack>
 }
 
@@ -29,6 +30,7 @@ pub fn decode(bytes: Vec<u8>) -> ResourcePacksInfo {
     let must_accept = stream.get_bool();
     let has_addons = stream.get_bool();
     let has_scripts = stream.get_bool();
+    let force_disable_vibrant_visuals = stream.get_bool();
 
     let world_template_id = Uuid::from_slice(&stream.get(16).unwrap()).unwrap();
     let length = stream.get_unsigned_var_int();
@@ -56,5 +58,5 @@ pub fn decode(bytes: Vec<u8>) -> ResourcePacksInfo {
         resource_packs.push(ResourcePack{ uuid, version, size_bytes, encryption_key, sub_pack_name, content_id, has_scripts, is_addon_pack, is_rtx_capable, cdn_url });
     }
 
-    ResourcePacksInfo { must_accept, has_addons, has_scripts, world_template_id, world_template_version, resource_packs }
+    ResourcePacksInfo { must_accept, has_addons, has_scripts, world_template_id, world_template_version, force_disable_vibrant_visuals, resource_packs }
 }
