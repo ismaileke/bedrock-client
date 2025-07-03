@@ -199,7 +199,6 @@ pub enum BedrockPacketType {
     CameraAimAssist,
     ContainerRegistryCleanup,
     MovementEffect,
-    SetMovementAuthority,
     CameraAimAssistPresets,
     CameraAimAssistInstruction,
     MovementPredictionSync,
