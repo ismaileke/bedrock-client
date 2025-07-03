@@ -360,6 +360,7 @@ impl Client {
                                                         println!("Has Scripts: {}", resource_packs_info.has_scripts);
                                                         println!("World Template ID: {}", resource_packs_info.world_template_id);
                                                         println!("World Template Version: {}", resource_packs_info.world_template_version);
+                                                        println!("Force Disable Vibrant Visuals: {}", resource_packs_info.force_disable_vibrant_visuals);
                                                         let resource_pack_count = resource_packs_info.resource_packs.len();
                                                         println!("Resource Pack Count: {}", resource_pack_count);
                                                     }

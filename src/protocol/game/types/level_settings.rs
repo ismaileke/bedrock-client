@@ -56,7 +56,8 @@ pub struct LevelSettings {
     pub disable_player_interactions: bool,
     pub server_identifier: String,
     pub world_identifier: String,
-    pub scenario_identifier: String
+    pub scenario_identifier: String,
+    pub owner_identifier: String
 }
 
 impl LevelSettings {
@@ -138,6 +139,8 @@ impl LevelSettings {
         let world_identifier = String::from_utf8(stream.get(length).unwrap()).unwrap();
         length = stream.get_unsigned_var_int();
         let scenario_identifier = String::from_utf8(stream.get(length).unwrap()).unwrap();
+        length = stream.get_unsigned_var_int();
+        let owner_identifier = String::from_utf8(stream.get(length).unwrap()).unwrap();
         
         LevelSettings{
             seed,
@@ -191,6 +194,7 @@ impl LevelSettings {
             server_identifier,
             world_identifier,
             scenario_identifier,
+            owner_identifier
         }
     }
 }
