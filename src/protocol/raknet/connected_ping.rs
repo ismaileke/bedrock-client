@@ -1,5 +1,5 @@
 use binary_utils::binary::Stream;
-use crate::protocol::packet_ids::PacketType;
+use crate::protocol::raknet::packet_ids::PacketType;
 use crate::utils::color_format;
 use crate::utils::color_format::COLOR_WHITE;
 

@@ -1,4 +1,4 @@
-use crate::protocol::game::types::cacheable_nbt::CacheableNBT;
+use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 
 pub struct BlockPaletteEntry {
     name: String,

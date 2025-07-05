@@ -1,5 +1,5 @@
-use crate::protocol::game::bedrock_packet_ids::BedrockPacketType;
-use crate::protocol::game_packet::GamePacket;
+use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
+use crate::protocol::raknet::game_packet::GamePacket;
 use crate::utils::encryption::Encryption;
 use binary_utils::binary::Stream;
 use chrono::Utc;

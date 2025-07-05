@@ -1,11 +1,11 @@
 use binary_utils::binary::Stream;
 use mojang_nbt::base_nbt_serializer::BaseNBTSerializer;
-use crate::protocol::game::serializer::network_nbt_serializer::NetworkNBTSerializer;
-use crate::protocol::game::types::block_palette_entry::BlockPaletteEntry;
-use crate::protocol::game::types::cacheable_nbt::CacheableNBT;
-use crate::protocol::game::types::level_settings::LevelSettings;
-use crate::protocol::game::types::network_permissions::NetworkPermissions;
-use crate::protocol::game::types::player_movement_settings::PlayerMovementSettings;
+use crate::protocol::bedrock::serializer::network_nbt_serializer::NetworkNBTSerializer;
+use crate::protocol::bedrock::types::block_palette_entry::BlockPaletteEntry;
+use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
+use crate::protocol::bedrock::types::level_settings::LevelSettings;
+use crate::protocol::bedrock::types::network_permissions::NetworkPermissions;
+use crate::protocol::bedrock::types::player_movement_settings::PlayerMovementSettings;
 
 pub struct StartGame {
     pub actor_unique_id: i64,

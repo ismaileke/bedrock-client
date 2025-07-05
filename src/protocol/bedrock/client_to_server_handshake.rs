@@ -1,4 +1,4 @@
-use crate::protocol::game::bedrock_packet_ids::BedrockPacketType;
+use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use binary_utils::binary::Stream;
 
 pub struct ClientToServerHandshake {

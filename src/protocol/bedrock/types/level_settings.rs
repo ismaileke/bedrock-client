@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use binary_utils::binary::Stream;
-use crate::protocol::game::types::education_uri_resource::EducationUriResource;
-use crate::protocol::game::types::experiments::Experiments;
-use crate::protocol::game::types::spawn_settings::SpawnSettings;
+use crate::protocol::bedrock::types::education_uri_resource::EducationUriResource;
+use crate::protocol::bedrock::types::experiments::Experiments;
+use crate::protocol::bedrock::types::spawn_settings::SpawnSettings;
 
 #[derive(Debug)]
 pub struct LevelSettings {

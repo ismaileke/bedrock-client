@@ -145,7 +145,7 @@ pub fn vanilla_block_map(is_hashed: bool, custom_block_states: &Vec<Box<dyn Tag>
 
     //const BLOCK_STATES: &[u8] = include_bytes!("block_palette_776.nbt");
 
-    let file = File::open("src/utils/chunk/block_palette_776.nbt").unwrap();
+    let file = File::open("src/utils/chunk/block_palette_800.nbt").unwrap();
     let mut decoder = GzDecoder::new(file);
 
 

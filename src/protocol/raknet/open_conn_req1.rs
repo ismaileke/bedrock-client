@@ -1,5 +1,5 @@
 use binary_utils::binary::Stream;
-use crate::protocol::packet_ids::PacketType;
+use crate::protocol::raknet::packet_ids::PacketType;
 
 pub struct OpenConnReq1 {
     magic: [u8; 16],

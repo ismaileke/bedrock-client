@@ -1,5 +1,5 @@
 use binary_utils::binary::Stream;
-use crate::protocol::game::bedrock_packet_ids::BedrockPacketType;
+use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 
 pub const TYPE_RAW: u8 = 0;
 pub const TYPE_CHAT: u8 = 1;

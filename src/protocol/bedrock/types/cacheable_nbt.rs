@@ -1,7 +1,7 @@
 use mojang_nbt::base_nbt_serializer::BaseNBTSerializer;
 use mojang_nbt::tag::tag::Tag;
 use mojang_nbt::tree_root::TreeRoot;
-use crate::protocol::game::serializer::network_nbt_serializer::NetworkNBTSerializer;
+use crate::protocol::bedrock::serializer::network_nbt_serializer::NetworkNBTSerializer;
 
 pub struct CacheableNBT {
     nbt_root: Box<dyn Tag>,

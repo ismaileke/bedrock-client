@@ -1,20 +1,20 @@
-use crate::protocol::acknowledge::Acknowledge;
-use crate::protocol::conn_req::ConnReq;
-use crate::protocol::conn_req_accepted::ConnReqAccepted;
-use crate::protocol::connected_ping::ConnectedPing;
-use crate::protocol::connected_pong::ConnectedPong;
-use crate::protocol::frame_set::{Datagram, Frame, FrameNumberCache, RELIABLE, RELIABLE_ORDERED, UNRELIABLE};
-use crate::protocol::game::bedrock_packet_ids::BedrockPacketType;
-use crate::protocol::game::play_status::LoginStatus;
-use crate::protocol::game::*;
-use crate::protocol::game_packet::GamePacket;
-use crate::protocol::new_incoming_conn::NewIncomingConn;
-use crate::protocol::open_conn_reply1::OpenConnReply1;
-use crate::protocol::open_conn_reply2::OpenConnReply2;
-use crate::protocol::open_conn_req1::OpenConnReq1;
-use crate::protocol::open_conn_req2::OpenConnReq2;
-use crate::protocol::packet_ids::{PacketType, MAGIC};
-use crate::protocol::*;
+use crate::protocol::raknet::acknowledge::Acknowledge;
+use crate::protocol::raknet::conn_req::ConnReq;
+use crate::protocol::raknet::conn_req_accepted::ConnReqAccepted;
+use crate::protocol::raknet::connected_ping::ConnectedPing;
+use crate::protocol::raknet::connected_pong::ConnectedPong;
+use crate::protocol::raknet::frame_set::{Datagram, Frame, FrameNumberCache, RELIABLE, RELIABLE_ORDERED, UNRELIABLE};
+use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
+use crate::protocol::bedrock::play_status::LoginStatus;
+use crate::protocol::bedrock::*;
+use crate::protocol::raknet::game_packet::GamePacket;
+use crate::protocol::raknet::new_incoming_conn::NewIncomingConn;
+use crate::protocol::raknet::open_conn_reply1::OpenConnReply1;
+use crate::protocol::raknet::open_conn_reply2::OpenConnReply2;
+use crate::protocol::raknet::open_conn_req1::OpenConnReq1;
+use crate::protocol::raknet::open_conn_req2::OpenConnReq2;
+use crate::protocol::raknet::packet_ids::{PacketType, MAGIC};
+use crate::protocol::raknet::{frame_set, incompatible_protocol};
 use crate::utils::address::InternetAddress;
 use crate::utils::color_format::COLOR_WHITE;
 use crate::utils::encryption::Encryption;
@@ -38,7 +38,7 @@ use std::sync::Mutex;
 
 // conn_req update
 // maybe encryption disabled on server? or xbox disabled? or compress disabled?
-// if there is a skipped packet, wait for it, if you don't wait and try to decrypt it, you will get an 'invalid checksum' error
+// if there is a skipped packet, wait for it if you don't wait and try to decrypt it, you will get an 'invalid checksum' error
 // NACK ACK System handler errors
 // fragment packet receiving - sending etc.
 // max decompression size?

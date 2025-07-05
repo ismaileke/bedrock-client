@@ -1,4 +1,4 @@
-use crate::protocol::packet_ids::PacketType;
+use crate::protocol::raknet::packet_ids::PacketType;
 use binary_utils::binary::Stream;
 
 pub struct ConnReq {
