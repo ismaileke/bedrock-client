@@ -1,4 +1,4 @@
-use crate::protocol::game::bedrock_packet_ids::BedrockPacketType;
+use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use binary_utils::binary::Stream;
 
 pub struct ModalFormRequest {
@@ -25,4 +25,14 @@ impl ModalFormRequest {
 
         compress_stream.get_buffer()
     }
+}
+
+pub fn decode(bytes: Vec<u8>) -> ModalFormRequest {
+    let mut stream = Stream::new(bytes, 0);
+
+    let form_id = stream.get_unsigned_var_int();
+    let length = stream.get_unsigned_var_int();
+    let form_data = String::from_utf8(stream.get(length).unwrap()).unwrap();
+
+    ModalFormRequest { form_id, form_data }
 }

@@ -15,5 +15,7 @@ pub mod text;
 pub mod client_cache_status;
 pub mod level_chunk;
 pub mod start_game;
+pub mod modal_form_request;
+pub mod network_chunk_publisher_update;
 pub mod types;
 pub mod serializer;

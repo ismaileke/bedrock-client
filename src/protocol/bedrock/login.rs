@@ -172,5 +172,4 @@ pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, target_
 
 
     vec![real_chain.to_string(), skin_data]
-
 }

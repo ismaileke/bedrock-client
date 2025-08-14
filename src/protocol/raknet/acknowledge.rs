@@ -55,7 +55,7 @@ impl Acknowledge {
         if is_nack {
             println!("--- {}NACK{} ---", color_format::COLOR_RED, COLOR_WHITE);
         } else {
-            println!("--- {}ACK{} ---", color_format::COLOR_RED, COLOR_WHITE);
+            println!("--- {}ACK{} ---", color_format::COLOR_GREEN, COLOR_WHITE);
         }
         println!("Record Count: Record Type {}", if self.record_count == 0 { "Range" } else { "Single" });
         println!("Single Sequence Number: {}", self.single_sequence_number);

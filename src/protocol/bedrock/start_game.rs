@@ -31,6 +31,7 @@ pub struct StartGame {
     pub world_template_id: Vec<u8>,
     pub enable_client_side_chunk_generation: bool,
     pub block_network_ids_are_hashes: bool,
+    pub enable_tick_death_systems: bool,
     pub network_permissions: NetworkPermissions,
 }
 
@@ -103,6 +104,8 @@ pub fn decode(bytes: Vec<u8>) -> StartGame {
 
     let block_network_ids_are_hashes = stream.get_bool();
 
+    let enable_tick_death_systems = stream.get_bool();
+
     let network_permissions = NetworkPermissions::read(&mut stream);
 
     StartGame{
@@ -129,6 +132,7 @@ pub fn decode(bytes: Vec<u8>) -> StartGame {
         world_template_id,
         enable_client_side_chunk_generation,
         block_network_ids_are_hashes,
+        enable_tick_death_systems,
         network_permissions,
     }
 }

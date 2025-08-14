@@ -10,8 +10,8 @@ mod tests {
         let mut client = client::create(
             "127.0.0.1".to_string(),
             19132,
-            "1.21.90".to_string(),
-            false,
+            "1.21.100".to_string(),
+            true,
             |code, url| {
                 println!("You can log in with the code {} at {}", code, url);
             }
