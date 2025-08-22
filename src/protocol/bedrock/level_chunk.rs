@@ -4,7 +4,7 @@ pub struct LevelChunk {
     pub chunk_x: i32,
     pub chunk_z: i32,
     pub dimension_id: i32,
-    pub sub_chunk_count: isize,
+    pub sub_chunk_count: u32,
     pub client_sub_chunk_requests_enabled: bool,
     pub used_blob_hashes: Option<Vec<i64>>,
     pub extra_payload: Vec<u8>
@@ -30,20 +30,20 @@ pub fn decode(bytes: Vec<u8>) -> LevelChunk {
     let chunk_z = stream.get_var_int();
     let dimension_id = stream.get_var_int();
 
-    let sub_chunk_count: isize;
+    let sub_chunk_count: u32;
     let client_sub_chunk_requests_enabled: bool;
 
 
     let sub_chunk_count_but_not_really = stream.get_unsigned_var_int();
     if sub_chunk_count_but_not_really == CLIENT_REQUEST_FULL_COLUMN_FAKE_COUNT {
         client_sub_chunk_requests_enabled = true;
-        sub_chunk_count = isize::MAX;
+        sub_chunk_count = u32::MAX;
     } else if sub_chunk_count_but_not_really == CLIENT_REQUEST_TRUNCATED_COLUMN_FAKE_COUNT {
         client_sub_chunk_requests_enabled = true;
-        sub_chunk_count = stream.get_l_short() as isize;
+        sub_chunk_count = stream.get_l_short() as u32;
     } else {
         client_sub_chunk_requests_enabled = false;
-        sub_chunk_count = sub_chunk_count_but_not_really as isize;
+        sub_chunk_count = sub_chunk_count_but_not_really;
     }
 
     let cache_enabled = stream.get_bool();

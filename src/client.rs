@@ -46,6 +46,7 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use base64::Engine;
 use base64::engine::general_purpose;
+use mojang_nbt::tag::byte_tag::ByteTag;
 //use crate::handle_incoming_data;
 
 
@@ -491,8 +492,6 @@ impl Client {
                                                     }
 
 
-
-
                                                     // Custom Blok Verileri HashMap'e a Aktarılıyor
                                                     let block_palette_entries = start_game.block_palette;
                                                     let mut custom_blocks = HashMap::new();
@@ -557,6 +556,11 @@ impl Client {
                                                                         let any_value = pce.get_value();
                                                                         let value = any_value.downcast_ref::<String>().unwrap();
                                                                         property_enums_map.push(PropertyValue::Str(value.clone()));
+                                                                    } else if id == std::any::TypeId::of::<ByteTag>() {
+                                                                        let pce = property_enum.as_any().downcast_ref::<ByteTag>().unwrap().clone();
+                                                                        let any_value = pce.get_value();
+                                                                        let value = any_value.downcast_ref::<u8>().unwrap();
+                                                                        property_enums_map.push(PropertyValue::Byte(value.clone()));
                                                                     } else {
                                                                         println!("Undefined Tag Type");
                                                                     }
@@ -633,6 +637,8 @@ impl Client {
                                                             let vanilla_block = vanilla_blocks.get(i);
                                                             let mut vanilla_ct = vanilla_block.as_any().downcast_ref::<CompoundTag>().unwrap().clone();
                                                             let hashed_network_id = vanilla_ct.get_int("network_id").unwrap();
+                                                            //let block_name = vanilla_ct.get_string("name").unwrap();
+                                                            //println!("{}, Block Name: {}, Network ID: {}", i, block_name, hashed_network_id);
                                                             vanilla_ct.remove_tag(vec!["network_id".to_string(), "name_hash".to_string(), "version".to_string()]);
                                                             self.hashed_network_ids.insert(hashed_network_id, vanilla_ct.clone());
                                                         }
@@ -643,7 +649,7 @@ impl Client {
                                                             let block_id = parts[0].parse::<u32>().unwrap();
                                                             let block_name = parts[1].to_string();
 
-                                                            let combinations = Self::cartesian_product_enum(&properties);
+                                                            let combinations = cartesian_product_enum(&properties);
                                                             for combo in combinations {
                                                                 let mut state = CompoundTag::new(HashMap::new());
                                                                 for (k, v) in &combo {
@@ -654,6 +660,9 @@ impl Client {
                                                                         PropertyValue::Str(s) => {
                                                                             state.set_string(k.clone(), s.clone());
                                                                         },
+                                                                        PropertyValue::Byte(b) => {
+                                                                            state.set_byte(k.clone(), *b as i8);
+                                                                        }
                                                                     }
                                                                 }
 
@@ -669,7 +678,7 @@ impl Client {
 
                                                                 let mut custom_ct_list = custom_ct.clone();
                                                                 custom_ct_list.set_int("block_id".to_string(), block_id);
-                                                                self.hashed_network_ids.insert(Self::hash_identifier(data), custom_ct_list.clone());
+                                                                self.hashed_network_ids.insert(hash_identifier(data), custom_ct_list.clone());
                                                             }
                                                         }
 
@@ -757,11 +766,7 @@ impl Client {
                                                         let chunk = network_decode(self.air_network_id.clone(), level_chunk.extra_payload, level_chunk.sub_chunk_count, get_dimension_chunk_bounds(0));
                                                         //let hash_id = chunk.unwrap().get_block(level_chunk.chunk_x as u8, 10, level_chunk.chunk_z as u8, 0);
                                                         //println!("X: {} Y: 10 Z: {} Block Name: {}", level_chunk.chunk_x.clone(), level_chunk.chunk_z.clone(), self.hashed_network_ids.get(&hash_id).unwrap().get_string("name").unwrap());
-                                                        if chunk.is_some() {
-                                                            self.print_all_blocks(level_chunk.chunk_x.clone(), level_chunk.chunk_z.clone(), chunk.unwrap());
-                                                        }
-
-
+                                                        self.print_all_blocks(level_chunk.chunk_x.clone(), level_chunk.chunk_z.clone(), chunk);
 
 
                                                     }
@@ -885,57 +890,9 @@ impl Client {
         *self.auth_callback.lock().unwrap() = Some(Box::new(callback));
     }
 
-    fn hash_identifier(data: &[u8]) -> u32 {
-        let mut hash: u32 = 0x811c9dc5;
-
-        for &byte in data {
-            hash ^= byte as u32;
-            hash = hash.wrapping_add(hash << 1)
-                .wrapping_add(hash << 4)
-                .wrapping_add(hash << 7)
-                .wrapping_add(hash << 8)
-                .wrapping_add(hash << 24);
-        }
-        hash
-    }
-
-    fn cartesian_product_enum(properties: &PropertyMap) -> Vec<StateCombination> {
-        let mut results = vec![];
-
-        let mut keys = properties.keys().cloned().collect::<Vec<_>>();
-        keys.sort();
-
-        fn helper(
-            keys: &[String],
-            index: usize,
-            properties: &PropertyMap,
-            current: &mut StateCombination,
-            results: &mut Vec<StateCombination>
-        ) {
-            if index == keys.len() {
-                results.push(current.clone());
-                return;
-            }
-
-            let key = &keys[index];
-            if let Some(values) = properties.get(key) {
-                for value in values {
-                    current.insert(key.clone(), value.clone());
-                    helper(keys, index + 1, properties, current, results);
-                    current.remove(key);
-                }
-            }
-        }
-
-        let mut current = HashMap::new();
-        helper(&keys, 0, properties, &mut current, &mut results);
-
-        results
-    }
-
     pub fn print_all_blocks(&self, chunk_x: i32, chunk_z: i32, chunk: Chunk) {
         let mut file = File::create("output.txt").unwrap();
-        for (sub_chunk_index, sub_chunk) in chunk.sub.iter() {
+        for (sub_chunk_index, sub_chunk) in chunk.sub.iter().enumerate() {
             for (layer_index, storage) in sub_chunk.storages.iter().enumerate() {
                 println!("SubChunk {} - Layer {}:", sub_chunk_index, layer_index);
                 if layer_index == 0 {
@@ -948,15 +905,14 @@ impl Client {
                                 let real_y = sub_chunk_index*16 + y;
                                 let real_z = chunk_z*16 + z;
                                 if let Some(block_info) = maybe_info {
-                                    let name = block_info.get_string("name").unwrap_or("unknown".to_string());
+                                    let name = block_info.get_string("name").unwrap();
                                     if name != "minecraft:air" {
-                                        // Dosyaya yazı yaz
                                         let text = format!("Block at ({}, {}, {}): {}\n", real_x, real_y, real_z, name);
                                         file.write_all(text.as_bytes()).unwrap();
-                                        //println!("Block at ({}, {}, {}): {}", real_x, real_y, real_z, name);
+                                        println!("HashID {}, Block at ({}, {}, {}): {}", block_id, real_x, real_y, real_z, name);
                                     }
                                 } else {
-                                    //println!("Block at ({}, {}, {}): UNKNOWN_RUNTIME_ID {}", real_x, real_y, real_z, block_id);
+                                    println!("Block at ({}, {}, {}): UNKNOWN_BLOCK_HASH_ID {}", real_x, real_y, real_z, block_id);
                                 }
                                 //println!("Block at ({}, {}, {}): {}", chunk_x * 16 + x, sub_chunk_index * 16 + y, chunk_z * 16 + z, self.hashed_network_ids.get(&block_id).unwrap().get_string("name").unwrap());
                             }
@@ -966,6 +922,85 @@ impl Client {
             }
         }
     }
+    /*pub fn print_all_blocks(&self, chunk_x: i32, chunk_z: i32, chunk: &Chunk) {
+        let mut file = File::create("output.txt").unwrap();
+
+        // Chunk’ın dikey aralığı (ör. -64..320)
+        for y in -60..315 {
+            for x in 0..16 {
+                for z in 0..16 {
+                    // Layer 0 = ana blok katmanı
+                    let block_id = chunk.get_block(x as u8, y as i16, z as u8, 0);
+
+                    let real_x = chunk_x * 16 + x;
+                    let real_y = y;
+                    let real_z = chunk_z * 16 + z;
+
+                    if let Some(block_info) = self.hashed_network_ids.get(&block_id) {
+                        let name = block_info.get_string("name").unwrap_or("unknown".to_string());
+                        let text = format!(
+                            "Block at ({}, {}, {}): {}\n",
+                            real_x, real_y, real_z, name
+                        );
+                        file.write_all(text.as_bytes()).unwrap();
+                        println!("Block at ({}, {}, {}): {}", real_x, real_y, real_z, name);
+                    } else {
+                        // Eğer ID tabloda yoksa UNKNOWN yaz
+                        // (istersen bunu da dosyaya yazabilirsin)
+                        println!("Block at ({}, {}, {}): UNKNOWN_RUNTIME_ID {}", real_x, real_y, real_z, block_id);
+                    }
+                }
+            }
+        }
+    }*/
+}
+
+pub fn hash_identifier(data: &[u8]) -> u32 {
+    let mut hash: u32 = 0x811c9dc5;
+
+    for &byte in data {
+        hash ^= byte as u32;
+        hash = hash.wrapping_add(hash << 1)
+            .wrapping_add(hash << 4)
+            .wrapping_add(hash << 7)
+            .wrapping_add(hash << 8)
+            .wrapping_add(hash << 24);
+    }
+    hash
+}
+
+pub fn cartesian_product_enum(properties: &PropertyMap) -> Vec<StateCombination> {
+    let mut results = vec![];
+
+    let mut keys = properties.keys().cloned().collect::<Vec<_>>();
+    keys.sort();
+
+    fn helper(
+        keys: &[String],
+        index: usize,
+        properties: &PropertyMap,
+        current: &mut StateCombination,
+        results: &mut Vec<StateCombination>
+    ) {
+        if index == keys.len() {
+            results.push(current.clone());
+            return;
+        }
+
+        let key = &keys[index];
+        if let Some(values) = properties.get(key) {
+            for value in values {
+                current.insert(key.clone(), value.clone());
+                helper(keys, index + 1, properties, current, results);
+                current.remove(key);
+            }
+        }
+    }
+
+    let mut current = HashMap::new();
+    helper(&keys, 0, properties, &mut current, &mut results);
+
+    results
 }
 
 fn fix_base64_padding(s: &str) -> String {
@@ -984,6 +1019,7 @@ fn fix_base64_padding(s: &str) -> String {
 pub enum PropertyValue {
     Int(u32),
     Str(String),
+    Byte(u8)
 }
 
 pub type PropertyMap = HashMap<String, Vec<PropertyValue>>;
