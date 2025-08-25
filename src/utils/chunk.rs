@@ -1,15 +1,23 @@
-use std::collections::HashMap;
 use binary_utils::binary::Stream;
-use mojang_nbt::base_nbt_serializer::BaseNBTSerializer;
-use mojang_nbt::little_endian_nbt_serializer::LittleEndianNBTSerializer;
-use mojang_nbt::tag::byte_tag::ByteTag;
-use mojang_nbt::tag::compound_tag::CompoundTag;
-use mojang_nbt::tag::int_tag::IntTag;
-use mojang_nbt::tag::string_tag::StringTag;
-use mojang_nbt::tag::tag::Tag;
-use mojang_nbt::tree_root::TreeRoot;
-use crate::client;
-use crate::client::{hash_identifier, PropertyValue};
+
+pub struct PaletteSize(pub u8);
+impl PaletteSize {
+
+    pub fn uint32s(self) -> isize {
+        let mut index_u32_count: isize = 0;
+        if self.0 != 0 {
+
+            let indices_per_u32 = 32 / self.0 as isize;
+
+            index_u32_count = 4096 / indices_per_u32;
+        }
+
+        if self.0 == 3 || self.0 == 5 || self.0 == 6 {
+            index_u32_count += 1;
+        }
+        index_u32_count
+    }
+}
 
 pub struct Chunk {
     // R holds the (vertical) range of the Chunk. It includes both the minimum and maximum coordinates. [-64, 320)
@@ -35,17 +43,19 @@ pub struct SubChunk {
     pub sky_light: Vec<u8>
 }
 
-#[derive(Clone)]
 pub struct PalettedStorage {
     pub bits_per_index: u16,
     pub filled_bits_per_index: u16,
     pub index_mask: u32,
+    pub indices_start: *const u32,
     pub palette: Palette,
     pub indices: Vec<u32>
 }
 
-#[derive(Clone)]
 pub struct Palette {
+    pub last: u32,
+    pub last_index: i16,
+    pub size: PaletteSize,
     // Values is a map of values. A PalettedStorage points to the index to this value.
     pub values: Vec<u32>
 }
@@ -57,12 +67,14 @@ impl PalettedStorage {
 
         let index_mask = (1u32 << bits_per_index) - 1;
 
+        let indices_start = indices.as_ptr();
+
         let mut filled_bits_per_index: u16 = 0;
         if bits_per_index != 0 {
             filled_bits_per_index = 32 / bits_per_index * bits_per_index;
         }
 
-        PalettedStorage{ bits_per_index, filled_bits_per_index, index_mask, palette, indices }
+        PalettedStorage{ bits_per_index, filled_bits_per_index, index_mask, indices_start, palette, indices }
     }
 
 
@@ -88,20 +100,29 @@ impl PalettedStorage {
 
         let bit_offset = offset % self.filled_bits_per_index;
 
-        let w = self.indices[u32_offset as usize];
+        let w = unsafe { *self.indices_start.add(u32_offset as usize) };
         ((w >> bit_offset) & self.index_mask) as u16
     }
 }
 
 impl Chunk {
     pub fn new(air: u32, r: (isize, isize)) -> Self {
+        let n = (((r.1-r.0) >> 4) + 1) as usize;
+        let mut sub = Vec::<SubChunk>::with_capacity(n);
+        let mut biomes = Vec::<PalettedStorage>::with_capacity(n);
+
+        for _ in 0..n {
+            sub.push(SubChunk::new(air));
+            biomes.push(PalettedStorage::new(vec![], Palette::new(PaletteSize(0), vec![0])));// maybe vec![air]?
+        }
+
         Chunk{
             r,
             air,
-            recalculate_height_map: false,
+            recalculate_height_map: true,
             height_map: (),
-            sub: vec![],
-            biomes: vec![]
+            sub,
+            biomes
         }
     }
 }
@@ -118,57 +139,55 @@ impl SubChunk {
 }
 
 impl Palette {
+
+    pub fn new(size: PaletteSize, values: Vec<u32>) -> Self {
+        Palette{size, values, last: u32::MAX, last_index: 0 }
+    }
+
     pub fn value(&self, value: u16) -> u32 {
         self.values[value as usize]
     }
 }
 
-pub fn network_decode(air: u32, data: Vec<u8>, sub_chunk_count: u32, range: (isize, isize)) -> Chunk {
+pub fn network_decode(air: u32, data: Vec<u8>, sub_chunk_count: u32, range: (isize, isize)) -> Result<Chunk, String> {
     let mut chunk = Chunk::new(air, range);
     let mut buf = Stream::new(data, 0);
     let n = (((range.1 - range.0) >> 4) + 1) as u8;
 
-    for _ in 0..n {
-        //chunk.sub.push(SubChunk::new(air));
-        chunk.sub.push(SubChunk{air, storages: vec![PalettedStorage::new(vec![], Palette{ values: vec![air] })], block_light: vec![], sky_light: vec![] });
-    }
-
     for i in 0..sub_chunk_count {
         let mut index = i as u8;
 
-        let sub_chunk = decode_sub_chunk(&mut buf, &chunk, &mut index);
+        let sub_chunk = decode_sub_chunk(&mut buf, &chunk, &mut index)?;
 
         if index > n {
-            panic!("index out of range");
+            return Err("index out of range".to_string());
         }
         chunk.sub[index as usize] = sub_chunk;
     }
 
-    /*chunk.biomes.resize(chunk.sub.len(), PalettedStorage::new(vec![], Palette{ values: vec![air] }
-    ));
-
-    let mut last: PalettedStorage = PalettedStorage::new(vec![], Palette{ values: vec![air] });
+    // Biome processing - following Go's logic
+    /*let mut last: Option<&PalettedStorage> = None;
 
     for i in 0..chunk.sub.len() {
-        let b = decode_paletted_storage(&mut buf);
+        let b = decode_paletted_storage(&mut buf)?;
 
-        let b = if let storage = b {
-            last = storage.clone();
+        let b = if let Some(storage) = b {
+            last = Some(&storage);
             storage
         } else {
             if i == 0 {
-                panic!("First biome storage pointed to previous one");
+                return Err("First biome storage pointed to previous one".to_string());
             }
-            last.clone()
+            *(last.unwrap())
         };
 
         chunk.biomes[i] = b;
     }*/
 
-    chunk
+    Ok(chunk)
 }
 
-pub fn decode_sub_chunk(buf: &mut Stream, chunk: &Chunk, index: &mut u8) -> SubChunk {
+pub fn decode_sub_chunk(buf: &mut Stream, chunk: &Chunk, index: &mut u8) -> Result<SubChunk, String> {
     let version = buf.get_byte();
 
     let mut sub_chunk = SubChunk::new(chunk.air);
@@ -176,10 +195,11 @@ pub fn decode_sub_chunk(buf: &mut Stream, chunk: &Chunk, index: &mut u8) -> SubC
     match version {
         1 => {
             // Version 1 only has one layer for each sub chunk but uses the format with palettes.
-            let storage = decode_paletted_storage(buf); // NetworkEncoding, BlockPaletteEncoding
+            let storage = decode_paletted_storage(buf)?; // NetworkEncoding, BlockPaletteEncoding
 
-            sub_chunk.storages.push(storage);
-
+            if let Some(s) = storage {
+                sub_chunk.storages.push(s);
+            }
         },
         8 | 9 => {
             // Version 8 allows up to 256 layers for one sub chunk.
@@ -191,176 +211,75 @@ pub fn decode_sub_chunk(buf: &mut Stream, chunk: &Chunk, index: &mut u8) -> SubC
                 *index = (y_index as i8 - (chunk.r.0 >> 4) as i8) as u8;
             }
 
-            /*for _ in 0..storage_count {
-                let storage = PalettedStorage::new(vec![], Palette{ values: vec![air] });
-                sub_chunk.storages.push(storage);
-            }*/
-
-            for _ in 0..storage_count {
-                let storage = decode_paletted_storage(buf);
-                sub_chunk.storages.push(storage);
-            }
-        }
-        _ => {}
-    }
-    sub_chunk
-}
-
-pub fn decode_paletted_storage(buf: &mut Stream) -> PalettedStorage {
-    let (bits_per_index, nbt_palette) = {
-        let temp = buf.get_byte();
-        (temp >> 1, temp & 1 != 1)
-    };
-
-
-    let index_u32_count = uint32s(bits_per_index);
-    let mut u32s = Vec::<u32>::with_capacity(index_u32_count as usize);
-
-    let byte_count = index_u32_count as usize * 4;
-
-    let data = buf.get(byte_count as u32).expect("buffer can't read 213. line error");
-
-    if data.len() != byte_count {
-        panic!("cannot read paletted storage (size={}) : not enough block data present: expected {} bytes", index_u32_count, byte_count);
-    }
-
-    for i in 0..index_u32_count as usize {
-        // Explicitly don't use the binary package to greatly improve the performance of reading the uint32s
-        let offset = i * 4;
-        u32s.push((data[offset] as u32)
-            | ((data[offset + 1] as u32) << 8)
-            | ((data[offset + 2] as u32) << 16)
-            | ((data[offset + 3] as u32) << 24));
-    }
-
-
-    /*let index_u32_count: i32 = uint32s(bits_per_index);
-
-    let mut u32s = Vec::new();
-    for _ in 0..index_u32_count {
-        let u32_data = buf.get_l_int();
-        u32s.push(u32_data);                                                                               // or l_int
-    }*/
-
-
-
-    /*let mut palette_size = 1;
-    if bits_per_index != 0 {
-        palette_size = buf.get_var_int();
-        if palette_size <= 0 {
-            panic!("invalid palette entry count {}", palette_size);
-        }
-    }*/
-
-    let mut palette_size = 1;
-    if bits_per_index != 0 {
-        palette_size = buf.get_var_int() as usize;
-    }
-
-    let mut palette = Vec::<u32>::with_capacity(palette_size);
-    if !nbt_palette {
-        // In most cases, the palette is just encoded as a vector of `var_i32`s.
-        for _ in 0..palette_size {
-            let data = buf.get_var_int();
-            palette.push(data as u32);
-        }
-    } else {
-        // The palette can be encoded with nbt. In this case, each entry is a compound tag with
-        // the namespaced block id and the block state.
-        for _ in 0..palette_size {
-            let mut offset = buf.get_offset();
-            let mut serializer = LittleEndianNBTSerializer::new();
-            let root = serializer.read(buf.get_buffer(), &mut offset, 0);
-            buf.set_offset(offset);
-            let ct = root.must_get_compound_tag().unwrap();
-            let name = ct.get_string("name").unwrap();
-            let states = ct.get_compound_tag("states".to_string()).unwrap();
-            let properties = states.get_list_tag("properties".to_string());
-
-            let mut properties_map = HashMap::new();
-
-            if properties.is_some() {
-                properties.unwrap().get_value().downcast_ref::<Vec<Box<dyn Tag>>>().unwrap().iter().for_each(|property| {
-                    let mut property_enums_map: Vec<PropertyValue> = vec![];
-
-                    let pct = property.as_any().downcast_ref::<CompoundTag>().unwrap();
-                    let property_name = pct.get_string("name").unwrap();
-                    let property_enums = pct.get_list_tag("enum".to_string()).unwrap();
-                    // Blok Özellikleri ve Alabileceği Değerler
-                    //println!("property name: {}", property_name);
-                    property_enums.get_value().downcast_ref::<Vec<Box<dyn Tag>>>().unwrap().iter().for_each(|property_enum| {
-                        let id = property_enum.as_any().type_id();
-                        if id == std::any::TypeId::of::<IntTag>() {
-                            let pce = property_enum.as_any().downcast_ref::<IntTag>().unwrap().clone();
-                            let any_value = pce.get_value();
-                            let value = any_value.downcast_ref::<u32>().unwrap();
-                            property_enums_map.push(PropertyValue::Int(value.clone()));
-                        } else if id == std::any::TypeId::of::<StringTag>() {
-                            let pce = property_enum.as_any().downcast_ref::<StringTag>().unwrap().clone();
-                            let any_value = pce.get_value();
-                            let value = any_value.downcast_ref::<String>().unwrap();
-                            property_enums_map.push(PropertyValue::Str(value.clone()));
-                        } else if id == std::any::TypeId::of::<ByteTag>() {
-                            let pce = property_enum.as_any().downcast_ref::<ByteTag>().unwrap().clone();
-                            let any_value = pce.get_value();
-                            let value = any_value.downcast_ref::<u8>().unwrap();
-                            property_enums_map.push(PropertyValue::Byte(value.clone()));
-                        } else {
-                            println!("Undefined Tag Type");
-                        }
-                    });
-                    properties_map.insert(property_name, property_enums_map);
-
-                });
-            }
-
-            let combinations = client::cartesian_product_enum(&properties_map);
-            for combo in combinations {
-                let mut state = CompoundTag::new(HashMap::new());
-                for (k, v) in &combo {
-                    match v {
-                        PropertyValue::Int(i) => {
-                            state.set_int(k.clone(), *i);
-                        },
-                        PropertyValue::Str(s) => {
-                            state.set_string(k.clone(), s.clone());
-                        },
-                        PropertyValue::Byte(b) => {
-                            state.set_byte(k.clone(), *b as i8);
-                        }
-                    }
+            sub_chunk.storages = Vec::<PalettedStorage>::with_capacity(storage_count as usize);
+            for i in 0..storage_count {
+                let storage = decode_paletted_storage(buf)?;
+                if let Some(s) = storage {
+                    sub_chunk.storages.insert(i as usize, s);
                 }
-
-                let mut custom_ct = CompoundTag::new(HashMap::new());
-                custom_ct.set_string("name".to_string(), name.clone());
-                custom_ct.set_tag("states".to_string(), Box::new(state.clone()));
-
-                let root = TreeRoot::new(Box::new(custom_ct.clone()), "".to_string());
-                let mut serializer = LittleEndianNBTSerializer::new();
-                let binding = serializer.write(root);
-                let data = binding.as_slice();
-
-                palette.push(hash_identifier(data));
             }
+        }
+        _ => {
+            return Err(format!("Unknown Sub Chunk version {}: Can't decode", version));
+        }
+    }
+    Ok(sub_chunk)
+}
+
+pub fn decode_paletted_storage(buf: &mut Stream) -> Result<Option<PalettedStorage>, String> {
+    let mut block_size = buf.get_byte();
+
+    block_size = block_size >> 1;
+    if block_size == 0x7f {
+        return Ok(None); // Go returns nil here
+    }
+
+    let size = PaletteSize(block_size);
+    if size.0 > 32 {
+        return Err(format!("Cannot read paletted storage (size={}): size too large", block_size));
+    }
+
+    let uin32_count = size.uint32s();
+
+    let mut uint32s = Vec::<u32>::with_capacity(uin32_count as usize);
+    let byte_count = uin32_count * 4;
+
+    let data = buf.get(byte_count as u32)?;
+
+    if data.len() != byte_count as usize {
+        return Err(format!("Cannot read paletted storage (size={}): not enough block data present: expected {} bytes, got {}", block_size, byte_count, data.len()));
+    }
+
+    for i in 0..uin32_count as usize {
+        uint32s.insert(i, u32::from_le_bytes([data[i*4], data[i*4+1], data[i*4+2], data[i*4+3]]));
+        //uint32s.push((data[i*4] as u32) | (data[i*4+1] as u32)<<8 | (data[i*4+2] as u32)<<16 | (data[i*4+3] as u32)<<24)
+    }
+
+    let palette = decode_palette(buf, PaletteSize(block_size))?;
+
+    Ok(Some(PalettedStorage::new(uint32s, palette)))
+}
+
+pub fn decode_palette(buf: &mut Stream, palette_size: PaletteSize) -> Result<Palette, String> {
+    let mut palette_count: i32 = 1;
+    if palette_size.0 != 0 {
+        palette_count = buf.get_var_int();
+        if palette_count <= 0 {
+            return Err(format!("Invalid palette entry count {}", palette_count));
         }
     }
 
-    PalettedStorage::new(u32s, Palette{ values: palette })
-}
-
-pub fn uint32s(bits_per_index: u8) -> i32 {
-    let mut index_u32_count: i32 = 0;
-    if bits_per_index != 0 {
-
-        let indices_per_u32 = 32 / bits_per_index as i32;
-
-        index_u32_count = 4096 / indices_per_u32;
+    let mut blocks = Vec::<u32>::with_capacity(palette_count as usize);
+    for _ in 0..palette_count {
+        let temp = buf.get_var_int();
+        blocks.push(temp as u32);
     }
-
-    if bits_per_index == 3 || bits_per_index == 5 || bits_per_index == 6 {
-        index_u32_count += 1;
-    }
-    index_u32_count
+    Ok(Palette{
+        last: 0,
+        last_index: 0,
+        size: palette_size,
+        values: blocks,
+    })
 }
 
 pub fn get_dimension_chunk_bounds(dimension_id: i32) -> (isize, isize) {

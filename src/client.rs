@@ -40,7 +40,7 @@ use rand::{rng, Rng};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{Read, Result, Write};
+use std::io::{Read, Result};
 use std::net::UdpSocket;
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -764,9 +764,14 @@ impl Client {
                                                         println!("Used Blob Hashes: {:?}", level_chunk.used_blob_hashes);
                                                         //println!("Extra Payload (Pure): {:?}", level_chunk.extra_payload.clone());
                                                         let chunk = network_decode(self.air_network_id.clone(), level_chunk.extra_payload, level_chunk.sub_chunk_count, get_dimension_chunk_bounds(0));
-                                                        //let hash_id = chunk.unwrap().get_block(level_chunk.chunk_x as u8, 10, level_chunk.chunk_z as u8, 0);
-                                                        //println!("X: {} Y: 10 Z: {} Block Name: {}", level_chunk.chunk_x.clone(), level_chunk.chunk_z.clone(), self.hashed_network_ids.get(&hash_id).unwrap().get_string("name").unwrap());
-                                                        self.print_all_blocks(level_chunk.chunk_x.clone(), level_chunk.chunk_z.clone(), chunk);
+                                                        if chunk.is_ok() {
+                                                            //let hash_id = chunk.unwrap().get_block(level_chunk.chunk_x as u8, 10, level_chunk.chunk_z as u8, 0);
+                                                            //println!("X: {} Y: 10 Z: {} Block Name: {}", level_chunk.chunk_x.clone(), level_chunk.chunk_z.clone(), self.hashed_network_ids.get(&hash_id).unwrap().get_string("name").unwrap());
+                                                            self.print_all_blocks(level_chunk.chunk_x.clone(), level_chunk.chunk_z.clone(), chunk.unwrap());
+                                                        } else {
+                                                            panic!("{}", chunk.err().unwrap());
+                                                        }
+
 
 
                                                     }
@@ -891,10 +896,10 @@ impl Client {
     }
 
     pub fn print_all_blocks(&self, chunk_x: i32, chunk_z: i32, chunk: Chunk) {
-        let mut file = File::create("output.txt").unwrap();
+        //let mut file = File::create("output.txt").unwrap();
         for (sub_chunk_index, sub_chunk) in chunk.sub.iter().enumerate() {
             for (layer_index, storage) in sub_chunk.storages.iter().enumerate() {
-                println!("SubChunk {} - Layer {}:", sub_chunk_index, layer_index);
+                //println!("SubChunk {} - Layer {}:", sub_chunk_index, layer_index);
                 if layer_index == 0 {
                     for y in 0..16 {
                         for x in 0..16 {
@@ -902,14 +907,14 @@ impl Client {
                                 let block_id = storage.at(x as u8, y as u8, z as u8);
                                 let maybe_info = self.hashed_network_ids.get(&block_id);
                                 let real_x = chunk_x*16 + x;
-                                let real_y = sub_chunk_index*16 + y;
+                                let real_y = chunk.r.0 + (sub_chunk_index*16 + y) as isize;
                                 let real_z = chunk_z*16 + z;
                                 if let Some(block_info) = maybe_info {
                                     let name = block_info.get_string("name").unwrap();
                                     if name != "minecraft:air" {
-                                        let text = format!("Block at ({}, {}, {}): {}\n", real_x, real_y, real_z, name);
-                                        file.write_all(text.as_bytes()).unwrap();
-                                        println!("HashID {}, Block at ({}, {}, {}): {}", block_id, real_x, real_y, real_z, name);
+                                        //let text = format!("Block at ({}, {}, {}): {}\n", real_x, real_y, real_z, name);
+                                        //file.write_all(text.as_bytes()).unwrap();
+                                        println!("Block at ({}, {}, {}): {}", real_x, real_y, real_z, name);
                                     }
                                 } else {
                                     println!("Block at ({}, {}, {}): UNKNOWN_BLOCK_HASH_ID {}", real_x, real_y, real_z, block_id);
@@ -922,37 +927,6 @@ impl Client {
             }
         }
     }
-    /*pub fn print_all_blocks(&self, chunk_x: i32, chunk_z: i32, chunk: &Chunk) {
-        let mut file = File::create("output.txt").unwrap();
-
-        // Chunk’ın dikey aralığı (ör. -64..320)
-        for y in -60..315 {
-            for x in 0..16 {
-                for z in 0..16 {
-                    // Layer 0 = ana blok katmanı
-                    let block_id = chunk.get_block(x as u8, y as i16, z as u8, 0);
-
-                    let real_x = chunk_x * 16 + x;
-                    let real_y = y;
-                    let real_z = chunk_z * 16 + z;
-
-                    if let Some(block_info) = self.hashed_network_ids.get(&block_id) {
-                        let name = block_info.get_string("name").unwrap_or("unknown".to_string());
-                        let text = format!(
-                            "Block at ({}, {}, {}): {}\n",
-                            real_x, real_y, real_z, name
-                        );
-                        file.write_all(text.as_bytes()).unwrap();
-                        println!("Block at ({}, {}, {}): {}", real_x, real_y, real_z, name);
-                    } else {
-                        // Eğer ID tabloda yoksa UNKNOWN yaz
-                        // (istersen bunu da dosyaya yazabilirsin)
-                        println!("Block at ({}, {}, {}): UNKNOWN_RUNTIME_ID {}", real_x, real_y, real_z, block_id);
-                    }
-                }
-            }
-        }
-    }*/
 }
 
 pub fn hash_identifier(data: &[u8]) -> u32 {
