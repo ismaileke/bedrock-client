@@ -1,5 +1,6 @@
 use std::convert::TryFrom;
 use binary_utils::binary::Stream;
+use crate::utils::color_format::*;
 
 #[repr(u32)]
 pub enum LoginStatus {
@@ -37,6 +38,24 @@ impl TryFrom<u32> for LoginStatus {
 
 pub struct PlayStatus {
     pub status: u32,
+}
+
+impl PlayStatus {
+    pub fn debug(&self) {
+        let status = LoginStatus::try_from(self.status).unwrap();
+        match status {
+            LoginStatus::LoginSuccess => println!("Status: {}Login Success{}", COLOR_GREEN, COLOR_WHITE),
+            LoginStatus::LoginFailedClient => println!("Status: {}Login Failed Client{}", COLOR_RED, COLOR_WHITE),
+            LoginStatus::LoginFailedServer => println!("Status: {}Login Failed Server{}", COLOR_RED, COLOR_WHITE),
+            LoginStatus::PlayerSpawn => println!("Status: {}Player Spawn{}", COLOR_GREEN, COLOR_WHITE),
+            LoginStatus::LoginFailedInvalidTenant => println!("Status: {}Login Failed Invalid Tenant{}", COLOR_RED, COLOR_WHITE),
+            LoginStatus::LoginFailedVanillaEdu => println!("Status: {}Login Failed Vanilla Edu{}", COLOR_RED, COLOR_WHITE),
+            LoginStatus::LoginFailedEduVanilla => println!("Status: {}Login Failed Edu Vanilla{}", COLOR_RED, COLOR_WHITE),
+            LoginStatus::LoginFailedServerFull => println!("Status: {}Login Failed Server Full{}", COLOR_RED, COLOR_WHITE),
+            LoginStatus::LoginFailedEditorVanilla => println!("Status: {}Login Failed Editor Vanilla{}", COLOR_RED, COLOR_WHITE),
+            LoginStatus::LoginFailedVanillaEditor => println!("Status: {}Login Failed Vanilla Editor{}", COLOR_RED, COLOR_WHITE),
+        }
+    }
 }
 
 pub fn decode(bytes: Vec<u8>) -> PlayStatus {

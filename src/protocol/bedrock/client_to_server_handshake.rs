@@ -19,4 +19,7 @@ impl ClientToServerHandshake {
 
         compress_stream.get_buffer()
     }
+
+    pub fn debug(&self) {
+    }
 }

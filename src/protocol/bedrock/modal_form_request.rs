@@ -25,6 +25,11 @@ impl ModalFormRequest {
 
         compress_stream.get_buffer()
     }
+
+    pub fn debug(&self) {
+        println!("Form ID: {}", self.form_id);
+        println!("Form Data: {}", self.form_data);
+    }
 }
 
 pub fn decode(bytes: Vec<u8>) -> ModalFormRequest {

@@ -24,4 +24,9 @@ impl RequestChunkRadius {
 
         compress_stream.get_buffer()
     }
+
+    pub fn debug(&self) {
+        println!("Radius: {}", self.radius);
+        println!("Maximum Radius: {}", self.max_radius);
+    }
 }

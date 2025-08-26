@@ -8,6 +8,14 @@ pub struct NetworkChunkPublisherUpdate {
     pub saved_chunks: Vec<Vec<i32>>
 }
 
+impl NetworkChunkPublisherUpdate {
+    pub fn debug(&self) {
+        println!("Block Position: {:?}", self.block_pos);
+        println!("Radius: {}", self.radius);
+        println!("Saved Chunks: {:?}", self.saved_chunks);
+    }
+}
+
 pub fn decode(bytes: Vec<u8>) -> NetworkChunkPublisherUpdate {
     let mut stream = Stream::new(bytes, 0);
 

@@ -37,4 +37,9 @@ impl ResourcePackClientResponse {
 
         compress_stream.get_buffer()
     }
+
+    pub fn debug(&self) {
+        println!("Status: {}", self.status);
+        println!("Pack IDs: {:?}", self.pack_ids);
+    }
 }

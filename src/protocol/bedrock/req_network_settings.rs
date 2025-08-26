@@ -21,4 +21,8 @@ impl RequestNetworkSettings {
         main_stream.put(stream.get_buffer());
         main_stream.get_buffer()
     }
+
+    pub fn debug(&self) {
+        println!("Protocol Version: {}", self.protocol_version);
+    }
 }

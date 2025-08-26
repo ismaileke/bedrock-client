@@ -78,6 +78,16 @@ impl Text {
 
         compress_stream.get_buffer()
     }
+
+    pub fn debug(&self) {
+        if let Some(source_name) = self.source_name.clone() {
+            println!("Source Name: {}", source_name);
+        }
+        println!("Message: {}", self.message);
+        if let Some(parameters) = self.parameters.clone() {
+            println!("Parameters: {}", parameters.join(" "));
+        }
+    }
 }
 
 pub fn decode(bytes: Vec<u8>) -> Text {

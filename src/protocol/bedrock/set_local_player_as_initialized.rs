@@ -22,4 +22,8 @@ impl SetLocalPlayerAsInitializedPacket {
 
         compress_stream.get_buffer()
     }
+
+    pub fn debug(&self) {
+        println!("Actor Runtime ID: {}", self.actor_runtime_id);
+    }
 }

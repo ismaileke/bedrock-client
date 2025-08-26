@@ -44,6 +44,12 @@ impl Login {
 
         main_stream.get_buffer()
     }
+
+    pub fn debug(&self) {
+        println!("Client Protocol: {}", self.client_protocol);
+        println!("Auth Info JSON: {}", self.auth_info_json);
+        println!("Client Data JWT: {}", self.client_data_jwt);
+    }
 }
 
 pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, target_address: String, target_port: u16, client_guid: i64, client_version: String) -> Vec<String> {

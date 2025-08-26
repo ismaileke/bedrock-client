@@ -22,4 +22,7 @@ impl ClientCacheStatus {
 
         compress_stream.get_buffer()
     }
+    pub fn debug(&self) {
+        println!("Enabled: {}", self.enabled);
+    }
 }

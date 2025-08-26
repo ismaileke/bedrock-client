@@ -7,6 +7,16 @@ pub struct Disconnect {
     pub filtered_message: Option<String>
 }
 
+impl Disconnect {
+    pub fn debug(&self) {
+        println!("Reason: {}", self.reason);
+        if !self.skip_message {
+            println!("Message: {}", self.message.clone().unwrap());
+            println!("Filtered Message: {}", self.filtered_message.clone().unwrap());
+        }
+    }
+}
+
 pub fn decode(bytes: Vec<u8>) -> Disconnect {
     let mut stream = Stream::new(bytes, 0);
 

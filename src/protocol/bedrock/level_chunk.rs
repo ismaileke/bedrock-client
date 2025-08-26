@@ -1,15 +1,5 @@
 use binary_utils::binary::Stream;
 
-pub struct LevelChunk {
-    pub chunk_x: i32,
-    pub chunk_z: i32,
-    pub dimension_id: i32,
-    pub sub_chunk_count: u32,
-    pub client_sub_chunk_requests_enabled: bool,
-    pub used_blob_hashes: Option<Vec<i64>>,
-    pub extra_payload: Vec<u8>
-}
-
 /**
  * Client will request all sub chunks as needed up to the top of the world
  */
@@ -22,6 +12,28 @@ pub const CLIENT_REQUEST_TRUNCATED_COLUMN_FAKE_COUNT: u32 = u32::MAX - 1;
 
 //this appears large enough for a world height of 1024 blocks - it may need to be increased in the future
 pub const MAX_BLOB_HASHES: u32 = 64;
+
+pub struct LevelChunk {
+    pub chunk_x: i32,
+    pub chunk_z: i32,
+    pub dimension_id: i32,
+    pub sub_chunk_count: u32,
+    pub client_sub_chunk_requests_enabled: bool,
+    pub used_blob_hashes: Option<Vec<i64>>,
+    pub extra_payload: Vec<u8>
+}
+
+impl LevelChunk {
+    pub fn debug(&self) {
+        println!("Chunk X: {}", self.chunk_x);
+        println!("Chunk Z: {}", self.chunk_z);
+        println!("Dimension ID: {}", self.dimension_id);
+        println!("Sub Chunk Count: {}", self.sub_chunk_count);
+        println!("Client Sub Chunk Requests Enabled: {}", self.client_sub_chunk_requests_enabled);
+        println!("Used Blob Hashes: {:?}", self.used_blob_hashes);
+        println!("Extra Payload (Length): {}", self.extra_payload.len());
+    }
+}
 
 pub fn decode(bytes: Vec<u8>) -> LevelChunk {
     let mut stream = Stream::new(bytes, 0);

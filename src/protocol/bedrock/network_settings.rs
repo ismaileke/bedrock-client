@@ -15,6 +15,16 @@ pub struct NetworkSettings {
     pub client_throttle_scalar: f32
 }
 
+impl NetworkSettings {
+    pub fn debug(&self) {
+        println!("Compression Threshold: {}", if self.compression_threshold == 1 { "COMPRESS_EVERYTHING" } else { "COMPRESS_NOTHING" });
+        println!("Compression Algorithm: {}", if self.compression_algorithm == 0 { "ZLIB" } else if self.compression_algorithm == 1 { "SNAPPY" } else { "NONE" });
+        println!("Enable Client Throttling: {}", self.enable_client_throttling);
+        println!("Client Throttle Threshold: {}", self.client_throttle_threshold);
+        println!("Client Throttle Scalar: {}", self.client_throttle_scalar);
+    }
+}
+
 pub fn decode(bytes: Vec<u8>) -> NetworkSettings {
     let mut stream = Stream::new(bytes, 0);
 
