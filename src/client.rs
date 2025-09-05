@@ -76,7 +76,7 @@ pub struct Client {
     compression_enabled: bool,
     encryption_enabled: bool,
     hashed_network_ids: HashMap<u32, CompoundTag>,
-    regular_network_ids: HashMap<u32, CompoundTag>,
+    runtime_network_ids: Vec<CompoundTag>,
     air_network_id: u32,
     packet_callback: Option<Box<dyn Fn(&str) + Send>>,
     auth_callback: Arc<Mutex<Option<Box<dyn Fn(&str, &str) + Send>>>>
@@ -123,7 +123,7 @@ where
         compression_enabled: false,
         encryption_enabled: false,
         hashed_network_ids: HashMap::new(),
-        regular_network_ids: HashMap::new(),
+        runtime_network_ids: vec![],
         air_network_id: 0,
         packet_callback: None,
         auth_callback
@@ -377,8 +377,8 @@ impl Client {
                                                     }
                                                     if self.debug { resource_packs_info.debug(); }
 
-                                                    // RESOURCE PACK CLIENT RESPONSE PACKET {COMPLETED}
-                                                    let rp_client_response = resource_pack_client_response::new(resource_pack_client_response::COMPLETED, rp_uuids).encode();
+                                                    // RESOURCE PACK CLIENT RESPONSE PACKET {HAVE ALL PACKS}
+                                                    let rp_client_response = resource_pack_client_response::new(resource_pack_client_response::HAVE_ALL_PACKS, rp_uuids).encode();
 
                                                     let game_packet = self.game.encode(&rp_client_response);
 
@@ -397,6 +397,18 @@ impl Client {
 
                                                     for datagram in datagrams {
                                                         self.socket.send(&datagram.to_binary()).expect("ClientCacheStatus Packet Fragment could not be sent");
+                                                    }
+                                                },
+                                                BedrockPacketType::ResourcePackStack => {
+                                                    // RESOURCE PACK CLIENT RESPONSE PACKET {COMPLETED}
+                                                    let rp_client_response = resource_pack_client_response::new(resource_pack_client_response::COMPLETED, vec![]).encode();
+
+                                                    let game_packet = self.game.encode(&rp_client_response);
+
+                                                    let datagrams = Datagram::split_packet(game_packet, &mut self.frame_number_cache);
+
+                                                    for datagram in datagrams {
+                                                        self.socket.send(&datagram.to_binary()).expect("ResourcePackClientResponse Packet Fragment could not be sent");
                                                     }
                                                 },
                                                 BedrockPacketType::PlayStatus => {
@@ -608,7 +620,7 @@ impl Client {
 
                                                                 let mut custom_ct_list = custom_ct.clone();
                                                                 custom_ct_list.set_int("block_id".to_string(), block_id);
-                                                                self.hashed_network_ids.insert(hash_identifier(data), custom_ct_list.clone());
+                                                                self.hashed_network_ids.insert(fnv1a_32(data), custom_ct_list.clone());
                                                             }
                                                         }
 
@@ -638,7 +650,60 @@ impl Client {
                                                             }*/
                                                         }
                                                     } else {
+                                                        let mut name_hashes: Vec<CompoundTag> = Vec::new();
 
+                                                        // Adding vanilla blocks to Runtime Network IDs
+                                                        for i in 0..vanilla_blocks.count() {
+                                                            let vanilla_block = vanilla_blocks.get(i);
+                                                            let mut vanilla_ct = vanilla_block.as_any().downcast_ref::<CompoundTag>().unwrap().clone();
+
+                                                            vanilla_ct.remove_tag(vec!["version".to_string(), "network_id".to_string()]);
+                                                            name_hashes.push(vanilla_ct);
+                                                        }
+
+                                                        // Adding custom blocks to Runtime Network IDs
+                                                        for (block_data, properties) in custom_blocks {
+                                                            let parts: Vec<&str> = block_data.split('/').collect();
+                                                            let block_id = parts[0].parse::<u32>().unwrap();
+                                                            let block_name = parts[1].to_string();
+
+                                                            let combinations = cartesian_product_enum(&properties);
+                                                            for combo in combinations {
+                                                                let mut state = CompoundTag::new(HashMap::new());
+                                                                for (k, v) in &combo {
+                                                                    match v {
+                                                                        PropertyValue::Int(i) => {
+                                                                            state.set_int(k.clone(), *i);
+                                                                        },
+                                                                        PropertyValue::Str(s) => {
+                                                                            state.set_string(k.clone(), s.clone());
+                                                                        },
+                                                                        PropertyValue::Byte(b) => {
+                                                                            state.set_byte(k.clone(), *b);
+                                                                        }
+                                                                    }
+                                                                }
+
+                                                                let mut cct = CompoundTag::new(HashMap::new());
+                                                                cct.set_string("name".to_string(), block_name.clone());
+                                                                cct.set_long("name_hash".to_string(), fnv1_64(block_name.as_bytes()) as i64); ///////////////////////////
+                                                                cct.set_int("block_id".to_string(), block_id);
+                                                                cct.set_tag("states".to_string(), Box::new(state.clone()));
+                                                                name_hashes.push(cct);
+                                                            }
+                                                        }
+
+
+                                                        // Sorting blocks
+                                                        name_hashes.sort_by_key(|tag| tag.get_long("name_hash").unwrap() as u64);
+
+
+                                                        // Find air runtime id
+                                                        if let Some(index) = name_hashes.iter().position(|tag| tag.get_string("name").unwrap() == "minecraft:air") {
+                                                            self.air_network_id = index as u32;
+                                                        }
+
+                                                       self.runtime_network_ids = name_hashes.clone();
                                                     }
 
 
@@ -676,8 +741,6 @@ impl Client {
 
                                                     let chunk = network_decode(self.air_network_id.clone(), level_chunk.extra_payload, level_chunk.sub_chunk_count, get_dimension_chunk_bounds(0));
                                                     if chunk.is_ok() {
-                                                        //let hash_id = chunk.unwrap().get_block(level_chunk.chunk_x as u8, 10, level_chunk.chunk_z as u8, 0);
-                                                        //println!("X: {} Y: 10 Z: {} Block Name: {}", level_chunk.chunk_x.clone(), level_chunk.chunk_z.clone(), self.hashed_network_ids.get(&hash_id).unwrap().get_string("name").unwrap());
                                                         self.print_all_blocks(level_chunk.chunk_x.clone(), level_chunk.chunk_z.clone(), chunk.unwrap());
                                                     } else {
                                                         panic!("{}", chunk.err().unwrap());
@@ -799,16 +862,6 @@ impl Client {
     }
 
     pub fn print_all_blocks(&self, chunk_x: i32, chunk_z: i32, chunk: Chunk) {
-        let mut file = OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open("output.txt")
-            .or_else(|_| {
-                OpenOptions::new()
-                    .write(true)
-                    .open("output.txt")
-            })
-            .unwrap();
         for (sub_chunk_index, sub_chunk) in chunk.sub.iter().enumerate() {
             for (layer_index, storage) in sub_chunk.storages.iter().enumerate() {
                 //println!("SubChunk {} - Layer {}:", sub_chunk_index, layer_index);
@@ -817,21 +870,20 @@ impl Client {
                         for x in 0..16 {
                             for z in 0..16 {
                                 let block_id = storage.at(x as u8, y as u8, z as u8);
-                                let maybe_info = self.hashed_network_ids.get(&block_id);
+                                println!("block id: {}", block_id);
+                                let block_info;
+                                if self.hashed_network_ids.len() != 0 {
+                                    block_info = self.hashed_network_ids.get(&block_id).unwrap();
+                                } else {
+                                    block_info = self.runtime_network_ids.get(block_id as usize).unwrap();
+                                }
                                 let real_x = chunk_x*16 + x;
                                 let real_y = chunk.r.0 + (sub_chunk_index*16 + y) as isize;
                                 let real_z = chunk_z*16 + z;
-                                if let Some(block_info) = maybe_info {
-                                    let name = block_info.get_string("name").unwrap();
-                                    if name != "minecraft:air" {
-                                        writeln!(file, "Block at ({}, {}, {}): {}", real_x, real_y, real_z, name).unwrap();
-
-                                        println!("Block at ({}, {}, {}): {}", real_x, real_y, real_z, name);
-                                    }
-                                } else {
-                                    println!("Block at ({}, {}, {}): UNKNOWN_BLOCK_HASH_ID {}", real_x, real_y, real_z, block_id);
+                                let name = block_info.get_string("name").unwrap();
+                                if name != "minecraft:air" {
+                                    println!("Block at ({}, {}, {}): {}", real_x, real_y, real_z, name);
                                 }
-                                //println!("Block at ({}, {}, {}): {}", chunk_x * 16 + x, sub_chunk_index * 16 + y, chunk_z * 16 + z, self.hashed_network_ids.get(&block_id).unwrap().get_string("name").unwrap());
                             }
                         }
                     }
@@ -841,16 +893,26 @@ impl Client {
     }
 }
 
-pub fn hash_identifier(data: &[u8]) -> u32 {
-    let mut hash: u32 = 0x811c9dc5;
+const FNV1_32_INIT: u32 = 0x811c9dc5;
+const FNV1_PRIME_32: u32 = 0x0100_0193;
 
-    for &byte in data {
-        hash ^= byte as u32;
-        hash = hash.wrapping_add(hash << 1)
-            .wrapping_add(hash << 4)
-            .wrapping_add(hash << 7)
-            .wrapping_add(hash << 8)
-            .wrapping_add(hash << 24);
+pub fn fnv1a_32(data: &[u8]) -> u32 {
+    let mut hash: u32 = FNV1_32_INIT;
+    for &datum in data {
+        hash ^= datum as u32;
+        hash = hash.wrapping_mul(FNV1_PRIME_32);
+    }
+    hash
+}
+
+const FNV1_64_INIT: u64 = 0xcbf29ce484222325;
+const FNV1_PRIME_64: u64 = 0x00000100000001b3;
+
+pub fn fnv1_64(data: &[u8]) -> u64 {
+    let mut hash: u64 = FNV1_64_INIT;
+    for &datum in data {
+        hash = hash.wrapping_mul(FNV1_PRIME_64);
+        hash ^= datum as u64;
     }
     hash
 }

@@ -252,7 +252,6 @@ pub fn decode_paletted_storage(buf: &mut Stream) -> Result<Option<PalettedStorag
 
     for i in 0..uin32_count as usize {
         uint32s.insert(i, u32::from_le_bytes([data[i*4], data[i*4+1], data[i*4+2], data[i*4+3]]));
-        //uint32s.push((data[i*4] as u32) | (data[i*4+1] as u32)<<8 | (data[i*4+2] as u32)<<16 | (data[i*4+3] as u32)<<24)
     }
 
     let palette = decode_palette(buf, PaletteSize(block_size))?;
