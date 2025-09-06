@@ -870,7 +870,6 @@ impl Client {
                         for x in 0..16 {
                             for z in 0..16 {
                                 let block_id = storage.at(x as u8, y as u8, z as u8);
-                                println!("block id: {}", block_id);
                                 let block_info;
                                 if self.hashed_network_ids.len() != 0 {
                                     block_info = self.hashed_network_ids.get(&block_id).unwrap();
