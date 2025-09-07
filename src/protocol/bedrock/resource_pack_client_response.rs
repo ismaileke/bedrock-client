@@ -1,6 +1,5 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use binary_utils::binary::Stream;
-use uuid::Uuid;
 
 pub const NONE: u8 = 0;
 pub const REFUSED: u8 = 1;
@@ -10,10 +9,10 @@ pub const COMPLETED: u8 = 4;
 
 pub struct ResourcePackClientResponse {
     status: u8,
-    pack_ids: Vec<Uuid>
+    pack_ids: Vec<String>
 }
 
-pub fn new(status: u8, pack_ids: Vec<Uuid>) -> ResourcePackClientResponse {
+pub fn new(status: u8, pack_ids: Vec<String>) -> ResourcePackClientResponse {
     ResourcePackClientResponse{ status, pack_ids }
 }
 

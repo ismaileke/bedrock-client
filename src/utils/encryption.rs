@@ -146,3 +146,15 @@ pub fn parse_der_public_key(der_key: &[u8]) -> PKey<Public> {
     let pkey = PKey::public_key_from_der(der_key).expect("Pem To Public Key Convert Error");
     pkey
 }
+
+pub fn fix_base64_padding(s: &str) -> String {
+    let rem = s.len() % 4;
+    if rem == 0 {
+        s.to_string()
+    } else {
+        let pad = 4 - rem;
+        let mut s = s.to_string();
+        s.extend(std::iter::repeat('=').take(pad));
+        s
+    }
+}

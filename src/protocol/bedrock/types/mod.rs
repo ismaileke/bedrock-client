@@ -6,3 +6,5 @@ pub mod player_movement_settings;
 pub mod network_permissions;
 pub mod cacheable_nbt;
 pub mod block_palette_entry;
+pub mod resource_pack_stack_entry;
+pub mod sub_chunk_position_offset;
