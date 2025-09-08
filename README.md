@@ -48,6 +48,12 @@ async fn main() {
         println!("New packet received: {}", packet_name);
     });
 
+    client.set_block_callback(|block_coord, block_data| {
+        println!("-----------------------------");
+        println!("Block coord: {:?}", block_coord);
+        println!("Block name: {:?}", block_data.get_string("name"));
+    });
+
     client.connect().expect("Target IP Connection Error");
 }
 ```

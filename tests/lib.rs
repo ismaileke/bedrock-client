@@ -22,7 +22,7 @@ mod tests {
         });
 
         client.set_block_callback(|block_coord, block_data| {
-            println!("---");
+            println!("-----------------------------");
             println!("Block coord: {:?}", block_coord);
             println!("Block name: {:?}", block_data.get_string("name"));
         });
