@@ -60,6 +60,7 @@ pub struct Client {
     pub debug: bool,
     pub packet_callback: Option<Box<dyn Fn(&str) + Send>>,
     pub auth_callback: Arc<Mutex<Option<Box<dyn Fn(&str, &str) + Send>>>>,
+    pub block_callback: Option<Box<dyn Fn(Vec<i32>, &CompoundTag) + Send>>,
     pub raknet_handler: RakNetPacketHandler,
     pub bedrock_handler: BedrockPacketHandler
 }
@@ -94,6 +95,7 @@ where
         debug,
         packet_callback: None,
         auth_callback,
+        block_callback: None,
         raknet_handler: RakNetPacketHandler::new(),
         bedrock_handler: BedrockPacketHandler::new(bedrock)
     })
@@ -782,6 +784,14 @@ impl Client {
         *self.auth_callback.lock().unwrap() = Some(Box::new(callback));
     }
 
+    // Block callback setter function
+    pub fn set_block_callback<F>(&mut self, callback: F)
+    where
+        F: Fn(Vec<i32>, &CompoundTag) + Send + 'static,
+    {
+        self.block_callback = Some(Box::new(callback));
+    }
+
     pub fn print_all_blocks(&self, chunk_x: i32, chunk_z: i32, chunk: Chunk) {
         for (sub_chunk_index, sub_chunk) in chunk.sub.iter().enumerate() {
             for (layer_index, storage) in sub_chunk.storages.iter().enumerate() {
@@ -802,7 +812,12 @@ impl Client {
                                 let real_z = chunk_z*16 + z;
                                 let name = block_info.get_string("name").unwrap();
                                 if name != "minecraft:air" {
-                                    println!("Block at ({}, {}, {}): {}", real_x, real_y, real_z, name);
+                                    // Call the block callback if set
+                                    if let Some(callback) = &self.block_callback {
+                                        let coordinates = vec![real_x, real_y as i32, real_z];
+                                        callback(coordinates, block_info);
+                                    }
+                                    //println!("Block at ({}, {}, {}): {}", real_x, real_y, real_z, name);
                                 }
                             }
                         }
