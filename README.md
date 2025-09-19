@@ -2,6 +2,10 @@
     
 # 🦀 Bedrock Client
 
+<img width="256" height="256" alt="logo" src="https://github.com/user-attachments/assets/775e7f66-138c-4c0f-9565-d9b58a2f4afd" />
+
+
+
 [![latest release](https://shields.io/github/v/release/ismaileke/bedrock-client)](https://github.com/ismaileke/bedrock-client/releases/latest)
 ![GitHub License](https://img.shields.io/github/license/ismaileke/bedrock-client)
 ![GitHub Downloads](https://img.shields.io/github/downloads/ismaileke/bedrock-client/total)
