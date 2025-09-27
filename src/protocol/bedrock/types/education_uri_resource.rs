@@ -1,4 +1,5 @@
 use binary_utils::binary::Stream;
+use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(Debug)]
 pub struct EducationUriResource {
@@ -8,11 +9,14 @@ pub struct EducationUriResource {
 
 impl EducationUriResource {
     pub fn read(stream: &mut Stream) -> EducationUriResource {
-        let mut length = stream.get_unsigned_var_int();
-        let button_name = String::from_utf8(stream.get(length).unwrap()).unwrap();
-        length = stream.get_unsigned_var_int();
-        let link_uri = String::from_utf8(stream.get(length).unwrap()).unwrap();
+        let button_name = PacketSerializer::get_string(stream);
+        let link_uri = PacketSerializer::get_string(stream);
 
         EducationUriResource{ button_name, link_uri }
+    }
+
+    pub fn write(&self, stream: &mut Stream) {
+        PacketSerializer::put_string(stream, self.button_name.clone());
+        PacketSerializer::put_string(stream, self.link_uri.clone());
     }
 }

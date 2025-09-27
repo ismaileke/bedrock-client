@@ -1,5 +1,7 @@
+use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::raknet::game_packet::GamePacket;
+use crate::protocol::bedrock::packet::Packet;
 use crate::utils::encryption::Encryption;
 use binary_utils::binary::Stream;
 use chrono::Utc;
@@ -9,19 +11,23 @@ use openssl::sign::Signer;
 use serde_json::{json, to_vec, Value};
 
 pub struct Login {
-    client_protocol: u32,
-    auth_info_json: String,
-    client_data_jwt: String
+    pub client_protocol: u32,
+    pub auth_info_json: String,
+    pub client_data_jwt: String
 }
 
 pub fn new(client_protocol: u32, auth_info_json: String, client_data_jwt: String) -> Login {
     Login{ client_protocol, auth_info_json, client_data_jwt }
 }
 
-impl Login {
-    pub fn encode(&self) -> Vec<u8> {
+impl Packet for Login {
+    fn id(&self) -> u16 {
+        BedrockPacketType::IDLogin.get_byte()
+    }
+
+    fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(BedrockPacketType::get_byte(BedrockPacketType::Login) as u32);
+        stream.put_unsigned_var_int(self.id() as u32);
 
         stream.put_int(self.client_protocol);
 
@@ -45,10 +51,37 @@ impl Login {
         main_stream.get_buffer()
     }
 
-    pub fn debug(&self) {
+    fn decode(bytes: Vec<u8>) -> Login {
+        let mut stream = Stream::new(bytes, 0);
+
+        let client_protocol = stream.get_int();
+
+        let length = stream.get_unsigned_var_int();
+        let conn_req_data = stream.get(length).unwrap();
+
+        let mut conn_req_reader = Stream::new(conn_req_data, 0);
+
+        let auth_info_json_length = conn_req_reader.get_l_int();
+
+        let auth_info_json_vec = conn_req_reader.get(auth_info_json_length).unwrap();
+        let auth_info_json = String::from_utf8(auth_info_json_vec).unwrap();
+
+        let client_data_jwt_length = conn_req_reader.get_l_int();
+
+        let client_data_jwt_vec = conn_req_reader.get(client_data_jwt_length).unwrap();
+        let client_data_jwt = String::from_utf8(client_data_jwt_vec).unwrap();
+
+        Login{ client_protocol, auth_info_json, client_data_jwt }
+    }
+
+    fn debug(&self) {
         println!("Client Protocol: {}", self.client_protocol);
         println!("Auth Info JSON: {}", self.auth_info_json);
         println!("Client Data JWT: {}", self.client_data_jwt);
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 

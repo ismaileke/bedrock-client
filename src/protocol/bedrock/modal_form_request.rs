@@ -1,23 +1,29 @@
+use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
+use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 pub struct ModalFormRequest {
-    form_id: u32,
-    form_data: String // json
+    pub form_id: u32,
+    pub form_data: String // json
 }
 
 pub fn new(form_id: u32, form_data: String) -> ModalFormRequest {
     ModalFormRequest { form_id, form_data }
 }
 
-impl ModalFormRequest {
-    pub fn encode(&mut self) -> Vec<u8> {
+impl Packet for ModalFormRequest {
+    fn id(&self) -> u16 {
+        BedrockPacketType::IDModalFormRequest.get_byte()
+    }
+
+    fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(BedrockPacketType::get_byte(BedrockPacketType::ModalFormRequest) as u32);
+        stream.put_unsigned_var_int(self.id() as u32);
 
         stream.put_unsigned_var_int(self.form_id);
-        stream.put_l_int(self.form_data.len() as u32);
-        stream.put(self.form_data.clone().into_bytes());
+        PacketSerializer::put_string(&mut stream, self.form_data.clone());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
@@ -26,18 +32,21 @@ impl ModalFormRequest {
         compress_stream.get_buffer()
     }
 
-    pub fn debug(&self) {
+    fn decode(bytes: Vec<u8>) -> ModalFormRequest {
+        let mut stream = Stream::new(bytes, 0);
+
+        let form_id = stream.get_unsigned_var_int();
+        let form_data = PacketSerializer::get_string(&mut stream);
+
+        ModalFormRequest { form_id, form_data }
+    }
+
+    fn debug(&self) {
         println!("Form ID: {}", self.form_id);
         println!("Form Data: {}", self.form_data);
     }
-}
 
-pub fn decode(bytes: Vec<u8>) -> ModalFormRequest {
-    let mut stream = Stream::new(bytes, 0);
-
-    let form_id = stream.get_unsigned_var_int();
-    let length = stream.get_unsigned_var_int();
-    let form_data = String::from_utf8(stream.get(length).unwrap()).unwrap();
-
-    ModalFormRequest { form_id, form_data }
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }

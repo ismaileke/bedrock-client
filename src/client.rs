@@ -1,15 +1,23 @@
 use crate::handler::bedrock_packet_handler::BedrockPacketHandler;
 use crate::handler::raknet_packet_handler::RakNetPacketHandler;
-use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
-use crate::protocol::bedrock::*;
 use crate::protocol::raknet::acknowledge::Acknowledge;
 use crate::protocol::raknet::connected_ping::ConnectedPing;
 use crate::protocol::raknet::connected_pong::ConnectedPong;
+use crate::protocol::raknet::frame_set;
 use crate::protocol::raknet::frame_set::{Datagram, UNRELIABLE};
 use crate::protocol::raknet::game_packet::GamePacket;
 use crate::protocol::raknet::open_conn_req1::OpenConnReq1;
 use crate::protocol::raknet::packet_ids::{PacketType, MAGIC};
-use crate::protocol::raknet::frame_set;
+use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
+use crate::protocol::bedrock::packet::Packet;
+use crate::protocol::bedrock::*;
+use crate::protocol::bedrock::level_chunk::LevelChunk;
+use crate::protocol::bedrock::network_stack_latency::NetworkStackLatency;
+use crate::protocol::bedrock::play_status::PlayStatus;
+use crate::protocol::bedrock::resource_pack_stack::ResourcePackStack;
+use crate::protocol::bedrock::resource_packs_info::ResourcePacksInfo;
+use crate::protocol::bedrock::server_to_client_handshake::ServerToClientHandshake;
+use crate::protocol::bedrock::start_game::StartGame;
 use crate::utils::block::PropertyValue;
 use crate::utils::chunk::{get_dimension_chunk_bounds, network_decode, Chunk};
 use crate::utils::color_format::*;
@@ -58,7 +66,7 @@ pub struct Client {
     pub target_port: u16,
     pub client_version: String,
     pub debug: bool,
-    pub packet_callback: Option<Box<dyn Fn(&str) + Send>>,
+    pub packet_callback: Option<Box<dyn Fn(&str, &Box<dyn Packet>) + Send>>,
     pub auth_callback: Arc<Mutex<Option<Box<dyn Fn(&str, &str) + Send>>>>,
     pub block_callback: Option<Box<dyn Fn(Vec<i32>, &CompoundTag) + Send>>,
     pub raknet_handler: RakNetPacketHandler,
@@ -264,30 +272,33 @@ impl Client {
                                                 stream = Stream::new(GamePacket::decompress(&stream.get_remaining().unwrap()), 0);
                                             }
                                         }
-
+                                        let mut i = 1;
                                         while !stream.feof() {
                                             let length = stream.get_unsigned_var_int();
 
-                                            let packet = stream.get(length).unwrap();
-                                            let mut packet_stream = Stream::new(packet, 0);
+                                            let packet_vec = stream.get(length).unwrap();
+                                            let mut packet_stream = Stream::new(packet_vec, 0);
 
                                             let packet_id = packet_stream.get_unsigned_var_int();
                                             let packet_type = BedrockPacketType::from_byte(packet_id as u16);
 
-                                            // Call callback
-                                            if let Some(callback) = &self.packet_callback {
+                                            let packet = BedrockPacketType::get_packet_from_id(packet_id as u16, &mut packet_stream);
+
+                                            // Call packet callback
+                                            if let Some(packet_callback) = &self.packet_callback {
                                                 let packet_name = BedrockPacketType::get_packet_name(packet_id as u16);
-                                                callback(packet_name);
+                                                packet_callback(packet_name, &packet);
                                             }
 
                                             if self.debug {
+                                                println!("i: {}", i);
+                                                i += 1;
                                                 println!("--- {}{}{} ---", COLOR_GOLD, BedrockPacketType::get_packet_name(packet_id as u16), COLOR_WHITE);
+                                                packet.debug();
                                             }
-                                            match packet_type {
-                                                BedrockPacketType::NetworkSettings => {
-                                                    let network_settings = network_settings::decode(packet_stream.get_remaining().unwrap());
-                                                    if self.debug { network_settings.debug(); }
 
+                                            match packet_type {
+                                                BedrockPacketType::IDNetworkSettings => {
                                                     self.raknet_handler.game = GamePacket::new(None, true);
                                                     self.bedrock_handler.compression_enabled = true;
 
@@ -302,9 +313,8 @@ impl Client {
                                                         self.socket.send(&datagram.to_binary()).expect("Login Packet Fragment could not be sent");
                                                     }
                                                 },
-                                                BedrockPacketType::ServerToClientHandshake => {
-                                                    let s_to_c_handshake = server_to_client_handshake::decode(packet_stream.get_remaining().unwrap());
-                                                    if self.debug { s_to_c_handshake.debug(); }
+                                                BedrockPacketType::IDServerToClientHandshake => {
+                                                    let s_to_c_handshake = ServerToClientHandshake::decode(packet_stream.get_remaining().unwrap());
 
                                                     let jwt = String::from_utf8(s_to_c_handshake.jwt).unwrap();
 
@@ -343,9 +353,8 @@ impl Client {
                                                         self.socket.send(&datagram.to_binary()).expect("ClientToServerHandshake Packet Fragment could not be sent");
                                                     }
                                                 },
-                                                BedrockPacketType::ResourcePacksInfo => {
-                                                    let resource_packs_info = resource_packs_info::decode(packet_stream.get_remaining().unwrap());
-                                                    if self.debug { resource_packs_info.debug(); }
+                                                BedrockPacketType::IDResourcePacksInfo => {
+                                                    let resource_packs_info = ResourcePacksInfo::decode(packet_stream.get_remaining().unwrap());
 
 
                                                     let mut rp_uuids = Vec::new();
@@ -376,9 +385,8 @@ impl Client {
                                                         self.socket.send(&datagram.to_binary()).expect("ClientCacheStatus Packet Fragment could not be sent");
                                                     }
                                                 },
-                                                BedrockPacketType::ResourcePackStack => {
-                                                    let resource_pack_stack = resource_pack_stack::decode(packet_stream.get_remaining().unwrap());
-                                                    if self.debug { resource_pack_stack.debug(); }
+                                                BedrockPacketType::IDResourcePackStack => {
+                                                    let resource_pack_stack = ResourcePackStack::decode(packet_stream.get_remaining().unwrap());
 
                                                     let mut pack_ids = vec![];
                                                     for behavior_stack_entry in &resource_pack_stack.behavior_pack_stack {
@@ -399,8 +407,8 @@ impl Client {
                                                         self.socket.send(&datagram.to_binary()).expect("ResourcePackClientResponse Packet Fragment could not be sent");
                                                     }
                                                 },
-                                                BedrockPacketType::PlayStatus => {
-                                                    let play_status = play_status::decode(packet_stream.get_remaining().unwrap());
+                                                BedrockPacketType::IDPlayStatus => {
+                                                    let play_status = PlayStatus::decode(packet_stream.get_remaining().unwrap());
                                                     if play_status.status == 3 { // Player Spawn
                                                         // SET LOCAL PLAYER AS INITIALIZED PACKET
                                                         let set_local_player_as_init = set_local_player_as_initialized::new(0).encode();
@@ -414,20 +422,18 @@ impl Client {
                                                         }
                                                     }
 
-                                                    if self.debug { play_status.debug(); }
                                                 },
-                                                BedrockPacketType::StartGame => {
-                                                    let start_game = start_game::decode(packet_stream.get_remaining().unwrap());
+                                                BedrockPacketType::IDStartGame => {
+                                                    let start_game = StartGame::decode(packet_stream.get_remaining().unwrap());
 
-                                                    if self.debug { start_game.debug(); }
 
 
                                                     // Custom Blok Verileri HashMap'e a Aktarılıyor
                                                     let block_palette_entries = start_game.block_palette;
                                                     let mut custom_blocks = HashMap::new();
                                                     for block_palette_entry in block_palette_entries {
-                                                        println!("{}----{}", COLOR_DARK_AQUA, COLOR_WHITE);
-                                                        println!("Block Name: {}", block_palette_entry.get_name());
+                                                        //println!("{}----{}", COLOR_DARK_AQUA, COLOR_WHITE);
+                                                        //println!("Block Name: {}", block_palette_entry.get_name());
                                                         let root = block_palette_entry.get_states().get_root();
                                                         let bct = root.as_any().downcast_ref::<CompoundTag>().unwrap();
 
@@ -701,7 +707,7 @@ impl Client {
                                                     ////////////////////////////////////////////////////
 
                                                 },
-                                                BedrockPacketType::AvailableCommands => {
+                                                BedrockPacketType::IDAvailableCommands => {
                                                     // REQUEST CHUNK RADIUS PACKET
                                                     let req_chunk_radius = request_chunk_radius::new(40, 40).encode();
 
@@ -713,19 +719,8 @@ impl Client {
                                                         self.socket.send(&datagram.to_binary()).expect("RequestChunkRadius Packet Fragment could not be sent");
                                                     }
                                                 },
-                                                BedrockPacketType::Text => {
-                                                    let text = text::decode(packet_stream.get_remaining().unwrap());
-
-                                                    if self.debug { text.debug(); }
-                                                },
-                                                BedrockPacketType::NetworkChunkPublisherUpdate => {
-                                                    let network_chunk_publisher_update = network_chunk_publisher_update::decode(packet_stream.get_remaining().unwrap());
-
-                                                    if self.debug { network_chunk_publisher_update.debug(); }
-                                                },
-                                                BedrockPacketType::LevelChunk => {
-                                                    let level_chunk = level_chunk::decode(packet_stream.get_remaining().unwrap());
-                                                    if self.debug { level_chunk.debug(); }
+                                                BedrockPacketType::IDLevelChunk => {
+                                                    let level_chunk = LevelChunk::decode(packet_stream.get_remaining().unwrap());
 
                                                     let chunk = network_decode(self.bedrock_handler.air_network_id.clone(), level_chunk.extra_payload, level_chunk.sub_chunk_count, get_dimension_chunk_bounds(0));
                                                     if chunk.is_ok() {
@@ -734,14 +729,23 @@ impl Client {
                                                         panic!("{}", chunk.err().unwrap());
                                                     }
                                                 },
-                                                BedrockPacketType::ModalFormRequest => {
-                                                    let modal_form_request = modal_form_request::decode(packet_stream.get_remaining().unwrap());
-                                                    if self.debug { modal_form_request.debug(); }
-                                                }
-                                                BedrockPacketType::Disconnect => {
-                                                    let disconnect = disconnect::decode(packet_stream.get_remaining().unwrap());
-                                                    if self.debug { disconnect.debug(); }
+                                                BedrockPacketType::IDNetworkStackLatency => {
+                                                    let network_stack_latency = NetworkStackLatency::decode(packet_stream.get_remaining().unwrap());
 
+                                                    if network_stack_latency.need_response { // send
+                                                        // NETWORK STACK LATENCY
+                                                        let network_stack_latency_response = network_stack_latency::response(network_stack_latency.timestamp).encode();
+
+                                                        let game_packet = self.raknet_handler.game.encode(&network_stack_latency_response);
+
+                                                        let datagrams = Datagram::split_packet(game_packet, &mut self.raknet_handler.frame_number_cache);
+
+                                                        for datagram in datagrams {
+                                                            self.socket.send(&datagram.to_binary()).expect("RequestChunkRadius Packet Fragment could not be sent");
+                                                        }
+                                                    }
+                                                }
+                                                BedrockPacketType::IDDisconnect => {
                                                     should_stop = true;
                                                 }
                                                 _ => {}
@@ -771,7 +775,7 @@ impl Client {
     // Callback setter function
     pub fn set_packet_callback<F>(&mut self, callback: F)
     where
-        F: Fn(&str) + Send + 'static,
+        F: Fn(&str, &Box<dyn Packet>) + Send + 'static,
     {
         self.packet_callback = Some(Box::new(callback));
     }
@@ -795,7 +799,7 @@ impl Client {
     pub fn print_all_blocks(&self, chunk_x: i32, chunk_z: i32, chunk: Chunk) {
         for (sub_chunk_index, sub_chunk) in chunk.sub.iter().enumerate() {
             for (layer_index, storage) in sub_chunk.storages.iter().enumerate() {
-                //println!("SubChunk {} - Layer {}:", sub_chunk_index, layer_index);
+                println!("SubChunk {} - Layer {}:", sub_chunk_index, layer_index);
                 if layer_index == 0 {
                     for y in 0..16 {
                         for x in 0..16 {

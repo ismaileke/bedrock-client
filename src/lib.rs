@@ -3,6 +3,7 @@ pub mod client;
 pub mod protocol;
 pub mod utils;
 pub mod handler;
+pub mod macros;
 
 const RAKNET_PROTOCOL_VERSION: u8 = 11;
 const BEDROCK_PROTOCOL_VERSION: u32 = 827;

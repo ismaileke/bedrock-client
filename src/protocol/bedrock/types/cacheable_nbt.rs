@@ -1,11 +1,21 @@
+use crate::protocol::bedrock::serializer::network_nbt_serializer::NetworkNBTSerializer;
 use mojang_nbt::base_nbt_serializer::BaseNBTSerializer;
 use mojang_nbt::tag::tag::Tag;
 use mojang_nbt::tree_root::TreeRoot;
-use crate::protocol::bedrock::serializer::network_nbt_serializer::NetworkNBTSerializer;
+use std::fmt::Debug;
 
 pub struct CacheableNBT {
     nbt_root: Box<dyn Tag>,
     encoded_nbt: Option<Vec<u8>>
+}
+
+impl Debug for CacheableNBT {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CacheableNBT")
+            .field("nbt_root", &self.nbt_root.get_value())
+            .field("encoded_nbt", &self.encoded_nbt)
+            .finish()
+    }
 }
 
 impl CacheableNBT {

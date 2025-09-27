@@ -1,6 +1,10 @@
 <div align="center">
-    
+
 # 🦀 Bedrock Client
+
+<img width="256" height="256" alt="logo" src="https://github.com/user-attachments/assets/775e7f66-138c-4c0f-9565-d9b58a2f4afd" />
+
+
 
 [![latest release](https://shields.io/github/v/release/ismaileke/bedrock-client)](https://github.com/ismaileke/bedrock-client/releases/latest)
 ![GitHub License](https://img.shields.io/github/license/ismaileke/bedrock-client)
@@ -11,7 +15,7 @@
 
 ## ⚙️ Demo
 <div align="center">
-    
+
 ![bedrock-client](https://github.com/user-attachments/assets/7de7d6ac-9235-45ad-a8ed-2a90514237d5)
 
 </div>
@@ -42,10 +46,13 @@ async fn main() {
             println!("You can log in with the code {} at {}", code, url);
         }
     ).await.unwrap();
-    
-    client.set_packet_callback(|packet_name| {
-        // It can be used to try different things with incoming packages. Different features will be added later.
-        println!("New packet received: {}", packet_name);
+
+    client.set_packet_callback(|packet_name, packet| {
+        println!("New packet received: {} Packet", packet_name);
+        downcast_bedrock_packet!(packet, Text, |txt: &Text| {
+                println!("Text Packet Message: {:?}", txt.message);
+                println!("Text Parameters: {:?}", txt.parameters);
+            })
     });
 
     client.set_block_callback(|block_coord, block_data| {

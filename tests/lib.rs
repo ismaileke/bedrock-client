@@ -3,7 +3,8 @@
 mod tests {
     extern crate bedrock_client;
 
-    use bedrock_client::client;
+    use bedrock_client::{client, downcast_bedrock_packet};
+    use bedrock_client::protocol::bedrock::text::Text;
 
     #[tokio::test]
     async fn test() {
@@ -17,8 +18,12 @@ mod tests {
             }
         ).await.unwrap();
 
-        client.set_packet_callback(|packet_name| {
+        client.set_packet_callback(|packet_name, packet| {
             println!("New packet received: {} Packet", packet_name);
+            downcast_bedrock_packet!(packet, Text, |txt: &Text| {
+                println!("Text Packet Message: {:?}", txt.message);
+                println!("Text Parameters: {:?}", txt.parameters);
+            })
         });
 
         client.set_block_callback(|block_coord, block_data| {

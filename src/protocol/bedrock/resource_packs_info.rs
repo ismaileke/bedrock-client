@@ -1,5 +1,8 @@
+use std::any::Any;
 use binary_utils::binary::Stream;
-use uuid::Uuid;
+use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
+use crate::protocol::bedrock::packet::Packet;
+use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 pub struct ResourcePacksInfo {
     pub must_accept: bool,
@@ -24,8 +27,48 @@ pub struct ResourcePack {
     pub cdn_url: String
 }
 
-impl ResourcePacksInfo {
-    pub fn debug(&self) {
+impl Packet for ResourcePacksInfo {
+    fn id(&self) -> u16 {
+        BedrockPacketType::IDResourcePacksInfo.get_byte()
+    }
+
+    fn encode(&mut self) -> Vec<u8> {
+        todo!()
+    }
+
+    fn decode(bytes: Vec<u8>) -> ResourcePacksInfo {
+        let mut stream = Stream::new(bytes, 0);
+
+        let must_accept = stream.get_bool();
+        let has_addons = stream.get_bool();
+        let has_scripts = stream.get_bool();
+        let force_disable_vibrant_visuals = stream.get_bool();
+
+
+        let world_template_id = PacketSerializer::get_uuid(&mut stream);
+        let world_template_version = PacketSerializer::get_string(&mut stream);
+
+        let resource_pack_count = stream.get_l_short();
+        let mut resource_packs = Vec::new();
+        for _ in 0..resource_pack_count {
+            let uuid = PacketSerializer::get_uuid(&mut stream);
+            let version = PacketSerializer::get_string(&mut stream);
+            let size_bytes = stream.get_l_long();
+            let encryption_key = PacketSerializer::get_string(&mut stream);
+            let sub_pack_name = PacketSerializer::get_string(&mut stream);
+            let content_id = PacketSerializer::get_string(&mut stream);
+            let has_scripts = stream.get_bool();
+            let is_addon_pack = stream.get_bool();
+            let is_rtx_capable = stream.get_bool();
+            let cdn_url = PacketSerializer::get_string(&mut stream);
+
+            resource_packs.push(ResourcePack{ uuid, version, size_bytes, encryption_key, sub_pack_name, content_id, has_scripts, is_addon_pack, is_rtx_capable, cdn_url });
+        }
+
+        ResourcePacksInfo { must_accept, has_addons, has_scripts, world_template_id, world_template_version, force_disable_vibrant_visuals, resource_packs }
+    }
+
+    fn debug(&self) {
         println!("Must Accept: {}", self.must_accept);
         println!("Has Addons: {}", self.has_addons);
         println!("Has Scripts: {}", self.has_scripts);
@@ -48,41 +91,8 @@ impl ResourcePacksInfo {
             println!("-------------------");
         }
     }
-}
 
-pub fn decode(bytes: Vec<u8>) -> ResourcePacksInfo {
-    let mut stream = Stream::new(bytes, 0);
-
-    let must_accept = stream.get_bool();
-    let has_addons = stream.get_bool();
-    let has_scripts = stream.get_bool();
-    let force_disable_vibrant_visuals = stream.get_bool();
-
-    let world_template_id = Uuid::from_slice(&stream.get(16).unwrap()).unwrap().to_string();
-    let length = stream.get_unsigned_var_int();
-    let world_template_version = String::from_utf8(stream.get(length).unwrap()).unwrap();
-
-    let resource_pack_count = stream.get_l_short();
-    let mut resource_packs = Vec::new();
-    for _ in 0..resource_pack_count {
-        let uuid = Uuid::from_slice(&stream.get(16).unwrap()).unwrap().to_string();
-        let mut length = stream.get_unsigned_var_int();
-        let version = String::from_utf8(stream.get(length).unwrap()).unwrap();
-        let size_bytes = stream.get_l_long();
-        length = stream.get_unsigned_var_int();
-        let encryption_key = String::from_utf8(stream.get(length).unwrap()).unwrap();
-        length = stream.get_unsigned_var_int();
-        let sub_pack_name = String::from_utf8(stream.get(length).unwrap()).unwrap();
-        length = stream.get_unsigned_var_int();
-        let content_id = String::from_utf8(stream.get(length).unwrap()).unwrap();
-        let has_scripts = stream.get_bool();
-        let is_addon_pack = stream.get_bool();
-        let is_rtx_capable = stream.get_bool();
-        length = stream.get_unsigned_var_int();
-        let cdn_url = String::from_utf8(stream.get(length).unwrap()).unwrap();
-
-        resource_packs.push(ResourcePack{ uuid, version, size_bytes, encryption_key, sub_pack_name, content_id, has_scripts, is_addon_pack, is_rtx_capable, cdn_url });
+    fn as_any(&self) -> &dyn Any {
+        self
     }
-
-    ResourcePacksInfo { must_accept, has_addons, has_scripts, world_template_id, world_template_version, force_disable_vibrant_visuals, resource_packs }
 }

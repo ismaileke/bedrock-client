@@ -3,6 +3,7 @@ use binary_utils::binary::Stream;
 use chrono::Utc;
 use rand::{rng, Rng};
 use crate::BEDROCK_PROTOCOL_VERSION;
+use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::req_network_settings;
 use crate::protocol::raknet::conn_req::ConnReq;
 use crate::protocol::raknet::conn_req_accepted::ConnReqAccepted;

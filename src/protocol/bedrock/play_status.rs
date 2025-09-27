@@ -1,5 +1,8 @@
+use std::any::Any;
 use std::convert::TryFrom;
 use binary_utils::binary::Stream;
+use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
+use crate::protocol::bedrock::packet::Packet;
 use crate::utils::color_format::*;
 
 #[repr(u32)]
@@ -40,8 +43,22 @@ pub struct PlayStatus {
     pub status: u32,
 }
 
-impl PlayStatus {
-    pub fn debug(&self) {
+impl Packet for PlayStatus {
+    fn id(&self) -> u16 {
+        BedrockPacketType::IDPlayStatus.get_byte()
+    }
+
+    fn encode(&mut self) -> Vec<u8> {
+        todo!()
+    }
+
+    fn decode(bytes: Vec<u8>) -> PlayStatus {
+        let mut stream = Stream::new(bytes, 0);
+
+        PlayStatus { status: stream.get_int() }
+    }
+
+    fn debug(&self) {
         let status = LoginStatus::try_from(self.status).unwrap();
         match status {
             LoginStatus::LoginSuccess => println!("Status: {}Login Success{}", COLOR_GREEN, COLOR_WHITE),
@@ -56,10 +73,8 @@ impl PlayStatus {
             LoginStatus::LoginFailedVanillaEditor => println!("Status: {}Login Failed Vanilla Editor{}", COLOR_RED, COLOR_WHITE),
         }
     }
-}
 
-pub fn decode(bytes: Vec<u8>) -> PlayStatus {
-    let mut stream = Stream::new(bytes, 0);
-
-    PlayStatus { status: stream.get_int() }
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
 }

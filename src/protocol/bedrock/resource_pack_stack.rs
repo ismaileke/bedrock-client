@@ -1,6 +1,10 @@
+use std::any::Any;
 use binary_utils::binary::Stream;
+use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
+use crate::protocol::bedrock::packet::Packet;
+use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::experiments::Experiments;
-use crate::protocol::bedrock::types::resource_pack_stack_entry::ResourcePackStackEntry;
+use crate::protocol::bedrock::types::resource_packs::resource_pack_stack_entry::ResourcePackStackEntry;
 
 pub struct ResourcePackStack {
     pub resource_pack_stack: Vec<ResourcePackStackEntry>,
@@ -11,8 +15,42 @@ pub struct ResourcePackStack {
     pub use_vanilla_editor_packs: bool
 }
 
-impl ResourcePackStack {
-    pub fn debug(&self) {
+impl Packet for ResourcePackStack {
+    fn id(&self) -> u16 {
+        BedrockPacketType::IDResourcePackStack.get_byte()
+    }
+
+    fn encode(&mut self) -> Vec<u8> {
+        todo!()
+    }
+
+    fn decode(bytes: Vec<u8>) -> ResourcePackStack {
+        let mut stream = Stream::new(bytes, 0);
+
+        let must_accept = stream.get_bool();
+
+        let mut behavior_pack_stack = vec![];
+        let behavior_pack_count = stream.get_unsigned_var_int();
+        for _ in 0..behavior_pack_count {
+            behavior_pack_stack.push(ResourcePackStackEntry::read(&mut stream));
+        }
+
+        let mut resource_pack_stack = vec![];
+        let resource_pack_count = stream.get_unsigned_var_int();
+        for _ in 0..resource_pack_count {
+            resource_pack_stack.push(ResourcePackStackEntry::read(&mut stream));
+        }
+
+        let base_game_version = PacketSerializer::get_string(&mut stream);
+
+        let experiments = Experiments::read(&mut stream);
+
+        let use_vanilla_editor_packs = stream.get_bool();
+
+        ResourcePackStack { resource_pack_stack, behavior_pack_stack, must_accept, base_game_version, experiments, use_vanilla_editor_packs }
+    }
+
+    fn debug(&self) {
         for entry in &self.resource_pack_stack {
             println!("Resource Pack Stack - {:?}", entry);
         }
@@ -24,33 +62,8 @@ impl ResourcePackStack {
         println!("Experiments: {:?}", self.experiments);
         println!("Use Vanilla Editor Packs: {}", self.use_vanilla_editor_packs);
     }
-}
 
-pub fn decode(bytes: Vec<u8>) -> ResourcePackStack {
-    let mut stream = Stream::new(bytes, 0);
-
-    let must_accept = stream.get_bool();
-
-    let mut behavior_pack_stack = vec![];
-    let behavior_pack_count = stream.get_unsigned_var_int();
-    for _ in 0..behavior_pack_count {
-        behavior_pack_stack.push(ResourcePackStackEntry::read(&mut stream));
+    fn as_any(&self) -> &dyn Any {
+        self
     }
-
-    let mut resource_pack_stack = vec![];
-    let resource_pack_count = stream.get_unsigned_var_int();
-    for _ in 0..resource_pack_count {
-        resource_pack_stack.push(ResourcePackStackEntry::read(&mut stream));
-    }
-
-    let length = stream.get_unsigned_var_int();
-    let base_game_version = String::from_utf8(stream.get(length).unwrap()).unwrap();
-
-    let experiments = Experiments::read(&mut stream);
-
-    let use_vanilla_editor_packs = stream.get_bool();
-
-
-
-    ResourcePackStack { resource_pack_stack, behavior_pack_stack, must_accept, base_game_version, experiments, use_vanilla_editor_packs }
 }
