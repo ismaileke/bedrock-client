@@ -1,5 +1,15 @@
 use crate::handler::bedrock_packet_handler::BedrockPacketHandler;
 use crate::handler::raknet_packet_handler::RakNetPacketHandler;
+use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
+use crate::protocol::bedrock::level_chunk::LevelChunk;
+use crate::protocol::bedrock::network_stack_latency::NetworkStackLatency;
+use crate::protocol::bedrock::packet::Packet;
+use crate::protocol::bedrock::play_status::PlayStatus;
+use crate::protocol::bedrock::resource_pack_stack::ResourcePackStack;
+use crate::protocol::bedrock::resource_packs_info::ResourcePacksInfo;
+use crate::protocol::bedrock::server_to_client_handshake::ServerToClientHandshake;
+use crate::protocol::bedrock::start_game::StartGame;
+use crate::protocol::bedrock::*;
 use crate::protocol::raknet::acknowledge::Acknowledge;
 use crate::protocol::raknet::connected_ping::ConnectedPing;
 use crate::protocol::raknet::connected_pong::ConnectedPong;
@@ -8,16 +18,6 @@ use crate::protocol::raknet::frame_set::{Datagram, UNRELIABLE};
 use crate::protocol::raknet::game_packet::GamePacket;
 use crate::protocol::raknet::open_conn_req1::OpenConnReq1;
 use crate::protocol::raknet::packet_ids::{PacketType, MAGIC};
-use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
-use crate::protocol::bedrock::packet::Packet;
-use crate::protocol::bedrock::*;
-use crate::protocol::bedrock::level_chunk::LevelChunk;
-use crate::protocol::bedrock::network_stack_latency::NetworkStackLatency;
-use crate::protocol::bedrock::play_status::PlayStatus;
-use crate::protocol::bedrock::resource_pack_stack::ResourcePackStack;
-use crate::protocol::bedrock::resource_packs_info::ResourcePacksInfo;
-use crate::protocol::bedrock::server_to_client_handshake::ServerToClientHandshake;
-use crate::protocol::bedrock::start_game::StartGame;
 use crate::utils::block::PropertyValue;
 use crate::utils::chunk::{get_dimension_chunk_bounds, network_decode, Chunk};
 use crate::utils::color_format::*;
@@ -43,13 +43,11 @@ use openssl::base64::decode_block;
 use openssl::pkey::PKey;
 use serde_json::Value;
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::{Read, Result};
+use std::io::{Cursor, Read, Result};
 use std::net::UdpSocket;
 use std::sync::Arc;
 use std::sync::Mutex;
 //use crate::handle_incoming_data;
-
 
 // conn_req update
 // maybe encryption disabled on server? or xbox disabled? or compress disabled?
@@ -546,8 +544,8 @@ impl Client {
                                                     ////////////////////////////////////////////////////
                                                     ////////////////////////////////////////////////////
                                                     ////////////////////////////////////////////////////
-                                                    let file = File::open(format!("resources/block_palette_{}.nbt", BEDROCK_PROTOCOL_VERSION)).unwrap();
-                                                    let mut decoder = GzDecoder::new(file);
+                                                    let cursor = Cursor::new(VANILLA_BLOCK_PALETTE);
+                                                    let mut decoder = GzDecoder::new(cursor);
 
                                                     let mut contents = Vec::new();
                                                     decoder.read_to_end(&mut contents).unwrap();
