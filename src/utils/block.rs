@@ -10,7 +10,7 @@ const FNV1_64_INIT: u64 = 0xcbf29ce484222325;
 const FNV1_PRIME_64: u64 = 0x00000100000001b3;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum PropertyValue {
-    Int(u32),
+    Int(i32),
     Str(String),
     Byte(i8)
 }

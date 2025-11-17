@@ -60,8 +60,9 @@ pub fn get_address(address: Vec<u8>) -> Result<(InternetAddress, u32), Box<dyn E
         stream.get_u16_le(); //Family, AF_INET6
         let port = stream.get_u16_be();
         stream.get_u32_be(); //flow info
-        let bytes = stream.get(16);
+        let bytes_vec = stream.get(16);
         stream.get_u32_be(); //scope ID
+        let bytes: [u8; 16] = bytes_vec.try_into().expect("Invalid IPv6 length");
         let ipv6 = Ipv6Addr::from(bytes);
         let address = IpAddr::V6(ipv6).to_string();
 

@@ -165,7 +165,7 @@ impl Client {
                     }
 
                     // SENDING NACK
-                    if (self.raknet_handler.last_received_sequence_number + 1) != seq {
+                    if (self.raknet_handler.last_received_sequence_number + 1) != (seq as i64) {
                         for seq_num in ((self.raknet_handler.last_received_sequence_number+1) as u32)..seq {
                             let nack = Acknowledge::create(PacketType::NACK, 1, true, Option::from(seq_num), None, None);
                             self.socket.send(&nack.encode()).expect("NACK Send Error");
@@ -188,7 +188,7 @@ impl Client {
                             self.raknet_handler.last_received_packets.remove(&reliable_frame_index);
                             continue;
                         }
-                        if reliable_frame_index == self.raknet_handler.last_handled_reliable_frame_index + 1 {
+                        if (reliable_frame_index as i64) == self.raknet_handler.last_handled_reliable_frame_index + 1 {
                             if let Some(frame) = self.raknet_handler.last_received_packets.get(&reliable_frame_index) {
                                 let mut real_body = frame.body.clone();
 
@@ -483,7 +483,7 @@ impl Client {
                                                                     if id == std::any::TypeId::of::<IntTag>() {
                                                                         let pce = property_enum.as_any().downcast_ref::<IntTag>().unwrap().clone();
                                                                         let any_value = pce.get_value();
-                                                                        let value = any_value.downcast_ref::<u32>().unwrap();
+                                                                        let value = any_value.downcast_ref::<i32>().unwrap();
                                                                         property_enums_map.push(PropertyValue::Int(value.clone()));
                                                                     } else if id == std::any::TypeId::of::<StringTag>() {
                                                                         let pce = property_enum.as_any().downcast_ref::<StringTag>().unwrap().clone();
@@ -553,7 +553,7 @@ impl Client {
 
                                                     let mut nbt_serializer = BigEndianNBTSerializer::new();
                                                     let mut offset = stream.get_offset();
-                                                    let nbt_root = nbt_serializer.read(stream.get_buffer(), &mut offset, 0);
+                                                    let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
                                                     stream.set_offset(offset);
 
                                                     let ct = nbt_root.must_get_compound_tag().unwrap();
@@ -580,7 +580,7 @@ impl Client {
                                                         // Adding custom blocks to Hashed Network IDs
                                                         for (block_data, properties) in custom_blocks {
                                                             let parts: Vec<&str> = block_data.split('/').collect();
-                                                            let block_id = parts[0].parse::<u32>().unwrap();
+                                                            let block_id = parts[0].parse::<i32>().unwrap();
                                                             let block_name = parts[1].to_string();
 
                                                             let combinations = block::cartesian_product_enum(&properties);
@@ -656,7 +656,7 @@ impl Client {
                                                         // Adding custom blocks to Runtime Network IDs
                                                         for (block_data, properties) in custom_blocks {
                                                             let parts: Vec<&str> = block_data.split('/').collect();
-                                                            let block_id = parts[0].parse::<u32>().unwrap();
+                                                            let block_id = parts[0].parse::<i32>().unwrap();
                                                             let block_name = parts[1].to_string();
 
                                                             let combinations = block::cartesian_product_enum(&properties);
@@ -756,7 +756,7 @@ impl Client {
                                     }
                                     _ => {}
                                 }
-                                self.raknet_handler.last_handled_reliable_frame_index = reliable_frame_index;
+                                self.raknet_handler.last_handled_reliable_frame_index = reliable_frame_index as i64;
                                 self.raknet_handler.last_received_packets.remove(&reliable_frame_index);
                             }
                         }
