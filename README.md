@@ -73,4 +73,4 @@ async fn main() {
 > [!NOTE]
 > This project is mainly designed for [Abyssal Eclipse](https://github.com/ismaileke/abyssal-eclipse), but you can get ideas and develop something from the code I wrote.
 >
-> It is still in development. I can't develop the project because I don't have time. Access to the servers is generally successful. I need to create the Chunk system for [Abyssal Eclipse](https://github.com/ismaileke/abyssal-eclipse).
+> It is still in development. I can't develop the project because I don't have time. Access to the servers is generally successful.

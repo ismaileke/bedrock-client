@@ -23,8 +23,8 @@ impl NewIncomingConn {
         for system_address in &self.system_addresses {
             stream.put(system_address.put_address());
         }
-        stream.put_be_unsigned_long(self.ping_time);
-        stream.put_be_unsigned_long(self.pong_time);
+        stream.put_u64_be(self.ping_time);
+        stream.put_u64_be(self.pong_time);
 
         Vec::from(stream.get_buffer())
     }

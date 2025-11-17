@@ -18,10 +18,10 @@ impl OpenConnReply2 {
         let _ = stream.get_byte();
         let magic: [u8; 16] = stream.get(16).try_into().expect("Invalid length for magic");
 
-        let server_guid = stream.get_be_unsigned_long();
+        let server_guid = stream.get_u64_be();
         let (client_address, offset) = address::get_address(stream.get_remaining()).unwrap();
         stream.set_offset(stream.get_offset() + offset);
-        let mtu = stream.get_be_unsigned_short();
+        let mtu = stream.get_u16_be();
         let encryption_enabled = stream.get_bool();
 
         OpenConnReply2 { magic, server_guid, client_address, mtu, encryption_enabled }

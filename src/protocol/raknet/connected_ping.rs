@@ -16,7 +16,7 @@ impl ConnectedPing {
     pub fn encode(&self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
         stream.put_byte(PacketType::get_byte(PacketType::ConnectedPing));
-        stream.put_be_unsigned_long(self.ping_time);
+        stream.put_u64_be(self.ping_time);
         Vec::from(stream.get_buffer())
     }
 
@@ -24,7 +24,7 @@ impl ConnectedPing {
         let mut stream = Stream::new(bytes, 0);
 
         let _ = stream.get_byte();
-        let ping_time = stream.get_be_unsigned_long();
+        let ping_time = stream.get_u64_be();
         ConnectedPing{ ping_time }
     }
 

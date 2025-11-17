@@ -9,7 +9,6 @@ pub struct ConnectedPong {
 }
 
 impl ConnectedPong {
-
     pub fn create(ping_time: u64, pong_time: u64) -> ConnectedPong {
         ConnectedPong { ping_time, pong_time }
     }
@@ -17,8 +16,8 @@ impl ConnectedPong {
     pub fn encode(&self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
         stream.put_byte(PacketType::get_byte(PacketType::ConnectedPong));
-        stream.put_be_unsigned_long(self.ping_time);
-        stream.put_be_unsigned_long(self.pong_time);
+        stream.put_u64_be(self.ping_time);
+        stream.put_u64_be(self.pong_time);
         Vec::from(stream.get_buffer())
     }
 
@@ -26,8 +25,8 @@ impl ConnectedPong {
         let mut stream = Stream::new(bytes, 0);
 
         let _ = stream.get_byte();
-        let ping_time = stream.get_be_unsigned_long();
-        let pong_time = stream.get_be_unsigned_long();
+        let ping_time = stream.get_u64_be();
+        let pong_time = stream.get_u64_be();
         ConnectedPong{ ping_time, pong_time }
     }
 

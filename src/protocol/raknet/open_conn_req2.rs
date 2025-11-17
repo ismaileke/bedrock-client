@@ -23,12 +23,12 @@ impl OpenConnReq2 {
         stream.put_byte(PacketType::get_byte(PacketType::OpenConnReq2));
         stream.put(Vec::from(self.magic));
         if let Some(cookie) = self.cookie {
-            stream.put_be_unsigned_int(cookie);
+            stream.put_u32_be(cookie);
             stream.put_bool(self.client_supports_security);
         }
         stream.put(self.server_address.put_address());
-        stream.put_be_unsigned_short(self.mtu);
-        stream.put_be_unsigned_long(self.client_guid);
+        stream.put_u16_be(self.mtu);
+        stream.put_u64_be(self.client_guid);
 
         Vec::from(stream.get_buffer())
     }

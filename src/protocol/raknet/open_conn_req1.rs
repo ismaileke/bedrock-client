@@ -8,7 +8,6 @@ pub struct OpenConnReq1 {
 }
 
 impl OpenConnReq1 {
-
     pub fn new(magic: [u8; 16], protocol: u8, mtu_size: u16) -> OpenConnReq1 {
         OpenConnReq1{ magic, protocol, mtu_size }
     }

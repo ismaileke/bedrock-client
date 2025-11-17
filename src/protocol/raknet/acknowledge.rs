@@ -40,14 +40,14 @@ impl Acknowledge {
 
         let packet_id = stream.get_byte();
         let packet_type = PacketType::from_byte(packet_id);
-        let record_count = stream.get_be_unsigned_short();
+        let record_count = stream.get_u16_be();
         let single_sequence_number = stream.get_bool();
         if single_sequence_number {
-            let sequence_number = stream.get_le_triad();
+            let sequence_number = stream.get_u24_le();
             return Acknowledge{ packet_type, record_count, single_sequence_number, sequence_number: Option::from(sequence_number), start_sequence_number: None, end_sequence_number: None };
         }
-        let start_sequence_number = stream.get_le_triad();
-        let end_sequence_number = stream.get_le_triad();
+        let start_sequence_number = stream.get_u24_le();
+        let end_sequence_number = stream.get_u24_le();
 
         Acknowledge { packet_type, record_count, single_sequence_number, sequence_number: None, start_sequence_number: Option::from(start_sequence_number), end_sequence_number: Option::from(end_sequence_number) }
     }

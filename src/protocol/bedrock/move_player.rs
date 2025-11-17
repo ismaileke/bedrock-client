@@ -19,7 +19,7 @@ pub struct MovePlayer {
     pub tick: u64
 }
 
-pub fn new(actor_runtime_id: u64, flags: u8, position: Vec<f32>, pitch: f32, yaw: f32, head_yaw: f32, mode: u8, on_ground: bool, riding_actor_runtime_id: u64, teleport_cause: u32, teleport_item: u32, tick: u64) -> MovePlayer {
+pub fn new(actor_runtime_id: u64, flags: u8, position: Vec<f32>, pitch: f32, yaw: f32, head_yaw: f32, mode: u8, on_ground: bool, riding_actor_runtime_id: u64, teleport_cause: i32, teleport_item: i32, tick: u64) -> MovePlayer {
     MovePlayer { actor_runtime_id, flags, position, pitch, yaw, head_yaw, mode, on_ground, riding_actor_runtime_id, teleport_cause, teleport_item, tick }
 }
 

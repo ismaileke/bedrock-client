@@ -16,13 +16,13 @@ impl OpenConnReply1 {
 
         let _ = stream.get_byte();
         let magic: [u8; 16] = stream.get(16).try_into().expect("Invalid length for magic");
-        let server_guid = stream.get_be_unsigned_long();
+        let server_guid = stream.get_u64_be();
         let server_security = stream.get_bool();
         let mut cookie = None;
         if server_security {
-            cookie = Some(stream.get_be_unsigned_int());
+            cookie = Some(stream.get_u32_be());
         }
-        let mtu = stream.get_be_unsigned_short();
+        let mtu = stream.get_u16_be();
 
         OpenConnReply1 { magic, server_guid, server_security, cookie, mtu }
     }
