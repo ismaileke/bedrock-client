@@ -5,10 +5,10 @@ use crate::protocol::bedrock::types::camera::camera_aim_assist_category_entity_p
 
 #[derive(Debug)]
 pub struct CameraAimAssistCategoryPriorities {
-    entities: Vec<CameraAimAssistCategoryEntityPriority>,
-    blocks: Vec<CameraAimAssistCategoryBlockPriority>,
-    default_entity_priority: Option<u32>,
-    default_block_priority: Option<u32>
+    pub entities: Vec<CameraAimAssistCategoryEntityPriority>,
+    pub blocks: Vec<CameraAimAssistCategoryBlockPriority>,
+    pub default_entity_priority: Option<u32>,
+    pub default_block_priority: Option<u32>
 }
 
 impl CameraAimAssistCategoryPriorities {

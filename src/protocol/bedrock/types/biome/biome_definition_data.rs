@@ -9,10 +9,7 @@ pub struct BiomeDefinitionData {
     id: u16,
     temperature: f32,
     downfall: f32,
-    red_spore_density: f32,
-    blue_spore_density: f32,
-    ash_density: f32,
-    white_ash_density: f32,
+    foliage_snow: f32,
     depth: f32,
     scale: f32,
     map_water_color: Color,
@@ -27,10 +24,7 @@ impl BiomeDefinitionData {
         id: u16,
         temperature: f32,
         downfall: f32,
-        red_spore_density: f32,
-        blue_spore_density: f32,
-        ash_density: f32,
-        white_ash_density: f32,
+        foliage_snow: f32,
         depth: f32,
         scale: f32,
         map_water_color: Color,
@@ -43,10 +37,7 @@ impl BiomeDefinitionData {
             id,
             temperature,
             downfall,
-            red_spore_density,
-            blue_spore_density,
-            ash_density,
-            white_ash_density,
+            foliage_snow,
             depth,
             scale,
             map_water_color,
@@ -61,10 +52,7 @@ impl BiomeDefinitionData {
         let id = stream.get_l_short();
         let temperature = stream.get_l_float();
         let downfall = stream.get_l_float();
-        let red_spore_density = stream.get_l_float();
-        let blue_spore_density = stream.get_l_float();
-        let ash_density = stream.get_l_float();
-        let white_ash_density = stream.get_l_float();
+        let foliage_snow = stream.get_l_float();
         let depth = stream.get_l_float();
         let scale = stream.get_l_float();
         let map_water_color = Color::from_argb(stream.get_l_int());
@@ -84,10 +72,7 @@ impl BiomeDefinitionData {
             id,
             temperature,
             downfall,
-            red_spore_density,
-            blue_spore_density,
-            ash_density,
-            white_ash_density,
+            foliage_snow,
             depth,
             scale,
             map_water_color,
@@ -102,10 +87,7 @@ impl BiomeDefinitionData {
         stream.put_l_short(self.id);
         stream.put_l_float(self.temperature);
         stream.put_l_float(self.downfall);
-        stream.put_l_float(self.red_spore_density);
-        stream.put_l_float(self.blue_spore_density);
-        stream.put_l_float(self.ash_density);
-        stream.put_l_float(self.white_ash_density);
+        stream.put_l_float(self.foliage_snow);
         stream.put_l_float(self.depth);
         stream.put_l_float(self.scale);
         stream.put_l_int(self.map_water_color.to_argb());

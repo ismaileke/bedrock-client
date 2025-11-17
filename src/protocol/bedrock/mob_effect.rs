@@ -18,12 +18,6 @@ pub fn new(actor_runtime_id: u64, event_id: u8, effect_id: i32, amplifier: i32, 
     MobEffect { actor_runtime_id, event_id, effect_id, amplifier, particles, duration, tick }
 }
 
-impl MobEffect {
-    pub const EVENT_ADD: u8 = 1;
-    pub const EVENT_MODIFY: u8 = 2;
-    pub const EVENT_REMOVE: u8 = 3;
-}
-
 impl Packet for MobEffect {
     fn id(&self) -> u16 {
         BedrockPacketType::IDMobEffect.get_byte()
@@ -31,21 +25,21 @@ impl Packet for MobEffect {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
         stream.put_byte(self.event_id);
-        stream.put_var_int(self.effect_id);
-        stream.put_var_int(self.amplifier);
+        stream.put_var_i32(self.effect_id);
+        stream.put_var_i32(self.amplifier);
         stream.put_bool(self.particles);
-        stream.put_var_int(self.duration);
-        stream.put_unsigned_var_long(self.tick);
+        stream.put_var_i32(self.duration);
+        stream.put_var_u64(self.tick);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> MobEffect {
@@ -53,11 +47,11 @@ impl Packet for MobEffect {
 
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
         let event_id = stream.get_byte();
-        let effect_id = stream.get_var_int();
-        let amplifier = stream.get_var_int();
+        let effect_id = stream.get_var_i32();
+        let amplifier = stream.get_var_i32();
         let particles = stream.get_bool();
-        let duration = stream.get_var_int();
-        let tick = stream.get_unsigned_var_long();
+        let duration = stream.get_var_i32();
+        let tick = stream.get_var_u64();
 
         MobEffect { actor_runtime_id, event_id, effect_id, amplifier, particles, duration, tick }
     }
@@ -75,4 +69,10 @@ impl Packet for MobEffect {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl MobEffect {
+    pub const EVENT_ADD: u8 = 1;
+    pub const EVENT_MODIFY: u8 = 2;
+    pub const EVENT_REMOVE: u8 = 3;
 }

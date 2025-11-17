@@ -3,11 +3,11 @@ use crate::protocol::bedrock::types::biome::chunkgen::biome_scatter_param_data::
 
 #[derive(Debug)]
 pub struct BiomeConsolidatedFeatureData {
-    scatter: BiomeScatterParamData,
-    feature: u16,
-    identifier: u16,
-    pass: u16,
-    use_internal: bool
+    pub scatter: BiomeScatterParamData,
+    pub feature: u16,
+    pub identifier: u16,
+    pub pass: u16,
+    pub use_internal: bool
 }
 
 impl BiomeConsolidatedFeatureData {

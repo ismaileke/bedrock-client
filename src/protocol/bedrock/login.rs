@@ -27,51 +27,51 @@ impl Packet for Login {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_int(self.client_protocol);
+        stream.put_u32_be(self.client_protocol);
 
         let mut jwt_stream = Stream::new(Vec::new(), 0);
-        jwt_stream.put_l_int(self.auth_info_json.len() as u32);
+        jwt_stream.put_u32_le(self.auth_info_json.len() as u32);
         jwt_stream.put(self.auth_info_json.clone().into_bytes());
-        jwt_stream.put_l_int(self.client_data_jwt.len() as u32);
+        jwt_stream.put_u32_le(self.client_data_jwt.len() as u32);
         jwt_stream.put(self.client_data_jwt.clone().into_bytes());
 
-        stream.put_unsigned_var_int(jwt_stream.get_buffer().len() as u32);
-        stream.put(jwt_stream.get_buffer());
+        stream.put_var_u32(jwt_stream.get_buffer().len() as u32);
+        stream.put(Vec::from(jwt_stream.get_buffer()));
 
         let mut main_stream = Stream::new(vec![0xfe], 0);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        main_stream.put(GamePacket::compress(&compress_stream.get_buffer()));
+        main_stream.put(GamePacket::compress(&Vec::from(compress_stream.get_buffer())));
 
-        main_stream.get_buffer()
+        Vec::from(main_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> Login {
         let mut stream = Stream::new(bytes, 0);
 
-        let client_protocol = stream.get_int();
+        let client_protocol = stream.get_u32_be();
 
-        let length = stream.get_unsigned_var_int();
-        let conn_req_data = stream.get(length).unwrap();
+        let length = stream.get_var_u32();
+        let conn_req_data = stream.get(length);
 
         let mut conn_req_reader = Stream::new(conn_req_data, 0);
 
-        let auth_info_json_length = conn_req_reader.get_l_int();
+        let auth_info_json_length = conn_req_reader.get_u32_le();
 
-        let auth_info_json_vec = conn_req_reader.get(auth_info_json_length).unwrap();
+        let auth_info_json_vec = conn_req_reader.get(auth_info_json_length);
         let auth_info_json = String::from_utf8(auth_info_json_vec).unwrap();
 
-        let client_data_jwt_length = conn_req_reader.get_l_int();
+        let client_data_jwt_length = conn_req_reader.get_u32_le();
 
-        let client_data_jwt_vec = conn_req_reader.get(client_data_jwt_length).unwrap();
+        let client_data_jwt_vec = conn_req_reader.get(client_data_jwt_length);
         let client_data_jwt = String::from_utf8(client_data_jwt_vec).unwrap();
 
-        Login{ client_protocol, auth_info_json, client_data_jwt }
+        Login { client_protocol, auth_info_json, client_data_jwt }
     }
 
     fn debug(&self) {
@@ -145,7 +145,7 @@ pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, target_
         "PlatformOfflineId": "",
         "PlatformOnlineId": "",
         "PlatformType": 1,
-        "PlayFabId": "a3561c5eacf46e1d",
+        "PlayFabId": "",
         "PremiumSkin": false,
         "SelfSignedId": "651a4f81-aa0e-3c32-b30b-3d250293a340",
         "ServerAddress": address,
@@ -192,9 +192,9 @@ pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, target_
     */
 
     let real_chain = json!({
-        "AuthenticationType": 0,
+        "AuthenticationType": 0, // FULL LOGIN
         "Certificate": json!({"chain": chain}).to_string(),
-        "Token": ""
+        "Token": "" // I need that...
     });
 
     let data_to_sign_two = format!("{}.{}", encoded_header, encoded_payload_two);

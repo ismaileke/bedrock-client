@@ -3,7 +3,7 @@ use crate::protocol::bedrock::types::biome::chunkgen::biome_element_data::BiomeE
 
 #[derive(Debug)]
 pub struct BiomeSurfaceMaterialAdjustmentData {
-    adjustments: Vec<BiomeElementData>
+    pub adjustments: Vec<BiomeElementData>
 }
 
 impl BiomeSurfaceMaterialAdjustmentData {

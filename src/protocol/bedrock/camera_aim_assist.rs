@@ -24,20 +24,20 @@ impl Packet for CameraAimAssist {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_string(&mut stream, self.preset_id.clone());
         PacketSerializer::put_vector2(&mut stream, self.view_angle.clone());
-        stream.put_l_float(self.distance);
+        stream.put_f32_le(self.distance);
         stream.put_byte(self.target_mode);
         stream.put_byte(self.action_type);
         stream.put_bool(self.show_debug_render);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> CameraAimAssist {
@@ -45,7 +45,7 @@ impl Packet for CameraAimAssist {
 
         let preset_id = PacketSerializer::get_string(&mut stream);
         let view_angle = PacketSerializer::get_vector2(&mut stream);
-        let distance = stream.get_l_float();
+        let distance = stream.get_f32_le();
         let target_mode = stream.get_byte();
         let action_type = stream.get_byte();
         let show_debug_render = stream.get_bool();

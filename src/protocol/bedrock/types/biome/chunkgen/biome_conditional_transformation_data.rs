@@ -3,9 +3,9 @@ use crate::protocol::bedrock::types::biome::chunkgen::biome_weighted_data::Biome
 
 #[derive(Debug)]
 pub struct BiomeConditionalTransformationData {
-    weighted_biomes: Vec<BiomeWeightedData>,
-    condition_json: u16,
-    min_passing_neighbors: u32
+    pub weighted_biomes: Vec<BiomeWeightedData>,
+    pub condition_json: u16,
+    pub min_passing_neighbors: u32
 }
 impl BiomeConditionalTransformationData {
     pub fn new(weighted_biomes: Vec<BiomeWeightedData>, condition_json: u16, min_passing_neighbors: u32) -> Self {

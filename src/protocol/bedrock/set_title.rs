@@ -26,32 +26,32 @@ impl Packet for SetTitle {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_var_int(self.title_type);
+        stream.put_var_i32(self.title_type);
         PacketSerializer::put_string(&mut stream, self.text.clone());
-        stream.put_var_int(self.fade_in_time);
-        stream.put_var_int(self.stay_time);
-        stream.put_var_int(self.fade_out_time);
+        stream.put_var_i32(self.fade_in_time);
+        stream.put_var_i32(self.stay_time);
+        stream.put_var_i32(self.fade_out_time);
         PacketSerializer::put_string(&mut stream, self.xuid.clone());
         PacketSerializer::put_string(&mut stream, self.platform_online_id.clone());
         PacketSerializer::put_string(&mut stream, self.filtered_title_text.clone());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> SetTitle {
         let mut stream = Stream::new(bytes, 0);
 
-        let title_type = stream.get_var_int();
+        let title_type = stream.get_var_i32();
         let text = PacketSerializer::get_string(&mut stream);
-        let fade_in_time = stream.get_var_int();
-        let stay_time = stream.get_var_int();
-        let fade_out_time = stream.get_var_int();
+        let fade_in_time = stream.get_var_i32();
+        let stay_time = stream.get_var_i32();
+        let fade_out_time = stream.get_var_i32();
         let xuid = PacketSerializer::get_string(&mut stream);
         let platform_online_id = PacketSerializer::get_string(&mut stream);
         let filtered_title_text = PacketSerializer::get_string(&mut stream);
@@ -73,4 +73,16 @@ impl Packet for SetTitle {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl SetTitle {
+    pub const TYPE_CLEAR_TITLE: i32 = 0;
+    pub const TYPE_RESET_TITLE: i32 = 1;
+    pub const TYPE_SET_TITLE: i32 = 2;
+    pub const TYPE_SET_SUBTITLE: i32 = 3;
+    pub const TYPE_SET_ACTIONBAR_MESSAGE: i32 = 4;
+    pub const TYPE_SET_ANIMATION_TIMES: i32 = 5;
+    pub const TYPE_SET_TITLE_JSON: i32 = 6;
+    pub const TYPE_SET_SUBTITLE_JSON: i32 = 7;
+    pub const TYPE_SET_ACTIONBAR_MESSAGE_JSON: i32 = 8;
 }

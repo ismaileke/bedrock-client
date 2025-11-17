@@ -31,7 +31,7 @@ impl BedrockPacketHandler {
             encryption_enabled,
             hashed_network_ids,
             runtime_network_ids,
-            air_network_id,
+            air_network_id
         }
     }
 }

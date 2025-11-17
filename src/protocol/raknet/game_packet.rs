@@ -28,7 +28,7 @@ impl GamePacket {
         }
 
         main_stream.put(encrypted);
-        main_stream.get_buffer()
+        Vec::from(main_stream.get_buffer())
     }
 
     /*pub fn encrypt(&mut self, payload: &Vec<u8>) -> Vec<u8> {
@@ -61,7 +61,7 @@ impl GamePacket {
             .deflate_compress(payload.as_slice(), &mut compressed_data)
             .expect("Compression failed");
 
-        let mut result = vec![0x00];
+        let mut result = vec![0x00]; // 0 = ZLIB
         result.extend(compressed_data);
 
         result

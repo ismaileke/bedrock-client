@@ -2,9 +2,9 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct CameraFadeInstructionColor {
-    red: f32,
-    green: f32,
-    blue: f32
+    pub red: f32,
+    pub green: f32,
+    pub blue: f32
 }
 
 impl CameraFadeInstructionColor {

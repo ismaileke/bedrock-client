@@ -5,13 +5,13 @@ use crate::protocol::bedrock::types::biome::chunkgen::biome_weighted_temperature
 
 #[derive(Debug)]
 pub struct BiomeOverworldGenRulesData {
-    hill_transformations: Vec<BiomeWeightedData>,
-    mutate_transformations: Vec<BiomeWeightedData>,
-    river_transformations: Vec<BiomeWeightedData>,
-    shore_transformations: Vec<BiomeWeightedData>,
-    pre_hills_edges: Vec<BiomeConditionalTransformationData>,
-    post_shore_edges: Vec<BiomeConditionalTransformationData>,
-    climates: Vec<BiomeWeightedTemperatureData>
+    pub hill_transformations: Vec<BiomeWeightedData>,
+    pub mutate_transformations: Vec<BiomeWeightedData>,
+    pub river_transformations: Vec<BiomeWeightedData>,
+    pub shore_transformations: Vec<BiomeWeightedData>,
+    pub pre_hills_edges: Vec<BiomeConditionalTransformationData>,
+    pub post_shore_edges: Vec<BiomeConditionalTransformationData>,
+    pub climates: Vec<BiomeWeightedTemperatureData>
 }
 
 impl BiomeOverworldGenRulesData {

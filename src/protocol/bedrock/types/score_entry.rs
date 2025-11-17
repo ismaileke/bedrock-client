@@ -2,7 +2,7 @@
 pub struct ScoreEntry {
     pub scoreboard_id: i64,
     pub objective_name: String,
-    pub score: u32,
+    pub score: i32,
     pub entity_type: u8,
     pub actor_unique_id: Option<i64>,
     pub custom_name: Option<String>

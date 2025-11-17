@@ -2,8 +2,8 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct CameraSetInstructionEase {
-    ease_type: u8, //see types/camera_set_instruction_ease_type.rs
-    duration: f32
+    pub ease_type: u8, //see types/camera_set_instruction_ease_type.rs
+    pub duration: f32
 }
 
 impl CameraSetInstructionEase {

@@ -17,7 +17,6 @@ impl DimensionDataEntry {
         let min_height = stream.get_var_int();
         let generator = stream.get_var_int();
 
-
         DimensionDataEntry{ max_height, min_height, generator }
     }
 

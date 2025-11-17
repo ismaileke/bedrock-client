@@ -47,6 +47,7 @@ use std::io::{Cursor, Read, Result};
 use std::net::UdpSocket;
 use std::sync::Arc;
 use std::sync::Mutex;
+use crate::protocol::bedrock::resource_pack_client_response::ResourcePackClientResponse;
 //use crate::handle_incoming_data;
 
 // conn_req update
@@ -143,7 +144,7 @@ impl Client {
 
                     if !frame_set::is_datagram(packet_id) { continue; }
 
-                    let datagram = Datagram::from_binary(stream.get_buffer());
+                    let datagram = Datagram::from_binary(Vec::from(stream.get_buffer()));
 
                     // SENDING ACK
                     let ack = Acknowledge::create(PacketType::ACK, 1, true, Option::from(datagram.sequence_number.clone()), None, None);
@@ -227,11 +228,11 @@ impl Client {
 
                                 match packet_type {
                                     PacketType::NACK => {
-                                        let nack = Acknowledge::decode(stream.get_buffer());
+                                        let nack = Acknowledge::decode(Vec::from(stream.get_buffer()));
                                         if self.debug { nack.debug(true); }
                                     }
                                     PacketType::ConnectedPing => {
-                                        let connected_ping = ConnectedPing::decode(stream.get_buffer());
+                                        let connected_ping = ConnectedPing::decode(Vec::from(stream.get_buffer()));
                                         if self.debug { connected_ping.debug(); }
 
                                         let connected_pong = ConnectedPong::create(connected_ping.ping_time, Utc::now().timestamp()).encode();
@@ -241,7 +242,7 @@ impl Client {
                                         self.socket.send(&datagram).expect("ConnectedPong Packet could not be sent");
                                     },
                                     PacketType::ConnectedPong => {
-                                        let connected_pong = ConnectedPong::decode(stream.get_buffer());
+                                        let connected_pong = ConnectedPong::decode(Vec::from(stream.get_buffer()));
                                         if self.debug { connected_pong.debug(); }
                                         /*let connected_ping = connected_ping::create(Utc::now().timestamp()).encode();
                                         let frame = Datagram::create_frame(connected_ping, UNRELIABLE, &self.frame_number_cache, None);
@@ -256,7 +257,7 @@ impl Client {
                                     PacketType::Game => {
                                         //println!("Encryption {}, Compression {}", self.encryption_enabled, self.compression_enabled);
                                         if self.bedrock_handler.encryption_enabled {
-                                            stream = Stream::new(self.raknet_handler.game.decrypt(&stream.get_remaining().unwrap()), 0);
+                                            stream = Stream::new(self.raknet_handler.game.decrypt(&stream.get_remaining()), 0);
                                         }
 
                                         if self.bedrock_handler.compression_enabled {
@@ -267,14 +268,14 @@ impl Client {
                                             }
 
                                             if compression_type == 0 {
-                                                stream = Stream::new(GamePacket::decompress(&stream.get_remaining().unwrap()), 0);
+                                                stream = Stream::new(GamePacket::decompress(&stream.get_remaining()), 0);
                                             }
                                         }
                                         let mut i = 1;
                                         while !stream.feof() {
                                             let length = stream.get_unsigned_var_int();
 
-                                            let packet_vec = stream.get(length).unwrap();
+                                            let packet_vec = stream.get(length);
                                             let mut packet_stream = Stream::new(packet_vec, 0);
 
                                             let packet_id = packet_stream.get_unsigned_var_int();
@@ -312,7 +313,7 @@ impl Client {
                                                     }
                                                 },
                                                 BedrockPacketType::IDServerToClientHandshake => {
-                                                    let s_to_c_handshake = ServerToClientHandshake::decode(packet_stream.get_remaining().unwrap());
+                                                    let s_to_c_handshake = ServerToClientHandshake::decode(packet_stream.get_remaining());
 
                                                     let jwt = String::from_utf8(s_to_c_handshake.jwt).unwrap();
 
@@ -352,7 +353,7 @@ impl Client {
                                                     }
                                                 },
                                                 BedrockPacketType::IDResourcePacksInfo => {
-                                                    let resource_packs_info = ResourcePacksInfo::decode(packet_stream.get_remaining().unwrap());
+                                                    let resource_packs_info = ResourcePacksInfo::decode(packet_stream.get_remaining());
 
 
                                                     let mut rp_uuids = Vec::new();
@@ -362,7 +363,7 @@ impl Client {
 
 
                                                     // RESOURCE PACK CLIENT RESPONSE PACKET {HAVE ALL PACKS}
-                                                    let rp_client_response = resource_pack_client_response::new(resource_pack_client_response::HAVE_ALL_PACKS, rp_uuids).encode();
+                                                    let rp_client_response = resource_pack_client_response::new(ResourcePackClientResponse::HAVE_ALL_PACKS, rp_uuids).encode();
 
                                                     let game_packet = self.raknet_handler.game.encode(&rp_client_response);
 
@@ -384,7 +385,7 @@ impl Client {
                                                     }
                                                 },
                                                 BedrockPacketType::IDResourcePackStack => {
-                                                    let resource_pack_stack = ResourcePackStack::decode(packet_stream.get_remaining().unwrap());
+                                                    let resource_pack_stack = ResourcePackStack::decode(packet_stream.get_remaining());
 
                                                     let mut pack_ids = vec![];
                                                     for behavior_stack_entry in &resource_pack_stack.behavior_pack_stack {
@@ -406,7 +407,7 @@ impl Client {
                                                     }
                                                 },
                                                 BedrockPacketType::IDPlayStatus => {
-                                                    let play_status = PlayStatus::decode(packet_stream.get_remaining().unwrap());
+                                                    let play_status = PlayStatus::decode(packet_stream.get_remaining());
                                                     if play_status.status == 3 { // Player Spawn
                                                         // SET LOCAL PLAYER AS INITIALIZED PACKET
                                                         let set_local_player_as_init = set_local_player_as_initialized::new(0).encode();
@@ -422,7 +423,7 @@ impl Client {
 
                                                 },
                                                 BedrockPacketType::IDStartGame => {
-                                                    let start_game = StartGame::decode(packet_stream.get_remaining().unwrap());
+                                                    let start_game = StartGame::decode(packet_stream.get_remaining());
 
 
 
@@ -718,7 +719,7 @@ impl Client {
                                                     }
                                                 },
                                                 BedrockPacketType::IDLevelChunk => {
-                                                    let level_chunk = LevelChunk::decode(packet_stream.get_remaining().unwrap());
+                                                    let level_chunk = LevelChunk::decode(packet_stream.get_remaining());
 
                                                     let chunk = network_decode(self.bedrock_handler.air_network_id.clone(), level_chunk.extra_payload, level_chunk.sub_chunk_count, get_dimension_chunk_bounds(0));
                                                     if chunk.is_ok() {
@@ -728,7 +729,7 @@ impl Client {
                                                     }
                                                 },
                                                 BedrockPacketType::IDNetworkStackLatency => {
-                                                    let network_stack_latency = NetworkStackLatency::decode(packet_stream.get_remaining().unwrap());
+                                                    let network_stack_latency = NetworkStackLatency::decode(packet_stream.get_remaining());
 
                                                     if network_stack_latency.need_response { // send
                                                         // NETWORK STACK LATENCY

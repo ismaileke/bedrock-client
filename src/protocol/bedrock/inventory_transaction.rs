@@ -23,14 +23,6 @@ pub fn new(request_id: i32, request_changed_slots: Vec<InventoryTransactionChang
     InventoryTransaction { request_id, request_changed_slots, tr_data }
 }
 
-impl InventoryTransaction {
-    pub const TYPE_NORMAL: u32 = 0;
-    pub const TYPE_MISMATCH: u32 = 1;
-    pub const TYPE_USE_ITEM: u32 = 2;
-    pub const TYPE_USE_ITEM_ON_ENTITY: u32 = 3;
-    pub const TYPE_RELEASE_ITEM: u32 = 4;
-}
-
 impl Packet for InventoryTransaction {
     fn id(&self) -> u16 {
         BedrockPacketType::IDInventoryTransaction.get_byte()
@@ -38,23 +30,23 @@ impl Packet for InventoryTransaction {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::write_legacy_item_stack_request_id(&mut stream, self.request_id);
         if self.request_id != 0 {
-            stream.put_unsigned_var_int(self.request_changed_slots.len() as u32);
+            stream.put_var_u32(self.request_changed_slots.len() as u32);
             for request_changed_slot in &self.request_changed_slots {
                 request_changed_slot.write(&mut stream);
             }
         }
-        stream.put_unsigned_var_int(self.tr_data.get_type_id());
+        stream.put_var_u32(self.tr_data.get_type_id());
         self.tr_data.encode(&mut stream);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> InventoryTransaction {
@@ -63,12 +55,12 @@ impl Packet for InventoryTransaction {
         let request_id = PacketSerializer::read_legacy_item_stack_request_id(&mut stream);
         let mut request_changed_slots = Vec::new();
         if request_id != 0 {
-            let slot_count = stream.get_unsigned_var_int() as usize;
+            let slot_count = stream.get_var_u32() as usize;
             for _ in 0..slot_count {
                 request_changed_slots.push(InventoryTransactionChangedSlotsHack::read(&mut stream));
             }
         }
-        let tr_type = stream.get_unsigned_var_int();
+        let tr_type = stream.get_var_u32();
         // check later, bad using
         let mut tr_data = match tr_type {
             Self::TYPE_NORMAL => { Box::new(NormalTransactionData::new(vec![])) as Box<dyn TransactionData> },
@@ -93,4 +85,12 @@ impl Packet for InventoryTransaction {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl InventoryTransaction {
+    pub const TYPE_NORMAL: u32 = 0;
+    pub const TYPE_MISMATCH: u32 = 1;
+    pub const TYPE_USE_ITEM: u32 = 2;
+    pub const TYPE_USE_ITEM_ON_ENTITY: u32 = 3;
+    pub const TYPE_RELEASE_ITEM: u32 = 4;
 }

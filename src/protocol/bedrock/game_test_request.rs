@@ -25,32 +25,32 @@ impl Packet for GameTestRequest {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_var_int(self.max_test_per_batch);
-        stream.put_var_int(self.repeat_count);
+        stream.put_var_i32(self.max_test_per_batch);
+        stream.put_var_i32(self.repeat_count);
         stream.put_byte(self.rotation);
         stream.put_bool(self.stop_on_failure);
         PacketSerializer::put_signed_block_pos(&mut stream, self.test_position.clone());
-        stream.put_var_int(self.tests_per_row);
+        stream.put_var_i32(self.tests_per_row);
         PacketSerializer::put_string(&mut stream, self.test_name.clone());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> GameTestRequest {
         let mut stream = Stream::new(bytes, 0);
 
-        let max_test_per_batch = stream.get_var_int();
-        let repeat_count = stream.get_var_int();
+        let max_test_per_batch = stream.get_var_i32();
+        let repeat_count = stream.get_var_i32();
         let rotation = stream.get_byte();
         let stop_on_failure = stream.get_bool();
         let test_position = PacketSerializer::get_signed_block_pos(&mut stream);
-        let tests_per_row = stream.get_var_int();
+        let tests_per_row = stream.get_var_i32();
         let test_name = PacketSerializer::get_string(&mut stream);
 
         GameTestRequest { max_test_per_batch, repeat_count, rotation, stop_on_failure, test_position, tests_per_row, test_name }
@@ -69,4 +69,11 @@ impl Packet for GameTestRequest {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl GameTestRequest {
+    pub const ROTATION_0: u8 = 0;
+    pub const ROTATION_90: u8 = 1;
+    pub const ROTATION_180: u8 = 2;
+    pub const ROTATION_270: u8 = 3;
 }

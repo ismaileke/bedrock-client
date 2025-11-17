@@ -22,35 +22,35 @@ impl Packet for UpdateSubChunkBlocks {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_block_pos(&mut stream, self.base_block_position.clone());
-        stream.put_unsigned_var_int(self.layer_0_updates.len() as u32);
+        stream.put_var_u32(self.layer_0_updates.len() as u32);
         for update in self.layer_0_updates.iter() {
             update.write(&mut stream);
         }
-        stream.put_unsigned_var_int(self.layer_1_updates.len() as u32);
+        stream.put_var_u32(self.layer_1_updates.len() as u32);
         for update in self.layer_1_updates.iter() {
             update.write(&mut stream);
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> UpdateSubChunkBlocks {
         let mut stream = Stream::new(bytes, 0);
 
         let base_block_position = PacketSerializer::get_block_pos(&mut stream);
-        let layer_0_updates_count = stream.get_unsigned_var_int() as usize;
+        let layer_0_updates_count = stream.get_var_u32() as usize;
         let mut layer_0_updates = Vec::new();
         for _ in 0..layer_0_updates_count {
             layer_0_updates.push(UpdateSubChunkBlocksEntry::read(&mut stream));
         }
-        let layer_1_updates_count = stream.get_unsigned_var_int() as usize;
+        let layer_1_updates_count = stream.get_var_u32() as usize;
         let mut layer_1_updates = Vec::new();
         for _ in 0..layer_1_updates_count {
             layer_1_updates.push(UpdateSubChunkBlocksEntry::read(&mut stream));

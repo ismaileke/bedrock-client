@@ -24,18 +24,18 @@ impl Packet for PlaySound {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_string(&mut stream, self.sound_name.clone());
         PacketSerializer::put_block_pos(&mut stream, vec![(self.x * 8.0) as i32, (self.y * 8.0) as i32, (self.z * 8.0) as i32]);
-        stream.put_l_float(self.volume);
-        stream.put_l_float(self.pitch);
+        stream.put_f32_le(self.volume);
+        stream.put_f32_le(self.pitch);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> PlaySound {
@@ -43,8 +43,8 @@ impl Packet for PlaySound {
 
         let sound_name = PacketSerializer::get_string(&mut stream);
         let block_pos = PacketSerializer::get_block_pos(&mut stream);
-        let volume = stream.get_l_float();
-        let pitch = stream.get_l_float();
+        let volume = stream.get_f32_le();
+        let pitch = stream.get_f32_le();
         let x = (block_pos[0] as f32) / 8.0;
         let y = (block_pos[1] as f32) / 8.0;
         let z = (block_pos[2] as f32) / 8.0;

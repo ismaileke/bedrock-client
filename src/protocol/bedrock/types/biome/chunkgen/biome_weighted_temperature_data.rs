@@ -2,8 +2,8 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct BiomeWeightedTemperatureData {
-    temperature: i32,
-    weight: u32
+    pub temperature: i32,
+    pub weight: u32
 }
 
 impl BiomeWeightedTemperatureData {

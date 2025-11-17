@@ -3,8 +3,8 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(Debug)]
 pub struct CameraTargetInstruction {
-    target_center_offset: Option<Vec<f32>>,
-    actor_unique_id: i64
+    pub target_center_offset: Option<Vec<f32>>,
+    pub actor_unique_id: i64
 }
 
 impl CameraTargetInstruction {

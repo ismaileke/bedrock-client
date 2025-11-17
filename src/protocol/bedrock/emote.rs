@@ -29,20 +29,20 @@ impl Packet for Emote {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
         PacketSerializer::put_string(&mut stream, self.emote_id.clone());
-        stream.put_unsigned_var_int(self.emote_length_ticks);
+        stream.put_var_u32(self.emote_length_ticks);
         PacketSerializer::put_string(&mut stream, self.xbox_user_id.clone());
         PacketSerializer::put_string(&mut stream, self.platform_chat_id.clone());
         stream.put_byte(self.flags);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> Emote {
@@ -50,7 +50,7 @@ impl Packet for Emote {
 
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
         let emote_id = PacketSerializer::get_string(&mut stream);
-        let emote_length_ticks = stream.get_unsigned_var_int();
+        let emote_length_ticks = stream.get_var_u32();
         let xbox_user_id = PacketSerializer::get_string(&mut stream);
         let platform_chat_id = PacketSerializer::get_string(&mut stream);
         let flags = stream.get_byte();

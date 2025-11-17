@@ -30,9 +30,9 @@ impl Packet for PlayerLocation {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_l_int(self.location_type);
+        stream.put_u32_le(self.location_type);
         PacketSerializer::put_actor_unique_id(&mut stream, self.actor_unique_id);
         if self.location_type == PlayerLocationType::PLAYER_LOCATION_COORDINATES {
             if self.position.is_none() {
@@ -42,16 +42,16 @@ impl Packet for PlayerLocation {
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> PlayerLocation {
         let mut stream = Stream::new(bytes, 0);
 
-        let location_type = stream.get_l_int();
+        let location_type = stream.get_u32_le();
         let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
         let mut position: Option<Vec<f32>> = None;
         if location_type == PlayerLocationType::PLAYER_LOCATION_COORDINATES {

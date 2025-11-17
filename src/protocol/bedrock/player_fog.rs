@@ -19,24 +19,24 @@ impl Packet for PlayerFog {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_unsigned_var_int(self.fog_layers.len() as u32);
+        stream.put_var_u32(self.fog_layers.len() as u32);
         for fog_layer in self.fog_layers.iter() {
             PacketSerializer::put_string(&mut stream, fog_layer.clone());
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> PlayerFog {
         let mut stream = Stream::new(bytes, 0);
 
-        let fog_layers_len = stream.get_unsigned_var_int() as usize;
+        let fog_layers_len = stream.get_var_u32() as usize;
         let mut fog_layers = Vec::new();
         for _ in 0..fog_layers_len {
             fog_layers.push(PacketSerializer::get_string(&mut stream));

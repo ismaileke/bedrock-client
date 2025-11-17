@@ -24,14 +24,14 @@ pub struct StartGame {
     pub premium_world_template_id: String,
     pub is_trial: bool,
     pub player_movement_settings: PlayerMovementSettings,
-    pub current_tick: i64,
+    pub current_tick: u64,
     pub enchantment_seed: i32,
     pub block_palette: Vec<BlockPaletteEntry>,
     pub multiplayer_correlation_id: String,
     pub enable_new_inventory_system: bool,
     pub server_software_version: String,
     pub player_actor_properties: CacheableNBT,
-    pub block_palette_checksum: i64,
+    pub block_palette_checksum: u64,
     pub world_template_id: String,
     pub enable_client_side_chunk_generation: bool,
     pub block_network_ids_are_hashes: bool,
@@ -54,12 +54,12 @@ impl Packet for StartGame {
         let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
 
-        let player_game_mode = stream.get_var_int();
+        let player_game_mode = stream.get_var_i32();
 
         let player_position = PacketSerializer::get_vector3(&mut stream);
 
-        let pitch = stream.get_l_float();
-        let yaw = stream.get_l_float();
+        let pitch = stream.get_f32_le();
+        let yaw = stream.get_f32_le();
 
         let level_settings = LevelSettings::read(&mut stream);
 
@@ -73,18 +73,18 @@ impl Packet for StartGame {
 
         let player_movement_settings = PlayerMovementSettings::read(&mut stream);
 
-        let current_tick = stream.get_l_long();
+        let current_tick = stream.get_u64_le();
 
-        let enchantment_seed = stream.get_var_int();
+        let enchantment_seed = stream.get_var_i32();
 
         let mut block_palette: Vec<BlockPaletteEntry> = vec![];
-        let palette_len = stream.get_unsigned_var_int();
+        let palette_len = stream.get_var_u32();
         for _ in 0..palette_len {
             let block_name = PacketSerializer::get_string(&mut stream);
 
             let mut offset = stream.get_offset();
             let mut nbt_serializer = NetworkNBTSerializer::new();
-            let nbt_root = nbt_serializer.read(stream.get_buffer(), &mut offset, 0);
+            let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
             stream.set_offset(offset);
 
             let state = Box::new(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error"));
@@ -100,11 +100,11 @@ impl Packet for StartGame {
 
         let mut offset = stream.get_offset();
         let mut nbt_serializer = NetworkNBTSerializer::new();
-        let nbt_root = nbt_serializer.read(stream.get_buffer(), &mut offset, 0);
+        let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
         stream.set_offset(offset);
         let player_actor_properties = CacheableNBT::new(Box::new(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error")));
 
-        let block_palette_checksum = stream.get_l_long();
+        let block_palette_checksum = stream.get_u64_le();
 
         let world_template_id = PacketSerializer::get_uuid(&mut stream);
 

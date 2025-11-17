@@ -62,41 +62,41 @@ impl Packet for ClientMovementPredictionSync {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         self.flags.write(&mut stream);
-        stream.put_l_float(self.scale);
-        stream.put_l_float(self.width);
-        stream.put_l_float(self.height);
-        stream.put_l_float(self.movement_speed);
-        stream.put_l_float(self.underwater_movement_speed);
-        stream.put_l_float(self.lava_movement_speed);
-        stream.put_l_float(self.jump_strength);
-        stream.put_l_float(self.health);
-        stream.put_l_float(self.hunger);
+        stream.put_f32_le(self.scale);
+        stream.put_f32_le(self.width);
+        stream.put_f32_le(self.height);
+        stream.put_f32_le(self.movement_speed);
+        stream.put_f32_le(self.underwater_movement_speed);
+        stream.put_f32_le(self.lava_movement_speed);
+        stream.put_f32_le(self.jump_strength);
+        stream.put_f32_le(self.health);
+        stream.put_f32_le(self.hunger);
         PacketSerializer::put_actor_unique_id(&mut stream, self.actor_unique_id);
         stream.put_bool(self.actor_flying_state);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> ClientMovementPredictionSync {
         let mut stream = Stream::new(bytes, 0);
 
         let flags = BitSet::read(&mut stream, Self::FLAG_LENGTH as usize);
-        let scale = stream.get_l_float();
-        let width = stream.get_l_float();
-        let height = stream.get_l_float();
-        let movement_speed = stream.get_l_float();
-        let underwater_movement_speed = stream.get_l_float();
-        let lava_movement_speed = stream.get_l_float();
-        let jump_strength = stream.get_l_float();
-        let health = stream.get_l_float();
-        let hunger = stream.get_l_float();
+        let scale = stream.get_f32_le();
+        let width = stream.get_f32_le();
+        let height = stream.get_f32_le();
+        let movement_speed = stream.get_f32_le();
+        let underwater_movement_speed = stream.get_f32_le();
+        let lava_movement_speed = stream.get_f32_le();
+        let jump_strength = stream.get_f32_le();
+        let health = stream.get_f32_le();
+        let hunger = stream.get_f32_le();
         let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
         let actor_flying_state = stream.get_bool();
 

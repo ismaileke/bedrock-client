@@ -1,15 +1,15 @@
 #[derive(Debug)]
 pub struct ChunkCacheBlob {
-    hash: i64,
+    hash: u64,
     payload: String
 }
 
 impl ChunkCacheBlob {
-    pub fn new(hash: i64, payload: String) -> Self {
+    pub fn new(hash: u64, payload: String) -> Self {
         ChunkCacheBlob{ hash, payload }
     }
 
-    pub fn get_hash(&self) -> i64 {
+    pub fn get_hash(&self) -> u64 {
         self.hash
     }
 

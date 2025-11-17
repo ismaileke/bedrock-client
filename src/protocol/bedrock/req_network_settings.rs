@@ -18,20 +18,22 @@ impl Packet for RequestNetworkSettings {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
-        stream.put_int(self.protocol_version);
+        stream.put_var_u32(self.id() as u32);
+
+        stream.put_u32_be(self.protocol_version);
 
         let mut main_stream = Stream::new(Vec::new(), 0);
         main_stream.put_byte(0xfe);
-        main_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        main_stream.put(stream.get_buffer());
-        main_stream.get_buffer()
+        main_stream.put_var_u32(stream.get_buffer().len() as u32);
+        main_stream.put(Vec::from(stream.get_buffer()));
+
+        Vec::from(main_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> RequestNetworkSettings {
         let mut stream = Stream::new(bytes, 0);
 
-        let protocol_version = stream.get_int();
+        let protocol_version = stream.get_u32_be();
 
         RequestNetworkSettings { protocol_version }
     }

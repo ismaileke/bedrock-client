@@ -2,12 +2,12 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct BiomeMountainParamsData {
-    steep_block: u32,
-    north_slopes: bool,
-    south_slopes: bool,
-    west_slopes: bool,
-    east_slopes: bool,
-    top_slide_enabled: bool
+    pub steep_block: u32,
+    pub north_slopes: bool,
+    pub south_slopes: bool,
+    pub west_slopes: bool,
+    pub east_slopes: bool,
+    pub top_slide_enabled: bool
 }
 
 impl BiomeMountainParamsData {

@@ -17,7 +17,7 @@ pub struct ResourcePacksInfo {
 pub struct ResourcePack {
     pub uuid: String,
     pub version: String,
-    pub size_bytes: i64,
+    pub size_bytes: u64,
     pub encryption_key: String,
     pub sub_pack_name: String,
     pub content_id: String,
@@ -48,12 +48,12 @@ impl Packet for ResourcePacksInfo {
         let world_template_id = PacketSerializer::get_uuid(&mut stream);
         let world_template_version = PacketSerializer::get_string(&mut stream);
 
-        let resource_pack_count = stream.get_l_short();
+        let resource_pack_count = stream.get_u16_le();
         let mut resource_packs = Vec::new();
         for _ in 0..resource_pack_count {
             let uuid = PacketSerializer::get_uuid(&mut stream);
             let version = PacketSerializer::get_string(&mut stream);
-            let size_bytes = stream.get_l_long();
+            let size_bytes = stream.get_u64_le();
             let encryption_key = PacketSerializer::get_string(&mut stream);
             let sub_pack_name = PacketSerializer::get_string(&mut stream);
             let content_id = PacketSerializer::get_string(&mut stream);

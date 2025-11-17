@@ -9,9 +9,9 @@ mod tests {
     #[tokio::test]
     async fn test() {
         let mut client = client::create(
-            "127.0.0.1".to_string(),
+            "51.75.67.107".to_string(),
             19132,
-            "1.21.100".to_string(),
+            "1.21.120".to_string(),
             false,
             |code, url| {
                 println!("You can log in with the code {} at {}", code, url);

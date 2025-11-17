@@ -99,20 +99,20 @@ impl Packet for PlayerAuthInput {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_l_float(self.pitch);
-        stream.put_l_float(self.yaw);
+        stream.put_f32_le(self.pitch);
+        stream.put_f32_le(self.yaw);
         PacketSerializer::put_vector3(&mut stream, self.position.clone());
-        stream.put_l_float(self.move_vec_x);
-        stream.put_l_float(self.move_vec_z);
-        stream.put_l_float(self.head_yaw);
+        stream.put_f32_le(self.move_vec_x);
+        stream.put_f32_le(self.move_vec_z);
+        stream.put_f32_le(self.head_yaw);
         self.input_flags.write(&mut stream);
-        stream.put_unsigned_var_int(self.input_mode);
-        stream.put_unsigned_var_int(self.play_mode);
-        stream.put_unsigned_var_int(self.interaction_mode);
+        stream.put_var_u32(self.input_mode);
+        stream.put_var_u32(self.play_mode);
+        stream.put_var_u32(self.interaction_mode);
         PacketSerializer::put_vector2(&mut stream, self.interact_rotation.clone());
-        stream.put_unsigned_var_long(self.tick);
+        stream.put_var_u64(self.tick);
         PacketSerializer::put_vector3(&mut stream, self.delta.clone());
         if let Some(item_interaction_data) = &self.item_interaction_data {
             item_interaction_data.write(&mut stream);
@@ -121,7 +121,7 @@ impl Packet for PlayerAuthInput {
             item_stack_request.write(&mut stream);
         }
         if let Some(block_actions) = &mut self.block_actions {
-            stream.put_var_int(block_actions.len() as i32);
+            stream.put_var_i32(block_actions.len() as i32);
             for block_action in block_actions {
                 block_action.write(&mut stream);
             }
@@ -129,33 +129,33 @@ impl Packet for PlayerAuthInput {
         if let Some(vehicle_info) = &mut self.vehicle_info {
             vehicle_info.write(&mut stream);
         }
-        stream.put_l_float(self.analog_move_vec_x);
-        stream.put_l_float(self.analog_move_vec_z);
+        stream.put_f32_le(self.analog_move_vec_x);
+        stream.put_f32_le(self.analog_move_vec_z);
         PacketSerializer::put_vector3(&mut stream, self.camera_orientation.clone());
         PacketSerializer::put_vector2(&mut stream, self.raw_move.clone());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> PlayerAuthInput {
         let mut stream = Stream::new(bytes, 0);
 
-        let pitch = stream.get_l_float();
-        let yaw = stream.get_l_float();
+        let pitch = stream.get_f32_le();
+        let yaw = stream.get_f32_le();
         let position = PacketSerializer::get_vector3(&mut stream);
-        let move_vec_x = stream.get_l_float();
-        let move_vec_z = stream.get_l_float();
-        let head_yaw = stream.get_l_float();
+        let move_vec_x = stream.get_f32_le();
+        let move_vec_z = stream.get_f32_le();
+        let head_yaw = stream.get_f32_le();
         let input_flags = BitSet::read(&mut stream, PlayerAuthInputFlags::NUMBER_OF_FLAGS);
-        let input_mode = stream.get_unsigned_var_int();
-        let play_mode = stream.get_unsigned_var_int();
-        let interaction_mode = stream.get_unsigned_var_int();
+        let input_mode = stream.get_var_u32();
+        let play_mode = stream.get_var_u32();
+        let interaction_mode = stream.get_var_u32();
         let interact_rotation = PacketSerializer::get_vector2(&mut stream);
-        let tick = stream.get_unsigned_var_long();
+        let tick = stream.get_var_u64();
         let delta = PacketSerializer::get_vector3(&mut stream);
         let mut item_interaction_data = None;
         if input_flags.get(PlayerAuthInputFlags::PERFORM_ITEM_INTERACTION) {
@@ -168,9 +168,9 @@ impl Packet for PlayerAuthInput {
         let mut block_actions: Option<Vec<Box<dyn PlayerBlockAction>>> = None;
         if input_flags.get(PlayerAuthInputFlags::PERFORM_BLOCK_ACTIONS) {
             let mut sub_block_actions = vec![];
-            let max = stream.get_var_int();
+            let max = stream.get_var_i32();
             for _ in 0..max {
-                let action_type = stream.get_var_int();
+                let action_type = stream.get_var_i32();
                 let block_action = if PlayerBlockActionWithBlockInfo::is_valid_action_type(action_type) {
                     Box::new(PlayerBlockActionWithBlockInfo::read(&mut stream, action_type)) as Box<dyn PlayerBlockAction>
                 } else if action_type == PlayerActionTypes::STOP_BREAK {
@@ -186,8 +186,8 @@ impl Packet for PlayerAuthInput {
         if input_flags.get(PlayerAuthInputFlags::IN_CLIENT_PREDICTED_VEHICLE) {
             vehicle_info = Some(PlayerAuthInputVehicleInfo::read(&mut stream));
         }
-        let analog_move_vec_x = stream.get_l_float();
-        let analog_move_vec_z = stream.get_l_float();
+        let analog_move_vec_x = stream.get_f32_le();
+        let analog_move_vec_z = stream.get_f32_le();
         let camera_orientation = PacketSerializer::get_vector3(&mut stream);
         let raw_move = PacketSerializer::get_vector2(&mut stream);
 
@@ -244,3 +244,16 @@ impl Packet for PlayerAuthInput {
         self
     }
 }
+
+impl PlayerAuthInput {
+    // Input Mode
+    pub const MOUSE_KEYBOARD: u32 = 1;
+    pub const TOUCHSCREEN: u32 = 2;
+    pub const GAME_PAD: u32 = 3;
+    // Play Mode
+    pub const NORMAL: u32 = 0;
+    pub const TEASER: u32 = 1;
+    pub const SCREEN: u32 = 2;
+    pub const EXIT_LEVEL: u32 = 7;
+}
+

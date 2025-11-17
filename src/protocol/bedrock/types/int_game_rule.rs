@@ -13,8 +13,8 @@ impl IntGameRule {
         IntGameRule{ value, is_player_modifiable }
     }
 
-    pub fn read(stream: &mut Stream, is_player_modifiable: bool) -> IntGameRule {
-        IntGameRule{ value: stream.get_unsigned_var_int(), is_player_modifiable }
+    pub fn read(stream: &mut Stream, is_player_modifiable: bool, is_start_game: bool) -> IntGameRule {
+        IntGameRule{ value: if is_start_game { stream.get_unsigned_var_int() } else { stream.get_l_int() }, is_player_modifiable }
     }
 }
 
@@ -27,8 +27,12 @@ impl GameRule for IntGameRule {
         self.is_player_modifiable
     }
 
-    fn write(&mut self, stream: &mut Stream) {
-        stream.put_unsigned_var_int(self.value);
+    fn write(&mut self, stream: &mut Stream, is_start_game: bool) {
+        if is_start_game {
+            stream.put_unsigned_var_int(self.value);
+        } else {
+            stream.put_l_int(self.value);
+        }
     }
 }
 

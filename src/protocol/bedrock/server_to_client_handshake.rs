@@ -19,8 +19,9 @@ impl Packet for ServerToClientHandshake {
     fn decode(bytes: Vec<u8>) -> ServerToClientHandshake {
         let mut stream = Stream::new(bytes, 0);
 
-        let length = stream.get_unsigned_var_int();
-        let jwt = stream.get(length).expect("ServerToClientHandshake JWT Error");
+        //let jwt = PacketSerializer::get_string(&mut stream);
+        let length = stream.get_var_u32();
+        let jwt = stream.get(length);
 
         ServerToClientHandshake { jwt }
     }

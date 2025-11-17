@@ -4,12 +4,12 @@ use crate::protocol::bedrock::types::camera::camera_aim_assist_preset_item_setti
 
 #[derive(Debug)]
 pub struct CameraAimAssistPreset {
-    identifier: String,
-    exclusion_list: Vec<String>,
-    liquid_targeting_list: Vec<String>,
-    item_settings: Vec<CameraAimAssistPresetItemSettings>,
-    default_item_settings: Option<String>,
-    default_hand_settings: Option<String>
+    pub identifier: String,
+    pub exclusion_list: Vec<String>,
+    pub liquid_targeting_list: Vec<String>,
+    pub item_settings: Vec<CameraAimAssistPresetItemSettings>,
+    pub default_item_settings: Option<String>,
+    pub default_hand_settings: Option<String>
 }
 
 impl CameraAimAssistPreset {

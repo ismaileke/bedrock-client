@@ -24,10 +24,10 @@ impl Packet for InventoryContent {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_unsigned_var_int(self.window_id);
-        stream.put_unsigned_var_int(self.items.len() as u32);
+        stream.put_var_u32(self.window_id);
+        stream.put_var_u32(self.items.len() as u32);
         for item in &self.items {
             PacketSerializer::put_item_stack_wrapper(&mut stream, item.clone());
         }
@@ -35,17 +35,17 @@ impl Packet for InventoryContent {
         PacketSerializer::put_item_stack_wrapper(&mut stream, self.storage.clone());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> InventoryContent {
         let mut stream = Stream::new(bytes, 0);
 
-        let window_id = stream.get_unsigned_var_int();
-        let items_count = stream.get_unsigned_var_int();
+        let window_id = stream.get_var_u32();
+        let items_count = stream.get_var_u32();
         let mut items = Vec::new();
         for _ in 0..items_count {
             items.push(PacketSerializer::get_item_stack_wrapper(&mut stream));

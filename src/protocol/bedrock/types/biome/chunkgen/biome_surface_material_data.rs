@@ -2,12 +2,12 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct BiomeSurfaceMaterialData {
-    top_block: u32,
-    mid_block: u32,
-    sea_floor_block: u32,
-    foundation_block: u32,
-    sea_block: u32,
-    sea_floor_depth: u32
+    pub top_block: u32,
+    pub mid_block: u32,
+    pub sea_floor_block: u32,
+    pub foundation_block: u32,
+    pub sea_block: u32,
+    pub sea_floor_depth: u32
 }
 
 impl BiomeSurfaceMaterialData {

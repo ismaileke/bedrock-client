@@ -2,10 +2,10 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct BiomeMesaSurfaceData {
-    clay_material: u32,
-    hard_clay_material: u32,
-    bryce_pillars: bool,
-    forest: bool
+    pub clay_material: u32,
+    pub hard_clay_material: u32,
+    pub bryce_pillars: bool,
+    pub forest: bool
 }
 
 impl BiomeMesaSurfaceData {

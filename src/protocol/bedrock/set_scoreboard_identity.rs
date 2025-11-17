@@ -14,11 +14,6 @@ pub fn new(action_type: u8, entries: Vec<ScoreboardIdentityEntry>) -> SetScorebo
     SetScoreboardIdentity { action_type, entries }
 }
 
-impl SetScoreboardIdentity {
-    pub const TYPE_REGISTER_IDENTITY: u8 = 0;
-    pub const TYPE_CLEAR_IDENTITY: u8 = 1;
-}
-
 impl Packet for SetScoreboardIdentity {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetScoreboardIdentity.get_byte()
@@ -26,22 +21,22 @@ impl Packet for SetScoreboardIdentity {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         stream.put_byte(self.action_type);
-        stream.put_unsigned_var_int(self.entries.len() as u32);
+        stream.put_var_u32(self.entries.len() as u32);
         for entry in &self.entries {
-            stream.put_var_long(entry.scoreboard_id);
+            stream.put_var_i64(entry.scoreboard_id);
             if self.action_type == SetScoreboardIdentity::TYPE_REGISTER_IDENTITY {
                 PacketSerializer::put_actor_unique_id(&mut stream, entry.actor_unique_id.unwrap());
             }
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> SetScoreboardIdentity {
@@ -49,9 +44,9 @@ impl Packet for SetScoreboardIdentity {
 
         let action_type = stream.get_byte();
         let mut entries: Vec<ScoreboardIdentityEntry> = Vec::new();
-        let count = stream.get_unsigned_var_int();
+        let count = stream.get_var_u32();
         for _ in 0..count {
-            let scoreboard_id = stream.get_var_long();
+            let scoreboard_id = stream.get_var_i64();
             let mut actor_unique_id = None;
             if action_type == SetScoreboardIdentity::TYPE_REGISTER_IDENTITY {
                 actor_unique_id = Some(PacketSerializer::get_actor_unique_id(&mut stream));
@@ -71,4 +66,9 @@ impl Packet for SetScoreboardIdentity {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl SetScoreboardIdentity {
+    pub const TYPE_REGISTER_IDENTITY: u8 = 0;
+    pub const TYPE_CLEAR_IDENTITY: u8 = 1;
 }

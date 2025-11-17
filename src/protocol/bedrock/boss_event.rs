@@ -16,7 +16,17 @@ pub struct BossEvent {
     pub overlay: u32
 }
 
-pub fn new(boss_actor_unique_id: i64, event_type: u32, player_actor_unique_id: i64, health_percent: f32, title: String, filtered_title: String, darken_screen: bool, color: u32, overlay: u32) -> BossEvent {
+pub fn new(
+    boss_actor_unique_id: i64,
+    event_type: u32,
+    player_actor_unique_id: i64,
+    health_percent: f32,
+    title: String,
+    filtered_title: String,
+    darken_screen: bool,
+    color: u32,
+    overlay: u32
+) -> BossEvent {
     BossEvent { boss_actor_unique_id, event_type, player_actor_unique_id, health_percent, title, filtered_title, darken_screen, color, overlay }
 }
 
@@ -48,10 +58,10 @@ impl Packet for BossEvent {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_actor_unique_id(&mut stream, self.boss_actor_unique_id);
-        stream.put_unsigned_var_int(self.event_type);
+        stream.put_var_u32(self.event_type);
         match self.event_type {
             BossEvent::TYPE_REGISTER_PLAYER | BossEvent::TYPE_UNREGISTER_PLAYER | BossEvent::TYPE_QUERY => {
                 PacketSerializer::put_actor_unique_id(&mut stream, self.player_actor_unique_id);
@@ -59,23 +69,23 @@ impl Packet for BossEvent {
             BossEvent::TYPE_SHOW => {
                 PacketSerializer::put_string(&mut stream, self.title.clone());
                 PacketSerializer::put_string(&mut stream, self.filtered_title.clone());
-                stream.put_l_float(self.health_percent);
+                stream.put_f32_le(self.health_percent);
 
-                stream.put_l_short(if self.darken_screen { 1 } else { 0 });
-                stream.put_unsigned_var_int(self.color);
-                stream.put_unsigned_var_int(self.overlay);
+                stream.put_u16_le(if self.darken_screen { 1 } else { 0 });
+                stream.put_var_u32(self.color);
+                stream.put_var_u32(self.overlay);
             }
             BossEvent::TYPE_PROPERTIES => {
-                stream.put_l_short(if self.darken_screen { 1 } else { 0 });
-                stream.put_unsigned_var_int(self.color);
-                stream.put_unsigned_var_int(self.overlay);
+                stream.put_u16_le(if self.darken_screen { 1 } else { 0 });
+                stream.put_var_u32(self.color);
+                stream.put_var_u32(self.overlay);
             }
             BossEvent::TYPE_TEXTURE => {
-                stream.put_unsigned_var_int(self.color);
-                stream.put_unsigned_var_int(self.overlay);
+                stream.put_var_u32(self.color);
+                stream.put_var_u32(self.overlay);
             }
             BossEvent::TYPE_HEALTH_PERCENT => {
-                stream.put_l_float(self.health_percent);
+                stream.put_f32_le(self.health_percent);
             }
             BossEvent::TYPE_TITLE => {
                 PacketSerializer::put_string(&mut stream, self.title.clone());
@@ -85,17 +95,17 @@ impl Packet for BossEvent {
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> BossEvent {
         let mut stream = Stream::new(bytes, 0);
 
         let boss_actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
-        let event_type = stream.get_unsigned_var_int();
+        let event_type = stream.get_var_u32();
         let mut player_actor_unique_id = 0;
         let mut health_percent = 0.0;
         let mut title = String::new();
@@ -111,30 +121,30 @@ impl Packet for BossEvent {
             BossEvent::TYPE_SHOW => {
                 title = PacketSerializer::get_string(&mut stream);
                 filtered_title = PacketSerializer::get_string(&mut stream);
-                health_percent = stream.get_l_float();
+                health_percent = stream.get_f32_le();
 
                 // fallthrough: PROPERTIES
-                let raw = stream.get_l_short();
+                let raw = stream.get_u16_le();
                 darken_screen = if raw == 0 { false } else { true};
 
                 // fallthrough: TEXTURE
-                color = stream.get_unsigned_var_int();
-                overlay = stream.get_unsigned_var_int();
+                color = stream.get_var_u32();
+                overlay = stream.get_var_u32();
             }
             BossEvent::TYPE_PROPERTIES => {
-                let raw = stream.get_l_short();
+                let raw = stream.get_u16_le();
                 darken_screen = if raw == 0 { false } else { true};
 
                 // fallthrough: TEXTURE
-                color = stream.get_unsigned_var_int();
-                overlay = stream.get_unsigned_var_int();
+                color = stream.get_var_u32();
+                overlay = stream.get_var_u32();
             }
             BossEvent::TYPE_TEXTURE => {
-                color = stream.get_unsigned_var_int();
-                overlay = stream.get_unsigned_var_int();
+                color = stream.get_var_u32();
+                overlay = stream.get_var_u32();
             }
             BossEvent::TYPE_HEALTH_PERCENT => {
-                health_percent = stream.get_l_float();
+                health_percent = stream.get_f32_le();
             }
             BossEvent::TYPE_TITLE => {
                 title = PacketSerializer::get_string(&mut stream);

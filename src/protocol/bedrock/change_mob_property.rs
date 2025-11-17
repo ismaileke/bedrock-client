@@ -24,20 +24,20 @@ impl Packet for ChangeMobProperty {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_actor_unique_id(&mut stream, self.actor_unique_id);
         PacketSerializer::put_string(&mut stream, self.property_name.clone());
         stream.put_bool(self.bool_value);
         PacketSerializer::put_string(&mut stream, self.string_value.clone());
-        stream.put_var_int(self.int_value);
-        stream.put_l_float(self.float_value);
+        stream.put_var_i32(self.int_value);
+        stream.put_f32_le(self.float_value);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> ChangeMobProperty {
@@ -47,8 +47,8 @@ impl Packet for ChangeMobProperty {
         let property_name = PacketSerializer::get_string(&mut stream);
         let bool_value = stream.get_bool();
         let string_value = PacketSerializer::get_string(&mut stream);
-        let int_value = stream.get_var_int();
-        let float_value = stream.get_l_float();
+        let int_value = stream.get_var_i32();
+        let float_value = stream.get_f32_le();
 
         ChangeMobProperty { actor_unique_id, property_name, bool_value, string_value, int_value, float_value }
     }

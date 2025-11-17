@@ -18,21 +18,21 @@ impl Packet for SetLastHurtBy {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_var_int(self.entity_type_id);
+        stream.put_var_i32(self.entity_type_id);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> SetLastHurtBy {
         let mut stream = Stream::new(bytes, 0);
 
-        let entity_type_id = stream.get_var_int();
+        let entity_type_id = stream.get_var_i32();
 
         SetLastHurtBy { entity_type_id }
     }

@@ -27,7 +27,7 @@ pub struct RakNetPacketHandler {
     pub last_received_packets: HashMap<i32, Frame>, // reliable_frame_index: Frame
     pub last_received_fragment_packets: HashMap<u16, HashMap<u32, Vec<u8>>>, // split_id: index => buffer
     pub last_received_sequence_number: i32,
-    pub last_handled_reliable_frame_index: i32,
+    pub last_handled_reliable_frame_index: i32
 }
 
 impl RakNetPacketHandler {
@@ -48,7 +48,7 @@ impl RakNetPacketHandler {
             last_received_packets,
             last_received_fragment_packets,
             last_received_sequence_number,
-            last_handled_reliable_frame_index,
+            last_handled_reliable_frame_index
         }
     }
 
@@ -58,7 +58,7 @@ impl RakNetPacketHandler {
 
         match packet_type {
             PacketType::OpenConnReply1 => {
-                let open_conn_reply1 = OpenConnReply1::decode(stream.get_buffer());
+                let open_conn_reply1 = OpenConnReply1::decode(Vec::from(stream.get_buffer()));
                 if debug { open_conn_reply1.debug(); }
 
                 response_data = OpenConnReq2::new(MAGIC, address::new(4, target_address.to_string(), target_port), open_conn_reply1.cookie, false, open_conn_reply1.mtu, self.client_guid).encode();
@@ -66,7 +66,7 @@ impl RakNetPacketHandler {
                 //client.socket.send(&req2).expect("Open Connection Request 2 Packet could not be sent");
             },
             PacketType::OpenConnReply2 => {
-                let open_conn_reply2 = OpenConnReply2::decode(stream.get_buffer());
+                let open_conn_reply2 = OpenConnReply2::decode(Vec::from(stream.get_buffer()));
                 if debug { open_conn_reply2.debug(); }
 
                 let body = ConnReq::new(self.client_guid, Utc::now().timestamp(), false).encode();
@@ -79,7 +79,7 @@ impl RakNetPacketHandler {
             },
             PacketType::ConnReqAccepted => {
 
-                let conn_req_accepted = ConnReqAccepted::decode(stream.get_buffer());
+                let conn_req_accepted = ConnReqAccepted::decode(Vec::from(stream.get_buffer()));
                 if debug { conn_req_accepted.debug(); }
 
                 // New Incoming Connection
@@ -105,7 +105,7 @@ impl RakNetPacketHandler {
                 //should_stop = true;
             },
             PacketType::IncompatibleProtocol => {
-                let incompatible_protocol = incompatible_protocol::decode(stream.get_buffer());
+                let incompatible_protocol = incompatible_protocol::decode(Vec::from(stream.get_buffer()));
                 println!("{}Incompatible Protocol Version, Server Protocol Version: {}{}", COLOR_RED, incompatible_protocol.server_protocol, COLOR_WHITE);
                 *should_stop = true;
             },

@@ -7,10 +7,10 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 pub struct GUIDataPickItem {
     pub item_description: String,
     pub item_effects: String,
-    pub hotbar_slot: u32
+    pub hotbar_slot: i32
 }
 
-pub fn new(item_description: String, item_effects: String, hotbar_slot: u32) -> GUIDataPickItem {
+pub fn new(item_description: String, item_effects: String, hotbar_slot: i32) -> GUIDataPickItem {
     GUIDataPickItem { item_description, item_effects, hotbar_slot }
 }
 
@@ -21,17 +21,17 @@ impl Packet for GUIDataPickItem {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_string(&mut stream, self.item_description.clone());
         PacketSerializer::put_string(&mut stream, self.item_effects.clone());
-        stream.put_l_int(self.hotbar_slot);
+        stream.put_i32_le(self.hotbar_slot);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> GUIDataPickItem {
@@ -39,7 +39,7 @@ impl Packet for GUIDataPickItem {
 
         let item_description = PacketSerializer::get_string(&mut stream);
         let item_effects = PacketSerializer::get_string(&mut stream);
-        let hotbar_slot = stream.get_l_int();
+        let hotbar_slot = stream.get_i32_le();
 
         GUIDataPickItem { item_description, item_effects, hotbar_slot }
     }

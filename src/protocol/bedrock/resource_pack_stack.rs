@@ -30,13 +30,13 @@ impl Packet for ResourcePackStack {
         let must_accept = stream.get_bool();
 
         let mut behavior_pack_stack = vec![];
-        let behavior_pack_count = stream.get_unsigned_var_int();
+        let behavior_pack_count = stream.get_var_u32();
         for _ in 0..behavior_pack_count {
             behavior_pack_stack.push(ResourcePackStackEntry::read(&mut stream));
         }
 
         let mut resource_pack_stack = vec![];
-        let resource_pack_count = stream.get_unsigned_var_int();
+        let resource_pack_count = stream.get_var_u32();
         for _ in 0..resource_pack_count {
             resource_pack_stack.push(ResourcePackStackEntry::read(&mut stream));
         }

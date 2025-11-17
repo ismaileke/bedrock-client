@@ -14,11 +14,6 @@ pub fn new(action_type: u8, entries: Vec<ScoreEntry>) -> SetScore {
     SetScore { action_type, entries }
 }
 
-impl SetScore {
-    pub const TYPE_CHANGE: u8 = 0;
-    pub const TYPE_REMOVE: u8 = 1;
-}
-
 impl Packet for SetScore {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetScore.get_byte()
@@ -26,14 +21,14 @@ impl Packet for SetScore {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         stream.put_byte(self.action_type);
-        stream.put_unsigned_var_int(self.entries.len() as u32);
+        stream.put_var_u32(self.entries.len() as u32);
         for entry in &self.entries {
-            stream.put_var_long(entry.scoreboard_id);
+            stream.put_var_i64(entry.scoreboard_id);
             PacketSerializer::put_string(&mut stream, entry.objective_name.clone());
-            stream.put_l_int(entry.score);
+            stream.put_i32_le(entry.score);
             if self.action_type != Self::TYPE_REMOVE {
                 stream.put_byte(entry.entity_type);
                 match entry.entity_type {
@@ -51,22 +46,22 @@ impl Packet for SetScore {
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> SetScore {
         let mut stream = Stream::new(bytes, 0);
 
         let action_type = stream.get_byte();
-        let count = stream.get_unsigned_var_int();
+        let count = stream.get_var_u32();
         let mut entries: Vec<ScoreEntry> = Vec::new();
         for _ in 0..count {
-            let scoreboard_id = stream.get_var_long();
+            let scoreboard_id = stream.get_var_i64();
             let objective_name = PacketSerializer::get_string(&mut stream);
-            let score = stream.get_l_int();
+            let score = stream.get_i32_le();
             let mut entity_type = 0; // Why I did IDK
             let mut actor_unique_id = None;
             let mut custom_name = None;
@@ -98,4 +93,9 @@ impl Packet for SetScore {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl SetScore {
+    pub const TYPE_CHANGE: u8 = 0;
+    pub const TYPE_REMOVE: u8 = 1;
 }

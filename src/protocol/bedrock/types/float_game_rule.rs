@@ -27,7 +27,7 @@ impl GameRule for FloatGameRule {
         self.is_player_modifiable
     }
 
-    fn write(&mut self, stream: &mut Stream) {
+    fn write(&mut self, stream: &mut Stream, _is_start_game: bool) {
         stream.put_l_float(self.value);
     }
 }

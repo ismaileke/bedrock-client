@@ -48,13 +48,13 @@ impl AbilitiesLayer {
 
     pub fn read(stream: &mut Stream) -> AbilitiesLayer {
 
-        let layer_id = stream.get_l_short();
-        let set_abilities = stream.get_l_int();
-        let set_ability_values = stream.get_l_int();
+        let layer_id = stream.get_u16_le();
+        let set_abilities = stream.get_u32_le();
+        let set_ability_values = stream.get_u32_le();
 
-        let mut fly_speed = Option::from(stream.get_l_float());
-        let mut vertical_fly_speed = Option::from(stream.get_l_float());
-        let mut walk_speed = Option::from(stream.get_l_float());
+        let mut fly_speed = Option::from(stream.get_f32_le());
+        let mut vertical_fly_speed = Option::from(stream.get_f32_le());
+        let mut walk_speed = Option::from(stream.get_f32_le());
 
         let mut bool_abilities = HashMap::new();
         for i in 0..AbilitiesLayer::NUMBER_OF_ABILITIES {
@@ -88,7 +88,7 @@ impl AbilitiesLayer {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_l_short(self.layer_id);
+        stream.put_u16_le(self.layer_id);
 
         let mut set_abilities = 0;
         let mut set_ability_values = 0;
@@ -106,10 +106,10 @@ impl AbilitiesLayer {
             set_abilities |= 1 << Self::ABILITY_WALK_SPEED;
         }
 
-        stream.put_l_int(set_abilities);
-        stream.put_l_int(set_ability_values);
-        stream.put_l_float(if self.fly_speed.is_some() { self.fly_speed.unwrap() } else { 0.0 });
-        stream.put_l_float(if self.vertical_fly_speed.is_some() { self.vertical_fly_speed.unwrap() } else { 0.0 });
-        stream.put_l_float(if self.walk_speed.is_some() { self.walk_speed.unwrap() } else { 0.0 });
+        stream.put_u32_le(set_abilities);
+        stream.put_u32_le(set_ability_values);
+        stream.put_f32_le(if self.fly_speed.is_some() { self.fly_speed.unwrap() } else { 0.0 });
+        stream.put_f32_le(if self.vertical_fly_speed.is_some() { self.vertical_fly_speed.unwrap() } else { 0.0 });
+        stream.put_f32_le(if self.walk_speed.is_some() { self.walk_speed.unwrap() } else { 0.0 });
     }
 }

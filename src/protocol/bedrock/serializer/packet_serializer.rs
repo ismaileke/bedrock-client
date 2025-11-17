@@ -45,19 +45,19 @@ pub struct PacketSerializer {}
 
 impl PacketSerializer {
     pub fn get_string(stream: &mut Stream) -> String {
-        let length = stream.get_unsigned_var_int();
-        let bytes = stream.get(length).unwrap();
+        let length = stream.get_var_u32();
+        let bytes = stream.get(length);
         String::from_utf8_lossy(&bytes).to_string()
     }
 
     pub fn put_string(stream: &mut Stream, data: String) {
-        stream.put_unsigned_var_int(data.len() as u32);
+        stream.put_var_u32(data.len() as u32);
         stream.put(data.into_bytes());
     }
 
     pub fn get_uuid(stream: &mut Stream) -> String {
-        let mut p1 = stream.get(8).unwrap();
-        let mut p2 = stream.get(8).unwrap();
+        let mut p1 = stream.get(8);
+        let mut p2 = stream.get(8);
         p1.reverse();
         p2.reverse();
         let mut bytes = Vec::with_capacity(16);
@@ -68,7 +68,7 @@ impl PacketSerializer {
     }
 
     pub fn put_uuid(stream: &mut Stream, data: String) {
-        stream.put_unsigned_var_int(data.len() as u32);
+        stream.put_var_u32(data.len() as u32);
         stream.put(data.into_bytes());
     }
 
@@ -178,7 +178,7 @@ impl PacketSerializer {
     pub fn get_nbt_root(stream: &mut Stream) -> Box<TreeRoot> {
         let mut offset = stream.get_offset();
         let mut nbt_serializer = NetworkNBTSerializer::new();
-        let nbt_root = nbt_serializer.read(stream.get_buffer(), &mut offset, 0);
+        let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
         stream.set_offset(offset);
         nbt_root
     }
@@ -414,13 +414,13 @@ impl PacketSerializer {
         stream.put_var_int(ingredient.count);
     }
 
-    fn read_game_rule(stream: &mut Stream, rule_type: u32, is_player_modifiable: bool) -> Box<dyn GameRule> {
+    fn read_game_rule(stream: &mut Stream, rule_type: u32, is_player_modifiable: bool, is_start_game: bool) -> Box<dyn GameRule> {
         match rule_type {
             GameRuleTypes::BOOL => {
                 Box::new(BoolGameRule::read(stream, is_player_modifiable)) as Box<dyn GameRule>
             },
             GameRuleTypes::INT => {
-                Box::new(IntGameRule::read(stream, is_player_modifiable)) as Box<dyn GameRule>
+                Box::new(IntGameRule::read(stream, is_player_modifiable, is_start_game)) as Box<dyn GameRule>
             },
             GameRuleTypes::FLOAT => {
                 Box::new(FloatGameRule::read(stream, is_player_modifiable)) as Box<dyn GameRule>
@@ -431,25 +431,25 @@ impl PacketSerializer {
         }
     }
 
-    pub fn get_game_rules(stream: &mut Stream) -> HashMap<String, Box<dyn GameRule>> {
+    pub fn get_game_rules(stream: &mut Stream, is_start_game: bool) -> HashMap<String, Box<dyn GameRule>> {
         let count = stream.get_unsigned_var_int() as usize;
         let mut rules = HashMap::new();
         for _ in 0..count {
             let name = PacketSerializer::get_string(stream);
             let is_player_modifiable = stream.get_bool();
             let rule_type = stream.get_unsigned_var_int();
-            rules.insert(name, Self::read_game_rule(stream, rule_type, is_player_modifiable));
+            rules.insert(name, Self::read_game_rule(stream, rule_type, is_player_modifiable, is_start_game));
         }
         rules
     }
 
-    pub fn put_game_rules(stream: &mut Stream, rules: &mut HashMap<String, Box<dyn GameRule>>) {
+    pub fn put_game_rules(stream: &mut Stream, rules: &mut HashMap<String, Box<dyn GameRule>>, is_start_game: bool) {
         stream.put_unsigned_var_int(rules.len() as u32);
         for (name, rule) in rules {
             PacketSerializer::put_string(stream, name.clone());
             stream.put_bool(rule.is_player_modifiable());
             stream.put_unsigned_var_int(rule.id());
-            rule.write(stream);
+            rule.write(stream, is_start_game);
         }
     }
 

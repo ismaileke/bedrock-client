@@ -2,9 +2,9 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct CameraFadeInstructionTime {
-    fade_in_time: f32,
-    stay_time: f32,
-    fade_out_time: f32
+    pub fade_in_time: f32,
+    pub stay_time: f32,
+    pub fade_out_time: f32
 }
 
 impl CameraFadeInstructionTime {

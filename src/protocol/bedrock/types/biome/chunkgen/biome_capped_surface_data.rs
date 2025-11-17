@@ -3,11 +3,11 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(Debug)]
 pub struct BiomeCappedSurfaceData {
-    floor_blocks: Vec<u32>,
-    ceiling_blocks: Vec<u32>,
-    sea_block: Option<u32>,
-    foundation_block: Option<u32>,
-    beacon_block: Option<u32>
+    pub floor_blocks: Vec<u32>,
+    pub ceiling_blocks: Vec<u32>,
+    pub sea_block: Option<u32>,
+    pub foundation_block: Option<u32>,
+    pub beacon_block: Option<u32>
 }
 
 impl BiomeCappedSurfaceData {

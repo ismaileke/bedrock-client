@@ -3,14 +3,14 @@ use crate::protocol::bedrock::types::biome::chunkgen::biome_coordinate_data::Bio
 
 #[derive(Debug)]
 pub struct BiomeScatterParamData {
-    coordinates: Vec<BiomeCoordinateData>,
-    eval_order: i32,
-    chance_percent_type: i32,
-    chance_percent: u16,
-    chance_numerator: u32,
-    chance_denominator: u32,
-    iterations_type: i32,
-    iterations: u16
+    pub coordinates: Vec<BiomeCoordinateData>,
+    pub eval_order: i32,
+    pub chance_percent_type: i32,
+    pub chance_percent: u16,
+    pub chance_numerator: u32,
+    pub chance_denominator: u32,
+    pub iterations_type: i32,
+    pub iterations: u16
 }
 
 impl BiomeScatterParamData {

@@ -30,23 +30,23 @@ impl Packet for SubChunk {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         let cache_enabled = matches!(self.entries, SubChunkEntries::ListWithCache(_));
         stream.put_bool(cache_enabled);
-        stream.put_var_int(self.dimension);
+        stream.put_var_i32(self.dimension);
         for &coord in &self.base_sub_chunk_position {
-            stream.put_var_int(coord);
+            stream.put_var_i32(coord);
         }
         match &self.entries {
             SubChunkEntries::ListWithCache(list) => {
-                stream.put_l_int(list.get_entries().len() as u32);
+                stream.put_u32_le(list.get_entries().len() as u32);
                 for entry in list.get_entries() {
                     entry.write(&mut stream);
                 }
             },
             SubChunkEntries::ListWithoutCache(list) => {
-                stream.put_l_int(list.get_entries().len() as u32);
+                stream.put_u32_le(list.get_entries().len() as u32);
                 for entry in list.get_entries() {
                     entry.write(&mut stream);
                 }
@@ -58,23 +58,23 @@ impl Packet for SubChunk {
         }*/
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> SubChunk {
         let mut stream = Stream::new(bytes, 0);
 
         let cache_enabled = stream.get_bool();
-        let dimension = stream.get_var_int();
-        let x = stream.get_var_int();
-        let y = stream.get_var_int();
-        let z = stream.get_var_int();
+        let dimension = stream.get_var_i32();
+        let x = stream.get_var_i32();
+        let y = stream.get_var_i32();
+        let z = stream.get_var_i32();
         let base_sub_chunk_position = vec![x, y, z];
 
-        let count = stream.get_l_int();
+        let count = stream.get_u32_le();
         let entries = if cache_enabled {
             let mut sub_entries = Vec::new();
             for _ in 0..count {

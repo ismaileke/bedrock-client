@@ -3,14 +3,14 @@ use crate::protocol::bedrock::types::biome::chunkgen::biome_surface_material_dat
 
 #[derive(Debug)]
 pub struct BiomeElementData {
-    noise_frequency_scale: f32,
-    noise_lower_bound: f32,
-    noise_upper_bound: f32,
-    height_min_type: i32,
-    height_min: u16,
-    height_max_type: i32,
-    height_max: u16,
-    surface_material: BiomeSurfaceMaterialData
+    pub noise_frequency_scale: f32,
+    pub noise_lower_bound: f32,
+    pub noise_upper_bound: f32,
+    pub height_min_type: i32,
+    pub height_min: u16,
+    pub height_max_type: i32,
+    pub height_max: u16,
+    pub surface_material: BiomeSurfaceMaterialData
 }
 
 impl BiomeElementData {

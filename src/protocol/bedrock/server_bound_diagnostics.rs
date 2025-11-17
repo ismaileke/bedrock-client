@@ -15,15 +15,17 @@ pub struct ServerBoundDiagnostics {
     pub avg_unaccounted_time_percent: f32
 }
 
-pub fn new(avg_fps: f32,
-           avg_server_sim_tick_time_ms: f32,
-           avg_client_sim_tick_time_ms: f32,
-           avg_begin_frame_time_ms: f32,
-           avg_input_time_ms: f32,
-           avg_render_time_ms: f32,
-           avg_end_frame_time_ms: f32,
-           avg_remainder_time_percent: f32,
-           avg_unaccounted_time_percent: f32) -> ServerBoundDiagnostics {
+pub fn new(
+    avg_fps: f32,
+    avg_server_sim_tick_time_ms: f32,
+    avg_client_sim_tick_time_ms: f32,
+    avg_begin_frame_time_ms: f32,
+    avg_input_time_ms: f32,
+    avg_render_time_ms: f32,
+    avg_end_frame_time_ms: f32,
+    avg_remainder_time_percent: f32,
+    avg_unaccounted_time_percent: f32
+) -> ServerBoundDiagnostics {
     ServerBoundDiagnostics {
         avg_fps,
         avg_server_sim_tick_time_ms,
@@ -33,7 +35,7 @@ pub fn new(avg_fps: f32,
         avg_render_time_ms,
         avg_end_frame_time_ms,
         avg_remainder_time_percent,
-        avg_unaccounted_time_percent,
+        avg_unaccounted_time_percent
     }
 }
 
@@ -44,37 +46,37 @@ impl Packet for ServerBoundDiagnostics {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_l_float(self.avg_fps);
-        stream.put_l_float(self.avg_server_sim_tick_time_ms);
-        stream.put_l_float(self.avg_client_sim_tick_time_ms);
-        stream.put_l_float(self.avg_begin_frame_time_ms);
-        stream.put_l_float(self.avg_input_time_ms);
-        stream.put_l_float(self.avg_render_time_ms);
-        stream.put_l_float(self.avg_end_frame_time_ms);
-        stream.put_l_float(self.avg_remainder_time_percent);
-        stream.put_l_float(self.avg_unaccounted_time_percent);
+        stream.put_f32_le(self.avg_fps);
+        stream.put_f32_le(self.avg_server_sim_tick_time_ms);
+        stream.put_f32_le(self.avg_client_sim_tick_time_ms);
+        stream.put_f32_le(self.avg_begin_frame_time_ms);
+        stream.put_f32_le(self.avg_input_time_ms);
+        stream.put_f32_le(self.avg_render_time_ms);
+        stream.put_f32_le(self.avg_end_frame_time_ms);
+        stream.put_f32_le(self.avg_remainder_time_percent);
+        stream.put_f32_le(self.avg_unaccounted_time_percent);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> ServerBoundDiagnostics {
         let mut stream = Stream::new(bytes, 0);
 
-        let avg_fps = stream.get_l_float();
-        let avg_server_sim_tick_time_ms = stream.get_l_float();
-        let avg_client_sim_tick_time_ms = stream.get_l_float();
-        let avg_begin_frame_time_ms = stream.get_l_float();
-        let avg_input_time_ms = stream.get_l_float();
-        let avg_render_time_ms = stream.get_l_float();
-        let avg_end_frame_time_ms = stream.get_l_float();
-        let avg_remainder_time_percent = stream.get_l_float();
-        let avg_unaccounted_time_percent = stream.get_l_float();
+        let avg_fps = stream.get_f32_le();
+        let avg_server_sim_tick_time_ms = stream.get_f32_le();
+        let avg_client_sim_tick_time_ms = stream.get_f32_le();
+        let avg_begin_frame_time_ms = stream.get_f32_le();
+        let avg_input_time_ms = stream.get_f32_le();
+        let avg_render_time_ms = stream.get_f32_le();
+        let avg_end_frame_time_ms = stream.get_f32_le();
+        let avg_remainder_time_percent = stream.get_f32_le();
+        let avg_unaccounted_time_percent = stream.get_f32_le();
 
         ServerBoundDiagnostics {
             avg_fps,
@@ -85,7 +87,7 @@ impl Packet for ServerBoundDiagnostics {
             avg_render_time_ms,
             avg_end_frame_time_ms,
             avg_remainder_time_percent,
-            avg_unaccounted_time_percent,
+            avg_unaccounted_time_percent
         }
     }
 

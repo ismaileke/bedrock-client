@@ -2,11 +2,11 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct BiomeMultinoiseGenRulesData {
-    temperature: f32,
-    humidity: f32,
-    altitude: f32,
-    weirdness: f32,
-    weight: f32
+    pub temperature: f32,
+    pub humidity: f32,
+    pub altitude: f32,
+    pub weirdness: f32,
+    pub weight: f32
 }
 
 impl BiomeMultinoiseGenRulesData {

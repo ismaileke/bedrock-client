@@ -24,6 +24,7 @@ impl UseItemTransactionData {
     pub const ACTION_CLICK_BLOCK: u32 = 0;
     pub const ACTION_CLICK_AIR: u32 = 1;
     pub const ACTION_BREAK_BLOCK: u32 = 2;
+    pub const ACTION_USE_AS_ATTACK: u32 = 3;
 
     pub fn new(
         actions: Vec<NetworkInventoryAction>,

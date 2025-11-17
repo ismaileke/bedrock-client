@@ -2,8 +2,8 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct CameraSetInstructionRotation {
-    pitch: f32,
-    yaw: f32
+    pub pitch: f32,
+    pub yaw: f32
 }
 
 impl CameraSetInstructionRotation {

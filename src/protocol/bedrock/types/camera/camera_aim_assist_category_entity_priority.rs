@@ -3,8 +3,8 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(Debug)]
 pub struct CameraAimAssistCategoryEntityPriority {
-    identifier: String,
-    priority: u32
+    pub identifier: String,
+    pub priority: u32
 }
 
 impl CameraAimAssistCategoryEntityPriority {

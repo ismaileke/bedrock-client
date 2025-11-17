@@ -2,13 +2,13 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct BiomeCoordinateData {
-    min_value_type: i32,
-    min_value: u16,
-    max_value_type: i32,
-    max_value: u16,
-    grid_offset: u32,
-    grid_step_size: u32,
-    distribution: i32
+    pub min_value_type: i32,
+    pub min_value: u16,
+    pub max_value_type: i32,
+    pub max_value: u16,
+    pub grid_offset: u32,
+    pub grid_step_size: u32,
+    pub distribution: i32
 }
 
 impl BiomeCoordinateData {

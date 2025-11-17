@@ -23,18 +23,18 @@ impl Packet for CommandRequest {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_string(&mut stream, self.command.clone());
         PacketSerializer::put_command_origin_data(&mut stream, &self.origin_data);
         stream.put_bool(self.is_internal);
-        stream.put_var_int(self.version);
+        stream.put_var_i32(self.version);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> CommandRequest {
@@ -43,7 +43,7 @@ impl Packet for CommandRequest {
         let command = PacketSerializer::get_string(&mut stream);
         let origin_data = PacketSerializer::get_command_origin_data(&mut stream);
         let is_internal = stream.get_bool();
-        let version = stream.get_var_int();
+        let version = stream.get_var_i32();
 
         CommandRequest { command, origin_data, is_internal, version }
     }

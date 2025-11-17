@@ -16,3 +16,4 @@ pub mod biome_surface_material_adjustment_data;
 pub mod biome_surface_material_data;
 pub mod biome_weighted_data;
 pub mod biome_weighted_temperature_data;
+pub mod biome_replacement_data;

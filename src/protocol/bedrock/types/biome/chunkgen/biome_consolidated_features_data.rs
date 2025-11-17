@@ -3,7 +3,7 @@ use crate::protocol::bedrock::types::biome::chunkgen::biome_consolidated_feature
 
 #[derive(Debug)]
 pub struct BiomeConsolidatedFeaturesData {
-    features: Vec<BiomeConsolidatedFeatureData>
+    pub features: Vec<BiomeConsolidatedFeatureData>
 }
 impl BiomeConsolidatedFeaturesData {
     pub fn new(features: Vec<BiomeConsolidatedFeatureData>) -> Self {

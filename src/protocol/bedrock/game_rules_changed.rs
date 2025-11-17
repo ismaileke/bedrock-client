@@ -21,21 +21,21 @@ impl Packet for GameRulesChanged {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        PacketSerializer::put_game_rules(&mut stream, &mut self.game_rules);
+        PacketSerializer::put_game_rules(&mut stream, &mut self.game_rules, false);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> GameRulesChanged {
         let mut stream = Stream::new(bytes, 0);
 
-        let game_rules = PacketSerializer::get_game_rules(&mut stream);
+        let game_rules = PacketSerializer::get_game_rules(&mut stream, false);
 
         GameRulesChanged { game_rules }
     }

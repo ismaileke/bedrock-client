@@ -20,23 +20,23 @@ impl Packet for NetworkChunkPublisherUpdate {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_block_pos(&mut stream, self.block_pos.clone());
 
-        stream.put_unsigned_var_int(self.radius);
+        stream.put_var_u32(self.radius);
 
-        stream.put_l_int(self.saved_chunks.len() as u32);
+        stream.put_u32_le(self.saved_chunks.len() as u32);
         for chunk in self.saved_chunks.iter() {
-            stream.put_var_int(chunk[0]);
-            stream.put_var_int(chunk[1]);
+            stream.put_var_i32(chunk[0]);
+            stream.put_var_i32(chunk[1]);
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> NetworkChunkPublisherUpdate {
@@ -44,9 +44,9 @@ impl Packet for NetworkChunkPublisherUpdate {
 
         let block_pos = PacketSerializer::get_block_pos(&mut stream);
 
-        let radius = stream.get_unsigned_var_int();
+        let radius = stream.get_var_u32();
 
-        let count = stream.get_l_int();
+        let count = stream.get_u32_le();
 
         if count > MAX_SAVED_CHUNKS {
             error!("Expected at most {} saved chunks, got {}", MAX_SAVED_CHUNKS, count)
@@ -54,8 +54,8 @@ impl Packet for NetworkChunkPublisherUpdate {
 
         let mut saved_chunks = vec![];
         for _ in 0..count {
-            let chunk_x = stream.get_var_int();
-            let chunk_z = stream.get_var_int();
+            let chunk_x = stream.get_var_i32();
+            let chunk_z = stream.get_var_i32();
             saved_chunks.push(vec![chunk_x, chunk_z]);
         }
 

@@ -3,7 +3,7 @@ use crate::protocol::bedrock::types::biome::chunkgen::biome_conditional_transfor
 
 #[derive(Debug)]
 pub struct BiomeLegacyWorldGenRulesData {
-    legacy_pre_hills: Vec<BiomeConditionalTransformationData>
+    pub legacy_pre_hills: Vec<BiomeConditionalTransformationData>
 }
 
 impl BiomeLegacyWorldGenRulesData {

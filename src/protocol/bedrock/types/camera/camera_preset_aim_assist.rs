@@ -3,10 +3,10 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(Debug)]
 pub struct CameraPresetAimAssist {
-    preset_id: Option<String>,
-    target_mode: Option<u8>, //see types/camera_aim_assist_target_mode.rs
-    view_angle: Option<Vec<f32>>,
-    distance: Option<f32>
+    pub preset_id: Option<String>,
+    pub target_mode: Option<u8>, //see types/camera_aim_assist_target_mode.rs
+    pub view_angle: Option<Vec<f32>>,
+    pub distance: Option<f32>
 }
 
 impl CameraPresetAimAssist {

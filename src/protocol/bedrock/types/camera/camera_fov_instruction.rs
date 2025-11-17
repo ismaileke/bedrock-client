@@ -2,10 +2,10 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct CameraFovInstruction {
-    field_of_view: f32,
-    ease_time: f32,
-    ease_type: u8,
-    clear: bool
+    pub field_of_view: f32,
+    pub ease_time: f32,
+    pub ease_type: u8,
+    pub clear: bool
 }
 
 impl CameraFovInstruction {

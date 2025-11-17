@@ -5,15 +5,15 @@ use crate::protocol::bedrock::types::camera::camera_set_instruction_rotation::Ca
 
 #[derive(Debug)]
 pub struct CameraSetInstruction {
-    preset: Option<u32>,
-    ease: Option<CameraSetInstructionEase>,
-    camera_position: Option<Vec<f32>>,
-    rotation: Option<CameraSetInstructionRotation>,
-    facing_position: Option<Vec<f32>>,
-    view_offset: Option<Vec<f32>>,
-    entity_offset: Option<Vec<f32>>,
-    default: Option<bool>,
-    ignore_starting_values_component: Option<bool>
+    pub preset: Option<u32>,
+    pub ease: Option<CameraSetInstructionEase>,
+    pub camera_position: Option<Vec<f32>>,
+    pub rotation: Option<CameraSetInstructionRotation>,
+    pub facing_position: Option<Vec<f32>>,
+    pub view_offset: Option<Vec<f32>>,
+    pub entity_offset: Option<Vec<f32>>,
+    pub default: Option<bool>,
+    pub ignore_starting_values_component: Option<bool>
 }
 
 impl CameraSetInstruction {

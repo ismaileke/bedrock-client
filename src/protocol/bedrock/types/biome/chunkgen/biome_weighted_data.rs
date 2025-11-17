@@ -2,8 +2,8 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct BiomeWeightedData {
-    biome: u16,
-    weight: u32
+    pub biome: u16,
+    pub weight: u32
 }
 
 impl BiomeWeightedData {
