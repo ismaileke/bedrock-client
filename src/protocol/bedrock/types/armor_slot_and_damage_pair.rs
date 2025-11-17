@@ -13,13 +13,13 @@ impl ArmorSlotAndDamagePair {
 
     pub fn read(stream: &mut Stream) -> ArmorSlotAndDamagePair {
         let slot = stream.get_byte();
-        let damage = stream.get_l_short();
+        let damage = stream.get_u16_le();
 
         ArmorSlotAndDamagePair { slot, damage }
     }
 
     pub fn write(&self, stream: &mut Stream) {
         stream.put_byte(self.slot);
-        stream.put_l_short(self.damage);
+        stream.put_u16_le(self.damage);
     }
 }

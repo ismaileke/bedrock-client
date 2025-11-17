@@ -17,7 +17,7 @@ impl GrindstoneStackRequestAction {
 
     pub fn read(stream: &mut Stream) -> GrindstoneStackRequestAction {
         let recipe_id = PacketSerializer::read_recipe_net_id(stream);
-        let repair_cost = stream.get_var_int();
+        let repair_cost = stream.get_var_i32();
         let repetitions = stream.get_byte();
 
         GrindstoneStackRequestAction{ recipe_id, repair_cost, repetitions }
@@ -31,7 +31,7 @@ impl ItemStackRequestAction for GrindstoneStackRequestAction {
 
     fn write(&mut self, stream: &mut Stream) {
         PacketSerializer::write_recipe_net_id(stream, self.recipe_id);
-        stream.put_var_int(self.repair_cost);
+        stream.put_var_i32(self.repair_cost);
         stream.put_byte(self.repetitions);
     }
 }

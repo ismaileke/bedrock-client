@@ -84,7 +84,7 @@ impl BiomeDefinitionChunkGenData {
         let multi_noise_gen_rules = PacketSerializer::read_optional(stream, |s| BiomeMultinoiseGenRulesData::read(s));
         let legacy_world_gen_rules = PacketSerializer::read_optional(stream, |s| BiomeLegacyWorldGenRulesData::read(s));
         let replacements_data = PacketSerializer::read_optional(stream, |s| {
-            let count = s.get_unsigned_var_int();
+            let count = s.get_var_u32();
             let mut result = Vec::with_capacity(count as usize);
             for _ in 0..count {
                 result.push(BiomeReplacementData::read(s));
@@ -127,7 +127,7 @@ impl BiomeDefinitionChunkGenData {
         PacketSerializer::write_optional(stream, &self.multi_noise_gen_rules, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.legacy_world_gen_rules, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.replacements_data, |s, v| {
-            s.put_unsigned_var_int(v.len() as u32);
+            s.put_var_u32(v.len() as u32);
             for item in v {
                 item.write(s);
             }

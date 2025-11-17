@@ -14,7 +14,7 @@ impl FloatGameRule {
     }
 
     pub fn read(stream: &mut Stream, is_player_modifiable: bool) -> FloatGameRule {
-        FloatGameRule{ value: stream.get_l_float(), is_player_modifiable }
+        FloatGameRule{ value: stream.get_f32_le(), is_player_modifiable }
     }
 }
 
@@ -28,7 +28,7 @@ impl GameRule for FloatGameRule {
     }
 
     fn write(&mut self, stream: &mut Stream, _is_start_game: bool) {
-        stream.put_l_float(self.value);
+        stream.put_f32_le(self.value);
     }
 }
 

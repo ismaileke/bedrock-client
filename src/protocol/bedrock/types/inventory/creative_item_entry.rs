@@ -17,7 +17,7 @@ impl CreativeItemEntry {
     pub fn read(stream: &mut Stream) -> CreativeItemEntry {
         let entry_id = PacketSerializer::read_creative_item_net_id(stream);
         let item = PacketSerializer::get_item_stack_without_stack_id(stream);
-        let group_id = stream.get_unsigned_var_int();
+        let group_id = stream.get_var_u32();
 
         CreativeItemEntry{ entry_id, item, group_id }
     }
@@ -25,6 +25,6 @@ impl CreativeItemEntry {
     pub fn write(&self, stream: &mut Stream) {
         PacketSerializer::write_creative_item_net_id(stream, self.entry_id);
         PacketSerializer::put_item_stack_without_stack_id(stream, &self.item);
-        stream.put_unsigned_var_int(self.group_id);
+        stream.put_var_u32(self.group_id);
     }
 }

@@ -29,15 +29,15 @@ impl CameraAimAssistPreset {
         let mut exclusion_list = Vec::new();
         let mut liquid_targeting_list = Vec::new();
         let mut item_settings = Vec::new();
-        let mut len = stream.get_unsigned_var_int();
+        let mut len = stream.get_var_u32();
         for _i in 0..len {
             exclusion_list.push(PacketSerializer::get_string(stream));
         }
-        len = stream.get_unsigned_var_int();
+        len = stream.get_var_u32();
         for _i in 0..len {
             liquid_targeting_list.push(PacketSerializer::get_string(stream));
         }
-        len = stream.get_unsigned_var_int();
+        len = stream.get_var_u32();
         for _i in 0..len {
             item_settings.push(CameraAimAssistPresetItemSettings::read(stream));
         }
@@ -49,15 +49,15 @@ impl CameraAimAssistPreset {
 
     pub fn write(&self, stream: &mut Stream) {
         PacketSerializer::put_string(stream, self.identifier.clone());
-        stream.put_unsigned_var_int(self.exclusion_list.len() as u32);
+        stream.put_var_u32(self.exclusion_list.len() as u32);
         for exclusion in &self.exclusion_list {
             PacketSerializer::put_string(stream, exclusion.clone());
         }
-        stream.put_unsigned_var_int(self.liquid_targeting_list.len() as u32);
+        stream.put_var_u32(self.liquid_targeting_list.len() as u32);
         for liquid_target in &self.liquid_targeting_list {
             PacketSerializer::put_string(stream, liquid_target.clone());
         }
-        stream.put_unsigned_var_int(self.item_settings.len() as u32);
+        stream.put_var_u32(self.item_settings.len() as u32);
         for item_setting in &self.item_settings {
             item_setting.write(stream);
         }

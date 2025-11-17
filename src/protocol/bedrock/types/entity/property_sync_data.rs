@@ -16,16 +16,16 @@ impl PropertySyncData {
         let mut int_properties = HashMap::new();
         let mut float_properties = HashMap::new();
 
-        let int_count = stream.get_unsigned_var_int();
+        let int_count = stream.get_var_u32();
         for _ in 0..int_count {
-            let key = stream.get_unsigned_var_int();
-            let value = stream.get_var_int();
+            let key = stream.get_var_u32();
+            let value = stream.get_var_i32();
             int_properties.insert(key, value);
         }
-        let float_count = stream.get_unsigned_var_int();
+        let float_count = stream.get_var_u32();
         for _ in 0..float_count {
-            let key = stream.get_unsigned_var_int();
-            let value = stream.get_l_float();
+            let key = stream.get_var_u32();
+            let value = stream.get_f32_le();
             float_properties.insert(key, value);
         }
 
@@ -33,15 +33,15 @@ impl PropertySyncData {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_unsigned_var_int(self.int_properties.len() as u32);
+        stream.put_var_u32(self.int_properties.len() as u32);
         for (key, value) in self.int_properties.iter() {
-            stream.put_unsigned_var_int(*key);
-            stream.put_var_int(*value);
+            stream.put_var_u32(*key);
+            stream.put_var_i32(*value);
         }
-        stream.put_unsigned_var_int(self.float_properties.len() as u32);
+        stream.put_var_u32(self.float_properties.len() as u32);
         for (key, value) in self.float_properties.iter() {
-            stream.put_unsigned_var_int(*key);
-            stream.put_l_float(*value);
+            stream.put_var_u32(*key);
+            stream.put_f32_le(*value);
         }
     }
 }

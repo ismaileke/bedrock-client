@@ -46,8 +46,8 @@ impl ShapedRecipe {
 
     pub fn read(type_id: i32, stream: &mut Stream) -> ShapedRecipe {
         let recipe_id = PacketSerializer::get_string(stream);
-        let width = stream.get_var_int();
-        let height = stream.get_var_int();
+        let width = stream.get_var_i32();
+        let height = stream.get_var_i32();
         let mut inputs = Vec::new();
 
         for _ in 0..height {
@@ -58,14 +58,14 @@ impl ShapedRecipe {
             inputs.push(columns);
         }
         let mut outputs = Vec::new();
-        let count = stream.get_unsigned_var_int();
+        let count = stream.get_var_u32();
         for _ in 0..count {
             outputs.push(PacketSerializer::get_item_stack_without_stack_id(stream));
 
         }
         let uuid = PacketSerializer::get_uuid(stream);
         let block_name = PacketSerializer::get_string(stream);
-        let priority = stream.get_var_int();
+        let priority = stream.get_var_i32();
         let symmetric = stream.get_bool();
         let unlocking_requirement = RecipeUnlockingRequirement::read(stream);
         let recipe_net_id = PacketSerializer::read_recipe_net_id(stream);
@@ -81,20 +81,20 @@ impl RecipeWithTypeId for ShapedRecipe {
 
     fn write(&mut self, stream: &mut Stream) {
         PacketSerializer::put_string(stream, self.recipe_id.clone());
-        stream.put_var_int(self.get_width() as i32);
-        stream.put_var_int(self.get_height() as i32);
+        stream.put_var_i32(self.get_width() as i32);
+        stream.put_var_i32(self.get_height() as i32);
         for row in self.inputs.iter_mut() {
             for ingredient in row {
                 PacketSerializer::put_recipe_ingredient(stream, ingredient);
             }
         }
-        stream.put_unsigned_var_int(self.outputs.len() as u32);
+        stream.put_var_u32(self.outputs.len() as u32);
         for output in &self.outputs {
             PacketSerializer::put_item_stack_without_stack_id(stream, output);
         }
         PacketSerializer::put_uuid(stream, self.uuid.clone());
         PacketSerializer::put_string(stream, self.block_name.clone());
-        stream.put_var_int(self.priority);
+        stream.put_var_i32(self.priority);
         stream.put_bool(self.symmetric);
         self.unlocking_requirement.write(stream);
         PacketSerializer::write_recipe_net_id(stream, self.recipe_net_id);

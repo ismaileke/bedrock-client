@@ -49,8 +49,8 @@ impl TransactionData for UseItemOnEntityTransactionData {
 
     fn decode_data(&mut self, stream: &mut Stream) {
         self.actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
-        self.action_type = stream.get_unsigned_var_int();
-        self.hotbar_slot = stream.get_var_int();
+        self.action_type = stream.get_var_u32();
+        self.hotbar_slot = stream.get_var_i32();
         self.item_in_hand = PacketSerializer::get_item_stack_wrapper(stream);
         self.player_position = PacketSerializer::get_vector3(stream);
         self.click_position = PacketSerializer::get_vector3(stream);
@@ -58,8 +58,8 @@ impl TransactionData for UseItemOnEntityTransactionData {
 
     fn encode_data(&self, stream: &mut Stream) {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
-        stream.put_unsigned_var_int(self.action_type);
-        stream.put_var_int(self.hotbar_slot);
+        stream.put_var_u32(self.action_type);
+        stream.put_var_i32(self.hotbar_slot);
         PacketSerializer::put_item_stack_wrapper(stream, self.item_in_hand.clone());
         PacketSerializer::put_vector3(stream, self.player_position.clone());
         PacketSerializer::put_vector3(stream, self.click_position.clone());

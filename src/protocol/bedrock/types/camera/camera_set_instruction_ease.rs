@@ -13,13 +13,13 @@ impl CameraSetInstructionEase {
 
     pub fn read(stream: &mut Stream) -> CameraSetInstructionEase {
         let ease_type = stream.get_byte();
-        let duration = stream.get_l_float();
+        let duration = stream.get_f32_le();
 
         CameraSetInstructionEase{ ease_type, duration }
     }
 
     pub fn write(&self, stream: &mut Stream) {
         stream.put_byte(self.ease_type);
-        stream.put_l_float(self.duration);
+        stream.put_f32_le(self.duration);
     }
 }

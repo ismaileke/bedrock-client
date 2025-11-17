@@ -18,10 +18,10 @@ impl ItemInteractionData {
     }
 
     pub fn read(stream: &mut Stream) -> ItemInteractionData {
-        let request_id = stream.get_var_int();
+        let request_id = stream.get_var_i32();
         let mut request_changed_slots = Vec::new();
         if request_id != 0 {
-            let len = stream.get_unsigned_var_int();
+            let len = stream.get_var_u32();
             for _ in 0..len {
                 request_changed_slots.push(InventoryTransactionChangedSlotsHack::read(stream));
             }
@@ -33,9 +33,9 @@ impl ItemInteractionData {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_var_int(self.request_id);
+        stream.put_var_i32(self.request_id);
         if self.request_id != 0 {
-            stream.put_unsigned_var_int(self.request_changed_slots.len() as u32);
+            stream.put_var_u32(self.request_changed_slots.len() as u32);
             for slots in self.request_changed_slots.iter() {
                 slots.write(stream);
             }

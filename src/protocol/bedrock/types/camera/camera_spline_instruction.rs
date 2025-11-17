@@ -17,23 +17,23 @@ impl CameraSplineInstruction {
     }
 
     pub fn read(stream: &mut Stream) -> CameraSplineInstruction {
-        let total_time = stream.get_l_float();
+        let total_time = stream.get_f32_le();
         let ease_type = stream.get_byte();
 
         let mut curve = Vec::new();
-        let curve_count = stream.get_unsigned_var_int();
+        let curve_count = stream.get_var_u32();
         for _ in 0..curve_count {
             curve.push(PacketSerializer::get_vector3(stream));
         }
 
         let mut progress_key_frames = Vec::new();
-        let progress_key_frames_count = stream.get_unsigned_var_int();
+        let progress_key_frames_count = stream.get_var_u32();
         for _ in 0..progress_key_frames_count {
             progress_key_frames.push(PacketSerializer::get_vector2(stream));
         }
 
         let mut rotation_options = Vec::new();
-        let rotation_options_count = stream.get_unsigned_var_int();
+        let rotation_options_count = stream.get_var_u32();
         for _ in 0..rotation_options_count {
             rotation_options.push(CameraRotationOption::read(stream));
         }
@@ -42,20 +42,20 @@ impl CameraSplineInstruction {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_l_float(self.total_time);
+        stream.put_f32_le(self.total_time);
         stream.put_byte(self.ease_type);
 
-        stream.put_unsigned_var_int(self.curve.len() as u32);
+        stream.put_var_u32(self.curve.len() as u32);
         for curve in &self.curve {
             PacketSerializer::put_vector3(stream, curve.clone());
         }
 
-        stream.put_unsigned_var_int(self.progress_key_frames.len() as u32);
+        stream.put_var_u32(self.progress_key_frames.len() as u32);
         for progress_key_frames in &self.progress_key_frames {
             PacketSerializer::put_vector2(stream, progress_key_frames.clone());
         }
 
-        stream.put_unsigned_var_int(self.rotation_options.len() as u32);
+        stream.put_var_u32(self.rotation_options.len() as u32);
         for rotation_options in &self.rotation_options {
             rotation_options.write(stream);
         }

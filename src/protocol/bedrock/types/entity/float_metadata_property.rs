@@ -13,7 +13,7 @@ impl FloatMetadataProperty {
     }
 
     pub fn read(stream: &mut Stream) -> FloatMetadataProperty {
-        FloatMetadataProperty{ value: stream.get_l_float() }
+        FloatMetadataProperty{ value: stream.get_f32_le() }
     }
 }
 impl MetadataProperty for FloatMetadataProperty {
@@ -22,6 +22,6 @@ impl MetadataProperty for FloatMetadataProperty {
     }
 
     fn write(&mut self, stream: &mut Stream) {
-        stream.put_l_float(self.value);
+        stream.put_f32_le(self.value);
     }
 }

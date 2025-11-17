@@ -23,19 +23,19 @@ impl UpdateSubChunkBlocksEntry {
 
     pub fn read(stream: &mut Stream) -> UpdateSubChunkBlocksEntry {
         let block_position = PacketSerializer::get_block_pos(stream);
-        let block_runtime_id = stream.get_unsigned_var_int();
-        let flags = stream.get_unsigned_var_int();
-        let synced_update_actor_unique_id = stream.get_unsigned_var_long();
-        let synced_update_type = stream.get_unsigned_var_int();
+        let block_runtime_id = stream.get_var_u32();
+        let flags = stream.get_var_u32();
+        let synced_update_actor_unique_id = stream.get_var_u64();
+        let synced_update_type = stream.get_var_u32();
 
         UpdateSubChunkBlocksEntry{ block_position, block_runtime_id, flags, synced_update_actor_unique_id, synced_update_type }
     }
 
     pub fn write(&self, stream: &mut Stream) {
         PacketSerializer::put_block_pos(stream, self.block_position.clone());
-        stream.put_unsigned_var_int(self.block_runtime_id);
-        stream.put_unsigned_var_int(self.flags);
-        stream.put_unsigned_var_long(self.synced_update_actor_unique_id);
-        stream.put_unsigned_var_int(self.synced_update_type);
+        stream.put_var_u32(self.block_runtime_id);
+        stream.put_var_u32(self.flags);
+        stream.put_var_u64(self.synced_update_actor_unique_id);
+        stream.put_var_u32(self.synced_update_type);
     }
 }

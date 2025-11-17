@@ -13,16 +13,16 @@ impl DimensionDataEntry {
     }
 
     pub fn read(stream: &mut Stream) -> DimensionDataEntry {
-        let max_height = stream.get_var_int();
-        let min_height = stream.get_var_int();
-        let generator = stream.get_var_int();
+        let max_height = stream.get_var_i32();
+        let min_height = stream.get_var_i32();
+        let generator = stream.get_var_i32();
 
         DimensionDataEntry{ max_height, min_height, generator }
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_var_int(self.max_height);
-        stream.put_var_int(self.min_height);
-        stream.put_var_int(self.generator);
+        stream.put_var_i32(self.max_height);
+        stream.put_var_i32(self.min_height);
+        stream.put_var_i32(self.generator);
     }
 }

@@ -14,7 +14,7 @@ impl FloatPackSetting {
     }
 
     pub fn read(stream: &mut Stream, name: String) -> FloatPackSetting {
-        FloatPackSetting{ name, value: stream.get_l_float() }
+        FloatPackSetting{ name, value: stream.get_f32_le() }
     }
 }
 
@@ -28,7 +28,7 @@ impl PackSetting for FloatPackSetting {
     }
 
     fn write(&mut self, stream: &mut Stream) {
-        stream.put_l_float(self.value);
+        stream.put_f32_le(self.value);
     }
 }
 

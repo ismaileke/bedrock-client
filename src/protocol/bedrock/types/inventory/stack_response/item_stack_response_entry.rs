@@ -26,7 +26,7 @@ impl ItemStackResponseEntry {
         let request_id = PacketSerializer::read_item_stack_request_id(stream);
         let mut container_infos = Vec::new();
         if result == Self::RESULT_OK {
-            let container_infos_count = stream.get_unsigned_var_int();
+            let container_infos_count = stream.get_var_u32();
             for _ in 0..container_infos_count {
                 container_infos.push(ItemStackResponseContainerInfo::read(stream));
             }
@@ -39,7 +39,7 @@ impl ItemStackResponseEntry {
         stream.put_byte(self.result);
         PacketSerializer::write_item_stack_request_id(stream, self.request_id);
         if self.result == Self::RESULT_OK {
-            stream.put_unsigned_var_int(self.container_infos.len() as u32);
+            stream.put_var_u32(self.container_infos.len() as u32);
             for container_info in &self.container_infos {
                 container_info.write(stream);
             }

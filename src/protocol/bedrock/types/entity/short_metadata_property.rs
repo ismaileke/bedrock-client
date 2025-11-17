@@ -4,16 +4,16 @@ use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty
 
 #[derive(Debug)]
 pub struct ShortMetadataProperty {
-    value: u16
+    value: i16
 }
 
 impl ShortMetadataProperty {
-    pub fn new(value: u16) -> ShortMetadataProperty {
+    pub fn new(value: i16) -> ShortMetadataProperty {
         ShortMetadataProperty{ value }
     }
 
     pub fn read(stream: &mut Stream) -> ShortMetadataProperty {
-        ShortMetadataProperty{ value: stream.get_l_short() } // signed_l_short?? idk
+        ShortMetadataProperty{ value: stream.get_i16_le() }
     }
 }
 impl MetadataProperty for ShortMetadataProperty {
@@ -22,6 +22,6 @@ impl MetadataProperty for ShortMetadataProperty {
     }
 
     fn write(&mut self, stream: &mut Stream) {
-        stream.put_l_short(self.value);
+        stream.put_i16_le(self.value);
     }
 }

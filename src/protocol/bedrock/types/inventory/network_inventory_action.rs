@@ -29,27 +29,27 @@ impl NetworkInventoryAction {
     }
 
     pub fn read(stream: &mut Stream) -> NetworkInventoryAction {
-        let source_type = stream.get_unsigned_var_int();
+        let source_type = stream.get_var_u32();
 
         let mut window_id = 0;
         let mut source_flags = 0;
         match source_type {
             Self::SOURCE_CONTAINER => {
-                window_id = stream.get_var_int();
+                window_id = stream.get_var_i32();
             },
             Self::SOURCE_WORLD => {
-                source_flags = stream.get_unsigned_var_int();
+                source_flags = stream.get_var_u32();
             },
             Self::SOURCE_CREATIVE => {},
             Self::SOURCE_TODO => {
-                window_id = stream.get_var_int();
+                window_id = stream.get_var_i32();
             },
             _ => {
-                panic!("Unknown source type: {}", source_type);
+                panic!("Unknown inventory action source type: {}", source_type);
             }
         }
 
-        let inventory_slot = stream.get_unsigned_var_int();
+        let inventory_slot = stream.get_var_u32();
         let old_item = PacketSerializer::get_item_stack_wrapper(stream);
         let new_item = PacketSerializer::get_item_stack_wrapper(stream);
 
@@ -57,25 +57,25 @@ impl NetworkInventoryAction {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_unsigned_var_int(self.source_type);
+        stream.put_var_u32(self.source_type);
 
         match self.source_type {
             Self::SOURCE_CONTAINER => {
-                stream.put_var_int(self.window_id);
+                stream.put_var_i32(self.window_id);
             },
             Self::SOURCE_WORLD => {
-                stream.put_unsigned_var_int(self.source_flags);
+                stream.put_var_u32(self.source_flags);
             },
             Self::SOURCE_CREATIVE => {},
             Self::SOURCE_TODO => {
-                stream.put_var_int(self.window_id);
+                stream.put_var_i32(self.window_id);
             },
             _ => {
                 panic!("Unknown source type: {}", self.source_type);
             }
         }
 
-        stream.put_unsigned_var_int(self.inventory_slot);
+        stream.put_var_u32(self.inventory_slot);
         PacketSerializer::put_item_stack_wrapper(stream, self.old_item.clone());
         PacketSerializer::put_item_stack_wrapper(stream, self.new_item.clone());
     }

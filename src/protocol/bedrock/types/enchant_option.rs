@@ -28,7 +28,7 @@ impl EnchantOption {
 
     fn read_enchant_list(stream: &mut Stream) -> Vec<Enchant> {
         let mut result = Vec::new();
-        let len = stream.get_unsigned_var_int();
+        let len = stream.get_var_u32();
         for _ in 0..len {
             result.push(Enchant::read(stream));
         }
@@ -36,15 +36,15 @@ impl EnchantOption {
     }
 
     fn write_enchant_list(stream: &mut Stream, list: Vec<Enchant>) {
-        stream.put_unsigned_var_int(list.len() as u32);
+        stream.put_var_u32(list.len() as u32);
         for item in &list {
             item.write(stream);
         }
     }
 
     pub fn read(stream: &mut Stream) -> EnchantOption {
-        let cost = stream.get_unsigned_var_int();
-        let slot_flags = stream.get_unsigned_var_int();
+        let cost = stream.get_var_u32();
+        let slot_flags = stream.get_u32_le();
         let equip_activated_enchantments = Self::read_enchant_list(stream);
         let held_activated_enchantments = Self::read_enchant_list(stream);
         let self_activated_enchantments = Self::read_enchant_list(stream);
@@ -55,8 +55,8 @@ impl EnchantOption {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_unsigned_var_int(self.cost);
-        stream.put_unsigned_var_int(self.slot_flags);
+        stream.put_var_u32(self.cost);
+        stream.put_u32_le(self.slot_flags);
         Self::write_enchant_list(stream, self.equip_activated_enchantments.clone());
         Self::write_enchant_list(stream, self.held_activated_enchantments.clone());
         Self::write_enchant_list(stream, self.self_activated_enchantments.clone());

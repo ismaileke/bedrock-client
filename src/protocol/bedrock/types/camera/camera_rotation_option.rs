@@ -14,13 +14,13 @@ impl CameraRotationOption {
 
     pub fn read(stream: &mut Stream) -> CameraRotationOption {
         let value = PacketSerializer::get_vector3(stream);
-        let time = stream.get_l_float();
+        let time = stream.get_f32_le();
 
         CameraRotationOption{ value, time }
     }
 
     pub fn write(&self, stream: &mut Stream) {
         PacketSerializer::put_vector3(stream, self.value.clone());
-        stream.put_l_float(self.time);
+        stream.put_f32_le(self.time);
     }
 }

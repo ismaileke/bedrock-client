@@ -13,16 +13,16 @@ impl CameraFadeInstructionTime {
     }
 
     pub fn read(stream: &mut Stream) -> CameraFadeInstructionTime {
-        let fade_in_time = stream.get_l_float();
-        let stay_time = stream.get_l_float();
-        let fade_out_time = stream.get_l_float();
+        let fade_in_time = stream.get_f32_le();
+        let stay_time = stream.get_f32_le();
+        let fade_out_time = stream.get_f32_le();
 
         CameraFadeInstructionTime{ fade_in_time, stay_time, fade_out_time }
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_l_float(self.fade_in_time);
-        stream.put_l_float(self.stay_time);
-        stream.put_l_float(self.fade_out_time);
+        stream.put_f32_le(self.fade_in_time);
+        stream.put_f32_le(self.stay_time);
+        stream.put_f32_le(self.fade_out_time);
     }
 }

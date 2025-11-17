@@ -12,7 +12,7 @@ impl BiomeConsolidatedFeaturesData {
 
     pub fn read(stream: &mut Stream) -> BiomeConsolidatedFeaturesData {
         let mut features: Vec<BiomeConsolidatedFeatureData> = Vec::new();
-        let count = stream.get_unsigned_var_int();
+        let count = stream.get_var_u32();
         for _ in 0..count {
             features.push(BiomeConsolidatedFeatureData::read(stream));
         }
@@ -21,7 +21,7 @@ impl BiomeConsolidatedFeaturesData {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_unsigned_var_int(self.features.len() as u32);
+        stream.put_var_u32(self.features.len() as u32);
         for feature in &self.features {
             feature.write(stream);
         }

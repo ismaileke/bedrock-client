@@ -24,18 +24,18 @@ impl BiomeClimateData {
     }
 
     pub fn read(stream: &mut Stream) -> BiomeClimateData {
-        let temperature = stream.get_l_float();
-        let downfall = stream.get_l_float();
-        let snow_accumulation_min = stream.get_l_float();
-        let snow_accumulation_max = stream.get_l_float();
+        let temperature = stream.get_f32_le();
+        let downfall = stream.get_f32_le();
+        let snow_accumulation_min = stream.get_f32_le();
+        let snow_accumulation_max = stream.get_f32_le();
 
         BiomeClimateData::new(temperature, downfall, snow_accumulation_min, snow_accumulation_max)
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_l_float(self.temperature);
-        stream.put_l_float(self.downfall);
-        stream.put_l_float(self.snow_accumulation_min);
-        stream.put_l_float(self.snow_accumulation_max);
+        stream.put_f32_le(self.temperature);
+        stream.put_f32_le(self.downfall);
+        stream.put_f32_le(self.snow_accumulation_min);
+        stream.put_f32_le(self.snow_accumulation_max);
     }
 }

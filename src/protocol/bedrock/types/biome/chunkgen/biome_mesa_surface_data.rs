@@ -14,8 +14,8 @@ impl BiomeMesaSurfaceData {
     }
 
     pub fn read(stream: &mut Stream) -> BiomeMesaSurfaceData {
-        let clay_material = stream.get_l_int();
-        let hard_clay_material = stream.get_l_int();
+        let clay_material = stream.get_u32_le();
+        let hard_clay_material = stream.get_u32_le();
         let bryce_pillars = stream.get_bool();
         let forest = stream.get_bool();
 
@@ -23,8 +23,8 @@ impl BiomeMesaSurfaceData {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_l_int(self.clay_material);
-        stream.put_l_int(self.hard_clay_material);
+        stream.put_u32_le(self.clay_material);
+        stream.put_u32_le(self.hard_clay_material);
         stream.put_bool(self.bryce_pillars);
         stream.put_bool(self.forest);
     }

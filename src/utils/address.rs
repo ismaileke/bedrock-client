@@ -61,16 +61,9 @@ pub fn get_address(address: Vec<u8>) -> Result<(InternetAddress, u32), Box<dyn E
         let port = stream.get_u16_be();
         stream.get_u32_be(); //flow info
         let bytes = stream.get(16);
-
-        let address = match bytes {
-            Ok(byte) => {
-                stream.get_u32_be(); //scope ID
-                let byte_array: [u8; 16] = byte.try_into().expect("Incorrect length for IPv6 address");
-                let ipv6 = Ipv6Addr::from(byte_array);
-                IpAddr::V6(ipv6).to_string()
-            }
-            _ => { panic!("Address:IPV6 Something went wrong"); }
-        };
+        stream.get_u32_be(); //scope ID
+        let ipv6 = Ipv6Addr::from(bytes);
+        let address = IpAddr::V6(ipv6).to_string();
 
         Ok((InternetAddress { version, address, port }, stream.get_offset()))
 

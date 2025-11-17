@@ -19,32 +19,32 @@ impl BiomeCappedSurfaceData {
         let mut floor_blocks = Vec::new();
         let mut ceiling_blocks = Vec::new();
 
-        let mut count = stream.get_unsigned_var_int();
+        let mut count = stream.get_var_u32();
         for _ in 0..count {
-            floor_blocks.push(stream.get_l_int());
+            floor_blocks.push(stream.get_u32_le());
         }
-        count = stream.get_unsigned_var_int();
+        count = stream.get_var_u32();
         for _ in 0..count {
-            ceiling_blocks.push(stream.get_l_int());
+            ceiling_blocks.push(stream.get_u32_le());
         }
-        let sea_block = PacketSerializer::read_optional(stream, |s| s.get_l_int());
-        let foundation_block = PacketSerializer::read_optional(stream, |s| s.get_l_int());
-        let beacon_block = PacketSerializer::read_optional(stream, |s| s.get_l_int());
+        let sea_block = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
+        let foundation_block = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
+        let beacon_block = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
 
         BiomeCappedSurfaceData{ floor_blocks, ceiling_blocks, sea_block, foundation_block, beacon_block }
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_unsigned_var_int(self.floor_blocks.len() as u32);
+        stream.put_var_u32(self.floor_blocks.len() as u32);
         for floor_block in &self.floor_blocks {
-            stream.put_l_int(*floor_block);
+            stream.put_u32_le(*floor_block);
         }
-        stream.put_unsigned_var_int(self.ceiling_blocks.len() as u32);
+        stream.put_var_u32(self.ceiling_blocks.len() as u32);
         for ceiling_block in &self.ceiling_blocks {
-            stream.put_l_int(*ceiling_block);
+            stream.put_u32_le(*ceiling_block);
         }
-        PacketSerializer::write_optional(stream, &self.sea_block, |s, v| s.put_l_int(*v));
-        PacketSerializer::write_optional(stream, &self.foundation_block, |s, v| s.put_l_int(*v));
-        PacketSerializer::write_optional(stream, &self.beacon_block, |s, v| s.put_l_int(*v));
+        PacketSerializer::write_optional(stream, &self.sea_block, |s, v| s.put_u32_le(*v));
+        PacketSerializer::write_optional(stream, &self.foundation_block, |s, v| s.put_u32_le(*v));
+        PacketSerializer::write_optional(stream, &self.beacon_block, |s, v| s.put_u32_le(*v));
     }
 }

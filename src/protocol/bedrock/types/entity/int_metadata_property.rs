@@ -13,7 +13,7 @@ impl IntMetadataProperty {
     }
 
     pub fn read(stream: &mut Stream) -> IntMetadataProperty {
-        IntMetadataProperty{ value: stream.get_var_int() }
+        IntMetadataProperty{ value: stream.get_var_i32() }
     }
 }
 impl MetadataProperty for IntMetadataProperty {
@@ -22,6 +22,6 @@ impl MetadataProperty for IntMetadataProperty {
     }
 
     fn write(&mut self, stream: &mut Stream) {
-        stream.put_var_int(self.value);
+        stream.put_var_i32(self.value);
     }
 }

@@ -82,18 +82,18 @@ impl PacketShapeData {
     }
 
     pub fn read(stream: &mut Stream) -> PacketShapeData {
-        let network_id = stream.get_unsigned_var_long();
+        let network_id = stream.get_var_u64();
         let shape_type = PacketSerializer::read_optional(stream, |s| s.get_byte());
         let location = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
-        let scale = PacketSerializer::read_optional(stream, |s| s.get_l_float());
+        let scale = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let rotation = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
-        let total_time_left = PacketSerializer::read_optional(stream, |s| s.get_l_float());
-        let color = PacketSerializer::read_optional(stream, |s| Color::from_argb(s.get_l_int()));
+        let total_time_left = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
+        let color = PacketSerializer::read_optional(stream, |s| Color::from_argb(s.get_u32_le()));
         let text = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
         let box_bound = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
         let line_end_location = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
-        let arrow_head_length = PacketSerializer::read_optional(stream, |s| s.get_l_float());
-        let arrow_head_radius = PacketSerializer::read_optional(stream, |s| s.get_l_float());
+        let arrow_head_length = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
+        let arrow_head_radius = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let segments = PacketSerializer::read_optional(stream, |s| s.get_byte());
 
         PacketShapeData {
@@ -109,23 +109,23 @@ impl PacketShapeData {
             line_end_location,
             arrow_head_length,
             arrow_head_radius,
-            segments,
+            segments
         }
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_unsigned_var_long(self.network_id);
+        stream.put_var_u64(self.network_id);
         PacketSerializer::write_optional(stream, &self.shape_type, |s, v| s.put_byte(*v));
         PacketSerializer::write_optional(stream, &self.location, |s, v| PacketSerializer::put_vector3(s, v.clone()));
-        PacketSerializer::write_optional(stream, &self.scale, |s, v| s.put_l_float(*v));
+        PacketSerializer::write_optional(stream, &self.scale, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.rotation, |s, v| PacketSerializer::put_vector3(s, v.clone()));
-        PacketSerializer::write_optional(stream, &self.total_time_left, |s, v| s.put_l_float(*v));
-        PacketSerializer::write_optional(stream, &self.color, |s, v| s.put_l_int(v.to_argb()));
+        PacketSerializer::write_optional(stream, &self.total_time_left, |s, v| s.put_f32_le(*v));
+        PacketSerializer::write_optional(stream, &self.color, |s, v| s.put_u32_le(v.to_argb()));
         PacketSerializer::write_optional(stream, &self.text, |s, v| PacketSerializer::put_string(s, v.clone()));
         PacketSerializer::write_optional(stream, &self.box_bound, |s, v| PacketSerializer::put_vector3(s, v.clone()));
         PacketSerializer::write_optional(stream, &self.line_end_location, |s, v| PacketSerializer::put_vector3(s, v.clone()));
-        PacketSerializer::write_optional(stream, &self.arrow_head_length, |s, v| s.put_l_float(*v));
-        PacketSerializer::write_optional(stream, &self.arrow_head_radius, |s, v| s.put_l_float(*v));
+        PacketSerializer::write_optional(stream, &self.arrow_head_length, |s, v| s.put_f32_le(*v));
+        PacketSerializer::write_optional(stream, &self.arrow_head_radius, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.segments, |s, v| s.put_byte(*v));
     }
 }

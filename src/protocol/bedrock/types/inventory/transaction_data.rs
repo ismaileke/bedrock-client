@@ -7,7 +7,7 @@ pub trait TransactionData: Debug {
     fn get_actions(&self) -> &Vec<NetworkInventoryAction>;
     fn get_actions_mut(&mut self) -> &mut Vec<NetworkInventoryAction>;
     fn decode(&mut self, stream: &mut Stream) {
-        let action_count = stream.get_unsigned_var_int();
+        let action_count = stream.get_var_u32();
         for _ in 0..action_count {
             let action = NetworkInventoryAction::read(stream);
             self.get_actions_mut().push(action);
@@ -16,7 +16,7 @@ pub trait TransactionData: Debug {
     }
 
     fn encode(&self, stream: &mut Stream) {
-        stream.put_unsigned_var_int(self.get_actions().len() as u32);
+        stream.put_var_u32(self.get_actions().len() as u32);
         for action in self.get_actions() {
             action.write(stream);
         }

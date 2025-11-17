@@ -14,8 +14,8 @@ impl CameraFovInstruction {
     }
 
     pub fn read(stream: &mut Stream) -> CameraFovInstruction {
-        let field_of_view = stream.get_l_float();
-        let ease_time = stream.get_l_float();
+        let field_of_view = stream.get_f32_le();
+        let ease_time = stream.get_f32_le();
         let ease_type = stream.get_byte();
         let clear = stream.get_bool();
 
@@ -23,8 +23,8 @@ impl CameraFovInstruction {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_l_float(self.field_of_view);
-        stream.put_l_float(self.ease_time);
+        stream.put_f32_le(self.field_of_view);
+        stream.put_f32_le(self.ease_time);
         stream.put_byte(self.ease_type);
         stream.put_bool(self.clear);
     }

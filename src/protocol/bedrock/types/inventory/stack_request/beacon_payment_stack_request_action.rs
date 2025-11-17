@@ -14,8 +14,8 @@ impl BeaconPaymentStackRequestAction {
     }
 
     pub fn read(stream: &mut Stream) -> BeaconPaymentStackRequestAction {
-        let primary_effect_id = stream.get_var_int();
-        let secondary_effect_id = stream.get_var_int();
+        let primary_effect_id = stream.get_var_i32();
+        let secondary_effect_id = stream.get_var_i32();
 
         BeaconPaymentStackRequestAction{ primary_effect_id, secondary_effect_id }
     }
@@ -27,8 +27,8 @@ impl ItemStackRequestAction for BeaconPaymentStackRequestAction {
     }
 
     fn write(&mut self, stream: &mut Stream) {
-        stream.put_var_int(self.primary_effect_id);
-        stream.put_var_int(self.secondary_effect_id);
+        stream.put_var_i32(self.primary_effect_id);
+        stream.put_var_i32(self.secondary_effect_id);
     }
 }
 

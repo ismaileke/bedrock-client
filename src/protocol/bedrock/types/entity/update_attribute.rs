@@ -21,16 +21,16 @@ pub fn new(min: f32, max: f32, current: f32, default_min: f32, default_max: f32,
 impl UpdateAttribute {
     pub fn read(stream: &mut Stream) -> UpdateAttribute {
 
-        let min = stream.get_l_float();
-        let max = stream.get_l_float();
-        let current = stream.get_l_float();
-        let default_min = stream.get_l_float();
-        let default_max = stream.get_l_float();
-        let default = stream.get_l_float();
+        let min = stream.get_f32_le();
+        let max = stream.get_f32_le();
+        let current = stream.get_f32_le();
+        let default_min = stream.get_f32_le();
+        let default_max = stream.get_f32_le();
+        let default = stream.get_f32_le();
         let id = PacketSerializer::get_string(stream);
 
         let mut modifiers = vec![];
-        let modifier_count = stream.get_unsigned_var_int();
+        let modifier_count = stream.get_var_u32();
         for _ in 0..modifier_count {
             modifiers.push(AttributeModifier::read(stream));
         }
@@ -39,14 +39,14 @@ impl UpdateAttribute {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_l_float(self.min);
-        stream.put_l_float(self.max);
-        stream.put_l_float(self.current);
-        stream.put_l_float(self.default_min);
-        stream.put_l_float(self.default_max);
-        stream.put_l_float(self.default);
+        stream.put_f32_le(self.min);
+        stream.put_f32_le(self.max);
+        stream.put_f32_le(self.current);
+        stream.put_f32_le(self.default_min);
+        stream.put_f32_le(self.default_max);
+        stream.put_f32_le(self.default);
         PacketSerializer::put_string(stream, self.id.clone());
-        stream.put_unsigned_var_int(self.modifiers.len() as u32);
+        stream.put_var_u32(self.modifiers.len() as u32);
         for modifier in self.modifiers.iter() {
             modifier.write(stream);
         }

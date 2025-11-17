@@ -30,7 +30,7 @@ impl BiomeMountainParamsData {
     }
 
     pub fn read(stream: &mut Stream) -> BiomeMountainParamsData {
-        let steep_block = stream.get_l_int();
+        let steep_block = stream.get_u32_le();
         let north_slopes = stream.get_bool();
         let south_slopes = stream.get_bool();
         let west_slopes = stream.get_bool();
@@ -41,7 +41,7 @@ impl BiomeMountainParamsData {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_l_int(self.steep_block);
+        stream.put_u32_le(self.steep_block);
         stream.put_bool(self.north_slopes);
         stream.put_bool(self.south_slopes);
         stream.put_bool(self.west_slopes);

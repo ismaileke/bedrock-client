@@ -1,4 +1,5 @@
 use binary_utils::binary::Stream;
+use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(Debug)]
 pub struct ResourcePackStackEntry {
@@ -9,15 +10,9 @@ pub struct ResourcePackStackEntry {
 
 impl ResourcePackStackEntry {
     pub fn read(stream: &mut Stream) -> ResourcePackStackEntry {
-
-        let mut length = stream.get_unsigned_var_int();
-        let pack_id = String::from_utf8(stream.get(length).unwrap()).unwrap();
-
-        length = stream.get_unsigned_var_int();
-        let version = String::from_utf8(stream.get(length).unwrap()).unwrap();
-
-        length = stream.get_unsigned_var_int();
-        let sub_pack_name = String::from_utf8(stream.get(length).unwrap()).unwrap();
+        let pack_id = PacketSerializer::get_string(stream);
+        let version = PacketSerializer::get_string(stream);
+        let sub_pack_name = PacketSerializer::get_string(stream);
 
         ResourcePackStackEntry{ pack_id, version, sub_pack_name }
     }
