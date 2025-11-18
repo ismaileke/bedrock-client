@@ -85,7 +85,7 @@ impl Packet for Login {
     }
 }
 
-pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, target_address: String, target_port: u16, client_guid: i64, client_version: String) -> Vec<String> {
+pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, signed_token: String, target_address: String, target_port: u16, client_guid: i64, client_version: String) -> Vec<String> {
     let chain_one: Vec<&str> = chain[0].split('.').collect();
     let chain_two: Vec<&str> = chain[1].split('.').collect();
 
@@ -145,7 +145,6 @@ pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, target_
         "PlatformOfflineId": "",
         "PlatformOnlineId": "",
         "PlatformType": 1,
-        "PlayFabId": "",
         "PremiumSkin": false,
         "SelfSignedId": "651a4f81-aa0e-3c32-b30b-3d250293a340",
         "ServerAddress": address,
@@ -194,7 +193,7 @@ pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, target_
     let real_chain = json!({
         "AuthenticationType": 0, // FULL LOGIN
         "Certificate": json!({"chain": chain}).to_string(),
-        "Token": "" // I need that...
+        "Token": signed_token
     });
 
     let data_to_sign_two = format!("{}.{}", encoded_header, encoded_payload_two);

@@ -9,7 +9,7 @@ mod tests {
     #[tokio::test]
     async fn test() {
         let mut client = client::create(
-            "51.75.67.107".to_string(),
+            "127.0.0.1".to_string(),
             19132,
             "1.21.120".to_string(),
             false,

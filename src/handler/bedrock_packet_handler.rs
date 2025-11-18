@@ -7,6 +7,7 @@ use openssl::pkey::Private;
 pub struct BedrockPacketHandler {
     pub chain: Vec<String>,
     pub ec_key: EcKey<Private>,
+    pub signed_token: String,
     pub compression_enabled: bool,
     pub encryption_enabled: bool,
     pub hashed_network_ids: HashMap<u32, CompoundTag>,
@@ -18,6 +19,7 @@ impl BedrockPacketHandler {
     pub fn new(bedrock: Bedrock) -> BedrockPacketHandler {
         let chain = bedrock.get_chain_data();
         let ec_key = bedrock.get_ec_key().unwrap();
+        let signed_token = bedrock.get_signed_token().unwrap();
         let compression_enabled = false;
         let encryption_enabled = false;
         let hashed_network_ids = HashMap::new();
@@ -27,6 +29,7 @@ impl BedrockPacketHandler {
         BedrockPacketHandler{
             chain,
             ec_key,
+            signed_token,
             compression_enabled,
             encryption_enabled,
             hashed_network_ids,

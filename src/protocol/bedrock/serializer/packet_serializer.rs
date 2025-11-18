@@ -44,9 +44,32 @@ use crate::protocol::bedrock::types::structure_settings::StructureSettings;
 pub struct PacketSerializer {}
 
 impl PacketSerializer {
+    /*pub fn get_string(stream: &mut Stream) -> String {
+        let length = stream.get_var_u32();
+        let bytes = stream.get(length);
+        String::from_utf8(bytes).expect("Vec<u8> to String UTF8 conversion failed")
+    }*/
     pub fn get_string(stream: &mut Stream) -> String {
         let length = stream.get_var_u32();
         let bytes = stream.get(length);
+
+        if let Ok(s) = String::from_utf8(bytes.clone()) {
+            return s;
+        }
+
+        if bytes.len() % 2 == 0 {
+            let mut u16s = Vec::with_capacity(bytes.len() / 2);
+            for chunk in bytes.chunks(2) {
+                let val = u16::from_le_bytes([chunk[0], chunk[1]]);
+                if val != 0x0000 && val != 0xFFFF {
+                    u16s.push(val);
+                }
+            }
+            if let Ok(s) = String::from_utf16(&u16s) {
+                return s;
+            }
+        }
+
         String::from_utf8_lossy(&bytes).to_string()
     }
 

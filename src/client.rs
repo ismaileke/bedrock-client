@@ -270,7 +270,6 @@ impl Client {
                                                 stream = Stream::new(GamePacket::decompress(&stream.get_remaining()), 0);
                                             }
                                         }
-                                        let mut i = 1;
                                         while !stream.feof() {
                                             let length = stream.get_var_u32();
 
@@ -289,8 +288,6 @@ impl Client {
                                             }
 
                                             if self.debug {
-                                                println!("i: {}", i);
-                                                i += 1;
                                                 println!("--- {}{}{} ---", COLOR_GOLD, BedrockPacketType::get_packet_name(packet_id as u16), COLOR_WHITE);
                                                 packet.debug();
                                             }
@@ -302,7 +299,7 @@ impl Client {
 
                                                     // LOGIN PACKET
                                                     let pkey = PKey::from_ec_key(self.bedrock_handler.ec_key.clone()).expect("PKey Error");
-                                                    let login_data_detail = login::convert_login_chain(&mut self.bedrock_handler.chain, pkey, self.target_address.clone(), self.target_port, self.raknet_handler.client_guid, self.client_version.clone());
+                                                    let login_data_detail = login::convert_login_chain(&mut self.bedrock_handler.chain, pkey, self.bedrock_handler.signed_token.clone(), self.target_address.clone(), self.target_port, self.raknet_handler.client_guid, self.client_version.clone());
                                                     let login = login::new(BEDROCK_PROTOCOL_VERSION, login_data_detail[0].clone(), login_data_detail[1].clone()).encode();
 
                                                     let datagrams = Datagram::split_packet(login, &mut self.raknet_handler.frame_number_cache);
@@ -495,9 +492,7 @@ impl Client {
                                                                         let any_value = pce.get_value();
                                                                         let value = any_value.downcast_ref::<i8>().unwrap();
                                                                         property_enums_map.push(PropertyValue::Byte(value.clone()));
-                                                                    } else {
-                                                                        println!("Undefined Tag Type");
-                                                                    }
+                                                                    } else { println!("Unknown property enum id {:?}", id); }
                                                                 });
                                                                 properties_map.insert(property_name, property_enums_map);
 
@@ -570,7 +565,7 @@ impl Client {
                                                         for i in 0..vanilla_blocks.count() {
                                                             let vanilla_block = vanilla_blocks.get(i);
                                                             let mut vanilla_ct = vanilla_block.as_any().downcast_ref::<CompoundTag>().unwrap().clone();
-                                                            let hashed_network_id = vanilla_ct.get_int("network_id").unwrap();
+                                                            let hashed_network_id = vanilla_ct.get_int("network_id").unwrap() as u32;
                                                             //let block_name = vanilla_ct.get_string("name").unwrap();
                                                             //println!("{}, Block Name: {}, Network ID: {}", i, block_name, hashed_network_id);
                                                             vanilla_ct.remove_tag(vec!["network_id".to_string(), "name_hash".to_string(), "version".to_string()]);
