@@ -1,12 +1,14 @@
 use std::collections::HashMap;
 use binary_utils::binary::Stream;
+use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::education_uri_resource::EducationUriResource;
 use crate::protocol::bedrock::types::experiments::Experiments;
+use crate::protocol::bedrock::types::game_rule::GameRule;
 use crate::protocol::bedrock::types::spawn_settings::SpawnSettings;
 
 #[derive(Debug)]
 pub struct LevelSettings {
-    pub seed: i64,
+    pub seed: u64,
     pub spawn_settings: SpawnSettings,
     pub generator: i32,
     pub world_game_mode: i32,
@@ -30,12 +32,12 @@ pub struct LevelSettings {
     pub platform_broadcast_mode: i32,
     pub commands_enabled: bool,
     pub is_texture_packs_required: bool,
-    pub game_rules: HashMap<String, u32>,
+    pub game_rules: HashMap<String, Box<dyn GameRule>>,
     pub experiments: Experiments,
     pub has_bonus_chest_enabled: bool,
     pub has_start_with_map_enabled: bool,
     pub default_player_permission: i32,
-    pub server_chunk_tick_radius: u32,
+    pub server_chunk_tick_radius: i32,
     pub has_locked_behavior_pack: bool,
     pub has_locked_resource_pack: bool,
     pub is_from_locked_world_template: bool,
@@ -47,8 +49,8 @@ pub struct LevelSettings {
     pub disable_custom_skins: bool,
     pub mute_emote_announcements: bool,
     pub vanilla_version: String,
-    pub limited_world_width: u32,
-    pub limited_world_length: u32,
+    pub limited_world_width: i32,
+    pub limited_world_length: i32,
     pub is_new_nether: bool,
     pub edu_shared_uri_resource: EducationUriResource,
     pub experimental_gameplay_override: bool,
@@ -62,58 +64,36 @@ pub struct LevelSettings {
 
 impl LevelSettings {
     pub fn read(stream: &mut Stream) -> LevelSettings {
-        let seed = stream.get_l_long();
+        let seed = stream.get_u64_le();
         let spawn_settings = SpawnSettings::read(stream);
-        let generator = stream.get_var_int();
-        let world_game_mode = stream.get_var_int();
+        let generator = stream.get_var_i32();
+        let world_game_mode = stream.get_var_i32();
         let hardcore = stream.get_bool();
-        let difficulty = stream.get_var_int();
-        let spawn_position = vec![stream.get_var_int(), stream.get_unsigned_var_int() as i32, stream.get_var_int()];
+        let difficulty = stream.get_var_i32();
+        let spawn_position = PacketSerializer::get_block_pos(stream);
         let has_achievements_disabled = stream.get_bool();
-        let editor_world_type = stream.get_var_int();
+        let editor_world_type = stream.get_var_i32();
         let created_in_editor_mode = stream.get_bool();
         let exported_from_editor_mode = stream.get_bool();
-        let time = stream.get_var_int();
-        let edu_edition_offer = stream.get_var_int();
+        let time = stream.get_var_i32();
+        let edu_edition_offer = stream.get_var_i32();
         let has_edu_features_enabled = stream.get_bool();
-        let mut length = stream.get_unsigned_var_int();
-        let edu_product_uuid = String::from_utf8(stream.get(length).unwrap()).unwrap();
-        let rain_level = stream.get_l_float();
-        let lightning_level = stream.get_l_float();
+        let edu_product_uuid = PacketSerializer::get_string(stream);
+        let rain_level = stream.get_f32_le();
+        let lightning_level = stream.get_f32_le();
         let has_confirmed_platform_locked_content = stream.get_bool();
         let is_multiplayer_game = stream.get_bool();
         let has_lan_broadcast = stream.get_bool();
-        let xbox_live_broadcast_mode = stream.get_var_int();
-        let platform_broadcast_mode = stream.get_var_int();
+        let xbox_live_broadcast_mode = stream.get_var_i32();
+        let platform_broadcast_mode = stream.get_var_i32();
         let commands_enabled = stream.get_bool();
         let is_texture_packs_required = stream.get_bool();
-        let count = stream.get_unsigned_var_int();
-        let mut game_rules = HashMap::new();
-        for _ in 0..count {
-            length = stream.get_unsigned_var_int();
-            let name = String::from_utf8(stream.get(length).unwrap()).unwrap();
-            let _is_player_modifiable = stream.get_bool();
-            let game_type = stream.get_unsigned_var_int();
-            match game_type {
-                1 => { // Bool Game Rule
-                    stream.get_bool();
-                },
-                2 => { // Int Game Rule
-                    stream.get_unsigned_var_int();
-                },
-                3 => { // Float Game Rule
-                    stream.get_l_float();
-                },
-                _ => { panic!("Unknown game type {}", game_type); }
-            }
-
-            game_rules.insert(name, game_type);
-        }
+        let game_rules = PacketSerializer::get_game_rules(stream, true);
         let experiments = Experiments::read(stream);
         let has_bonus_chest_enabled = stream.get_bool();
         let has_start_with_map_enabled = stream.get_bool();
-        let default_player_permission = stream.get_var_int();
-        let server_chunk_tick_radius = stream.get_l_int();
+        let default_player_permission = stream.get_var_i32();
+        let server_chunk_tick_radius = stream.get_i32_le();
         let has_locked_behavior_pack = stream.get_bool();
         let has_locked_resource_pack = stream.get_bool();
         let is_from_locked_world_template = stream.get_bool();
@@ -124,23 +104,18 @@ impl LevelSettings {
         let disable_persona = stream.get_bool();
         let disable_custom_skins = stream.get_bool();
         let mute_emote_announcements = stream.get_bool();
-        length = stream.get_unsigned_var_int();
-        let vanilla_version = String::from_utf8(stream.get(length).unwrap()).unwrap();
-        let limited_world_width = stream.get_l_int();
-        let limited_world_length = stream.get_l_int();
+        let vanilla_version = PacketSerializer::get_string(stream);
+        let limited_world_width = stream.get_i32_le();
+        let limited_world_length = stream.get_i32_le();
         let is_new_nether = stream.get_bool();
         let edu_shared_uri_resource = EducationUriResource::read(stream);
         let experimental_gameplay_override = stream.get_bool();
         let chat_restriction_level = stream.get_byte();
         let disable_player_interactions = stream.get_bool();
-        length = stream.get_unsigned_var_int();
-        let server_identifier = String::from_utf8(stream.get(length).unwrap()).unwrap();
-        length = stream.get_unsigned_var_int();
-        let world_identifier = String::from_utf8(stream.get(length).unwrap()).unwrap();
-        length = stream.get_unsigned_var_int();
-        let scenario_identifier = String::from_utf8(stream.get(length).unwrap()).unwrap();
-        length = stream.get_unsigned_var_int();
-        let owner_identifier = String::from_utf8(stream.get(length).unwrap()).unwrap();
+        let server_identifier = PacketSerializer::get_string(stream);
+        let world_identifier = PacketSerializer::get_string(stream);
+        let scenario_identifier = PacketSerializer::get_string(stream);
+        let owner_identifier = PacketSerializer::get_string(stream);
         
         LevelSettings{
             seed,

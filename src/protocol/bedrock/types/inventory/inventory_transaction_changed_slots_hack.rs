@@ -13,7 +13,7 @@ impl InventoryTransactionChangedSlotsHack {
 
     pub fn read(stream: &mut Stream) -> InventoryTransactionChangedSlotsHack {
         let container_id = stream.get_byte();
-        let slot_count = stream.get_unsigned_var_int();
+        let slot_count = stream.get_var_u32();
         let mut changed_slot_indexes = Vec::new();
         for _ in 0..slot_count {
             changed_slot_indexes.push(stream.get_byte());
@@ -24,7 +24,7 @@ impl InventoryTransactionChangedSlotsHack {
 
     pub fn write(&self, stream: &mut Stream) {
         stream.put_byte(self.container_id);
-        stream.put_unsigned_var_int(self.changed_slot_indexes.len() as u32);
+        stream.put_var_u32(self.changed_slot_indexes.len() as u32);
         for i in self.changed_slot_indexes.iter() {
             stream.put_byte(*i);
         }

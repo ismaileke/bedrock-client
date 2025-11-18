@@ -1,4 +1,3 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::actor_event::ActorEvent;
 use crate::protocol::bedrock::actor_pick_request::ActorPickRequest;
 use crate::protocol::bedrock::add_actor::AddActor;
@@ -8,86 +7,29 @@ use crate::protocol::bedrock::add_painting::AddPainting;
 use crate::protocol::bedrock::add_player::AddPlayer;
 use crate::protocol::bedrock::add_volume_entity::AddVolumeEntity;
 use crate::protocol::bedrock::agent_action_event::AgentActionEvent;
-use crate::protocol::bedrock::animate::Animate;
-use crate::protocol::bedrock::automation_client_connect::AutomationClientConnect;
-use crate::protocol::bedrock::block_event::BlockEvent;
-use crate::protocol::bedrock::block_pick_request::BlockPickRequest;
-use crate::protocol::bedrock::book_edit::BookEdit;
-use crate::protocol::bedrock::boss_event::BossEvent;
-use crate::protocol::bedrock::camera::Camera;
-use crate::protocol::bedrock::change_dimension::ChangeDimension;
-use crate::protocol::bedrock::chunk_radius_updated::ChunkRadiusUpdated;
-use crate::protocol::bedrock::client_to_server_handshake::ClientToServerHandshake;
-use crate::protocol::bedrock::container_close::ContainerClose;
-use crate::protocol::bedrock::container_open::ContainerOpen;
-use crate::protocol::bedrock::container_set_data::ContainerSetData;
-use crate::protocol::bedrock::disconnect::Disconnect;
-use crate::protocol::bedrock::gui_data_pick_item::GUIDataPickItem;
-use crate::protocol::bedrock::hurt_armor::HurtArmor;
-use crate::protocol::bedrock::interact::Interact;
-use crate::protocol::bedrock::legacy_telemetry_event::LegacyTelemetryEvent;
-use crate::protocol::bedrock::level_chunk::LevelChunk;
-use crate::protocol::bedrock::level_event::LevelEvent;
-use crate::protocol::bedrock::login::Login;
-use crate::protocol::bedrock::mob_effect::MobEffect;
-use crate::protocol::bedrock::modal_form_request::ModalFormRequest;
-use crate::protocol::bedrock::move_actor_absolute::MoveActorAbsolute;
-use crate::protocol::bedrock::move_player::MovePlayer;
-use crate::protocol::bedrock::npc_request::NPCRequest;
-use crate::protocol::bedrock::packet::Packet;
-use crate::protocol::bedrock::photo_transfer::PhotoTransfer;
-use crate::protocol::bedrock::play_sound::PlaySound;
-use crate::protocol::bedrock::play_status::PlayStatus;
-use crate::protocol::bedrock::player_action::PlayerAction;
-use crate::protocol::bedrock::player_hotbar::PlayerHotbar;
-use crate::protocol::bedrock::purchase_receipt::PurchaseReceipt;
-use crate::protocol::bedrock::remove_actor::RemoveActor;
-use crate::protocol::bedrock::request_chunk_radius::RequestChunkRadius;
-use crate::protocol::bedrock::resource_pack_chunk_data::ResourcePackChunkData;
-use crate::protocol::bedrock::resource_pack_chunk_request::ResourcePackChunkRequest;
-use crate::protocol::bedrock::resource_pack_client_response::ResourcePackClientResponse;
-use crate::protocol::bedrock::resource_pack_data_info::ResourcePackDataInfo;
-use crate::protocol::bedrock::resource_pack_stack::ResourcePackStack;
-use crate::protocol::bedrock::resource_packs_info::ResourcePacksInfo;
-use crate::protocol::bedrock::respawn::Respawn;
-use crate::protocol::bedrock::server_player_post_move_position::ServerPlayerPostMovePosition;
-use crate::protocol::bedrock::server_to_client_handshake::ServerToClientHandshake;
-use crate::protocol::bedrock::set_actor_link::SetActorLink;
-use crate::protocol::bedrock::set_actor_motion::SetActorMotion;
-use crate::protocol::bedrock::set_commands_enabled::SetCommandsEnabled;
-use crate::protocol::bedrock::set_difficulty::SetDifficulty;
-use crate::protocol::bedrock::set_health::SetHealth;
-use crate::protocol::bedrock::set_last_hurt_by::SetLastHurtBy;
-use crate::protocol::bedrock::set_player_game_type::SetPlayerGameType;
-use crate::protocol::bedrock::set_spawn_position::SetSpawnPosition;
-use crate::protocol::bedrock::set_time::SetTime;
-use crate::protocol::bedrock::set_title::SetTitle;
-use crate::protocol::bedrock::show_credits::ShowCredits;
-use crate::protocol::bedrock::show_store_offer::ShowStoreOffer;
-use crate::protocol::bedrock::simple_event::SimpleEvent;
-use crate::protocol::bedrock::spawn_experience_orb::SpawnExperienceOrb;
-use crate::protocol::bedrock::start_game::StartGame;
-use crate::protocol::bedrock::stop_sound::StopSound;
-use crate::protocol::bedrock::sub_client_login::SubClientLogin;
-use crate::protocol::bedrock::take_item_actor::TakeItemActor;
-use crate::protocol::bedrock::text::Text;
-use crate::protocol::bedrock::transfer::Transfer;
-use crate::protocol::bedrock::update_attributes::UpdateAttributes;
-use crate::protocol::bedrock::update_block::UpdateBlock;
 use crate::protocol::bedrock::agent_animation::AgentAnimation;
+use crate::protocol::bedrock::animate::Animate;
 use crate::protocol::bedrock::animate_entity::AnimateEntity;
 use crate::protocol::bedrock::anvil_damage::AnvilDamage;
+use crate::protocol::bedrock::automation_client_connect::AutomationClientConnect;
 use crate::protocol::bedrock::available_actor_identifiers::AvailableActorIdentifiers;
 use crate::protocol::bedrock::available_commands::AvailableCommands;
 use crate::protocol::bedrock::award_achievement::AwardAchievement;
 use crate::protocol::bedrock::biome_definition_list::BiomeDefinitionList;
 use crate::protocol::bedrock::block_actor_data::BlockActorData;
+use crate::protocol::bedrock::block_event::BlockEvent;
+use crate::protocol::bedrock::block_pick_request::BlockPickRequest;
+use crate::protocol::bedrock::book_edit::BookEdit;
+use crate::protocol::bedrock::boss_event::BossEvent;
+use crate::protocol::bedrock::camera::Camera;
 use crate::protocol::bedrock::camera_aim_assist::CameraAimAssist;
 use crate::protocol::bedrock::camera_aim_assist_presets::CameraAimAssistPresets;
 use crate::protocol::bedrock::camera_instruction::CameraInstruction;
 use crate::protocol::bedrock::camera_presets::CameraPresets;
 use crate::protocol::bedrock::camera_shake::CameraShake;
+use crate::protocol::bedrock::change_dimension::ChangeDimension;
 use crate::protocol::bedrock::change_mob_property::ChangeMobProperty;
+use crate::protocol::bedrock::chunk_radius_updated::ChunkRadiusUpdated;
 use crate::protocol::bedrock::client_bound_close_form::ClientBoundCloseForm;
 use crate::protocol::bedrock::client_bound_control_scheme_set::ClientBoundControlSchemeSet;
 use crate::protocol::bedrock::client_bound_debug_renderer::ClientBoundDebugRenderer;
@@ -97,21 +39,28 @@ use crate::protocol::bedrock::client_cache_miss_response::ClientCacheMissRespons
 use crate::protocol::bedrock::client_cache_status::ClientCacheStatus;
 use crate::protocol::bedrock::client_camera_aim_assist::ClientCameraAimAssist;
 use crate::protocol::bedrock::client_movement_prediction_sync::ClientMovementPredictionSync;
+use crate::protocol::bedrock::client_to_server_handshake::ClientToServerHandshake;
 use crate::protocol::bedrock::code_builder::CodeBuilder;
 use crate::protocol::bedrock::code_builder_source::CodeBuilderSource;
 use crate::protocol::bedrock::command_block_update::CommandBlockUpdate;
 use crate::protocol::bedrock::command_output::CommandOutput;
 use crate::protocol::bedrock::command_request::CommandRequest;
 use crate::protocol::bedrock::completed_using_item::CompletedUsingItem;
+use crate::protocol::bedrock::container_close::ContainerClose;
+use crate::protocol::bedrock::container_open::ContainerOpen;
 use crate::protocol::bedrock::container_registry_cleanup::ContainerRegistryCleanup;
+use crate::protocol::bedrock::container_set_data::ContainerSetData;
 use crate::protocol::bedrock::correct_player_move_prediction::CorrectPlayerMovePrediction;
 use crate::protocol::bedrock::crafting_data::CraftingData;
 use crate::protocol::bedrock::create_photo::CreatePhoto;
 use crate::protocol::bedrock::creative_content::CreativeContent;
 use crate::protocol::bedrock::current_structure_feature::CurrentStructureFeature;
+use crate::protocol::bedrock::data_store_sync::DataStoreSync;
 use crate::protocol::bedrock::death_info::DeathInfo;
+use crate::protocol::bedrock::debug_drawer::DebugDrawer;
 use crate::protocol::bedrock::debug_info::DebugInfo;
 use crate::protocol::bedrock::dimension_data::DimensionData;
+use crate::protocol::bedrock::disconnect::Disconnect;
 use crate::protocol::bedrock::editor_network::EditorNetwork;
 use crate::protocol::bedrock::edu_uri_resource::EduUriResource;
 use crate::protocol::bedrock::education_settings::EducationSettings;
@@ -121,6 +70,10 @@ use crate::protocol::bedrock::feature_registry::FeatureRegistry;
 use crate::protocol::bedrock::game_rules_changed::GameRulesChanged;
 use crate::protocol::bedrock::game_test_request::GameTestRequest;
 use crate::protocol::bedrock::game_test_results::GameTestResults;
+use crate::protocol::bedrock::graphics_override_parameter::GraphicsOverrideParameter;
+use crate::protocol::bedrock::gui_data_pick_item::GUIDataPickItem;
+use crate::protocol::bedrock::hurt_armor::HurtArmor;
+use crate::protocol::bedrock::interact::Interact;
 use crate::protocol::bedrock::inventory_content::InventoryContent;
 use crate::protocol::bedrock::inventory_slot::InventorySlot;
 use crate::protocol::bedrock::inventory_transaction::InventoryTransaction;
@@ -130,29 +83,44 @@ use crate::protocol::bedrock::item_stack_response::ItemStackResponse;
 use crate::protocol::bedrock::jigsaw_structure_data::JigsawStructureData;
 use crate::protocol::bedrock::lab_table::LabTable;
 use crate::protocol::bedrock::lectern_update::LecternUpdate;
+use crate::protocol::bedrock::legacy_telemetry_event::LegacyTelemetryEvent;
 use crate::protocol::bedrock::lesson_progress::LessonProgress;
+use crate::protocol::bedrock::level_chunk::LevelChunk;
+use crate::protocol::bedrock::level_event::LevelEvent;
 use crate::protocol::bedrock::level_event_generic::LevelEventGeneric;
 use crate::protocol::bedrock::level_sound_event::LevelSoundEvent;
+use crate::protocol::bedrock::login::Login;
 use crate::protocol::bedrock::map_create_locked_copy::MapCreateLockedCopy;
 use crate::protocol::bedrock::map_info_request::MapInfoRequest;
 use crate::protocol::bedrock::mob_armor_equipment::MobArmorEquipment;
+use crate::protocol::bedrock::mob_effect::MobEffect;
 use crate::protocol::bedrock::mob_equipment::MobEquipment;
+use crate::protocol::bedrock::modal_form_request::ModalFormRequest;
 use crate::protocol::bedrock::modal_form_response::ModalFormResponse;
 use crate::protocol::bedrock::motion_prediction_hints::MotionPredictionHints;
+use crate::protocol::bedrock::move_actor_absolute::MoveActorAbsolute;
 use crate::protocol::bedrock::move_actor_delta::MoveActorDelta;
+use crate::protocol::bedrock::move_player::MovePlayer;
 use crate::protocol::bedrock::movement_effect::MovementEffect;
 use crate::protocol::bedrock::multiplayer_settings::MultiplayerSettings;
 use crate::protocol::bedrock::network_chunk_publisher_update::NetworkChunkPublisherUpdate;
 use crate::protocol::bedrock::network_settings::NetworkSettings;
 use crate::protocol::bedrock::network_stack_latency::NetworkStackLatency;
 use crate::protocol::bedrock::npc_dialogue::NPCDialogue;
+use crate::protocol::bedrock::npc_request::NPCRequest;
 use crate::protocol::bedrock::on_screen_texture_animation::OnScreenTextureAnimation;
 use crate::protocol::bedrock::open_sign::OpenSign;
+use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::packet_violation_warning::PacketViolationWarning;
+use crate::protocol::bedrock::photo_transfer::PhotoTransfer;
+use crate::protocol::bedrock::play_sound::PlaySound;
+use crate::protocol::bedrock::play_status::PlayStatus;
+use crate::protocol::bedrock::player_action::PlayerAction;
 use crate::protocol::bedrock::player_armor_damage::PlayerArmorDamage;
 use crate::protocol::bedrock::player_auth_input::PlayerAuthInput;
 use crate::protocol::bedrock::player_enchant_options::PlayerEnchantOptions;
 use crate::protocol::bedrock::player_fog::PlayerFog;
+use crate::protocol::bedrock::player_hotbar::PlayerHotbar;
 use crate::protocol::bedrock::player_list::PlayerList;
 use crate::protocol::bedrock::player_location::PlayerLocation;
 use crate::protocol::bedrock::player_skin::PlayerSkin;
@@ -162,52 +130,87 @@ use crate::protocol::bedrock::player_update_entity_overrides::PlayerUpdateEntity
 use crate::protocol::bedrock::player_video_capture::PlayerVideoCapture;
 use crate::protocol::bedrock::position_tracking_db_client_request::PositionTrackingDBClientRequest;
 use crate::protocol::bedrock::position_tracking_db_server_broadcast::PositionTrackingDBServerBroadcast;
+use crate::protocol::bedrock::purchase_receipt::PurchaseReceipt;
 use crate::protocol::bedrock::refresh_entitlements::RefreshEntitlements;
+use crate::protocol::bedrock::remove_actor::RemoveActor;
 use crate::protocol::bedrock::remove_objective::RemoveObjective;
 use crate::protocol::bedrock::remove_volume_entity::RemoveVolumeEntity;
 use crate::protocol::bedrock::req_network_settings::RequestNetworkSettings;
 use crate::protocol::bedrock::request_ability::RequestAbility;
+use crate::protocol::bedrock::request_chunk_radius::RequestChunkRadius;
 use crate::protocol::bedrock::request_permissions::RequestPermissions;
+use crate::protocol::bedrock::resource_pack_chunk_data::ResourcePackChunkData;
+use crate::protocol::bedrock::resource_pack_chunk_request::ResourcePackChunkRequest;
+use crate::protocol::bedrock::resource_pack_client_response::ResourcePackClientResponse;
+use crate::protocol::bedrock::resource_pack_data_info::ResourcePackDataInfo;
+use crate::protocol::bedrock::resource_pack_stack::ResourcePackStack;
+use crate::protocol::bedrock::resource_packs_info::ResourcePacksInfo;
+use crate::protocol::bedrock::respawn::Respawn;
 use crate::protocol::bedrock::script_message::ScriptMessage;
 use crate::protocol::bedrock::server_bound_diagnostics::ServerBoundDiagnostics;
 use crate::protocol::bedrock::server_bound_loading_screen::ServerBoundLoadingScreen;
-use crate::protocol::bedrock::server_script_debug_drawer::ServerScriptDebugDrawer;
+use crate::protocol::bedrock::server_bound_pack_setting_change::ServerBoundPackSettingChange;
+use crate::protocol::bedrock::server_player_post_move_position::ServerPlayerPostMovePosition;
 use crate::protocol::bedrock::server_settings_request::ServerSettingsRequest;
 use crate::protocol::bedrock::server_settings_response::ServerSettingsResponse;
 use crate::protocol::bedrock::server_stats::ServerStats;
+use crate::protocol::bedrock::server_to_client_handshake::ServerToClientHandshake;
 use crate::protocol::bedrock::set_actor_data::SetActorData;
+use crate::protocol::bedrock::set_actor_link::SetActorLink;
+use crate::protocol::bedrock::set_actor_motion::SetActorMotion;
+use crate::protocol::bedrock::set_commands_enabled::SetCommandsEnabled;
 use crate::protocol::bedrock::set_default_game_type::SetDefaultGameType;
+use crate::protocol::bedrock::set_difficulty::SetDifficulty;
 use crate::protocol::bedrock::set_display_objective::SetDisplayObjective;
+use crate::protocol::bedrock::set_health::SetHealth;
 use crate::protocol::bedrock::set_hud::SetHud;
+use crate::protocol::bedrock::set_last_hurt_by::SetLastHurtBy;
 use crate::protocol::bedrock::set_local_player_as_initialized::SetLocalPlayerAsInitializedPacket;
+use crate::protocol::bedrock::set_player_game_type::SetPlayerGameType;
 use crate::protocol::bedrock::set_player_inventory_options::SetPlayerInventoryOptions;
 use crate::protocol::bedrock::set_score::SetScore;
 use crate::protocol::bedrock::set_scoreboard_identity::SetScoreboardIdentity;
+use crate::protocol::bedrock::set_spawn_position::SetSpawnPosition;
+use crate::protocol::bedrock::set_time::SetTime;
+use crate::protocol::bedrock::set_title::SetTitle;
 use crate::protocol::bedrock::settings_command::SettingsCommand;
+use crate::protocol::bedrock::show_credits::ShowCredits;
 use crate::protocol::bedrock::show_profile::ShowProfile;
+use crate::protocol::bedrock::show_store_offer::ShowStoreOffer;
+use crate::protocol::bedrock::simple_event::SimpleEvent;
 use crate::protocol::bedrock::simulation_type::SimulationType;
-use crate::protocol::bedrock::spawn_particle_event::SpawnParticleEvent;
+use crate::protocol::bedrock::spawn_experience_orb::SpawnExperienceOrb;
+use crate::protocol::bedrock::spawn_particle_effect::SpawnParticleEffect;
+use crate::protocol::bedrock::start_game::StartGame;
+use crate::protocol::bedrock::stop_sound::StopSound;
 use crate::protocol::bedrock::structure_block_update::StructureBlockUpdate;
 use crate::protocol::bedrock::structure_template_data_request::StructureTemplateDataRequest;
 use crate::protocol::bedrock::structure_template_data_response::StructureTemplateDataResponse;
 use crate::protocol::bedrock::sub_chunk::SubChunk;
 use crate::protocol::bedrock::sub_chunk_request::SubChunkRequest;
+use crate::protocol::bedrock::sub_client_login::SubClientLogin;
 use crate::protocol::bedrock::sync_actor_property::SyncActorProperty;
+use crate::protocol::bedrock::take_item_actor::TakeItemActor;
+use crate::protocol::bedrock::text::Text;
 use crate::protocol::bedrock::ticking_areas_load_status::TickingAreasLoadStatus;
 use crate::protocol::bedrock::toast_request::ToastRequest;
+use crate::protocol::bedrock::transfer::Transfer;
 use crate::protocol::bedrock::trim_data::TrimData;
+use crate::protocol::bedrock::unknown::Unknown;
 use crate::protocol::bedrock::unlocked_recipes::UnlockedRecipes;
+use crate::protocol::bedrock::update_abilities::UpdateAbilities;
 use crate::protocol::bedrock::update_adventure_settings::UpdateAdventureSettings;
+use crate::protocol::bedrock::update_attributes::UpdateAttributes;
+use crate::protocol::bedrock::update_block::UpdateBlock;
 use crate::protocol::bedrock::update_block_synced::UpdateBlockSynced;
 use crate::protocol::bedrock::update_client_input_locks::UpdateClientInputLocks;
 use crate::protocol::bedrock::update_client_options::UpdateClientOptions;
+use crate::protocol::bedrock::update_equip::UpdateEquip;
 use crate::protocol::bedrock::update_player_game_type::UpdatePlayerGameType;
 use crate::protocol::bedrock::update_soft_enum::UpdateSoftEnum;
-use crate::protocol::bedrock::unknown::Unknown;
-use crate::protocol::bedrock::update_abilities::UpdateAbilities;
-use crate::protocol::bedrock::update_equip::UpdateEquip;
 use crate::protocol::bedrock::update_sub_chunk_blocks::UpdateSubChunkBlocks;
 use crate::protocol::bedrock::update_trade::UpdateTrade;
+use binary_utils::binary::Stream;
 
 #[repr(u16)]
 pub enum BedrockPacketType {
@@ -319,7 +322,7 @@ pub enum BedrockPacketType {
     IDSetLocalPlayerAsInitialized,
     IDUpdateSoftEnum,
     IDNetworkStackLatency,
-    IDSpawnParticleEvent,
+    IDSpawnParticleEffect,
     IDAvailableActorIdentifiers,
     IDNetworkChunkPublisherUpdate,
     IDBiomeDefinitionList,
@@ -418,7 +421,10 @@ pub enum BedrockPacketType {
     IDPlayerUpdateEntityOverrides,
     IDPlayerLocation,
     IDClientBoundControlSchemeSet,
-    IDServerScriptDebugDrawer,
+    IDDebugDrawer,
+    IDServerBoundPackSettingChange,
+    IDDataStoreSync,
+    IDGraphicsOverrideParameter,
     IDUnknown
 }
 
@@ -532,7 +538,7 @@ impl BedrockPacketType {
             0x71 => BedrockPacketType::IDSetLocalPlayerAsInitialized,
             0x72 => BedrockPacketType::IDUpdateSoftEnum,
             0x73 => BedrockPacketType::IDNetworkStackLatency,
-            0x76 => BedrockPacketType::IDSpawnParticleEvent,
+            0x76 => BedrockPacketType::IDSpawnParticleEffect,
             0x77 => BedrockPacketType::IDAvailableActorIdentifiers,
             0x79 => BedrockPacketType::IDNetworkChunkPublisherUpdate,
             0x7a => BedrockPacketType::IDBiomeDefinitionList,
@@ -631,7 +637,10 @@ impl BedrockPacketType {
             0x145 => BedrockPacketType::IDPlayerUpdateEntityOverrides,
             0x146 => BedrockPacketType::IDPlayerLocation,
             0x147 => BedrockPacketType::IDClientBoundControlSchemeSet,
-            0x148 => BedrockPacketType::IDServerScriptDebugDrawer,
+            0x148 => BedrockPacketType::IDDebugDrawer,
+            0x149 => BedrockPacketType::IDServerBoundPackSettingChange,
+            0x14a => BedrockPacketType::IDDataStoreSync,
+            0x14b => BedrockPacketType::IDGraphicsOverrideParameter,
             _ => BedrockPacketType::IDUnknown,
         }
     }
@@ -744,7 +753,7 @@ impl BedrockPacketType {
             BedrockPacketType::IDSetLocalPlayerAsInitialized => 0x71,
             BedrockPacketType::IDUpdateSoftEnum => 0x72,
             BedrockPacketType::IDNetworkStackLatency => 0x73,
-            BedrockPacketType::IDSpawnParticleEvent => 0x76,
+            BedrockPacketType::IDSpawnParticleEffect => 0x76,
             BedrockPacketType::IDAvailableActorIdentifiers => 0x77,
             BedrockPacketType::IDNetworkChunkPublisherUpdate => 0x79,
             BedrockPacketType::IDBiomeDefinitionList => 0x7a,
@@ -843,7 +852,10 @@ impl BedrockPacketType {
             BedrockPacketType::IDPlayerUpdateEntityOverrides => 0x145,
             BedrockPacketType::IDPlayerLocation => 0x146,
             BedrockPacketType::IDClientBoundControlSchemeSet => 0x147,
-            BedrockPacketType::IDServerScriptDebugDrawer => 0x148,
+            BedrockPacketType::IDDebugDrawer => 0x148,
+            BedrockPacketType::IDServerBoundPackSettingChange => 0x149,
+            BedrockPacketType::IDDataStoreSync => 0x14a,
+            BedrockPacketType::IDGraphicsOverrideParameter => 0x14b,
             _ => 0
         }
     }
@@ -1056,220 +1068,226 @@ impl BedrockPacketType {
             0x146 => "Player Location",
             0x147 => "Client Bound Control Scheme Set",
             0x148 => "Server Script Debug Drawer",
+            0x149 => "Server Bound Pack Setting Change",
+            0x14a => "Data Store Sync",
+            0x14b => "Graphics Override Parameter",
             _ => "Unknown Packet"
         }
     }
 
     pub(crate) fn get_packet_from_id(id: u16, stream: &mut Stream) -> Box<dyn Packet> {
         match id {
-            0x01 => Box::new(Login::decode(stream.get_remaining().unwrap())),
-            0x02 => Box::new(PlayStatus::decode(stream.get_remaining().unwrap())),
-            0x03 => Box::new(ServerToClientHandshake::decode(stream.get_remaining().unwrap())),
-            0x04 => Box::new(ClientToServerHandshake::decode(stream.get_remaining().unwrap())),
-            0x05 => Box::new(Disconnect::decode(stream.get_remaining().unwrap())),
-            0x06 => Box::new(ResourcePacksInfo::decode(stream.get_remaining().unwrap())),
-            0x07 => Box::new(ResourcePackStack::decode(stream.get_remaining().unwrap())),
-            0x08 => Box::new(ResourcePackClientResponse::decode(stream.get_remaining().unwrap())),
-            0x09 => Box::new(Text::decode(stream.get_remaining().unwrap())),
-            0x0a => Box::new(SetTime::decode(stream.get_remaining().unwrap())),
-            0x0b => Box::new(StartGame::decode(stream.get_remaining().unwrap())),
-            0x0c => Box::new(AddPlayer::decode(stream.get_remaining().unwrap())),
-            0x0d => Box::new(AddActor::decode(stream.get_remaining().unwrap())),
-            0x0e => Box::new(RemoveActor::decode(stream.get_remaining().unwrap())),
-            0x0f => Box::new(AddItemActor::decode(stream.get_remaining().unwrap())),
-            0x10 => Box::new(ServerPlayerPostMovePosition::decode(stream.get_remaining().unwrap())),
-            0x11 => Box::new(TakeItemActor::decode(stream.get_remaining().unwrap())),
-            0x12 => Box::new(MoveActorAbsolute::decode(stream.get_remaining().unwrap())),
-            0x13 => Box::new(MovePlayer::decode(stream.get_remaining().unwrap())),
-            0x15 => Box::new(UpdateBlock::decode(stream.get_remaining().unwrap())),
-            0x16 => Box::new(AddPainting::decode(stream.get_remaining().unwrap())),
-            0x19 => Box::new(LevelEvent::decode(stream.get_remaining().unwrap())),
-            0x1a => Box::new(BlockEvent::decode(stream.get_remaining().unwrap())),
-            0x1b => Box::new(ActorEvent::decode(stream.get_remaining().unwrap())),
-            0x1c => Box::new(MobEffect::decode(stream.get_remaining().unwrap())),
-            0x1d => Box::new(UpdateAttributes::decode(stream.get_remaining().unwrap())),
-            0x1e => Box::new(InventoryTransaction::decode(stream.get_remaining().unwrap())),
-            0x1f => Box::new(MobEquipment::decode(stream.get_remaining().unwrap())),
-            0x20 => Box::new(MobArmorEquipment::decode(stream.get_remaining().unwrap())),
-            0x21 => Box::new(Interact::decode(stream.get_remaining().unwrap())),
-            0x22 => Box::new(BlockPickRequest::decode(stream.get_remaining().unwrap())),
-            0x23 => Box::new(ActorPickRequest::decode(stream.get_remaining().unwrap())),
-            0x24 => Box::new(PlayerAction::decode(stream.get_remaining().unwrap())),
-            0x26 => Box::new(HurtArmor::decode(stream.get_remaining().unwrap())),
-            0x27 => Box::new(SetActorData::decode(stream.get_remaining().unwrap())),
-            0x28 => Box::new(SetActorMotion::decode(stream.get_remaining().unwrap())),
-            0x29 => Box::new(SetActorLink::decode(stream.get_remaining().unwrap())),
-            0x2a => Box::new(SetHealth::decode(stream.get_remaining().unwrap())),
-            0x2b => Box::new(SetSpawnPosition::decode(stream.get_remaining().unwrap())),
-            0x2c => Box::new(Animate::decode(stream.get_remaining().unwrap())),
-            0x2d => Box::new(Respawn::decode(stream.get_remaining().unwrap())),
-            0x2e => Box::new(ContainerOpen::decode(stream.get_remaining().unwrap())),
-            0x2f => Box::new(ContainerClose::decode(stream.get_remaining().unwrap())),
-            0x30 => Box::new(PlayerHotbar::decode(stream.get_remaining().unwrap())),
-            0x31 => Box::new(InventoryContent::decode(stream.get_remaining().unwrap())),
-            0x32 => Box::new(InventorySlot::decode(stream.get_remaining().unwrap())),
-            0x33 => Box::new(ContainerSetData::decode(stream.get_remaining().unwrap())),
-            0x34 => Box::new(CraftingData::decode(stream.get_remaining().unwrap())),
-            0x36 => Box::new(GUIDataPickItem::decode(stream.get_remaining().unwrap())),
-            0x38 => Box::new(BlockActorData::decode(stream.get_remaining().unwrap())),
-            0x3a => Box::new(LevelChunk::decode(stream.get_remaining().unwrap())),
-            0x3b => Box::new(SetCommandsEnabled::decode(stream.get_remaining().unwrap())),
-            0x3c => Box::new(SetDifficulty::decode(stream.get_remaining().unwrap())),
-            0x3d => Box::new(ChangeDimension::decode(stream.get_remaining().unwrap())),
-            0x3e => Box::new(SetPlayerGameType::decode(stream.get_remaining().unwrap())),
-            0x3f => Box::new(PlayerList::decode(stream.get_remaining().unwrap())),
-            0x40 => Box::new(SimpleEvent::decode(stream.get_remaining().unwrap())),
-            0x41 => Box::new(LegacyTelemetryEvent::decode(stream.get_remaining().unwrap())),
-            0x42 => Box::new(SpawnExperienceOrb::decode(stream.get_remaining().unwrap())),
-            0x43 => Box::new(ClientBoundMapItemData::decode(stream.get_remaining().unwrap())),
-            0x44 => Box::new(MapInfoRequest::decode(stream.get_remaining().unwrap())),
-            0x45 => Box::new(RequestChunkRadius::decode(stream.get_remaining().unwrap())),
-            0x46 => Box::new(ChunkRadiusUpdated::decode(stream.get_remaining().unwrap())),
-            0x48 => Box::new(GameRulesChanged::decode(stream.get_remaining().unwrap())),
-            0x49 => Box::new(Camera::decode(stream.get_remaining().unwrap())),
-            0x4a => Box::new(BossEvent::decode(stream.get_remaining().unwrap())),
-            0x4b => Box::new(ShowCredits::decode(stream.get_remaining().unwrap())),
-            0x4c => Box::new(AvailableCommands::decode(stream.get_remaining().unwrap())),
-            0x4d => Box::new(CommandRequest::decode(stream.get_remaining().unwrap())),
-            0x4e => Box::new(CommandBlockUpdate::decode(stream.get_remaining().unwrap())),
-            0x4f => Box::new(CommandOutput::decode(stream.get_remaining().unwrap())),
-            0x50 => Box::new(UpdateTrade::decode(stream.get_remaining().unwrap())),
-            0x51 => Box::new(UpdateEquip::decode(stream.get_remaining().unwrap())),
-            0x52 => Box::new(ResourcePackDataInfo::decode(stream.get_remaining().unwrap())),
-            0x53 => Box::new(ResourcePackChunkData::decode(stream.get_remaining().unwrap())),
-            0x54 => Box::new(ResourcePackChunkRequest::decode(stream.get_remaining().unwrap())),
-            0x55 => Box::new(Transfer::decode(stream.get_remaining().unwrap())),
-            0x56 => Box::new(PlaySound::decode(stream.get_remaining().unwrap())),
-            0x57 => Box::new(StopSound::decode(stream.get_remaining().unwrap())),
-            0x58 => Box::new(SetTitle::decode(stream.get_remaining().unwrap())),
-            0x59 => Box::new(AddBehaviorTree::decode(stream.get_remaining().unwrap())),
-            0x5a => Box::new(StructureBlockUpdate::decode(stream.get_remaining().unwrap())),
-            0x5b => Box::new(ShowStoreOffer::decode(stream.get_remaining().unwrap())),
-            0x5c => Box::new(PurchaseReceipt::decode(stream.get_remaining().unwrap())),
-            0x5d => Box::new(PlayerSkin::decode(stream.get_remaining().unwrap())),
-            0x5e => Box::new(SubClientLogin::decode(stream.get_remaining().unwrap())),
-            0x5f => Box::new(AutomationClientConnect::decode(stream.get_remaining().unwrap())),
-            0x60 => Box::new(SetLastHurtBy::decode(stream.get_remaining().unwrap())),
-            0x61 => Box::new(BookEdit::decode(stream.get_remaining().unwrap())),
-            0x62 => Box::new(NPCRequest::decode(stream.get_remaining().unwrap())),
-            0x63 => Box::new(PhotoTransfer::decode(stream.get_remaining().unwrap())),
-            0x64 => Box::new(ModalFormRequest::decode(stream.get_remaining().unwrap())),
-            0x65 => Box::new(ModalFormResponse::decode(stream.get_remaining().unwrap())),
-            0x66 => Box::new(ServerSettingsRequest::decode(stream.get_remaining().unwrap())),
-            0x67 => Box::new(ServerSettingsResponse::decode(stream.get_remaining().unwrap())),
-            0x68 => Box::new(ShowProfile::decode(stream.get_remaining().unwrap())),
-            0x69 => Box::new(SetDefaultGameType::decode(stream.get_remaining().unwrap())),
-            0x6a => Box::new(RemoveObjective::decode(stream.get_remaining().unwrap())),
-            0x6b => Box::new(SetDisplayObjective::decode(stream.get_remaining().unwrap())),
-            0x6c => Box::new(SetScore::decode(stream.get_remaining().unwrap())),
-            0x6d => Box::new(LabTable::decode(stream.get_remaining().unwrap())),
-            0x6e => Box::new(UpdateBlockSynced::decode(stream.get_remaining().unwrap())),
-            0x6f => Box::new(MoveActorDelta::decode(stream.get_remaining().unwrap())),
-            0x70 => Box::new(SetScoreboardIdentity::decode(stream.get_remaining().unwrap())),
-            0x71 => Box::new(SetLocalPlayerAsInitializedPacket::decode(stream.get_remaining().unwrap())),
-            0x72 => Box::new(UpdateSoftEnum::decode(stream.get_remaining().unwrap())),
-            0x73 => Box::new(NetworkStackLatency::decode(stream.get_remaining().unwrap())),
-            0x76 => Box::new(SpawnParticleEvent::decode(stream.get_remaining().unwrap())),
-            0x77 => Box::new(AvailableActorIdentifiers::decode(stream.get_remaining().unwrap())),
-            0x79 => Box::new(NetworkChunkPublisherUpdate::decode(stream.get_remaining().unwrap())),
-            0x7a => Box::new(BiomeDefinitionList::decode(stream.get_remaining().unwrap())),
-            0x7b => Box::new(LevelSoundEvent::decode(stream.get_remaining().unwrap())),
-            0x7c => Box::new(LevelEventGeneric::decode(stream.get_remaining().unwrap())),
-            0x7d => Box::new(LecternUpdate::decode(stream.get_remaining().unwrap())),
-            0x81 => Box::new(ClientCacheStatus::decode(stream.get_remaining().unwrap())),
-            0x82 => Box::new(OnScreenTextureAnimation::decode(stream.get_remaining().unwrap())),
-            0x83 => Box::new(MapCreateLockedCopy::decode(stream.get_remaining().unwrap())),
-            0x84 => Box::new(StructureTemplateDataRequest::decode(stream.get_remaining().unwrap())),
-            0x85 => Box::new(StructureTemplateDataResponse::decode(stream.get_remaining().unwrap())),
-            0x87 => Box::new(ClientCacheBlobStatus::decode(stream.get_remaining().unwrap())),
-            0x88 => Box::new(ClientCacheMissResponse::decode(stream.get_remaining().unwrap())),
-            0x89 => Box::new(EducationSettings::decode(stream.get_remaining().unwrap())),
-            0x8a => Box::new(Emote::decode(stream.get_remaining().unwrap())),
-            0x8b => Box::new(MultiplayerSettings::decode(stream.get_remaining().unwrap())),
-            0x8c => Box::new(SettingsCommand::decode(stream.get_remaining().unwrap())),
-            0x8d => Box::new(AnvilDamage::decode(stream.get_remaining().unwrap())),
-            0x8e => Box::new(CompletedUsingItem::decode(stream.get_remaining().unwrap())),
-            0x8f => Box::new(NetworkSettings::decode(stream.get_remaining().unwrap())),
-            0x90 => Box::new(PlayerAuthInput::decode(stream.get_remaining().unwrap())),
-            0x91 => Box::new(CreativeContent::decode(stream.get_remaining().unwrap())),
-            0x92 => Box::new(PlayerEnchantOptions::decode(stream.get_remaining().unwrap())),
-            0x93 => Box::new(ItemStackRequest::decode(stream.get_remaining().unwrap())),
-            0x94 => Box::new(ItemStackResponse::decode(stream.get_remaining().unwrap())),
-            0x95 => Box::new(PlayerArmorDamage::decode(stream.get_remaining().unwrap())),
-            0x96 => Box::new(CodeBuilder::decode(stream.get_remaining().unwrap())),
-            0x97 => Box::new(UpdatePlayerGameType::decode(stream.get_remaining().unwrap())),
-            0x98 => Box::new(EmoteList::decode(stream.get_remaining().unwrap())),
-            0x99 => Box::new(PositionTrackingDBServerBroadcast::decode(stream.get_remaining().unwrap())),
-            0x9a => Box::new(PositionTrackingDBClientRequest::decode(stream.get_remaining().unwrap())),
-            0x9b => Box::new(DebugInfo::decode(stream.get_remaining().unwrap())),
-            0x9c => Box::new(PacketViolationWarning::decode(stream.get_remaining().unwrap())),
-            0x9d => Box::new(MotionPredictionHints::decode(stream.get_remaining().unwrap())),
-            0x9e => Box::new(AnimateEntity::decode(stream.get_remaining().unwrap())),
-            0x9f => Box::new(CameraShake::decode(stream.get_remaining().unwrap())),
-            0xa0 => Box::new(PlayerFog::decode(stream.get_remaining().unwrap())),
-            0xa1 => Box::new(CorrectPlayerMovePrediction::decode(stream.get_remaining().unwrap())),
-            0xa2 => Box::new(ItemRegistry::decode(stream.get_remaining().unwrap())),
-            0xa4 => Box::new(ClientBoundDebugRenderer::decode(stream.get_remaining().unwrap())),
-            0xa5 => Box::new(SyncActorProperty::decode(stream.get_remaining().unwrap())),
-            0xa6 => Box::new(AddVolumeEntity::decode(stream.get_remaining().unwrap())),
-            0xa7 => Box::new(RemoveVolumeEntity::decode(stream.get_remaining().unwrap())),
-            0xa8 => Box::new(SimulationType::decode(stream.get_remaining().unwrap())),
-            0xa9 => Box::new(NPCDialogue::decode(stream.get_remaining().unwrap())),
-            0xaa => Box::new(EduUriResource::decode(stream.get_remaining().unwrap())),
-            0xab => Box::new(CreatePhoto::decode(stream.get_remaining().unwrap())),
-            0xac => Box::new(UpdateSubChunkBlocks::decode(stream.get_remaining().unwrap())),
-            0xae => Box::new(SubChunk::decode(stream.get_remaining().unwrap())),
-            0xaf => Box::new(SubChunkRequest::decode(stream.get_remaining().unwrap())),
-            0xb0 => Box::new(PlayerStartItemCooldown::decode(stream.get_remaining().unwrap())),
-            0xb1 => Box::new(ScriptMessage::decode(stream.get_remaining().unwrap())),
-            0xb2 => Box::new(CodeBuilderSource::decode(stream.get_remaining().unwrap())),
-            0xb3 => Box::new(TickingAreasLoadStatus::decode(stream.get_remaining().unwrap())),
-            0xb4 => Box::new(DimensionData::decode(stream.get_remaining().unwrap())),
-            0xb5 => Box::new(AgentActionEvent::decode(stream.get_remaining().unwrap())),
-            0xb6 => Box::new(ChangeMobProperty::decode(stream.get_remaining().unwrap())),
-            0xb7 => Box::new(LessonProgress::decode(stream.get_remaining().unwrap())),
-            0xb8 => Box::new(RequestAbility::decode(stream.get_remaining().unwrap())),
-            0xb9 => Box::new(RequestPermissions::decode(stream.get_remaining().unwrap())),
-            0xba => Box::new(ToastRequest::decode(stream.get_remaining().unwrap())),
-            0xbb => Box::new(UpdateAbilities::decode(stream.get_remaining().unwrap())),
-            0xbc => Box::new(UpdateAdventureSettings::decode(stream.get_remaining().unwrap())),
-            0xbd => Box::new(DeathInfo::decode(stream.get_remaining().unwrap())),
-            0xbe => Box::new(EditorNetwork::decode(stream.get_remaining().unwrap())),
-            0xbf => Box::new(FeatureRegistry::decode(stream.get_remaining().unwrap())),
-            0xc0 => Box::new(ServerStats::decode(stream.get_remaining().unwrap())),
-            0xc1 => Box::new(RequestNetworkSettings::decode(stream.get_remaining().unwrap())),
-            0xc2 => Box::new(GameTestRequest::decode(stream.get_remaining().unwrap())),
-            0xc3 => Box::new(GameTestResults::decode(stream.get_remaining().unwrap())),
-            0xc4 => Box::new(UpdateClientInputLocks::decode(stream.get_remaining().unwrap())),
-            0xc6 => Box::new(CameraPresets::decode(stream.get_remaining().unwrap())),
-            0xc7 => Box::new(UnlockedRecipes::decode(stream.get_remaining().unwrap())),
-            0x12c => Box::new(CameraInstruction::decode(stream.get_remaining().unwrap())),
-            0x12e => Box::new(TrimData::decode(stream.get_remaining().unwrap())),
-            0x12f => Box::new(OpenSign::decode(stream.get_remaining().unwrap())),
-            0x130 => Box::new(AgentAnimation::decode(stream.get_remaining().unwrap())),
-            0x131 => Box::new(RefreshEntitlements::decode(stream.get_remaining().unwrap())),
-            0x132 => Box::new(PlayerToggleCrafterSlotRequest::decode(stream.get_remaining().unwrap())),
-            0x133 => Box::new(SetPlayerInventoryOptions::decode(stream.get_remaining().unwrap())),
-            0x134 => Box::new(SetHud::decode(stream.get_remaining().unwrap())),
-            0x135 => Box::new(AwardAchievement::decode(stream.get_remaining().unwrap())),
-            0x136 => Box::new(ClientBoundCloseForm::decode(stream.get_remaining().unwrap())),
-            0x138 => Box::new(ServerBoundLoadingScreen::decode(stream.get_remaining().unwrap())),
-            0x139 => Box::new(JigsawStructureData::decode(stream.get_remaining().unwrap())),
-            0x13a => Box::new(CurrentStructureFeature::decode(stream.get_remaining().unwrap())),
-            0x13b => Box::new(ServerBoundDiagnostics::decode(stream.get_remaining().unwrap())),
-            0x13c => Box::new(CameraAimAssist::decode(stream.get_remaining().unwrap())),
-            0x13d => Box::new(ContainerRegistryCleanup::decode(stream.get_remaining().unwrap())),
-            0x13e => Box::new(MovementEffect::decode(stream.get_remaining().unwrap())),
-            0x140 => Box::new(CameraAimAssistPresets::decode(stream.get_remaining().unwrap())),
-            0x141 => Box::new(ClientCameraAimAssist::decode(stream.get_remaining().unwrap())),
-            0x142 => Box::new(ClientMovementPredictionSync::decode(stream.get_remaining().unwrap())),
-            0x143 => Box::new(UpdateClientOptions::decode(stream.get_remaining().unwrap())),
-            0x144 => Box::new(PlayerVideoCapture::decode(stream.get_remaining().unwrap())),
-            0x145 => Box::new(PlayerUpdateEntityOverrides::decode(stream.get_remaining().unwrap())),
-            0x146 => Box::new(PlayerLocation::decode(stream.get_remaining().unwrap())),
-            0x147 => Box::new(ClientBoundControlSchemeSet::decode(stream.get_remaining().unwrap())),
-            0x148 => Box::new(ServerScriptDebugDrawer::decode(stream.get_remaining().unwrap())),
-            _ => Box::new(Unknown::decode(stream.get_remaining().unwrap())),
+            0x01 => Box::new(Login::decode(stream.get_remaining())),
+            0x02 => Box::new(PlayStatus::decode(stream.get_remaining())),
+            0x03 => Box::new(ServerToClientHandshake::decode(stream.get_remaining())),
+            0x04 => Box::new(ClientToServerHandshake::decode(stream.get_remaining())),
+            0x05 => Box::new(Disconnect::decode(stream.get_remaining())),
+            0x06 => Box::new(ResourcePacksInfo::decode(stream.get_remaining())),
+            0x07 => Box::new(ResourcePackStack::decode(stream.get_remaining())),
+            0x08 => Box::new(ResourcePackClientResponse::decode(stream.get_remaining())),
+            0x09 => Box::new(Text::decode(stream.get_remaining())),
+            0x0a => Box::new(SetTime::decode(stream.get_remaining())),
+            0x0b => Box::new(StartGame::decode(stream.get_remaining())),
+            0x0c => Box::new(AddPlayer::decode(stream.get_remaining())),
+            0x0d => Box::new(AddActor::decode(stream.get_remaining())),
+            0x0e => Box::new(RemoveActor::decode(stream.get_remaining())),
+            0x0f => Box::new(AddItemActor::decode(stream.get_remaining())),
+            0x10 => Box::new(ServerPlayerPostMovePosition::decode(stream.get_remaining())),
+            0x11 => Box::new(TakeItemActor::decode(stream.get_remaining())),
+            0x12 => Box::new(MoveActorAbsolute::decode(stream.get_remaining())),
+            0x13 => Box::new(MovePlayer::decode(stream.get_remaining())),
+            0x15 => Box::new(UpdateBlock::decode(stream.get_remaining())),
+            0x16 => Box::new(AddPainting::decode(stream.get_remaining())),
+            0x19 => Box::new(LevelEvent::decode(stream.get_remaining())),
+            0x1a => Box::new(BlockEvent::decode(stream.get_remaining())),
+            0x1b => Box::new(ActorEvent::decode(stream.get_remaining())),
+            0x1c => Box::new(MobEffect::decode(stream.get_remaining())),
+            0x1d => Box::new(UpdateAttributes::decode(stream.get_remaining())),
+            0x1e => Box::new(InventoryTransaction::decode(stream.get_remaining())),
+            0x1f => Box::new(MobEquipment::decode(stream.get_remaining())),
+            0x20 => Box::new(MobArmorEquipment::decode(stream.get_remaining())),
+            0x21 => Box::new(Interact::decode(stream.get_remaining())),
+            0x22 => Box::new(BlockPickRequest::decode(stream.get_remaining())),
+            0x23 => Box::new(ActorPickRequest::decode(stream.get_remaining())),
+            0x24 => Box::new(PlayerAction::decode(stream.get_remaining())),
+            0x26 => Box::new(HurtArmor::decode(stream.get_remaining())),
+            0x27 => Box::new(SetActorData::decode(stream.get_remaining())),
+            0x28 => Box::new(SetActorMotion::decode(stream.get_remaining())),
+            0x29 => Box::new(SetActorLink::decode(stream.get_remaining())),
+            0x2a => Box::new(SetHealth::decode(stream.get_remaining())),
+            0x2b => Box::new(SetSpawnPosition::decode(stream.get_remaining())),
+            0x2c => Box::new(Animate::decode(stream.get_remaining())),
+            0x2d => Box::new(Respawn::decode(stream.get_remaining())),
+            0x2e => Box::new(ContainerOpen::decode(stream.get_remaining())),
+            0x2f => Box::new(ContainerClose::decode(stream.get_remaining())),
+            0x30 => Box::new(PlayerHotbar::decode(stream.get_remaining())),
+            0x31 => Box::new(InventoryContent::decode(stream.get_remaining())),
+            0x32 => Box::new(InventorySlot::decode(stream.get_remaining())),
+            0x33 => Box::new(ContainerSetData::decode(stream.get_remaining())),
+            0x34 => Box::new(CraftingData::decode(stream.get_remaining())),
+            0x36 => Box::new(GUIDataPickItem::decode(stream.get_remaining())),
+            0x38 => Box::new(BlockActorData::decode(stream.get_remaining())),
+            0x3a => Box::new(LevelChunk::decode(stream.get_remaining())),
+            0x3b => Box::new(SetCommandsEnabled::decode(stream.get_remaining())),
+            0x3c => Box::new(SetDifficulty::decode(stream.get_remaining())),
+            0x3d => Box::new(ChangeDimension::decode(stream.get_remaining())),
+            0x3e => Box::new(SetPlayerGameType::decode(stream.get_remaining())),
+            0x3f => Box::new(PlayerList::decode(stream.get_remaining())),
+            0x40 => Box::new(SimpleEvent::decode(stream.get_remaining())),
+            0x41 => Box::new(LegacyTelemetryEvent::decode(stream.get_remaining())),
+            0x42 => Box::new(SpawnExperienceOrb::decode(stream.get_remaining())),
+            0x43 => Box::new(ClientBoundMapItemData::decode(stream.get_remaining())),
+            0x44 => Box::new(MapInfoRequest::decode(stream.get_remaining())),
+            0x45 => Box::new(RequestChunkRadius::decode(stream.get_remaining())),
+            0x46 => Box::new(ChunkRadiusUpdated::decode(stream.get_remaining())),
+            0x48 => Box::new(GameRulesChanged::decode(stream.get_remaining())),
+            0x49 => Box::new(Camera::decode(stream.get_remaining())),
+            0x4a => Box::new(BossEvent::decode(stream.get_remaining())),
+            0x4b => Box::new(ShowCredits::decode(stream.get_remaining())),
+            0x4c => Box::new(AvailableCommands::decode(stream.get_remaining())),
+            0x4d => Box::new(CommandRequest::decode(stream.get_remaining())),
+            0x4e => Box::new(CommandBlockUpdate::decode(stream.get_remaining())),
+            0x4f => Box::new(CommandOutput::decode(stream.get_remaining())),
+            0x50 => Box::new(UpdateTrade::decode(stream.get_remaining())),
+            0x51 => Box::new(UpdateEquip::decode(stream.get_remaining())),
+            0x52 => Box::new(ResourcePackDataInfo::decode(stream.get_remaining())),
+            0x53 => Box::new(ResourcePackChunkData::decode(stream.get_remaining())),
+            0x54 => Box::new(ResourcePackChunkRequest::decode(stream.get_remaining())),
+            0x55 => Box::new(Transfer::decode(stream.get_remaining())),
+            0x56 => Box::new(PlaySound::decode(stream.get_remaining())),
+            0x57 => Box::new(StopSound::decode(stream.get_remaining())),
+            0x58 => Box::new(SetTitle::decode(stream.get_remaining())),
+            0x59 => Box::new(AddBehaviorTree::decode(stream.get_remaining())),
+            0x5a => Box::new(StructureBlockUpdate::decode(stream.get_remaining())),
+            0x5b => Box::new(ShowStoreOffer::decode(stream.get_remaining())),
+            0x5c => Box::new(PurchaseReceipt::decode(stream.get_remaining())),
+            0x5d => Box::new(PlayerSkin::decode(stream.get_remaining())),
+            0x5e => Box::new(SubClientLogin::decode(stream.get_remaining())),
+            0x5f => Box::new(AutomationClientConnect::decode(stream.get_remaining())),
+            0x60 => Box::new(SetLastHurtBy::decode(stream.get_remaining())),
+            0x61 => Box::new(BookEdit::decode(stream.get_remaining())),
+            0x62 => Box::new(NPCRequest::decode(stream.get_remaining())),
+            0x63 => Box::new(PhotoTransfer::decode(stream.get_remaining())),
+            0x64 => Box::new(ModalFormRequest::decode(stream.get_remaining())),
+            0x65 => Box::new(ModalFormResponse::decode(stream.get_remaining())),
+            0x66 => Box::new(ServerSettingsRequest::decode(stream.get_remaining())),
+            0x67 => Box::new(ServerSettingsResponse::decode(stream.get_remaining())),
+            0x68 => Box::new(ShowProfile::decode(stream.get_remaining())),
+            0x69 => Box::new(SetDefaultGameType::decode(stream.get_remaining())),
+            0x6a => Box::new(RemoveObjective::decode(stream.get_remaining())),
+            0x6b => Box::new(SetDisplayObjective::decode(stream.get_remaining())),
+            0x6c => Box::new(SetScore::decode(stream.get_remaining())),
+            0x6d => Box::new(LabTable::decode(stream.get_remaining())),
+            0x6e => Box::new(UpdateBlockSynced::decode(stream.get_remaining())),
+            0x6f => Box::new(MoveActorDelta::decode(stream.get_remaining())),
+            0x70 => Box::new(SetScoreboardIdentity::decode(stream.get_remaining())),
+            0x71 => Box::new(SetLocalPlayerAsInitializedPacket::decode(stream.get_remaining())),
+            0x72 => Box::new(UpdateSoftEnum::decode(stream.get_remaining())),
+            0x73 => Box::new(NetworkStackLatency::decode(stream.get_remaining())),
+            0x76 => Box::new(SpawnParticleEffect::decode(stream.get_remaining())),
+            0x77 => Box::new(AvailableActorIdentifiers::decode(stream.get_remaining())),
+            0x79 => Box::new(NetworkChunkPublisherUpdate::decode(stream.get_remaining())),
+            0x7a => Box::new(BiomeDefinitionList::decode(stream.get_remaining())),
+            0x7b => Box::new(LevelSoundEvent::decode(stream.get_remaining())),
+            0x7c => Box::new(LevelEventGeneric::decode(stream.get_remaining())),
+            0x7d => Box::new(LecternUpdate::decode(stream.get_remaining())),
+            0x81 => Box::new(ClientCacheStatus::decode(stream.get_remaining())),
+            0x82 => Box::new(OnScreenTextureAnimation::decode(stream.get_remaining())),
+            0x83 => Box::new(MapCreateLockedCopy::decode(stream.get_remaining())),
+            0x84 => Box::new(StructureTemplateDataRequest::decode(stream.get_remaining())),
+            0x85 => Box::new(StructureTemplateDataResponse::decode(stream.get_remaining())),
+            0x87 => Box::new(ClientCacheBlobStatus::decode(stream.get_remaining())),
+            0x88 => Box::new(ClientCacheMissResponse::decode(stream.get_remaining())),
+            0x89 => Box::new(EducationSettings::decode(stream.get_remaining())),
+            0x8a => Box::new(Emote::decode(stream.get_remaining())),
+            0x8b => Box::new(MultiplayerSettings::decode(stream.get_remaining())),
+            0x8c => Box::new(SettingsCommand::decode(stream.get_remaining())),
+            0x8d => Box::new(AnvilDamage::decode(stream.get_remaining())),
+            0x8e => Box::new(CompletedUsingItem::decode(stream.get_remaining())),
+            0x8f => Box::new(NetworkSettings::decode(stream.get_remaining())),
+            0x90 => Box::new(PlayerAuthInput::decode(stream.get_remaining())),
+            0x91 => Box::new(CreativeContent::decode(stream.get_remaining())),
+            0x92 => Box::new(PlayerEnchantOptions::decode(stream.get_remaining())),
+            0x93 => Box::new(ItemStackRequest::decode(stream.get_remaining())),
+            0x94 => Box::new(ItemStackResponse::decode(stream.get_remaining())),
+            0x95 => Box::new(PlayerArmorDamage::decode(stream.get_remaining())),
+            0x96 => Box::new(CodeBuilder::decode(stream.get_remaining())),
+            0x97 => Box::new(UpdatePlayerGameType::decode(stream.get_remaining())),
+            0x98 => Box::new(EmoteList::decode(stream.get_remaining())),
+            0x99 => Box::new(PositionTrackingDBServerBroadcast::decode(stream.get_remaining())),
+            0x9a => Box::new(PositionTrackingDBClientRequest::decode(stream.get_remaining())),
+            0x9b => Box::new(DebugInfo::decode(stream.get_remaining())),
+            0x9c => Box::new(PacketViolationWarning::decode(stream.get_remaining())),
+            0x9d => Box::new(MotionPredictionHints::decode(stream.get_remaining())),
+            0x9e => Box::new(AnimateEntity::decode(stream.get_remaining())),
+            0x9f => Box::new(CameraShake::decode(stream.get_remaining())),
+            0xa0 => Box::new(PlayerFog::decode(stream.get_remaining())),
+            0xa1 => Box::new(CorrectPlayerMovePrediction::decode(stream.get_remaining())),
+            0xa2 => Box::new(ItemRegistry::decode(stream.get_remaining())),
+            0xa4 => Box::new(ClientBoundDebugRenderer::decode(stream.get_remaining())),
+            0xa5 => Box::new(SyncActorProperty::decode(stream.get_remaining())),
+            0xa6 => Box::new(AddVolumeEntity::decode(stream.get_remaining())),
+            0xa7 => Box::new(RemoveVolumeEntity::decode(stream.get_remaining())),
+            0xa8 => Box::new(SimulationType::decode(stream.get_remaining())),
+            0xa9 => Box::new(NPCDialogue::decode(stream.get_remaining())),
+            0xaa => Box::new(EduUriResource::decode(stream.get_remaining())),
+            0xab => Box::new(CreatePhoto::decode(stream.get_remaining())),
+            0xac => Box::new(UpdateSubChunkBlocks::decode(stream.get_remaining())),
+            0xae => Box::new(SubChunk::decode(stream.get_remaining())),
+            0xaf => Box::new(SubChunkRequest::decode(stream.get_remaining())),
+            0xb0 => Box::new(PlayerStartItemCooldown::decode(stream.get_remaining())),
+            0xb1 => Box::new(ScriptMessage::decode(stream.get_remaining())),
+            0xb2 => Box::new(CodeBuilderSource::decode(stream.get_remaining())),
+            0xb3 => Box::new(TickingAreasLoadStatus::decode(stream.get_remaining())),
+            0xb4 => Box::new(DimensionData::decode(stream.get_remaining())),
+            0xb5 => Box::new(AgentActionEvent::decode(stream.get_remaining())),
+            0xb6 => Box::new(ChangeMobProperty::decode(stream.get_remaining())),
+            0xb7 => Box::new(LessonProgress::decode(stream.get_remaining())),
+            0xb8 => Box::new(RequestAbility::decode(stream.get_remaining())),
+            0xb9 => Box::new(RequestPermissions::decode(stream.get_remaining())),
+            0xba => Box::new(ToastRequest::decode(stream.get_remaining())),
+            0xbb => Box::new(UpdateAbilities::decode(stream.get_remaining())),
+            0xbc => Box::new(UpdateAdventureSettings::decode(stream.get_remaining())),
+            0xbd => Box::new(DeathInfo::decode(stream.get_remaining())),
+            0xbe => Box::new(EditorNetwork::decode(stream.get_remaining())),
+            0xbf => Box::new(FeatureRegistry::decode(stream.get_remaining())),
+            0xc0 => Box::new(ServerStats::decode(stream.get_remaining())),
+            0xc1 => Box::new(RequestNetworkSettings::decode(stream.get_remaining())),
+            0xc2 => Box::new(GameTestRequest::decode(stream.get_remaining())),
+            0xc3 => Box::new(GameTestResults::decode(stream.get_remaining())),
+            0xc4 => Box::new(UpdateClientInputLocks::decode(stream.get_remaining())),
+            0xc6 => Box::new(CameraPresets::decode(stream.get_remaining())),
+            0xc7 => Box::new(UnlockedRecipes::decode(stream.get_remaining())),
+            0x12c => Box::new(CameraInstruction::decode(stream.get_remaining())),
+            0x12e => Box::new(TrimData::decode(stream.get_remaining())),
+            0x12f => Box::new(OpenSign::decode(stream.get_remaining())),
+            0x130 => Box::new(AgentAnimation::decode(stream.get_remaining())),
+            0x131 => Box::new(RefreshEntitlements::decode(stream.get_remaining())),
+            0x132 => Box::new(PlayerToggleCrafterSlotRequest::decode(stream.get_remaining())),
+            0x133 => Box::new(SetPlayerInventoryOptions::decode(stream.get_remaining())),
+            0x134 => Box::new(SetHud::decode(stream.get_remaining())),
+            0x135 => Box::new(AwardAchievement::decode(stream.get_remaining())),
+            0x136 => Box::new(ClientBoundCloseForm::decode(stream.get_remaining())),
+            0x138 => Box::new(ServerBoundLoadingScreen::decode(stream.get_remaining())),
+            0x139 => Box::new(JigsawStructureData::decode(stream.get_remaining())),
+            0x13a => Box::new(CurrentStructureFeature::decode(stream.get_remaining())),
+            0x13b => Box::new(ServerBoundDiagnostics::decode(stream.get_remaining())),
+            0x13c => Box::new(CameraAimAssist::decode(stream.get_remaining())),
+            0x13d => Box::new(ContainerRegistryCleanup::decode(stream.get_remaining())),
+            0x13e => Box::new(MovementEffect::decode(stream.get_remaining())),
+            0x140 => Box::new(CameraAimAssistPresets::decode(stream.get_remaining())),
+            0x141 => Box::new(ClientCameraAimAssist::decode(stream.get_remaining())),
+            0x142 => Box::new(ClientMovementPredictionSync::decode(stream.get_remaining())),
+            0x143 => Box::new(UpdateClientOptions::decode(stream.get_remaining())),
+            0x144 => Box::new(PlayerVideoCapture::decode(stream.get_remaining())),
+            0x145 => Box::new(PlayerUpdateEntityOverrides::decode(stream.get_remaining())),
+            0x146 => Box::new(PlayerLocation::decode(stream.get_remaining())),
+            0x147 => Box::new(ClientBoundControlSchemeSet::decode(stream.get_remaining())),
+            0x148 => Box::new(DebugDrawer::decode(stream.get_remaining())),
+            0x149 => Box::new(ServerBoundPackSettingChange::decode(stream.get_remaining())),
+            0x14a => Box::new(DataStoreSync::decode(stream.get_remaining())),
+            0x14b => Box::new(GraphicsOverrideParameter::decode(stream.get_remaining())),
+            _ => Box::new(Unknown::decode(stream.get_remaining())),
         }
     }
 }

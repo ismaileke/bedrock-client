@@ -2,11 +2,11 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct BiomeMultinoiseGenRulesData {
-    temperature: f32,
-    humidity: f32,
-    altitude: f32,
-    weirdness: f32,
-    weight: f32
+    pub temperature: f32,
+    pub humidity: f32,
+    pub altitude: f32,
+    pub weirdness: f32,
+    pub weight: f32
 }
 
 impl BiomeMultinoiseGenRulesData {
@@ -15,20 +15,20 @@ impl BiomeMultinoiseGenRulesData {
     }
 
     pub fn read(stream: &mut Stream) -> BiomeMultinoiseGenRulesData {
-        let temperature = stream.get_l_float();
-        let humidity = stream.get_l_float();
-        let altitude = stream.get_l_float();
-        let weirdness = stream.get_l_float();
-        let weight = stream.get_l_float();
+        let temperature = stream.get_f32_le();
+        let humidity = stream.get_f32_le();
+        let altitude = stream.get_f32_le();
+        let weirdness = stream.get_f32_le();
+        let weight = stream.get_f32_le();
 
         BiomeMultinoiseGenRulesData::new(temperature, humidity, altitude, weirdness, weight)
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_l_float(self.temperature);
-        stream.put_l_float(self.humidity);
-        stream.put_l_float(self.altitude);
-        stream.put_l_float(self.weirdness);
-        stream.put_l_float(self.weight);
+        stream.put_f32_le(self.temperature);
+        stream.put_f32_le(self.humidity);
+        stream.put_f32_le(self.altitude);
+        stream.put_f32_le(self.weirdness);
+        stream.put_f32_le(self.weight);
     }
 }

@@ -8,7 +8,7 @@ pub struct PlayerMovementSettings {
 
 impl PlayerMovementSettings {
     pub fn read(stream: &mut Stream) -> PlayerMovementSettings {
-        let rewind_history_size = stream.get_var_int();
+        let rewind_history_size = stream.get_var_i32();
         let server_auth_block_breaking = stream.get_bool();
 
         PlayerMovementSettings{ rewind_history_size, server_auth_block_breaking }

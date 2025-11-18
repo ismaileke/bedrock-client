@@ -28,33 +28,33 @@ impl Packet for CreativeContent {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_unsigned_var_int(self.groups.len() as u32);
+        stream.put_var_u32(self.groups.len() as u32);
         for group in &self.groups {
             group.write(&mut stream);
         }
-        stream.put_unsigned_var_int(self.items.len() as u32);
+        stream.put_var_u32(self.items.len() as u32);
         for item in &self.items {
             item.write(&mut stream);
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> CreativeContent {
         let mut stream = Stream::new(bytes, 0);
 
-        let groups_count = stream.get_unsigned_var_int() as usize;
+        let groups_count = stream.get_var_u32() as usize;
         let mut groups = Vec::new();
         for _ in 0..groups_count {
             groups.push(CreativeGroupEntry::read(&mut stream));
         }
-        let items_count = stream.get_unsigned_var_int() as usize;
+        let items_count = stream.get_var_u32() as usize;
         let mut items = Vec::new();
         for _ in 0..items_count {
             items.push(CreativeItemEntry::read(&mut stream));

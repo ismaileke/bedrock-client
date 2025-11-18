@@ -4,20 +4,20 @@ use crate::protocol::bedrock::types::recipe::item_descriptor_type::ItemDescripto
 
 #[derive(Debug)]
 pub struct IntIdMetaItemDescriptor {
-    id: u16,
-    meta: u16
+    id: i16,
+    meta: i16
 }
 
 impl IntIdMetaItemDescriptor {
-    pub fn new(id: u16, meta: u16) -> IntIdMetaItemDescriptor {
+    pub fn new(id: i16, meta: i16) -> IntIdMetaItemDescriptor {
         IntIdMetaItemDescriptor{ id, meta }
     }
 
     pub fn read(stream: &mut Stream) -> IntIdMetaItemDescriptor {
-        let id = stream.get_l_short(); // they want signed_l_short() why?
+        let id = stream.get_i16_le();
         let mut meta = 0;
         if id != 0 {
-            meta = stream.get_l_short(); // they want signed_l_short() why?
+            meta = stream.get_i16_le();
         }
 
         IntIdMetaItemDescriptor{ id, meta }
@@ -30,9 +30,9 @@ impl ItemDescriptor for IntIdMetaItemDescriptor {
     }
 
     fn write(&mut self, stream: &mut Stream) {
-        stream.put_l_short(self.id);
+        stream.put_i16_le(self.id);
         if self.id != 0 {
-            stream.put_l_short(self.meta);
+            stream.put_i16_le(self.meta);
         }
     }
 }

@@ -16,16 +16,6 @@ pub fn new(display_slot: String, objective_name: String, display_name: String, c
     SetDisplayObjective { display_slot, objective_name, display_name, criteria_name, sort_order }
 }
 
-impl SetDisplayObjective {
-    pub const DISPLAY_SLOT_LIST: &'static str = "list";
-    pub const DISPLAY_SLOT_SIDEBAR: &'static str = "sidebar";
-    pub const DISPLAY_SLOT_BELOW_NAME: &'static str = "belowname";
-
-    pub const SORT_ORDER_ASCENDING: i32 = 0;
-    pub const SORT_ORDER_DESCENDING: i32 = 1;
-    
-}
-
 impl Packet for SetDisplayObjective {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetDisplayObjective.get_byte()
@@ -33,19 +23,19 @@ impl Packet for SetDisplayObjective {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_string(&mut stream, self.display_slot.clone());
         PacketSerializer::put_string(&mut stream, self.objective_name.clone());
         PacketSerializer::put_string(&mut stream, self.display_name.clone());
         PacketSerializer::put_string(&mut stream, self.criteria_name.clone());
-        stream.put_var_int(self.sort_order);
+        stream.put_var_i32(self.sort_order);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> SetDisplayObjective {
@@ -55,7 +45,7 @@ impl Packet for SetDisplayObjective {
         let objective_name = PacketSerializer::get_string(&mut stream);
         let display_name = PacketSerializer::get_string(&mut stream);
         let criteria_name = PacketSerializer::get_string(&mut stream);
-        let sort_order = stream.get_var_int();
+        let sort_order = stream.get_var_i32();
 
         SetDisplayObjective { display_slot, objective_name, display_name, criteria_name, sort_order }
     }
@@ -71,4 +61,14 @@ impl Packet for SetDisplayObjective {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl SetDisplayObjective {
+    pub const DISPLAY_SLOT_LIST: &'static str = "list";
+    pub const DISPLAY_SLOT_SIDEBAR: &'static str = "sidebar";
+    pub const DISPLAY_SLOT_BELOW_NAME: &'static str = "belowname";
+
+    pub const SORT_ORDER_ASCENDING: i32 = 0;
+    pub const SORT_ORDER_DESCENDING: i32 = 1;
+
 }

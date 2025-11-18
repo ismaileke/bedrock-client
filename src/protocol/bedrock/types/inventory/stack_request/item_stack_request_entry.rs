@@ -25,11 +25,11 @@ pub struct ItemStackRequestEntry {
     request_id: i32,
     actions: Vec<Box<dyn ItemStackRequestAction>>,
     filter_strings: Vec<String>,
-    filter_string_cause: u32
+    filter_string_cause: i32
 }
 
 impl ItemStackRequestEntry {
-    pub fn new(request_id: i32, actions: Vec<Box<dyn ItemStackRequestAction>>, filter_strings: Vec<String>, filter_string_cause: u32) -> ItemStackRequestEntry {
+    pub fn new(request_id: i32, actions: Vec<Box<dyn ItemStackRequestAction>>, filter_strings: Vec<String>, filter_string_cause: i32) -> ItemStackRequestEntry {
         ItemStackRequestEntry{ request_id, actions, filter_strings, filter_string_cause }
     }
 
@@ -59,32 +59,32 @@ impl ItemStackRequestEntry {
     pub fn read(stream: &mut Stream) -> ItemStackRequestEntry {
         let request_id = PacketSerializer::read_item_stack_request_id(stream);
         let mut actions = Vec::new();
-        let mut len = stream.get_unsigned_var_int();
+        let mut len = stream.get_var_u32();
         for _ in 0..len {
             let type_id = stream.get_byte();
             actions.push(Self::read_action(stream, type_id));
         }
         let mut filter_strings = Vec::new();
-        len = stream.get_unsigned_var_int();
+        len = stream.get_var_u32();
         for _ in 0..len {
             filter_strings.push(PacketSerializer::get_string(stream));
         }
-        let filter_string_cause = stream.get_l_int();
+        let filter_string_cause = stream.get_i32_le();
 
         ItemStackRequestEntry{ request_id, actions, filter_strings, filter_string_cause }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {
         PacketSerializer::write_item_stack_request_id(stream, self.request_id);
-        stream.put_unsigned_var_int(self.actions.len() as u32);
+        stream.put_var_u32(self.actions.len() as u32);
         for action in self.actions.iter_mut() {
             stream.put_byte(action.get_type_id());
             action.write(stream);
         }
-        stream.put_unsigned_var_int(self.filter_strings.len() as u32);
+        stream.put_var_u32(self.filter_strings.len() as u32);
         for filter_string in &self.filter_strings {
             PacketSerializer::put_string(stream, filter_string.clone());
         }
-        stream.put_l_int(self.filter_string_cause);
+        stream.put_i32_le(self.filter_string_cause);
     }
 }

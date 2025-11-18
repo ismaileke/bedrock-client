@@ -21,24 +21,24 @@ impl Packet for Transfer {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_string(&mut stream, self.address.clone());
-        stream.put_l_short(self.port);
+        stream.put_u16_le(self.port);
         stream.put_bool(self.reload_world);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> Transfer {
         let mut stream = Stream::new(bytes, 0);
 
         let address = PacketSerializer::get_string(&mut stream);
-        let port = stream.get_l_short();
+        let port = stream.get_u16_le();
         let reload_world = stream.get_bool();
 
         Transfer { address, port, reload_world }

@@ -16,9 +16,8 @@ pub struct Encryption {
     key: Vec<u8>,
     decrypt_cipher: Aes256Ctr,
     decrypt_counter: u64,
-
     encrypt_cipher: Aes256Ctr,
-    encrypt_counter: u64,
+    encrypt_counter: u64
 }
 
 impl Encryption {

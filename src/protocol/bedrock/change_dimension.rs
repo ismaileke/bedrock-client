@@ -22,27 +22,27 @@ impl Packet for ChangeDimension {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_var_int(self.dimension);
+        stream.put_var_i32(self.dimension);
         PacketSerializer::put_vector3(&mut stream, self.position.clone());
         stream.put_bool(self.respawn);
-        PacketSerializer::write_optional(&mut stream, &self.loading_screen_id, |s, v| s.put_l_int(*v));
+        PacketSerializer::write_optional(&mut stream, &self.loading_screen_id, |s, v| s.put_u32_le(*v));
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> ChangeDimension {
         let mut stream = Stream::new(bytes, 0);
 
-        let dimension = stream.get_var_int();
+        let dimension = stream.get_var_i32();
         let position = PacketSerializer::get_vector3(&mut stream);
         let respawn = stream.get_bool();
-        let loading_screen_id = PacketSerializer::read_optional(&mut stream, |s| s.get_l_int());
+        let loading_screen_id = PacketSerializer::read_optional(&mut stream, |s| s.get_u32_le());
 
         ChangeDimension { dimension, position, respawn, loading_screen_id }
     }

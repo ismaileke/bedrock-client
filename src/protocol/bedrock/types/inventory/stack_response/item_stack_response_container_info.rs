@@ -15,7 +15,7 @@ impl ItemStackResponseContainerInfo {
 
     pub fn read(stream: &mut Stream) -> ItemStackResponseContainerInfo {
         let container_name = FullContainerName::read(stream);
-        let slots_count = stream.get_unsigned_var_int();
+        let slots_count = stream.get_var_u32();
         let mut slots = Vec::new();
         for _ in 0..slots_count {
             slots.push(ItemStackResponseSlotInfo::read(stream));
@@ -26,7 +26,7 @@ impl ItemStackResponseContainerInfo {
 
     pub fn write(&self, stream: &mut Stream) {
         self.container_name.write(stream);
-        stream.put_unsigned_var_int(self.slots.len() as u32);
+        stream.put_var_u32(self.slots.len() as u32);
         for slot in &self.slots {
             slot.write(stream);
         }

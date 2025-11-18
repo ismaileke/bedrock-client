@@ -20,26 +20,26 @@ impl Packet for EmoteList {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_actor_runtime_id(&mut stream, self.player_actor_runtime_id);
-        stream.put_unsigned_var_int(self.emote_ids.len() as u32);
+        stream.put_var_u32(self.emote_ids.len() as u32);
         for emote_id in self.emote_ids.iter() {
             PacketSerializer::put_uuid(&mut stream, emote_id.clone());
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> EmoteList {
         let mut stream = Stream::new(bytes, 0);
 
         let player_actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
-        let emote_ids_len = stream.get_unsigned_var_int() as usize;
+        let emote_ids_len = stream.get_var_u32() as usize;
         let mut emote_ids = Vec::new();
         for _ in 0..emote_ids_len {
             emote_ids.push(PacketSerializer::get_uuid(&mut stream));

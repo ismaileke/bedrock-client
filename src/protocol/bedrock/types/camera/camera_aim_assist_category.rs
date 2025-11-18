@@ -4,8 +4,8 @@ use crate::protocol::bedrock::types::camera::camera_aim_assist_category_prioriti
 
 #[derive(Debug)]
 pub struct CameraAimAssistCategory {
-    name: String,
-    priorities: CameraAimAssistCategoryPriorities
+    pub name: String,
+    pub priorities: CameraAimAssistCategoryPriorities
 }
 
 impl CameraAimAssistCategory {

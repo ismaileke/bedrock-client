@@ -2,8 +2,8 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct CameraSetInstructionEase {
-    ease_type: u8, //see types/camera_set_instruction_ease_type.rs
-    duration: f32
+    pub ease_type: u8, //see types/camera_set_instruction_ease_type.rs
+    pub duration: f32
 }
 
 impl CameraSetInstructionEase {
@@ -13,13 +13,13 @@ impl CameraSetInstructionEase {
 
     pub fn read(stream: &mut Stream) -> CameraSetInstructionEase {
         let ease_type = stream.get_byte();
-        let duration = stream.get_l_float();
+        let duration = stream.get_f32_le();
 
         CameraSetInstructionEase{ ease_type, duration }
     }
 
     pub fn write(&self, stream: &mut Stream) {
         stream.put_byte(self.ease_type);
-        stream.put_l_float(self.duration);
+        stream.put_f32_le(self.duration);
     }
 }

@@ -5,13 +5,13 @@ use crate::utils::address::InternetAddress;
 pub struct NewIncomingConn {
     pub server_address: InternetAddress,
     pub system_addresses: [InternetAddress; 20],
-    pub ping_time: i64,
-    pub pong_time: i64
+    pub ping_time: u64,
+    pub pong_time: u64
 }
 
 impl NewIncomingConn {
 
-    pub fn new(server_address: InternetAddress, system_addresses: [InternetAddress; 20], ping_time: i64, pong_time: i64) -> NewIncomingConn {
+    pub fn new(server_address: InternetAddress, system_addresses: [InternetAddress; 20], ping_time: u64, pong_time: u64) -> NewIncomingConn {
         NewIncomingConn{ server_address, system_addresses, ping_time, pong_time }
     }
 
@@ -23,9 +23,9 @@ impl NewIncomingConn {
         for system_address in &self.system_addresses {
             stream.put(system_address.put_address());
         }
-        stream.put_long(self.ping_time);
-        stream.put_long(self.pong_time);
+        stream.put_u64_be(self.ping_time);
+        stream.put_u64_be(self.pong_time);
 
-        stream.get_buffer()
+        Vec::from(stream.get_buffer())
     }
 }

@@ -19,46 +19,6 @@ pub fn new(actor_runtime_id: u64, flags: u16, x_pos: f32, y_pos: f32, z_pos: f32
     MoveActorDelta { actor_runtime_id, flags, x_pos, y_pos, z_pos, pitch, yaw, head_yaw }
 }
 
-impl MoveActorDelta {
-    pub const FLAG_HAS_X: u16 = 0x01;
-    pub const FLAG_HAS_Y: u16 = 0x02;
-    pub const FLAG_HAS_Z: u16 = 0x04;
-    pub const FLAG_HAS_PITCH: u16 = 0x08;
-    pub const FLAG_HAS_YAW: u16 = 0x10;
-    pub const FLAG_HAS_HEAD_YAW: u16 = 0x20;
-    pub const FLAG_GROUND: u16 = 0x40;
-    pub const FLAG_TELEPORT: u16 = 0x80;
-    pub const FLAG_FORCE_MOVE_LOCAL_ENTITY: u16 = 0x100;
-
-    pub fn maybe_read_coord(flags: u16, flag: u16, stream: &mut Stream) -> f32 {
-        if flags & flag != 0 {
-            stream.get_l_float()
-        } else {
-            0.0
-        }
-    }
-
-    pub fn maybe_write_coord(flags: u16, flag: u16, float_val: f32, stream: &mut Stream) {
-        if flags & flag != 0 {
-            stream.put_l_float(float_val);
-        }
-    }
-
-    pub fn maybe_read_rotation(flags: u16, flag: u16, stream: &mut Stream) -> f32 {
-        if flags & flag != 0 {
-            PacketSerializer::get_rotation_byte(stream)
-        } else {
-            0.0
-        }
-    }
-
-    pub fn maybe_write_rotation(flags: u16, flag: u16, float_val: f32, stream: &mut Stream) {
-        if flags & flag != 0 {
-            PacketSerializer::put_rotation_byte(stream, float_val);
-        }
-    }
-}
-
 impl Packet for MoveActorDelta {
     fn id(&self) -> u16 {
         BedrockPacketType::IDMoveActorDelta.get_byte()
@@ -66,10 +26,10 @@ impl Packet for MoveActorDelta {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
-        stream.put_l_short(self.flags);
+        stream.put_u16_le(self.flags);
 
         MoveActorDelta::maybe_write_coord(self.flags, Self::FLAG_HAS_X, self.x_pos, &mut stream);
         MoveActorDelta::maybe_write_coord(self.flags, Self::FLAG_HAS_Y, self.y_pos, &mut stream);
@@ -79,17 +39,17 @@ impl Packet for MoveActorDelta {
         MoveActorDelta::maybe_write_rotation(self.flags, Self::FLAG_HAS_HEAD_YAW, self.head_yaw, &mut stream);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> MoveActorDelta {
         let mut stream = Stream::new(bytes, 0);
 
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
-        let flags = stream.get_l_short();
+        let flags = stream.get_u16_le();
         let x_pos = MoveActorDelta::maybe_read_coord(flags, Self::FLAG_HAS_X, &mut stream);
         let y_pos = MoveActorDelta::maybe_read_coord(flags, Self::FLAG_HAS_Y, &mut stream);
         let z_pos = MoveActorDelta::maybe_read_coord(flags, Self::FLAG_HAS_Z, &mut stream);
@@ -113,5 +73,45 @@ impl Packet for MoveActorDelta {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+}
+
+impl MoveActorDelta {
+    pub const FLAG_HAS_X: u16 = 0x01;
+    pub const FLAG_HAS_Y: u16 = 0x02;
+    pub const FLAG_HAS_Z: u16 = 0x04;
+    pub const FLAG_HAS_PITCH: u16 = 0x08;
+    pub const FLAG_HAS_YAW: u16 = 0x10;
+    pub const FLAG_HAS_HEAD_YAW: u16 = 0x20;
+    pub const FLAG_GROUND: u16 = 0x40;
+    pub const FLAG_TELEPORT: u16 = 0x80;
+    pub const FLAG_FORCE_MOVE_LOCAL_ENTITY: u16 = 0x100;
+
+    pub fn maybe_read_coord(flags: u16, flag: u16, stream: &mut Stream) -> f32 {
+        if flags & flag != 0 {
+            stream.get_f32_le()
+        } else {
+            0.0
+        }
+    }
+
+    pub fn maybe_write_coord(flags: u16, flag: u16, float_val: f32, stream: &mut Stream) {
+        if flags & flag != 0 {
+            stream.put_f32_le(float_val);
+        }
+    }
+
+    pub fn maybe_read_rotation(flags: u16, flag: u16, stream: &mut Stream) -> f32 {
+        if flags & flag != 0 {
+            PacketSerializer::get_rotation_byte(stream)
+        } else {
+            0.0
+        }
+    }
+
+    pub fn maybe_write_rotation(flags: u16, flag: u16, float_val: f32, stream: &mut Stream) {
+        if flags & flag != 0 {
+            PacketSerializer::put_rotation_byte(stream, float_val);
+        }
     }
 }

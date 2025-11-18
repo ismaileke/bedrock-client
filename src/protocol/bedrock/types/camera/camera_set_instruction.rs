@@ -5,21 +5,21 @@ use crate::protocol::bedrock::types::camera::camera_set_instruction_rotation::Ca
 
 #[derive(Debug)]
 pub struct CameraSetInstruction {
-    preset: Option<u32>,
-    ease: Option<CameraSetInstructionEase>,
-    camera_position: Option<Vec<f32>>,
-    rotation: Option<CameraSetInstructionRotation>,
-    facing_position: Option<Vec<f32>>,
-    view_offset: Option<Vec<f32>>,
-    entity_offset: Option<Vec<f32>>,
-    default: Option<bool>,
-    ignore_starting_values_component: Option<bool>
+    pub preset: Option<u32>,
+    pub ease: Option<CameraSetInstructionEase>,
+    pub camera_position: Option<Vec<f32>>,
+    pub rotation: Option<CameraSetInstructionRotation>,
+    pub facing_position: Option<Vec<f32>>,
+    pub view_offset: Option<Vec<f32>>,
+    pub entity_offset: Option<Vec<f32>>,
+    pub default: Option<bool>,
+    pub ignore_starting_values_component: Option<bool>
 }
 
 impl CameraSetInstruction {
 
     pub fn read(stream: &mut Stream) -> CameraSetInstruction {
-        let preset = PacketSerializer::read_optional(stream, |s| s.get_l_int());
+        let preset = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
         let ease = PacketSerializer::read_optional(stream, |s| CameraSetInstructionEase::read(s));
         let camera_position = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
         let rotation = PacketSerializer::read_optional(stream, |s| CameraSetInstructionRotation::read(s));
@@ -33,7 +33,7 @@ impl CameraSetInstruction {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        PacketSerializer::write_optional(stream, &self.preset, |s, v| s.put_l_int(*v));
+        PacketSerializer::write_optional(stream, &self.preset, |s, v| s.put_u32_le(*v));
         PacketSerializer::write_optional(stream, &self.ease, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.camera_position, |s, v| PacketSerializer::put_vector3(s, v.clone()));
         PacketSerializer::write_optional(stream, &self.rotation, |s, v| v.write(s));

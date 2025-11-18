@@ -4,19 +4,6 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
-pub const TYPE_RAW: u8 = 0;
-pub const TYPE_CHAT: u8 = 1;
-pub const TYPE_TRANSLATION: u8 = 2;
-pub const TYPE_POPUP: u8 = 3;
-pub const TYPE_JUKEBOX_POPUP: u8 = 4;
-pub const TYPE_TIP: u8 = 5;
-pub const TYPE_SYSTEM: u8 = 6;
-pub const TYPE_WHISPER: u8 = 7;
-pub const TYPE_ANNOUNCEMENT: u8 = 8;
-pub const TYPE_JSON_WHISPER: u8 = 9;
-pub const TYPE_JSON: u8 = 10;
-pub const TYPE_JSON_ANNOUNCEMENT: u8 = 11;
-
 pub struct Text {
     pub text_type: u8,
     pub needs_translation: bool,
@@ -25,7 +12,7 @@ pub struct Text {
     pub parameters: Option<Vec<String>>,
     pub xbox_uid: String,
     pub platform_chat_id: String,
-    pub filtered_message: String,
+    pub filtered_message: String
 }
 
 pub fn new(text_type: u8, needs_translation: bool, source_name: Option<String>, message: String, parameters: Option<Vec<String>>, xbox_uid: String, platform_chat_id: String, filtered_message: String) -> Text {
@@ -39,24 +26,24 @@ impl Packet for Text {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         stream.put_byte(self.text_type);
         stream.put_bool(self.needs_translation);
         match self.text_type {
-            TYPE_CHAT | TYPE_WHISPER | TYPE_ANNOUNCEMENT => {
+            Text::TYPE_CHAT | Text::TYPE_WHISPER | Text::TYPE_ANNOUNCEMENT => {
                 if let Some(source_name) = self.source_name.clone() {
                     PacketSerializer::put_string(&mut stream, source_name);
                 }
                 PacketSerializer::put_string(&mut stream, self.message.clone());
             },
-            TYPE_RAW | TYPE_TIP | TYPE_SYSTEM | TYPE_JSON | TYPE_JSON_WHISPER | TYPE_JSON_ANNOUNCEMENT => {
+            Text::TYPE_RAW | Text::TYPE_TIP | Text::TYPE_SYSTEM | Text::TYPE_JSON | Text::TYPE_JSON_WHISPER | Text::TYPE_JSON_ANNOUNCEMENT => {
                 PacketSerializer::put_string(&mut stream, self.message.clone());
             },
-            TYPE_TRANSLATION | TYPE_POPUP | TYPE_JUKEBOX_POPUP => {
+            Text::TYPE_TRANSLATION | Text::TYPE_POPUP | Text::TYPE_JUKEBOX_POPUP => {
                 PacketSerializer::put_string(&mut stream, self.message.clone());
                 if let Some(parameters) = self.parameters.clone() {
-                    stream.put_unsigned_var_int(parameters.len() as u32);
+                    stream.put_var_u32(parameters.len() as u32);
                     for parameter in parameters {
                         PacketSerializer::put_string(&mut stream, parameter);
                     }
@@ -69,10 +56,10 @@ impl Packet for Text {
         PacketSerializer::put_string(&mut stream, self.filtered_message.clone());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> Text {
@@ -85,17 +72,17 @@ impl Packet for Text {
         let mut message = String::new();
         let mut parameters: Option<Vec<String>> = None;
         match text_type {
-            TYPE_CHAT | TYPE_WHISPER | TYPE_ANNOUNCEMENT => {
+            Text::TYPE_CHAT | Text::TYPE_WHISPER | Text::TYPE_ANNOUNCEMENT => {
                 source_name = Option::from(PacketSerializer::get_string(&mut stream));
                 message = PacketSerializer::get_string(&mut stream);
 
             },
-            TYPE_RAW | TYPE_TIP | TYPE_SYSTEM | TYPE_JSON | TYPE_JSON_WHISPER | TYPE_JSON_ANNOUNCEMENT => {
+            Text::TYPE_RAW | Text::TYPE_TIP | Text::TYPE_SYSTEM | Text::TYPE_JSON | Text::TYPE_JSON_WHISPER | Text::TYPE_JSON_ANNOUNCEMENT => {
                 message = PacketSerializer::get_string(&mut stream);
             },
-            TYPE_TRANSLATION | TYPE_POPUP | TYPE_JUKEBOX_POPUP => {
+            Text::TYPE_TRANSLATION | Text::TYPE_POPUP | Text::TYPE_JUKEBOX_POPUP => {
                 message = PacketSerializer::get_string(&mut stream);
-                let length = stream.get_unsigned_var_int();
+                let length = stream.get_var_u32();
                 let mut params = Vec::new();
                 for _ in 0..length {
                     let parameter = PacketSerializer::get_string(&mut stream);
@@ -126,4 +113,19 @@ impl Packet for Text {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl Text {
+    pub const TYPE_RAW: u8 = 0;
+    pub const TYPE_CHAT: u8 = 1;
+    pub const TYPE_TRANSLATION: u8 = 2;
+    pub const TYPE_POPUP: u8 = 3;
+    pub const TYPE_JUKEBOX_POPUP: u8 = 4;
+    pub const TYPE_TIP: u8 = 5;
+    pub const TYPE_SYSTEM: u8 = 6;
+    pub const TYPE_WHISPER: u8 = 7;
+    pub const TYPE_ANNOUNCEMENT: u8 = 8;
+    pub const TYPE_JSON_WHISPER: u8 = 9;
+    pub const TYPE_JSON: u8 = 10;
+    pub const TYPE_JSON_ANNOUNCEMENT: u8 = 11;
 }

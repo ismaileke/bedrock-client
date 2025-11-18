@@ -6,8 +6,8 @@ pub mod handler;
 pub mod macros;
 
 const RAKNET_PROTOCOL_VERSION: u8 = 11;
-const BEDROCK_PROTOCOL_VERSION: u32 = 827;
-const VANILLA_BLOCK_PALETTE: &[u8] = include_bytes!("../resources/block_palette_827.nbt");
+const BEDROCK_PROTOCOL_VERSION: u32 = 859;
+const VANILLA_BLOCK_PALETTE: &[u8] = include_bytes!("../resources/block_palette_843.nbt");
 
 /*
 use std::ffi::CStr;

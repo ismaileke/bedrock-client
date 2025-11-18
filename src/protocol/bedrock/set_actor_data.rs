@@ -25,18 +25,18 @@ impl Packet for SetActorData {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
         PacketSerializer::put_entity_metadata(&mut stream, &mut self.metadata);
         self.synced_properties.write(&mut stream);
-        stream.put_unsigned_var_long(self.tick);
+        stream.put_var_u64(self.tick);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> SetActorData {
@@ -45,7 +45,7 @@ impl Packet for SetActorData {
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
         let metadata = PacketSerializer::get_entity_metadata(&mut stream);
         let synced_properties = PropertySyncData::read(&mut stream);
-        let tick = stream.get_unsigned_var_long();
+        let tick = stream.get_var_u64();
 
         SetActorData { actor_runtime_id, metadata, synced_properties, tick }
     }

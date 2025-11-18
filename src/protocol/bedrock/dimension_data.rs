@@ -23,26 +23,26 @@ impl Packet for DimensionData {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_unsigned_var_int(self.definitions.len() as u32);
+        stream.put_var_u32(self.definitions.len() as u32);
         for (dimension_name_id, dimension_data) in &self.definitions {
             PacketSerializer::put_string(&mut stream, dimension_name_id.to_string());
             dimension_data.write(&mut stream);
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> DimensionData {
         let mut stream = Stream::new(bytes, 0);
 
         let mut definitions = HashMap::new();
-        let count = stream.get_unsigned_var_int();
+        let count = stream.get_var_u32();
         for _ in 0..count {
             let dimension_name_id = PacketSerializer::get_string(&mut stream);
             let dimension_data = DimensionDataEntry::read(&mut stream);

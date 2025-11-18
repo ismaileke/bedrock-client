@@ -17,12 +17,6 @@ pub fn new(actor_runtime_id: u64, flags: u8, position: Vec<f32>, pitch: f32, yaw
     MoveActorAbsolute { actor_runtime_id, flags, position, pitch, yaw, head_yaw }
 }
 
-impl MoveActorAbsolute {
-    pub const FLAG_GROUND: u8 = 0x01;
-    pub const FLAG_TELEPORT: u8 = 0x02;
-    pub const FLAG_FORCE_MOVE_LOCAL_ENTITY: u8 = 0x04;
-}
-
 impl Packet for MoveActorAbsolute {
     fn id(&self) -> u16 {
         BedrockPacketType::IDMoveActorAbsolute.get_byte()
@@ -30,7 +24,7 @@ impl Packet for MoveActorAbsolute {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
         stream.put_byte(self.flags);
@@ -40,10 +34,10 @@ impl Packet for MoveActorAbsolute {
         PacketSerializer::put_rotation_byte(&mut stream, self.head_yaw);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> MoveActorAbsolute {
@@ -71,4 +65,10 @@ impl Packet for MoveActorAbsolute {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl MoveActorAbsolute {
+    pub const FLAG_GROUND: u8 = 0x01;
+    pub const FLAG_TELEPORT: u8 = 0x02;
+    pub const FLAG_FORCE_MOVE_LOCAL_ENTITY: u8 = 0x04;
 }

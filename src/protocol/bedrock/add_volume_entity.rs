@@ -36,34 +36,34 @@ impl Packet for AddVolumeEntity {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_unsigned_var_int(self.entity_net_id);
+        stream.put_var_u32(self.entity_net_id);
         stream.put(self.data.get_encoded_nbt());
         PacketSerializer::put_string(&mut stream, self.json_identifier.clone());
         PacketSerializer::put_string(&mut stream, self.instance_name.clone());
         PacketSerializer::put_block_pos(&mut stream, self.min_bound.clone());
         PacketSerializer::put_block_pos(&mut stream, self.max_bound.clone());
-        stream.put_var_int(self.dimension);
+        stream.put_var_i32(self.dimension);
         PacketSerializer::put_string(&mut stream, self.engine_version.clone());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> AddVolumeEntity {
         let mut stream = Stream::new(bytes, 0);
 
-        let entity_net_id = stream.get_unsigned_var_int();
+        let entity_net_id = stream.get_var_u32();
         let data = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(&mut stream)));
         let json_identifier = PacketSerializer::get_string(&mut stream);
         let instance_name = PacketSerializer::get_string(&mut stream);
         let min_bound = PacketSerializer::get_block_pos(&mut stream);
         let max_bound = PacketSerializer::get_block_pos(&mut stream);
-        let dimension = stream.get_var_int();
+        let dimension = stream.get_var_i32();
         let engine_version = PacketSerializer::get_string(&mut stream);
 
         AddVolumeEntity { entity_net_id, data, json_identifier, instance_name, min_bound, max_bound, dimension, engine_version }

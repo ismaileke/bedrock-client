@@ -18,9 +18,9 @@ impl Packet for Disconnect {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_var_int(self.reason);
+        stream.put_var_i32(self.reason);
         stream.put_bool(self.skip_message);
         if !self.skip_message {
             PacketSerializer::put_string(&mut stream, self.message.clone().unwrap());
@@ -28,16 +28,16 @@ impl Packet for Disconnect {
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> Disconnect {
         let mut stream = Stream::new(bytes, 0);
 
-        let reason = stream.get_var_int();  // is there a problem here?
+        let reason = stream.get_var_i32();
         let skip_message = stream.get_bool();
         let mut message: Option<String> = None;
         let mut filtered_message: Option<String> = None;

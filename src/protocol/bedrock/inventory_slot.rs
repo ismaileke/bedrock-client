@@ -25,26 +25,26 @@ impl Packet for InventorySlot {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_unsigned_var_int(self.window_id);
-        stream.put_unsigned_var_int(self.inventory_slot);
+        stream.put_var_u32(self.window_id);
+        stream.put_var_u32(self.inventory_slot);
         self.container_name.write(&mut stream);
         PacketSerializer::put_item_stack_wrapper(&mut stream, self.storage.clone());
         PacketSerializer::put_item_stack_wrapper(&mut stream, self.item.clone());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> InventorySlot {
         let mut stream = Stream::new(bytes, 0);
 
-        let window_id = stream.get_unsigned_var_int();
-        let inventory_slot = stream.get_unsigned_var_int();
+        let window_id = stream.get_var_u32();
+        let inventory_slot = stream.get_var_u32();
         let container_name = FullContainerName::read(&mut stream);
         let storage = PacketSerializer::get_item_stack_wrapper(&mut stream);
         let item = PacketSerializer::get_item_stack_wrapper(&mut stream);

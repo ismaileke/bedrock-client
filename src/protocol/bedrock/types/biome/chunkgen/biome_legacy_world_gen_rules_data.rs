@@ -3,7 +3,7 @@ use crate::protocol::bedrock::types::biome::chunkgen::biome_conditional_transfor
 
 #[derive(Debug)]
 pub struct BiomeLegacyWorldGenRulesData {
-    legacy_pre_hills: Vec<BiomeConditionalTransformationData>
+    pub legacy_pre_hills: Vec<BiomeConditionalTransformationData>
 }
 
 impl BiomeLegacyWorldGenRulesData {
@@ -13,7 +13,7 @@ impl BiomeLegacyWorldGenRulesData {
 
     pub fn read(stream: &mut Stream) -> BiomeLegacyWorldGenRulesData {
         let mut legacy_pre_hills = Vec::new();
-        let count = stream.get_unsigned_var_int();
+        let count = stream.get_var_u32();
         for _ in 0..count {
             legacy_pre_hills.push(BiomeConditionalTransformationData::read(stream));
         }
@@ -22,7 +22,7 @@ impl BiomeLegacyWorldGenRulesData {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_unsigned_var_int(self.legacy_pre_hills.len() as u32);
+        stream.put_var_u32(self.legacy_pre_hills.len() as u32);
         for legacy_pre_hill in &self.legacy_pre_hills {
             legacy_pre_hill.write(stream);
         }

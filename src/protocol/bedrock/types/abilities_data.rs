@@ -15,7 +15,7 @@ impl AbilitiesData {
     }
 
     pub fn read(stream: &mut Stream) -> AbilitiesData {
-        let target_actor_unique_id = stream.get_l_long();
+        let target_actor_unique_id = stream.get_i64_le();
         let player_permission = stream.get_byte();
         let command_permission = stream.get_byte();
 
@@ -29,7 +29,7 @@ impl AbilitiesData {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_l_long(self.target_actor_unique_id);
+        stream.put_i64_le(self.target_actor_unique_id);
         stream.put_byte(self.player_permission);
         stream.put_byte(self.command_permission);
         stream.put_byte(self.ability_layers.len() as u8);

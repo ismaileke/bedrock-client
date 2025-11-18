@@ -14,12 +14,6 @@ pub fn new(position: Vec<f32>, respawn_state: u8, actor_runtime_id: u64) -> Resp
     Respawn { position, respawn_state, actor_runtime_id }
 }
 
-impl Respawn {
-    pub const SEARCHING_FOR_SPAWN: u8 = 0;
-    pub const READY_TO_SPAWN: u8 = 1;
-    pub const CLIENT_READY_TO_SPAWN: u8 = 2;
-}
-
 impl Packet for Respawn {
     fn id(&self) -> u16 {
         BedrockPacketType::IDRespawn.get_byte()
@@ -27,17 +21,17 @@ impl Packet for Respawn {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_vector3(&mut stream, self.position.clone());
         stream.put_byte(self.respawn_state);
         PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> Respawn {
@@ -59,4 +53,10 @@ impl Packet for Respawn {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl Respawn {
+    pub const SEARCHING_FOR_SPAWN: u8 = 0;
+    pub const READY_TO_SPAWN: u8 = 1;
+    pub const CLIENT_READY_TO_SPAWN: u8 = 2;
 }

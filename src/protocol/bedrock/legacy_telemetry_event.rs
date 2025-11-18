@@ -14,6 +14,47 @@ pub fn new(player_unique_id: i64, event_type: i32, use_player_id: u8) -> LegacyT
     LegacyTelemetryEvent { player_unique_id, event_type, use_player_id }
 }
 
+impl Packet for LegacyTelemetryEvent {
+    fn id(&self) -> u16 {
+        BedrockPacketType::IDLegacyTelemetryEvent.get_byte()
+    }
+
+    fn encode(&mut self) -> Vec<u8> {
+        let mut stream = Stream::new(Vec::new(), 0);
+        stream.put_var_u32(self.id() as u32);
+
+        PacketSerializer::put_actor_unique_id(&mut stream, self.player_unique_id);
+        stream.put_var_i32(self.event_type);
+        stream.put_byte(self.use_player_id);
+
+        let mut compress_stream = Stream::new(Vec::new(), 0);
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
+
+        Vec::from(compress_stream.get_buffer())
+    }
+
+    fn decode(bytes: Vec<u8>) -> LegacyTelemetryEvent {
+        let mut stream = Stream::new(bytes, 0);
+
+        let player_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
+        let event_type = stream.get_var_i32();
+        let use_player_id = stream.get_byte();
+
+        LegacyTelemetryEvent { player_unique_id, event_type, use_player_id }
+    }
+
+    fn debug(&self) {
+        println!("Player Unique ID: {}", self.player_unique_id);
+        println!("Event Type: {}", self.event_type);
+        println!("Use Player ID: {}", self.use_player_id);
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+}
+
 impl LegacyTelemetryEvent {
     pub const TYPE_ACHIEVEMENT_AWARDED: i32 = 0;
     pub const TYPE_ENTITY_INTERACT: i32 = 1;
@@ -47,44 +88,4 @@ impl LegacyTelemetryEvent {
     pub const TYPE_SNEAK_CLOSE_TO_SCULK_SENSOR: i32 = 29;
     pub const TYPE_CAREFUL_RESTORATION: i32 = 30;
     pub const TYPE_ITEM_USED: i32 = 31;
-}
-impl Packet for LegacyTelemetryEvent {
-    fn id(&self) -> u16 {
-        BedrockPacketType::IDLegacyTelemetryEvent.get_byte()
-    }
-
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
-
-        PacketSerializer::put_actor_unique_id(&mut stream, self.player_unique_id);
-        stream.put_var_int(self.event_type);
-        stream.put_byte(self.use_player_id);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
-
-        compress_stream.get_buffer()
-    }
-
-    fn decode(bytes: Vec<u8>) -> LegacyTelemetryEvent {
-        let mut stream = Stream::new(bytes, 0);
-
-        let player_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
-        let event_type = stream.get_var_int();
-        let use_player_id = stream.get_byte();
-
-        LegacyTelemetryEvent { player_unique_id, event_type, use_player_id }
-    }
-
-    fn debug(&self) {
-        println!("Player Unique ID: {}", self.player_unique_id);
-        println!("Event Type: {}", self.event_type);
-        println!("Use Player ID: {}", self.use_player_id);
-    }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
 }

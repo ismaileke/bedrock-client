@@ -2,8 +2,8 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct CameraSetInstructionRotation {
-    pitch: f32,
-    yaw: f32
+    pub pitch: f32,
+    pub yaw: f32
 }
 
 impl CameraSetInstructionRotation {
@@ -12,14 +12,14 @@ impl CameraSetInstructionRotation {
     }
 
     pub fn read(stream: &mut Stream) -> CameraSetInstructionRotation {
-        let pitch = stream.get_l_float();
-        let yaw = stream.get_l_float();
+        let pitch = stream.get_f32_le();
+        let yaw = stream.get_f32_le();
 
         CameraSetInstructionRotation{ pitch, yaw }
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_l_float(self.pitch);
-        stream.put_l_float(self.yaw);
+        stream.put_f32_le(self.pitch);
+        stream.put_f32_le(self.yaw);
     }
 }

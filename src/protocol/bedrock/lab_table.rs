@@ -14,12 +14,6 @@ pub fn new(action_type: u8, block_position: Vec<i32>, reaction_type: u8) -> LabT
     LabTable { action_type, block_position, reaction_type }
 }
 
-impl LabTable {
-    pub const TYPE_START_COMBINE: u8 = 0;
-    pub const TYPE_START_REACTION: u8 = 1;
-    pub const TYPE_RESET: u8 = 2;
-}
-
 impl Packet for LabTable {
     fn id(&self) -> u16 {
         BedrockPacketType::IDLabTable.get_byte()
@@ -27,17 +21,17 @@ impl Packet for LabTable {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         stream.put_byte(self.action_type);
         PacketSerializer::put_signed_block_pos(&mut stream, self.block_position.clone());
         stream.put_byte(self.reaction_type);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> LabTable {
@@ -59,4 +53,10 @@ impl Packet for LabTable {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl LabTable {
+    pub const TYPE_START_COMBINE: u8 = 0;
+    pub const TYPE_START_REACTION: u8 = 1;
+    pub const TYPE_RESET: u8 = 2;
 }

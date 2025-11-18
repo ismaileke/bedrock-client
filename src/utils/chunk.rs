@@ -244,7 +244,7 @@ pub fn decode_paletted_storage(buf: &mut Stream) -> Result<Option<PalettedStorag
     let mut uint32s = Vec::<u32>::with_capacity(uin32_count as usize);
     let byte_count = uin32_count * 4;
 
-    let data = buf.get(byte_count as u32)?;
+    let data = buf.get(byte_count as u32);
 
     if data.len() != byte_count as usize {
         return Err(format!("Cannot read paletted storage (size={}): not enough block data present: expected {} bytes, got {}", block_size, byte_count, data.len()));
@@ -262,7 +262,7 @@ pub fn decode_paletted_storage(buf: &mut Stream) -> Result<Option<PalettedStorag
 pub fn decode_palette(buf: &mut Stream, palette_size: PaletteSize) -> Result<Palette, String> {
     let mut palette_count: i32 = 1;
     if palette_size.0 != 0 {
-        palette_count = buf.get_var_int();
+        palette_count = buf.get_var_i32();
         if palette_count <= 0 {
             return Err(format!("Invalid palette entry count {}", palette_count));
         }
@@ -270,7 +270,7 @@ pub fn decode_palette(buf: &mut Stream, palette_size: PaletteSize) -> Result<Pal
 
     let mut blocks = Vec::<u32>::with_capacity(palette_count as usize);
     for _ in 0..palette_count {
-        let temp = buf.get_var_int();
+        let temp = buf.get_var_i32();
         blocks.push(temp as u32);
     }
     Ok(Palette{

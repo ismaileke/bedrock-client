@@ -22,24 +22,24 @@ impl Packet for PositionTrackingDBServerBroadcast {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         stream.put_byte(self.action);
-        stream.put_var_int(self.tracking_id);
+        stream.put_var_i32(self.tracking_id);
         stream.put(self.nbt.get_encoded_nbt());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> PositionTrackingDBServerBroadcast {
         let mut stream = Stream::new(bytes, 0);
 
         let action = stream.get_byte();
-        let tracking_id = stream.get_var_int();
+        let tracking_id = stream.get_var_i32();
         let nbt = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(&mut stream)));
 
         PositionTrackingDBServerBroadcast { action, tracking_id, nbt }
@@ -54,4 +54,10 @@ impl Packet for PositionTrackingDBServerBroadcast {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl PositionTrackingDBServerBroadcast {
+    pub const ACTION_UPDATE: u8 = 0;
+    pub const ACTION_DESTROY: u8 = 1;
+    pub const ACTION_NOT_FOUND: u8 = 2;
 }

@@ -14,16 +14,16 @@ impl PlayerAuthInputVehicleInfo {
     }
 
     pub fn read(stream: &mut Stream) -> PlayerAuthInputVehicleInfo {
-        let vehicle_rotation_x = stream.get_l_float();
-        let vehicle_rotation_z = stream.get_l_float();
+        let vehicle_rotation_x = stream.get_f32_le();
+        let vehicle_rotation_z = stream.get_f32_le();
         let predicted_vehicle_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
 
         PlayerAuthInputVehicleInfo{ vehicle_rotation_x, vehicle_rotation_z, predicted_vehicle_actor_unique_id }
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_l_float(self.vehicle_rotation_x);
-        stream.put_l_float(self.vehicle_rotation_z);
+        stream.put_f32_le(self.vehicle_rotation_x);
+        stream.put_f32_le(self.vehicle_rotation_z);
         PacketSerializer::put_actor_unique_id(stream, self.predicted_vehicle_actor_unique_id);
     }
 }

@@ -4,7 +4,7 @@ use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
-pub struct SpawnParticleEvent {
+pub struct SpawnParticleEffect {
     pub dimension_id: u8,
     pub actor_unique_id: i64,
     pub position: Vec<f32>,
@@ -12,18 +12,18 @@ pub struct SpawnParticleEvent {
     pub molang_variables_json: Option<String>
 }
 
-pub fn new(dimension_id: u8, actor_unique_id: i64, position: Vec<f32>, particle_name: String, molang_variables_json: Option<String>) -> SpawnParticleEvent {
-    SpawnParticleEvent { dimension_id, actor_unique_id, position, particle_name, molang_variables_json }
+pub fn new(dimension_id: u8, actor_unique_id: i64, position: Vec<f32>, particle_name: String, molang_variables_json: Option<String>) -> SpawnParticleEffect {
+    SpawnParticleEffect { dimension_id, actor_unique_id, position, particle_name, molang_variables_json }
 }
 
-impl Packet for SpawnParticleEvent {
+impl Packet for SpawnParticleEffect {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDSpawnParticleEvent.get_byte()
+        BedrockPacketType::IDSpawnParticleEffect.get_byte()
     }
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         stream.put_byte(self.dimension_id);
         PacketSerializer::put_actor_unique_id(&mut stream, self.actor_unique_id);
@@ -32,13 +32,13 @@ impl Packet for SpawnParticleEvent {
         PacketSerializer::write_optional(&mut stream, &self.molang_variables_json, |s, v| PacketSerializer::put_string(s, v.clone()));
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SpawnParticleEvent {
+    fn decode(bytes: Vec<u8>) -> SpawnParticleEffect {
         let mut stream = Stream::new(bytes, 0);
 
 
@@ -48,7 +48,7 @@ impl Packet for SpawnParticleEvent {
         let particle_name = PacketSerializer::get_string(&mut stream);
         let molang_variables_json = PacketSerializer::read_optional(&mut stream, |s| PacketSerializer::get_string(s));
 
-        SpawnParticleEvent { dimension_id, actor_unique_id, position, particle_name, molang_variables_json }
+        SpawnParticleEffect { dimension_id, actor_unique_id, position, particle_name, molang_variables_json }
     }
 
     fn debug(&self) {

@@ -13,7 +13,7 @@ impl LongMetadataProperty {
     }
 
     pub fn read(stream: &mut Stream) -> LongMetadataProperty {
-        LongMetadataProperty{ value: stream.get_var_long() }
+        LongMetadataProperty{ value: stream.get_var_i64() }
     }
 }
 impl MetadataProperty for LongMetadataProperty {
@@ -22,6 +22,6 @@ impl MetadataProperty for LongMetadataProperty {
     }
 
     fn write(&mut self, stream: &mut Stream) {
-        stream.put_var_long(self.value);
+        stream.put_var_i64(self.value);
     }
 }

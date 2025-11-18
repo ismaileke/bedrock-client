@@ -14,13 +14,13 @@ impl FullContainerName {
 
     pub fn read(stream: &mut Stream) -> FullContainerName {
         let container_id = stream.get_byte();
-        let dynamic_id = PacketSerializer::read_optional(stream, |s| s.get_l_int());
+        let dynamic_id = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
 
         FullContainerName{ container_id, dynamic_id }
     }
 
     pub fn write(&self, stream: &mut Stream) {
         stream.put_byte(self.container_id);
-        PacketSerializer::write_optional(stream, &self.dynamic_id, |s, v| s.put_l_int(*v));
+        PacketSerializer::write_optional(stream, &self.dynamic_id, |s, v| s.put_u32_le(*v));
     }
 }

@@ -17,7 +17,7 @@ impl DeprecatedCraftingResultsStackRequestAction {
 
     pub fn read(stream: &mut Stream) -> DeprecatedCraftingResultsStackRequestAction {
         let mut results = Vec::new();
-        let len = stream.get_unsigned_var_int();
+        let len = stream.get_var_u32();
         for _ in 0..len {
             results.push(PacketSerializer::get_item_stack_without_stack_id(stream));
         }
@@ -33,7 +33,7 @@ impl ItemStackRequestAction for DeprecatedCraftingResultsStackRequestAction {
     }
 
     fn write(&mut self, stream: &mut Stream) {
-        stream.put_unsigned_var_int(self.results.len() as u32);
+        stream.put_var_u32(self.results.len() as u32);
         for result in &self.results {
             PacketSerializer::put_item_stack_without_stack_id(stream, result);
         }

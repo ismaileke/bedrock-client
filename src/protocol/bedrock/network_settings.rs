@@ -30,11 +30,11 @@ impl Packet for NetworkSettings {
     fn decode(bytes: Vec<u8>) -> NetworkSettings {
         let mut stream = Stream::new(bytes, 0);
 
-        let compression_threshold = stream.get_l_short();
-        let compression_algorithm = stream.get_l_short();
+        let compression_threshold = stream.get_u16_le();
+        let compression_algorithm = stream.get_u16_le();
         let enable_client_throttling = stream.get_bool();
         let client_throttle_threshold = stream.get_byte();
-        let client_throttle_scalar = stream.get_l_float();
+        let client_throttle_scalar = stream.get_f32_le();
 
         NetworkSettings { compression_threshold, compression_algorithm, enable_client_throttling, client_throttle_threshold, client_throttle_scalar }
     }

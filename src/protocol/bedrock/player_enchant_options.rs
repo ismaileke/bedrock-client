@@ -19,25 +19,25 @@ impl Packet for PlayerEnchantOptions {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_unsigned_var_int(self.options.len() as u32);
+        stream.put_var_u32(self.options.len() as u32);
         for option in &self.options {
             option.write(&mut stream);
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> PlayerEnchantOptions {
         let mut stream = Stream::new(bytes, 0);
 
         let mut options = Vec::new();
-        let len = stream.get_unsigned_var_int();
+        let len = stream.get_var_u32();
         for _ in 0..len {
             options.push(EnchantOption::read(&mut stream));
         }

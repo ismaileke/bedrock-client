@@ -3,7 +3,7 @@ use crate::protocol::bedrock::types::biome::chunkgen::biome_element_data::BiomeE
 
 #[derive(Debug)]
 pub struct BiomeSurfaceMaterialAdjustmentData {
-    adjustments: Vec<BiomeElementData>
+    pub adjustments: Vec<BiomeElementData>
 }
 
 impl BiomeSurfaceMaterialAdjustmentData {
@@ -13,7 +13,7 @@ impl BiomeSurfaceMaterialAdjustmentData {
 
     pub fn read(stream: &mut Stream) -> BiomeSurfaceMaterialAdjustmentData {
         let mut adjustments = Vec::new();
-        let count = stream.get_unsigned_var_int();
+        let count = stream.get_var_u32();
         for _ in 0..count {
             adjustments.push(BiomeElementData::read(stream));
         }
@@ -22,7 +22,7 @@ impl BiomeSurfaceMaterialAdjustmentData {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_unsigned_var_int(self.adjustments.len() as u32);
+        stream.put_var_u32(self.adjustments.len() as u32);
         for adjustment in &self.adjustments {
             adjustment.write(stream);
         }

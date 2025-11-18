@@ -9,7 +9,7 @@ pub struct LevelChunk {
     pub dimension_id: i32,
     pub sub_chunk_count: u32,
     pub client_sub_chunk_requests_enabled: bool,
-    pub used_blob_hashes: Option<Vec<i64>>,
+    pub used_blob_hashes: Option<Vec<u64>>,
     pub extra_payload: Vec<u8>
 }
 
@@ -35,56 +35,57 @@ impl Packet for LevelChunk {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
-        stream.put_var_int(self.chunk_x);
-        stream.put_var_int(self.chunk_z);
-        stream.put_var_int(self.dimension_id);
+        stream.put_var_i32(self.chunk_x);
+        stream.put_var_i32(self.chunk_z);
+        stream.put_var_i32(self.dimension_id);
         if self.client_sub_chunk_requests_enabled {
             if self.sub_chunk_count == u32::MAX {
-                stream.put_unsigned_var_int(LevelChunk::CLIENT_REQUEST_FULL_COLUMN_FAKE_COUNT);
+                stream.put_var_u32(LevelChunk::CLIENT_REQUEST_FULL_COLUMN_FAKE_COUNT);
             } else {
-                stream.put_unsigned_var_int(LevelChunk::CLIENT_REQUEST_TRUNCATED_COLUMN_FAKE_COUNT);
+                stream.put_var_u32(LevelChunk::CLIENT_REQUEST_TRUNCATED_COLUMN_FAKE_COUNT);
+                stream.put_u16_le(self.sub_chunk_count as u16);
             }
         } else {
-            stream.put_unsigned_var_int(self.sub_chunk_count);
+            stream.put_var_u32(self.sub_chunk_count);
         }
 
         stream.put_bool(self.used_blob_hashes.is_some());
         if self.used_blob_hashes.is_some() {
-            stream.put_unsigned_var_int(self.used_blob_hashes.clone().unwrap().len() as u32);
+            stream.put_var_u32(self.used_blob_hashes.clone().unwrap().len() as u32);
             for blob in self.used_blob_hashes.clone().unwrap() {
-                stream.put_l_long(blob);
+                stream.put_u64_le(blob);
             }
         }
 
-        stream.put_unsigned_var_int(self.extra_payload.len() as u32);
+        stream.put_var_u32(self.extra_payload.len() as u32);
         stream.put(self.extra_payload.clone());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> LevelChunk {
         let mut stream = Stream::new(bytes, 0);
 
-        let chunk_x = stream.get_var_int();
-        let chunk_z = stream.get_var_int();
-        let dimension_id = stream.get_var_int();
+        let chunk_x = stream.get_var_i32();
+        let chunk_z = stream.get_var_i32();
+        let dimension_id = stream.get_var_i32();
 
         let sub_chunk_count: u32;
         let client_sub_chunk_requests_enabled: bool;
 
-        let sub_chunk_count_but_not_really = stream.get_unsigned_var_int();
+        let sub_chunk_count_but_not_really = stream.get_var_u32();
         if sub_chunk_count_but_not_really == LevelChunk::CLIENT_REQUEST_FULL_COLUMN_FAKE_COUNT {
             client_sub_chunk_requests_enabled = true;
             sub_chunk_count = u32::MAX;
         } else if sub_chunk_count_but_not_really == LevelChunk::CLIENT_REQUEST_TRUNCATED_COLUMN_FAKE_COUNT {
             client_sub_chunk_requests_enabled = true;
-            sub_chunk_count = stream.get_l_short() as u32;
+            sub_chunk_count = stream.get_u16_le() as u32;
         } else {
             client_sub_chunk_requests_enabled = false;
             sub_chunk_count = sub_chunk_count_but_not_really;
@@ -92,23 +93,23 @@ impl Packet for LevelChunk {
 
         let cache_enabled = stream.get_bool();
 
-        let mut used_blob_hashes: Option<Vec<i64>> = None;
+        let mut used_blob_hashes: Option<Vec<u64>> = None;
         if cache_enabled {
-            let count = stream.get_unsigned_var_int();
+            let count = stream.get_var_u32();
             if count > LevelChunk::MAX_BLOB_HASHES {
                 eprintln!("Expected at most {} blob hashes, got {}", LevelChunk::MAX_BLOB_HASHES, count);
             } else {
                 let mut blob_hashes = vec![];
                 for _ in 0..count {
-                    let blob = stream.get_l_long();
+                    let blob = stream.get_u64_le();
                     blob_hashes.push(blob);
                 }
                 used_blob_hashes = Option::from(blob_hashes);
             }
         }
 
-        let length = stream.get_unsigned_var_int();
-        let extra_payload = stream.get(length).unwrap();
+        let length = stream.get_var_u32();
+        let extra_payload = stream.get(length);
 
         LevelChunk { chunk_x, chunk_z, dimension_id, sub_chunk_count, client_sub_chunk_requests_enabled, used_blob_hashes, extra_payload }
     }

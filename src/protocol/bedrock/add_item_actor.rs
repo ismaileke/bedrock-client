@@ -17,7 +17,15 @@ pub struct AddItemActor {
     pub is_from_fishing: bool
 }
 
-pub fn new(actor_unique_id: i64, actor_runtime_id: u64, item: ItemStackWrapper, position: Vec<f32>, motion: Vec<f32>, metadata: HashMap<u32, Box<dyn MetadataProperty>>, is_from_fishing: bool) -> AddItemActor {
+pub fn new(
+    actor_unique_id: i64,
+    actor_runtime_id: u64,
+    item: ItemStackWrapper,
+    position: Vec<f32>,
+    motion: Vec<f32>,
+    metadata: HashMap<u32, Box<dyn MetadataProperty>>,
+    is_from_fishing: bool
+) -> AddItemActor {
     AddItemActor { actor_unique_id, actor_runtime_id, item, position, motion, metadata, is_from_fishing }
 }
 
@@ -28,7 +36,7 @@ impl Packet for AddItemActor {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_actor_unique_id(&mut stream, self.actor_unique_id);
         PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
@@ -39,10 +47,10 @@ impl Packet for AddItemActor {
         stream.put_bool(self.is_from_fishing);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> AddItemActor {

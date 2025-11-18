@@ -2,9 +2,9 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct CameraFadeInstructionColor {
-    red: f32,
-    green: f32,
-    blue: f32
+    pub red: f32,
+    pub green: f32,
+    pub blue: f32
 }
 
 impl CameraFadeInstructionColor {
@@ -13,16 +13,16 @@ impl CameraFadeInstructionColor {
     }
 
     pub fn read(stream: &mut Stream) -> CameraFadeInstructionColor {
-        let red = stream.get_l_float();
-        let green = stream.get_l_float();
-        let blue = stream.get_l_float();
+        let red = stream.get_f32_le();
+        let green = stream.get_f32_le();
+        let blue = stream.get_f32_le();
 
         CameraFadeInstructionColor{ red, green, blue }
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_l_float(self.red);
-        stream.put_l_float(self.green);
-        stream.put_l_float(self.blue);
+        stream.put_f32_le(self.red);
+        stream.put_f32_le(self.green);
+        stream.put_f32_le(self.blue);
     }
 }

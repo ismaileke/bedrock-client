@@ -16,7 +16,7 @@ impl StringIdMetaItemDescriptor {
 
     pub fn read(stream: &mut Stream) -> StringIdMetaItemDescriptor {
         let id = PacketSerializer::get_string(stream);
-        let meta = stream.get_l_short();
+        let meta = stream.get_u16_le();
 
         StringIdMetaItemDescriptor{ id, meta }
     }
@@ -29,7 +29,7 @@ impl ItemDescriptor for StringIdMetaItemDescriptor {
 
     fn write(&mut self, stream: &mut Stream) {
         PacketSerializer::put_string(stream, self.id.clone());
-        stream.put_l_short(self.meta);
+        stream.put_u16_le(self.meta);
     }
 }
 

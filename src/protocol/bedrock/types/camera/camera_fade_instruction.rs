@@ -5,8 +5,8 @@ use crate::protocol::bedrock::types::camera::camera_fade_instruction_time::Camer
 
 #[derive(Debug)]
 pub struct CameraFadeInstruction {
-    time: Option<CameraFadeInstructionTime>,
-    color: Option<CameraFadeInstructionColor>
+    pub time: Option<CameraFadeInstructionTime>,
+    pub color: Option<CameraFadeInstructionColor>
 }
 
 impl CameraFadeInstruction {

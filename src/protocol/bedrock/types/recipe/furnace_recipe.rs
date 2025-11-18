@@ -26,10 +26,10 @@ impl FurnaceRecipe {
     }
 
     pub fn read(type_id: i32, stream: &mut Stream) -> FurnaceRecipe {
-        let input_id = stream.get_var_int();
+        let input_id = stream.get_var_i32();
         let mut input_meta = None;
         if type_id == CraftingData::ENTRY_FURNACE_DATA {
-            input_meta = Some(stream.get_var_int());
+            input_meta = Some(stream.get_var_i32());
         }
         let result = PacketSerializer::get_item_stack_without_stack_id(stream);
         let block_name = PacketSerializer::get_string(stream);
@@ -44,9 +44,9 @@ impl RecipeWithTypeId for FurnaceRecipe {
     }
 
     fn write(&mut self, stream: &mut Stream) {
-        stream.put_var_int(self.input_id);
+        stream.put_var_i32(self.input_id);
         if self.get_selected_type_id() == CraftingData::ENTRY_FURNACE_DATA {
-            stream.put_var_int(self.input_meta.unwrap());
+            stream.put_var_i32(self.input_meta.unwrap());
         }
         PacketSerializer::put_item_stack_without_stack_id(stream, &self.result);
         PacketSerializer::put_string(stream, self.block_name.clone());

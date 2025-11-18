@@ -23,11 +23,6 @@ pub fn remove(entries: Vec<PlayerListEntry>) -> PlayerList {
     new(PlayerList::TYPE_REMOVE, entries)
 }
 
-impl PlayerList {
-    pub const TYPE_ADD: u8 = 0;
-    pub const TYPE_REMOVE: u8 = 1;
-}
-
 impl Packet for PlayerList {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPlayerList.get_byte()
@@ -35,10 +30,10 @@ impl Packet for PlayerList {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         stream.put_byte(self.list_type);
-        stream.put_unsigned_var_int(self.entries.len() as u32);
+        stream.put_var_u32(self.entries.len() as u32);
         for entry in self.entries.iter() {
             if self.list_type == Self::TYPE_ADD {
                 PacketSerializer::put_uuid(&mut stream, entry.uuid.clone());
@@ -46,12 +41,12 @@ impl Packet for PlayerList {
                 PacketSerializer::put_string(&mut stream, entry.username.clone());
                 PacketSerializer::put_string(&mut stream, entry.xbox_user_id.clone());
                 PacketSerializer::put_string(&mut stream, entry.platform_chat_id.clone());
-                stream.put_l_int(entry.build_platform);
+                stream.put_i32_le(entry.build_platform);
                 PacketSerializer::put_skin(&mut stream, &entry.skin_data);
                 stream.put_bool(entry.is_teacher);
                 stream.put_bool(entry.is_host);
                 stream.put_bool(entry.is_sub_client);
-                stream.put_l_int(entry.color.unwrap_or(Color::new(255, 255, 255, 255)).to_argb());
+                stream.put_u32_le(entry.color.unwrap_or(Color::new(255, 255, 255, 255)).to_argb());
             } else {
                 PacketSerializer::put_uuid(&mut stream, entry.uuid.clone());
             }
@@ -63,17 +58,17 @@ impl Packet for PlayerList {
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> PlayerList {
         let mut stream = Stream::new(bytes, 0);
 
         let list_type = stream.get_byte();
-        let count = stream.get_unsigned_var_int();
+        let count = stream.get_var_u32();
         let mut entries: Vec<PlayerListEntry> = Vec::with_capacity(count as usize);
         for _ in 0..count {
             let mut player_list_entry = PlayerListEntry::create_removal_entry(PacketSerializer::get_uuid(&mut stream));
@@ -85,11 +80,11 @@ impl Packet for PlayerList {
                     PacketSerializer::get_skin(&mut stream),
                     PacketSerializer::get_string(&mut stream),
                     PacketSerializer::get_string(&mut stream),
-                    stream.get_l_int(),
+                    stream.get_i32_le(),
                     stream.get_bool(),
                     stream.get_bool(),
                     stream.get_bool(),
-                    Some(Color::from_argb(stream.get_l_int()))
+                    Some(Color::from_argb(stream.get_u32_le()))
                 );
             }
             entries.push(player_list_entry);
@@ -106,4 +101,9 @@ impl Packet for PlayerList {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl PlayerList {
+    pub const TYPE_ADD: u8 = 0;
+    pub const TYPE_REMOVE: u8 = 1;
 }

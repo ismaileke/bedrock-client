@@ -39,7 +39,7 @@ async fn main() {
     let mut client = client::create(
         "127.0.0.1".to_string(),    // target address
         19132,                      // target port
-        "1.21.100".to_string(),     // client version
+        "1.21.120".to_string(),     // client version
         false,                      // debug mode
         |code, url| {
             // If you turn on debug, the login code and url will already appear in the console, but you can use this if you want to edit it yourself.
@@ -73,4 +73,4 @@ async fn main() {
 > [!NOTE]
 > This project is mainly designed for [Abyssal Eclipse](https://github.com/ismaileke/abyssal-eclipse), but you can get ideas and develop something from the code I wrote.
 >
-> It is still in development. I can't develop the project because I don't have time. Access to the servers is generally successful. I need to create the Chunk system for [Abyssal Eclipse](https://github.com/ismaileke/abyssal-eclipse).
+> It is still in development. I can't develop the project because I don't have time. Access to the servers is generally successful.

@@ -21,7 +21,7 @@ impl Packet for PlayerVideoCapture {
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_unsigned_var_int(self.id() as u32);
+        stream.put_var_u32(self.id() as u32);
 
         stream.put_bool(self.is_recording);
         if self.is_recording {
@@ -32,14 +32,14 @@ impl Packet for PlayerVideoCapture {
                 panic!("PlayerUpdateEntityOverridesPacket with recording=true require a file prefix to be provided")
             }
         }
-        stream.put_l_int(self.frame_rate.unwrap());
+        stream.put_u32_le(self.frame_rate.unwrap());
         PacketSerializer::put_string(&mut stream, self.file_prefix.clone().unwrap());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_unsigned_var_int(stream.get_buffer().len() as u32);
-        compress_stream.put(stream.get_buffer());
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
 
-        compress_stream.get_buffer()
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(bytes: Vec<u8>) -> PlayerVideoCapture {
@@ -49,7 +49,7 @@ impl Packet for PlayerVideoCapture {
         let mut frame_rate = None;
         let mut file_prefix = None;
         if is_recording {
-            frame_rate = Some(stream.get_l_int());
+            frame_rate = Some(stream.get_u32_le());
             file_prefix = Some(PacketSerializer::get_string(&mut stream));
         }
 

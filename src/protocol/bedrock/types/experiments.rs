@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use binary_utils::binary::Stream;
+use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(Debug)]
 pub struct Experiments {
@@ -10,16 +11,12 @@ pub struct Experiments {
 impl Experiments {
     pub fn read(stream: &mut Stream) -> Experiments {
         let mut experiments = HashMap::new();
-
-        let length = stream.get_l_int();
-
+        let length = stream.get_u32_le();
         for _ in 0..length {
-            let len = stream.get_unsigned_var_int();
-            let experiment_name = String::from_utf8(stream.get(len).unwrap()).unwrap();
+            let experiment_name = PacketSerializer::get_string(stream);
             let enabled = stream.get_bool();
             experiments.insert(experiment_name, enabled);
         }
-
         let has_previously_used_experiments = stream.get_bool();
 
         Experiments{ experiments, has_previously_used_experiments }

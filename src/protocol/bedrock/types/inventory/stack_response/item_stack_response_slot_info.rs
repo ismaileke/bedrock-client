@@ -32,7 +32,7 @@ impl ItemStackResponseSlotInfo {
         let item_stack_id = PacketSerializer::read_server_item_stack_id(stream);
         let custom_name = PacketSerializer::get_string(stream);
         let filtered_custom_name = PacketSerializer::get_string(stream);
-        let durability_correction = stream.get_var_int();
+        let durability_correction = stream.get_var_i32();
 
         ItemStackResponseSlotInfo{ slot, hotbar_slot, count, item_stack_id, custom_name, filtered_custom_name, durability_correction }
     }
@@ -44,6 +44,6 @@ impl ItemStackResponseSlotInfo {
         PacketSerializer::write_server_item_stack_id(stream, self.item_stack_id);
         PacketSerializer::put_string(stream, self.custom_name.clone());
         PacketSerializer::put_string(stream, self.filtered_custom_name.clone());
-        stream.put_var_int(self.durability_correction);
+        stream.put_var_i32(self.durability_correction);
     }
 }

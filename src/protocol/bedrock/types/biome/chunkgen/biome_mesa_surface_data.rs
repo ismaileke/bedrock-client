@@ -2,10 +2,10 @@ use binary_utils::binary::Stream;
 
 #[derive(Debug)]
 pub struct BiomeMesaSurfaceData {
-    clay_material: u32,
-    hard_clay_material: u32,
-    bryce_pillars: bool,
-    forest: bool
+    pub clay_material: u32,
+    pub hard_clay_material: u32,
+    pub bryce_pillars: bool,
+    pub forest: bool
 }
 
 impl BiomeMesaSurfaceData {
@@ -14,8 +14,8 @@ impl BiomeMesaSurfaceData {
     }
 
     pub fn read(stream: &mut Stream) -> BiomeMesaSurfaceData {
-        let clay_material = stream.get_l_int();
-        let hard_clay_material = stream.get_l_int();
+        let clay_material = stream.get_u32_le();
+        let hard_clay_material = stream.get_u32_le();
         let bryce_pillars = stream.get_bool();
         let forest = stream.get_bool();
 
@@ -23,8 +23,8 @@ impl BiomeMesaSurfaceData {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_l_int(self.clay_material);
-        stream.put_l_int(self.hard_clay_material);
+        stream.put_u32_le(self.clay_material);
+        stream.put_u32_le(self.hard_clay_material);
         stream.put_bool(self.bryce_pillars);
         stream.put_bool(self.forest);
     }

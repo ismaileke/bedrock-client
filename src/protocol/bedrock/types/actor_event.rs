@@ -62,4 +62,5 @@ impl ActorEvent {
     pub const GROW_UP: i32 = 76;
     pub const VIBRATION_DETECTED: i32 = 77;
     pub const DRINK_MILK: i32 = 78;
+    pub const SHAKE_WETNESS_STOP: i32 = 79;
 }

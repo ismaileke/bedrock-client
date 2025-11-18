@@ -3,8 +3,8 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(Debug)]
 pub struct CameraAimAssistPresetItemSettings {
-    item_identifier: String,
-    category_name: String
+    pub item_identifier: String,
+    pub category_name: String
 }
 
 impl CameraAimAssistPresetItemSettings {

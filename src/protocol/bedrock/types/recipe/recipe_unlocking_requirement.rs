@@ -19,7 +19,7 @@ impl RecipeUnlockingRequirement {
         let mut unlocking_ingredients = None;
         if !unlocking_context {
             let mut unlocking_ingredients2 = Vec::new();
-            let count = stream.get_unsigned_var_int();
+            let count = stream.get_var_u32();
             for _ in 0..count {
                 unlocking_ingredients2.push(PacketSerializer::get_recipe_ingredient(stream));
             }
@@ -32,7 +32,7 @@ impl RecipeUnlockingRequirement {
     pub fn write(&mut self, stream: &mut Stream) {
         stream.put_bool(self.unlocking_ingredients.is_none());
         if let Some(unlocking_ingredients) = self.unlocking_ingredients.as_mut() {
-            stream.put_unsigned_var_int(unlocking_ingredients.len() as u32);
+            stream.put_var_u32(unlocking_ingredients.len() as u32);
             for ingredient in unlocking_ingredients {
                 PacketSerializer::put_recipe_ingredient(stream, ingredient);
             }

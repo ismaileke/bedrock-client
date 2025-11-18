@@ -20,7 +20,7 @@ impl PlayerBlockActionWithBlockInfo {
 
     pub fn read(stream: &mut Stream, action_type: i32) -> PlayerBlockActionWithBlockInfo {
         let block_position = PacketSerializer::get_signed_block_pos(stream);
-        let face = stream.get_var_int();
+        let face = stream.get_var_i32();
 
         PlayerBlockActionWithBlockInfo{ action_type, block_position, face }
     }
@@ -40,6 +40,6 @@ impl PlayerBlockAction for PlayerBlockActionWithBlockInfo {
 
     fn write(&mut self, stream: &mut Stream) {
         PacketSerializer::put_signed_block_pos(stream, self.block_position.clone());
-        stream.put_var_int(self.face);
+        stream.put_var_i32(self.face);
     }
 }

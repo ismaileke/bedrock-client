@@ -124,9 +124,10 @@ impl EntityMetadataFlags {
     pub const RENDER_WHEN_INVISIBLE: u32 = 119;
     pub const ROTATION_AXIS_ALIGNED: u32 = 120;
     pub const COLLIDABLE: u32 = 121;
-    pub const WASD_AIR_CONTROLLED: u32 = 122;
+    pub const WASD_FREE_CAMERA_CONTROLLED: u32 = 122;
     pub const DOES_SERVER_AUTH_ONLY_DISMOUNT: u32 = 123;
     pub const BODY_ROTATION_ALWAYS_FOLLOWS_HEAD: u32 = 124;
 
-    pub const NUMBER_OF_FLAGS: u32 = 125;
+    pub const CAN_USE_VERTICAL_MOVEMENT_ACTION: u32 = 125;
+    pub const NUMBER_OF_FLAGS: u32 = 126;
 }

@@ -17,3 +17,5 @@ pub mod camera_set_instruction_ease;
 pub mod camera_set_instruction_ease_type;
 pub mod camera_set_instruction_rotation;
 pub mod camera_target_instruction;
+pub mod camera_spline_instruction;
+pub mod camera_rotation_option;
