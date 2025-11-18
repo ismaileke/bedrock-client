@@ -57,19 +57,6 @@ impl PacketSerializer {
             return s;
         }
 
-        if bytes.len() % 2 == 0 {
-            let mut u16s = Vec::with_capacity(bytes.len() / 2);
-            for chunk in bytes.chunks(2) {
-                let val = u16::from_le_bytes([chunk[0], chunk[1]]);
-                if val != 0x0000 && val != 0xFFFF {
-                    u16s.push(val);
-                }
-            }
-            if let Ok(s) = String::from_utf16(&u16s) {
-                return s;
-            }
-        }
-
         String::from_utf8_lossy(&bytes).to_string()
     }
 

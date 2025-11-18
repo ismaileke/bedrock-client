@@ -74,3 +74,4 @@ pub mod bool_pack_setting;
 pub mod pack_setting_type;
 pub mod float_pack_setting;
 pub mod string_pack_setting;
+pub mod parameter_keyframe_value;
