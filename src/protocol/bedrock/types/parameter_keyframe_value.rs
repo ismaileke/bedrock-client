@@ -1,5 +1,4 @@
 use binary_utils::binary::Stream;
-use tokio::io::AsyncReadExt;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(Debug)]
