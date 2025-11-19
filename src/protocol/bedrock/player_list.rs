@@ -71,10 +71,11 @@ impl Packet for PlayerList {
         let count = stream.get_var_u32();
         let mut entries: Vec<PlayerListEntry> = Vec::with_capacity(count as usize);
         for _ in 0..count {
-            let mut player_list_entry = PlayerListEntry::create_removal_entry(PacketSerializer::get_uuid(&mut stream));
+            let uuid = PacketSerializer::get_uuid(&mut stream);
+            let mut player_list_entry = PlayerListEntry::create_removal_entry(uuid.clone());
             if list_type == Self::TYPE_ADD {
                 player_list_entry = PlayerListEntry::create_addition_entry(
-                    PacketSerializer::get_uuid(&mut stream),
+                    uuid,
                     PacketSerializer::get_actor_unique_id(&mut stream),
                     PacketSerializer::get_string(&mut stream),
                     PacketSerializer::get_skin(&mut stream),

@@ -148,7 +148,6 @@ impl Packet for StartGame {
     fn debug(&self) {
         println!("Actor Unique ID: {}", self.actor_unique_id);
         println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Server Software Version: {}", self.server_software_version);
         println!("Player Game Mode: {}", self.player_game_mode);
         println!("Player Position: {:?}", self.player_position);
         println!("Yaw: {}", self.yaw);
