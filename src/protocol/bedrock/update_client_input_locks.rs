@@ -32,11 +32,9 @@ impl Packet for UpdateClientInputLocks {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> UpdateClientInputLocks {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> UpdateClientInputLocks {
         let flags = stream.get_var_u32();
-        let position = PacketSerializer::get_vector3(&mut stream);
+        let position = PacketSerializer::get_vector3(stream);
 
         UpdateClientInputLocks { flags, position }
     }

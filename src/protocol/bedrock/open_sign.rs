@@ -32,10 +32,8 @@ impl Packet for OpenSign {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> OpenSign {
-        let mut stream = Stream::new(bytes, 0);
-
-        let block_position = PacketSerializer::get_block_pos(&mut stream);
+    fn decode(stream: &mut Stream) -> OpenSign {
+        let block_position = PacketSerializer::get_block_pos(stream);
         let front = stream.get_bool();
 
         OpenSign { block_position, front }

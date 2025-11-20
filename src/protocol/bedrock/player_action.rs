@@ -38,13 +38,11 @@ impl Packet for PlayerAction {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PlayerAction {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+    fn decode(stream: &mut Stream) -> PlayerAction {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let action = stream.get_var_i32();
-        let block_position = PacketSerializer::get_block_pos(&mut stream);
-        let result_position = PacketSerializer::get_block_pos(&mut stream);
+        let block_position = PacketSerializer::get_block_pos(stream);
+        let result_position = PacketSerializer::get_block_pos(stream);
         let face = stream.get_var_i32();
 
         PlayerAction { actor_runtime_id, action, block_position, result_position, face }

@@ -36,10 +36,8 @@ impl Packet for MovementEffect {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> MovementEffect {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+    fn decode(stream: &mut Stream) -> MovementEffect {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let effect_type = stream.get_var_u32();
         let duration = stream.get_var_u32();
         let tick = stream.get_var_u64();

@@ -19,11 +19,6 @@ pub fn new(debug_type: u32, text: String, position: Vec<f32>, red: f32, green: f
     ClientBoundDebugRenderer { debug_type, text, position, red, green, blue, alpha, duration_millis }
 }
 
-impl ClientBoundDebugRenderer {
-    pub const TYPE_CLEAR: u32 = 1;
-    pub const TYPE_ADD_CUBE: u32 = 2;
-}
-
 impl Packet for ClientBoundDebugRenderer {
     fn id(&self) -> u16 {
         BedrockPacketType::IDClientBoundDebugRenderer.get_byte()
@@ -58,9 +53,7 @@ impl Packet for ClientBoundDebugRenderer {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ClientBoundDebugRenderer {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ClientBoundDebugRenderer {
         let debug_type = stream.get_u32_le();
         let mut text = String::new();
         let mut position = Vec::new();
@@ -73,8 +66,8 @@ impl Packet for ClientBoundDebugRenderer {
         match debug_type {
             Self::TYPE_CLEAR => {},
             Self::TYPE_ADD_CUBE => {
-                text = PacketSerializer::get_string(&mut stream);
-                position = PacketSerializer::get_vector3(&mut stream);
+                text = PacketSerializer::get_string(stream);
+                position = PacketSerializer::get_vector3(stream);
                 red = stream.get_f32_le();
                 green = stream.get_f32_le();
                 blue = stream.get_f32_le();
@@ -111,4 +104,9 @@ impl Packet for ClientBoundDebugRenderer {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl ClientBoundDebugRenderer {
+    pub const TYPE_CLEAR: u32 = 1;
+    pub const TYPE_ADD_CUBE: u32 = 2;
 }

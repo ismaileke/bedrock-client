@@ -34,11 +34,9 @@ impl Packet for UpdatePlayerGameType {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> UpdatePlayerGameType {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> UpdatePlayerGameType {
         let game_mode = stream.get_var_i32();
-        let player_actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
+        let player_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let tick = stream.get_var_u64();
 
         UpdatePlayerGameType { game_mode, player_actor_unique_id, tick }

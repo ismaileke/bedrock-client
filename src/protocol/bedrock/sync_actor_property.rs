@@ -31,10 +31,8 @@ impl Packet for SyncActorProperty {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SyncActorProperty {
-        let mut stream = Stream::new(bytes, 0);
-
-        let nbt = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(&mut stream)));
+    fn decode(stream: &mut Stream) -> SyncActorProperty {
+        let nbt = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream)));
 
         SyncActorProperty { nbt }
     }

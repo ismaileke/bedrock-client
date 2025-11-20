@@ -32,10 +32,8 @@ impl Packet for SpawnExperienceOrb {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SpawnExperienceOrb {
-        let mut stream = Stream::new(bytes, 0);
-
-        let position = PacketSerializer::get_vector3(&mut stream);
+    fn decode(stream: &mut Stream) -> SpawnExperienceOrb {
+        let position = PacketSerializer::get_vector3(stream);
         let amount = stream.get_var_i32();
 
         SpawnExperienceOrb { position, amount }

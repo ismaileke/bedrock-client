@@ -29,9 +29,7 @@ impl Packet for OnScreenTextureAnimation {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> OnScreenTextureAnimation {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> OnScreenTextureAnimation {
         let effect_id = stream.get_u32_le();
 
         OnScreenTextureAnimation { effect_id }

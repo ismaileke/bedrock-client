@@ -29,9 +29,7 @@ impl Packet for TickingAreasLoadStatus {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> TickingAreasLoadStatus {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> TickingAreasLoadStatus {
         let waiting_for_preload = stream.get_bool();
 
         TickingAreasLoadStatus { waiting_for_preload }

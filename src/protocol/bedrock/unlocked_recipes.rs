@@ -35,14 +35,12 @@ impl Packet for UnlockedRecipes {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> UnlockedRecipes {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> UnlockedRecipes {
         let unlock_type = stream.get_u32_le();
         let recipes_len = stream.get_var_u32() as usize;
         let mut recipes = Vec::new();
         for _ in 0..recipes_len {
-            let recipe = PacketSerializer::get_string(&mut stream);
+            let recipe = PacketSerializer::get_string(stream);
             recipes.push(recipe);
         }
 

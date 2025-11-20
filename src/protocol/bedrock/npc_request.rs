@@ -39,14 +39,12 @@ impl Packet for NPCRequest {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> NPCRequest {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+    fn decode(stream: &mut Stream) -> NPCRequest {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let request_type = stream.get_byte();
-        let command_string = PacketSerializer::get_string(&mut stream);
+        let command_string = PacketSerializer::get_string(stream);
         let action_index = stream.get_byte();
-        let scene_name = PacketSerializer::get_string(&mut stream);
+        let scene_name = PacketSerializer::get_string(stream);
 
         NPCRequest { actor_runtime_id, request_type, command_string, action_index, scene_name }
     }

@@ -35,14 +35,12 @@ impl Packet for ClientCacheMissResponse {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ClientCacheMissResponse {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ClientCacheMissResponse {
         let blobs_count = stream.get_var_u32() as usize;
         let mut blobs = Vec::new();
         for _ in 0..blobs_count {
             let hash = stream.get_u64_le();
-            let payload = PacketSerializer::get_string(&mut stream);
+            let payload = PacketSerializer::get_string(stream);
             blobs.push(ChunkCacheBlob::new(hash, payload));
         }
 

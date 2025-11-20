@@ -44,17 +44,15 @@ impl Packet for SetTitle {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SetTitle {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> SetTitle {
         let title_type = stream.get_var_i32();
-        let text = PacketSerializer::get_string(&mut stream);
+        let text = PacketSerializer::get_string(stream);
         let fade_in_time = stream.get_var_i32();
         let stay_time = stream.get_var_i32();
         let fade_out_time = stream.get_var_i32();
-        let xuid = PacketSerializer::get_string(&mut stream);
-        let platform_online_id = PacketSerializer::get_string(&mut stream);
-        let filtered_title_text = PacketSerializer::get_string(&mut stream);
+        let xuid = PacketSerializer::get_string(stream);
+        let platform_online_id = PacketSerializer::get_string(stream);
+        let filtered_title_text = PacketSerializer::get_string(stream);
 
         SetTitle { title_type, text, fade_in_time, stay_time, fade_out_time, xuid, platform_online_id, filtered_title_text }
     }

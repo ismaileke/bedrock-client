@@ -89,29 +89,27 @@ impl Packet for AddPlayer {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> AddPlayer {
-        let mut stream = Stream::new(bytes, 0);
-
-        let uuid = PacketSerializer::get_uuid(&mut stream);
-        let username = PacketSerializer::get_string(&mut stream);
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
-        let platform_chat_id = PacketSerializer::get_string(&mut stream);
-        let position = PacketSerializer::get_vector3(&mut stream);
-        let motion = PacketSerializer::get_vector3(&mut stream);
+    fn decode(stream: &mut Stream) -> AddPlayer {
+        let uuid = PacketSerializer::get_uuid(stream);
+        let username = PacketSerializer::get_string(stream);
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
+        let platform_chat_id = PacketSerializer::get_string(stream);
+        let position = PacketSerializer::get_vector3(stream);
+        let motion = PacketSerializer::get_vector3(stream);
         let pitch = stream.get_f32_le();
         let yaw = stream.get_f32_le();
         let head_yaw = stream.get_f32_le();
-        let item = PacketSerializer::get_item_stack_wrapper(&mut stream);
+        let item = PacketSerializer::get_item_stack_wrapper(stream);
         let game_mode = stream.get_var_i32();
-        let metadata = PacketSerializer::get_entity_metadata(&mut stream);
-        let synced_properties = PropertySyncData::read(&mut stream);
-        let abilities_packet = UpdateAbilities::decode(stream.get_remaining()); // get_remaining() is safe because we checked the length of the packet beforehand
+        let metadata = PacketSerializer::get_entity_metadata(stream);
+        let synced_properties = PropertySyncData::read(stream);
+        let abilities_packet = UpdateAbilities::decode(stream);
         let links_count = stream.get_var_u32() as usize;
         let mut links = Vec::new();
         for _ in 0..links_count {
-            links.push(PacketSerializer::get_entity_link(&mut stream));
+            links.push(PacketSerializer::get_entity_link(stream));
         }
-        let device_id = PacketSerializer::get_string(&mut stream);
+        let device_id = PacketSerializer::get_string(stream);
         let build_platform = stream.get_i32_le();
 
         AddPlayer {

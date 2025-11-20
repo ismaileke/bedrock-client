@@ -33,13 +33,11 @@ impl Packet for PlayerFog {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PlayerFog {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> PlayerFog {
         let fog_layers_len = stream.get_var_u32() as usize;
         let mut fog_layers = Vec::new();
         for _ in 0..fog_layers_len {
-            fog_layers.push(PacketSerializer::get_string(&mut stream));
+            fog_layers.push(PacketSerializer::get_string(stream));
         }
 
         PlayerFog { fog_layers }

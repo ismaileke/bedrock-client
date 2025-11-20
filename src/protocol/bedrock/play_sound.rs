@@ -38,11 +38,9 @@ impl Packet for PlaySound {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PlaySound {
-        let mut stream = Stream::new(bytes, 0);
-
-        let sound_name = PacketSerializer::get_string(&mut stream);
-        let block_pos = PacketSerializer::get_block_pos(&mut stream);
+    fn decode(stream: &mut Stream) -> PlaySound {
+        let sound_name = PacketSerializer::get_string(stream);
+        let block_pos = PacketSerializer::get_block_pos(stream);
         let volume = stream.get_f32_le();
         let pitch = stream.get_f32_le();
         let x = (block_pos[0] as f32) / 8.0;

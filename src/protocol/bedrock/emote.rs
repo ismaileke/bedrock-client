@@ -17,11 +17,6 @@ pub fn new(actor_runtime_id: u64, emote_id: String, emote_length_ticks: u32, xbo
     Emote { actor_runtime_id, emote_id, emote_length_ticks, xbox_user_id, platform_chat_id, flags }
 }
 
-impl Emote {
-    pub const FLAG_SERVER: u8 = 1 << 0;
-    pub const FLAG_MUTE_ANNOUNCEMENT: u8 = 1 << 1;
-}
-
 impl Packet for Emote {
     fn id(&self) -> u16 {
         BedrockPacketType::IDEmote.get_byte()
@@ -45,14 +40,12 @@ impl Packet for Emote {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> Emote {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
-        let emote_id = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> Emote {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
+        let emote_id = PacketSerializer::get_string(stream);
         let emote_length_ticks = stream.get_var_u32();
-        let xbox_user_id = PacketSerializer::get_string(&mut stream);
-        let platform_chat_id = PacketSerializer::get_string(&mut stream);
+        let xbox_user_id = PacketSerializer::get_string(stream);
+        let platform_chat_id = PacketSerializer::get_string(stream);
         let flags = stream.get_byte();
 
         Emote { actor_runtime_id, emote_id, emote_length_ticks, xbox_user_id, platform_chat_id, flags }
@@ -69,4 +62,9 @@ impl Packet for Emote {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl Emote {
+    pub const FLAG_SERVER: u8 = 1 << 0;
+    pub const FLAG_MUTE_ANNOUNCEMENT: u8 = 1 << 1;
 }

@@ -33,13 +33,11 @@ impl Packet for CameraPresets {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> CameraPresets {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> CameraPresets {
         let mut presets = Vec::<CameraPreset>::new();
         let count = stream.get_var_u32();
         for _ in 0..count {
-            presets.push(CameraPreset::read(&mut stream));
+            presets.push(CameraPreset::read(stream));
         }
 
         CameraPresets { presets }

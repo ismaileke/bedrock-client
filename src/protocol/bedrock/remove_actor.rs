@@ -30,10 +30,8 @@ impl Packet for RemoveActor {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> RemoveActor {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
+    fn decode(stream: &mut Stream) -> RemoveActor {
+        let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
 
         RemoveActor { actor_unique_id }
     }

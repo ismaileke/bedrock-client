@@ -39,18 +39,16 @@ impl Packet for TrimData {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> TrimData {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> TrimData {
         let trim_patterns_count = stream.get_var_u32() as usize;
         let mut trim_patterns = Vec::new();
         for _ in 0..trim_patterns_count {
-            trim_patterns.push(TrimPattern::read(&mut stream));
+            trim_patterns.push(TrimPattern::read(stream));
         }
         let trim_materials_count = stream.get_var_u32() as usize;
         let mut trim_materials = Vec::new();
         for _ in 0..trim_materials_count {
-            trim_materials.push(TrimMaterial::read(&mut stream));
+            trim_materials.push(TrimMaterial::read(stream));
         }
 
         TrimData { trim_patterns, trim_materials }

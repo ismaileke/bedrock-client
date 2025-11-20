@@ -27,7 +27,7 @@ impl Packet for ServerSettingsRequest {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(_bytes: Vec<u8>) -> ServerSettingsRequest {
+    fn decode(_stream: &mut Stream) -> ServerSettingsRequest {
         // No payload
         ServerSettingsRequest {}
     }

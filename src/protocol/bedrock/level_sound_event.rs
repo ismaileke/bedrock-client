@@ -42,13 +42,11 @@ impl Packet for LevelSoundEvent {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> LevelSoundEvent {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> LevelSoundEvent {
         let sound = stream.get_var_u32();
-        let position = PacketSerializer::get_vector3(&mut stream);
+        let position = PacketSerializer::get_vector3(stream);
         let extra_data = stream.get_var_i32();
-        let entity_type = PacketSerializer::get_string(&mut stream);
+        let entity_type = PacketSerializer::get_string(stream);
         let is_baby_mob = stream.get_bool();
         let disable_relative_volume = stream.get_bool();
         let actor_unique_id = stream.get_i64_le();

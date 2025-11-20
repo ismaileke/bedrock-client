@@ -37,9 +37,7 @@ impl Packet for ClientCacheBlobStatus {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ClientCacheBlobStatus {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ClientCacheBlobStatus {
         let miss_len = stream.get_var_u32() as usize;
         let hit_len = stream.get_var_u32() as usize;
         let mut miss_hashes = Vec::new();

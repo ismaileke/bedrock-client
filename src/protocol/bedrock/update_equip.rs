@@ -39,14 +39,12 @@ impl Packet for UpdateEquip {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> UpdateEquip {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> UpdateEquip {
         let window_id = stream.get_byte();
         let window_type = stream.get_byte();
         let window_slot_count = stream.get_var_i32();
-        let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
-        let nbt = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(&mut stream)));
+        let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
+        let nbt = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream)));
 
         UpdateEquip { window_id, window_type, window_slot_count, actor_unique_id, nbt }
     }

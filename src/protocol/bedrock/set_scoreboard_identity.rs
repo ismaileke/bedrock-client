@@ -39,9 +39,7 @@ impl Packet for SetScoreboardIdentity {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SetScoreboardIdentity {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> SetScoreboardIdentity {
         let action_type = stream.get_byte();
         let mut entries: Vec<ScoreboardIdentityEntry> = Vec::new();
         let count = stream.get_var_u32();
@@ -49,7 +47,7 @@ impl Packet for SetScoreboardIdentity {
             let scoreboard_id = stream.get_var_i64();
             let mut actor_unique_id = None;
             if action_type == SetScoreboardIdentity::TYPE_REGISTER_IDENTITY {
-                actor_unique_id = Some(PacketSerializer::get_actor_unique_id(&mut stream));
+                actor_unique_id = Some(PacketSerializer::get_actor_unique_id(stream));
             }
             entries.push(ScoreboardIdentityEntry{ scoreboard_id, actor_unique_id });
         }

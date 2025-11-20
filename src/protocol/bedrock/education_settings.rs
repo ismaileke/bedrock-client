@@ -72,19 +72,17 @@ impl Packet for EducationSettings {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> EducationSettings {
-        let mut stream = Stream::new(bytes, 0);
-
-        let code_builder_default_uri = PacketSerializer::get_string(&mut stream);
-        let code_builder_title = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> EducationSettings {
+        let code_builder_default_uri = PacketSerializer::get_string(stream);
+        let code_builder_title = PacketSerializer::get_string(stream);
         let can_resize_code_builder = stream.get_bool();
         let disable_legacy_title_bar = stream.get_bool();
-        let post_process_filter = PacketSerializer::get_string(&mut stream);
-        let screenshot_border_resource_path = PacketSerializer::get_string(&mut stream);
-        let agent_capabilities = PacketSerializer::read_optional(&mut stream, |s| EducationSettingsAgentCapabilities::read(s));
-        let code_builder_override_uri = PacketSerializer::read_optional(&mut stream, |s| PacketSerializer::get_string(s));
+        let post_process_filter = PacketSerializer::get_string(stream);
+        let screenshot_border_resource_path = PacketSerializer::get_string(stream);
+        let agent_capabilities = PacketSerializer::read_optional(stream, |s| EducationSettingsAgentCapabilities::read(s));
+        let code_builder_override_uri = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
         let has_quiz = stream.get_bool();
-        let link_settings = PacketSerializer::read_optional(&mut stream, |s| EducationSettingsExternalLinkSettings::read(s));
+        let link_settings = PacketSerializer::read_optional(stream, |s| EducationSettingsExternalLinkSettings::read(s));
 
         EducationSettings {
             code_builder_default_uri,

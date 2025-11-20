@@ -40,15 +40,13 @@ impl Packet for NPCDialogue {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> NPCDialogue {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> NPCDialogue {
         let npc_actor_unique_id = stream.get_i64_le();
         let action_type = stream.get_var_i32();
-        let dialogue = PacketSerializer::get_string(&mut stream);
-        let scene_name = PacketSerializer::get_string(&mut stream);
-        let npc_name = PacketSerializer::get_string(&mut stream);
-        let action_json = PacketSerializer::get_string(&mut stream);
+        let dialogue = PacketSerializer::get_string(stream);
+        let scene_name = PacketSerializer::get_string(stream);
+        let npc_name = PacketSerializer::get_string(stream);
+        let action_json = PacketSerializer::get_string(stream);
 
         NPCDialogue { npc_actor_unique_id, action_type, dialogue, scene_name, npc_name, action_json }
     }

@@ -40,11 +40,9 @@ impl Packet for CameraAimAssist {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> CameraAimAssist {
-        let mut stream = Stream::new(bytes, 0);
-
-        let preset_id = PacketSerializer::get_string(&mut stream);
-        let view_angle = PacketSerializer::get_vector2(&mut stream);
+    fn decode(stream: &mut Stream) -> CameraAimAssist {
+        let preset_id = PacketSerializer::get_string(stream);
+        let view_angle = PacketSerializer::get_vector2(stream);
         let distance = stream.get_f32_le();
         let target_mode = stream.get_byte();
         let action_type = stream.get_byte();

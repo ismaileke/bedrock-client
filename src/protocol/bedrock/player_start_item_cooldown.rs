@@ -32,10 +32,8 @@ impl Packet for PlayerStartItemCooldown {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PlayerStartItemCooldown {
-        let mut stream = Stream::new(bytes, 0);
-
-        let item_category = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> PlayerStartItemCooldown {
+        let item_category = PacketSerializer::get_string(stream);
         let cooldown_ticks = stream.get_var_i32();
 
         PlayerStartItemCooldown { item_category, cooldown_ticks }

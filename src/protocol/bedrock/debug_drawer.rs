@@ -33,13 +33,11 @@ impl Packet for DebugDrawer {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> DebugDrawer {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> DebugDrawer {
         let mut shapes = Vec::new();
         let count = stream.get_var_u32() as usize;
         for _ in 0..count {
-            shapes.push(PacketShapeData::read(&mut stream));
+            shapes.push(PacketShapeData::read(stream));
         }
 
         DebugDrawer { shapes }

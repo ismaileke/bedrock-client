@@ -29,9 +29,7 @@ impl Packet for ClientCacheStatus {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ClientCacheStatus {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ClientCacheStatus {
         let enabled = stream.get_bool();
         ClientCacheStatus { enabled }
     }

@@ -34,12 +34,10 @@ impl Packet for CreatePhoto {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> CreatePhoto {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> CreatePhoto {
         let actor_unique_id = stream.get_i64_le();
-        let photo_name = PacketSerializer::get_string(&mut stream);
-        let photo_item_name = PacketSerializer::get_string(&mut stream);
+        let photo_name = PacketSerializer::get_string(stream);
+        let photo_item_name = PacketSerializer::get_string(stream);
 
         CreatePhoto { actor_unique_id, photo_name, photo_item_name }
     }

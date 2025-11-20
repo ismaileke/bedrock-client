@@ -32,11 +32,9 @@ impl Packet for ModalFormRequest {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ModalFormRequest {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ModalFormRequest {
         let form_id = stream.get_var_u32();
-        let form_data = PacketSerializer::get_string(&mut stream);
+        let form_data = PacketSerializer::get_string(stream);
 
         ModalFormRequest { form_id, form_data }
     }

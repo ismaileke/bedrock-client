@@ -29,9 +29,7 @@ impl Packet for SetPlayerGameType {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SetPlayerGameType {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> SetPlayerGameType {
         let game_mode = stream.get_var_i32();
 
         SetPlayerGameType { game_mode }

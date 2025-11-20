@@ -32,10 +32,8 @@ impl Packet for SettingsCommand {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SettingsCommand {
-        let mut stream = Stream::new(bytes, 0);
-
-        let command = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> SettingsCommand {
+        let command = PacketSerializer::get_string(stream);
         let suppress_output = stream.get_bool();
 
         SettingsCommand { command, suppress_output }

@@ -30,7 +30,7 @@ impl Packet for SetLocalPlayerAsInitializedPacket {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(_bytes: Vec<u8>) -> SetLocalPlayerAsInitializedPacket {
+    fn decode(_stream: &mut Stream) -> SetLocalPlayerAsInitializedPacket {
         todo!()
     }
 

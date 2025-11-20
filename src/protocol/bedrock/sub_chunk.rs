@@ -64,9 +64,7 @@ impl Packet for SubChunk {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SubChunk {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> SubChunk {
         let cache_enabled = stream.get_bool();
         let dimension = stream.get_var_i32();
         let x = stream.get_var_i32();
@@ -78,13 +76,13 @@ impl Packet for SubChunk {
         let entries = if cache_enabled {
             let mut sub_entries = Vec::new();
             for _ in 0..count {
-                sub_entries.push(SubChunkEntryWithCache::read(&mut stream));
+                sub_entries.push(SubChunkEntryWithCache::read(stream));
             }
             SubChunkEntries::ListWithCache(SubChunkEntryWithCacheList::new(sub_entries))
         } else {
             let mut sub_entries = Vec::new();
             for _ in 0..count {
-                sub_entries.push(SubChunkEntryWithoutCache::read(&mut stream));
+                sub_entries.push(SubChunkEntryWithoutCache::read(stream));
             }
             SubChunkEntries::ListWithoutCache(SubChunkEntryWithoutCacheList::new(sub_entries))
         };

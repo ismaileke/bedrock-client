@@ -53,15 +53,14 @@ impl Packet for AddItemActor {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> AddItemActor {
-        let mut stream = Stream::new(bytes, 0);
+    fn decode(stream: &mut Stream) -> AddItemActor {
 
-        let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
-        let item = PacketSerializer::get_item_stack_wrapper(&mut stream);
-        let position = PacketSerializer::get_vector3(&mut stream);
-        let motion = PacketSerializer::get_vector3(&mut stream);
-        let metadata = PacketSerializer::get_entity_metadata(&mut stream);
+        let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
+        let item = PacketSerializer::get_item_stack_wrapper(stream);
+        let position = PacketSerializer::get_vector3(stream);
+        let motion = PacketSerializer::get_vector3(stream);
+        let metadata = PacketSerializer::get_entity_metadata(stream);
         let is_from_fishing = stream.get_bool();
 
         AddItemActor { actor_unique_id, actor_runtime_id, item, position, motion, metadata, is_from_fishing }

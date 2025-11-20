@@ -32,10 +32,8 @@ impl Packet for ShowStoreOffer {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ShowStoreOffer {
-        let mut stream = Stream::new(bytes, 0);
-
-        let offer_id = PacketSerializer::get_uuid(&mut stream);
+    fn decode(stream: &mut Stream) -> ShowStoreOffer {
+        let offer_id = PacketSerializer::get_uuid(stream);
         let redirect_type = stream.get_byte();
 
         ShowStoreOffer { offer_id, redirect_type }

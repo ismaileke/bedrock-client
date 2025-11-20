@@ -33,13 +33,11 @@ impl Packet for PlayerEnchantOptions {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PlayerEnchantOptions {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> PlayerEnchantOptions {
         let mut options = Vec::new();
         let len = stream.get_var_u32();
         for _ in 0..len {
-            options.push(EnchantOption::read(&mut stream));
+            options.push(EnchantOption::read(stream));
         }
 
         PlayerEnchantOptions { options }

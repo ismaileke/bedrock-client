@@ -39,9 +39,7 @@ impl Packet for RequestAbility {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> RequestAbility {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> RequestAbility {
         let ability_id = stream.get_var_i32();
         let value_type = stream.get_byte();
         let bool_value = stream.get_bool();

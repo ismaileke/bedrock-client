@@ -45,19 +45,17 @@ impl Packet for AnimateEntity {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> AnimateEntity {
-        let mut stream = Stream::new(bytes, 0);
-
-        let animation = PacketSerializer::get_string(&mut stream);
-        let next_state = PacketSerializer::get_string(&mut stream);
-        let stop_expression = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> AnimateEntity {
+        let animation = PacketSerializer::get_string(stream);
+        let next_state = PacketSerializer::get_string(stream);
+        let stop_expression = PacketSerializer::get_string(stream);
         let stop_expression_version = stream.get_i32_le();
-        let controller = PacketSerializer::get_string(&mut stream);
+        let controller = PacketSerializer::get_string(stream);
         let blend_out_time = stream.get_f32_le();
-        let actor_runtime_ids_len = stream.get_var_u32() as usize;
+        let actor_runtime_ids_len = stream.get_var_u32();
         let mut actor_runtime_ids = Vec::new();
         for _ in 0..actor_runtime_ids_len {
-            actor_runtime_ids.push(PacketSerializer::get_actor_runtime_id(&mut stream));
+            actor_runtime_ids.push(PacketSerializer::get_actor_runtime_id(stream));
         }
 
         AnimateEntity { animation, next_state, stop_expression, stop_expression_version, controller, blend_out_time, actor_runtime_ids }

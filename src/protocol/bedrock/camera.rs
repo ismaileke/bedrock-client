@@ -32,11 +32,9 @@ impl Packet for Camera {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> Camera {
-        let mut stream = Stream::new(bytes, 0);
-
-        let camera_actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
-        let player_actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
+    fn decode(stream: &mut Stream) -> Camera {
+        let camera_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
+        let player_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
 
         Camera { camera_actor_unique_id, player_actor_unique_id }
     }

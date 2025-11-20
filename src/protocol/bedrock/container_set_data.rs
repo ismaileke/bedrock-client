@@ -13,18 +13,6 @@ pub fn new(window_id: u8, property: i32, value: i32) -> ContainerSetData {
     ContainerSetData { window_id, property, value }
 }
 
-impl ContainerSetData {
-    pub const PROPERTY_FURNACE_SMELT_PROGRESS: i32 = 0;
-    pub const PROPERTY_FURNACE_REMAINING_FUEL_TIME: i32 = 1;
-    pub const PROPERTY_FURNACE_MAX_FUEL_TIME: i32 = 2;
-    pub const PROPERTY_FURNACE_STORED_XP: i32 = 3;
-    pub const PROPERTY_FURNACE_FUEL_AUX: i32 = 4;
-
-    pub const PROPERTY_BREWING_STAND_BREW_TIME: i32 = 0;
-    pub const PROPERTY_BREWING_STAND_FUEL_AMOUNT: i32 = 1;
-    pub const PROPERTY_BREWING_STAND_FUEL_TOTAL: i32 = 2;
-}
-
 impl Packet for ContainerSetData {
     fn id(&self) -> u16 {
         BedrockPacketType::IDContainerSetData.get_byte()
@@ -45,9 +33,7 @@ impl Packet for ContainerSetData {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ContainerSetData {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ContainerSetData {
         let window_id = stream.get_byte();
         let property = stream.get_var_i32();
         let value = stream.get_var_i32();
@@ -64,4 +50,16 @@ impl Packet for ContainerSetData {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl ContainerSetData {
+    pub const PROPERTY_FURNACE_SMELT_PROGRESS: i32 = 0;
+    pub const PROPERTY_FURNACE_REMAINING_FUEL_TIME: i32 = 1;
+    pub const PROPERTY_FURNACE_MAX_FUEL_TIME: i32 = 2;
+    pub const PROPERTY_FURNACE_STORED_XP: i32 = 3;
+    pub const PROPERTY_FURNACE_FUEL_AUX: i32 = 4;
+
+    pub const PROPERTY_BREWING_STAND_BREW_TIME: i32 = 0;
+    pub const PROPERTY_BREWING_STAND_FUEL_AMOUNT: i32 = 1;
+    pub const PROPERTY_BREWING_STAND_FUEL_TOTAL: i32 = 2;
 }

@@ -41,17 +41,15 @@ impl Packet for InventoryContent {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> InventoryContent {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> InventoryContent {
         let window_id = stream.get_var_u32();
         let items_count = stream.get_var_u32();
         let mut items = Vec::new();
         for _ in 0..items_count {
-            items.push(PacketSerializer::get_item_stack_wrapper(&mut stream));
+            items.push(PacketSerializer::get_item_stack_wrapper(stream));
         }
-        let container_name = FullContainerName::read(&mut stream);
-        let storage = PacketSerializer::get_item_stack_wrapper(&mut stream);
+        let container_name = FullContainerName::read(stream);
+        let storage = PacketSerializer::get_item_stack_wrapper(stream);
 
         InventoryContent { window_id, items, container_name, storage }
     }

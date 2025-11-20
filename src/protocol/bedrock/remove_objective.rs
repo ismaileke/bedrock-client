@@ -30,10 +30,8 @@ impl Packet for RemoveObjective {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> RemoveObjective {
-        let mut stream = Stream::new(bytes, 0);
-
-        let objective_name = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> RemoveObjective {
+        let objective_name = PacketSerializer::get_string(stream);
 
         RemoveObjective { objective_name }
     }

@@ -39,16 +39,14 @@ impl Packet for ServerBoundPackSettingChange {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ServerBoundPackSettingChange {
-        let mut stream = Stream::new(bytes, 0);
-
-        let pack_id = PacketSerializer::get_uuid(&mut stream);
-        let name = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> ServerBoundPackSettingChange {
+        let pack_id = PacketSerializer::get_uuid(stream);
+        let name = PacketSerializer::get_string(stream);
         let id = stream.get_var_u32();
         let pack_setting = match id {
-            PackSettingType::FLOAT => Box::new(FloatPackSetting::read(&mut stream, name)) as Box<dyn PackSetting>,
-            PackSettingType::BOOL => Box::new(BoolPackSetting::read(&mut stream, name)) as Box<dyn PackSetting>,
-            PackSettingType::STRING => Box::new(StringPackSetting::read(&mut stream, name)) as Box<dyn PackSetting>,
+            PackSettingType::FLOAT => Box::new(FloatPackSetting::read(stream, name)) as Box<dyn PackSetting>,
+            PackSettingType::BOOL => Box::new(BoolPackSetting::read(stream, name)) as Box<dyn PackSetting>,
+            PackSettingType::STRING => Box::new(StringPackSetting::read(stream, name)) as Box<dyn PackSetting>,
             _ => {
                 panic!("Unknown pack id: {}", id);
             }

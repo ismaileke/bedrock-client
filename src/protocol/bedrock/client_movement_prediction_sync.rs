@@ -84,10 +84,8 @@ impl Packet for ClientMovementPredictionSync {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ClientMovementPredictionSync {
-        let mut stream = Stream::new(bytes, 0);
-
-        let flags = BitSet::read(&mut stream, Self::FLAG_LENGTH as usize);
+    fn decode(stream: &mut Stream) -> ClientMovementPredictionSync {
+        let flags = BitSet::read(stream, Self::FLAG_LENGTH as usize);
         let scale = stream.get_f32_le();
         let width = stream.get_f32_le();
         let height = stream.get_f32_le();
@@ -97,7 +95,7 @@ impl Packet for ClientMovementPredictionSync {
         let jump_strength = stream.get_f32_le();
         let health = stream.get_f32_le();
         let hunger = stream.get_f32_le();
-        let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
+        let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let actor_flying_state = stream.get_bool();
 
         ClientMovementPredictionSync { flags, scale, width, height, movement_speed, underwater_movement_speed, lava_movement_speed, jump_strength, health, hunger, actor_unique_id, actor_flying_state }

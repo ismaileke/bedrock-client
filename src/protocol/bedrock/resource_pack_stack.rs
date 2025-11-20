@@ -24,26 +24,24 @@ impl Packet for ResourcePackStack {
         todo!()
     }
 
-    fn decode(bytes: Vec<u8>) -> ResourcePackStack {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ResourcePackStack {
         let must_accept = stream.get_bool();
 
         let mut behavior_pack_stack = vec![];
         let behavior_pack_count = stream.get_var_u32();
         for _ in 0..behavior_pack_count {
-            behavior_pack_stack.push(ResourcePackStackEntry::read(&mut stream));
+            behavior_pack_stack.push(ResourcePackStackEntry::read(stream));
         }
 
         let mut resource_pack_stack = vec![];
         let resource_pack_count = stream.get_var_u32();
         for _ in 0..resource_pack_count {
-            resource_pack_stack.push(ResourcePackStackEntry::read(&mut stream));
+            resource_pack_stack.push(ResourcePackStackEntry::read(stream));
         }
 
-        let base_game_version = PacketSerializer::get_string(&mut stream);
+        let base_game_version = PacketSerializer::get_string(stream);
 
-        let experiments = Experiments::read(&mut stream);
+        let experiments = Experiments::read(stream);
 
         let use_vanilla_editor_packs = stream.get_bool();
 

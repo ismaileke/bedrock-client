@@ -82,14 +82,12 @@ impl Packet for AddActor {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> AddActor {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
-        let entity_type = PacketSerializer::get_string(&mut stream);
-        let position = PacketSerializer::get_vector3(&mut stream);
-        let motion = PacketSerializer::get_vector3(&mut stream);
+    fn decode(stream: &mut Stream) -> AddActor {
+        let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
+        let entity_type = PacketSerializer::get_string(stream);
+        let position = PacketSerializer::get_vector3(stream);
+        let motion = PacketSerializer::get_vector3(stream);
         let pitch = stream.get_f32_le();
         let yaw = stream.get_f32_le();
         let head_yaw = stream.get_f32_le();
@@ -97,18 +95,18 @@ impl Packet for AddActor {
         let attribute_count = stream.get_var_u32() as usize;
         let mut attributes = Vec::new();
         for _ in 0..attribute_count {
-            let id = PacketSerializer::get_string(&mut stream);
+            let id = PacketSerializer::get_string(stream);
             let min = stream.get_f32_le();
             let current =  stream.get_f32_le();
             let max = stream.get_f32_le();
             attributes.push(Attribute{ id, min, max, current, default: current, modifiers: vec![] });
         }
-        let metadata = PacketSerializer::get_entity_metadata(&mut stream);
-        let synced_properties = PropertySyncData::read(&mut stream);
+        let metadata = PacketSerializer::get_entity_metadata(stream);
+        let synced_properties = PropertySyncData::read(stream);
         let link_count = stream.get_var_u32() as usize;
         let mut links = Vec::new();
         for _ in 0..link_count {
-            links.push(PacketSerializer::get_entity_link(&mut stream));
+            links.push(PacketSerializer::get_entity_link(stream));
         }
 
         AddActor { actor_unique_id, actor_runtime_id, entity_type, position, motion: Option::from(motion), pitch, yaw, head_yaw, body_yaw, attributes, metadata, synced_properties, links }

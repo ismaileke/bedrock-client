@@ -32,11 +32,9 @@ impl Packet for ServerBoundLoadingScreen {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ServerBoundLoadingScreen {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ServerBoundLoadingScreen {
         let loading_screen_type = stream.get_var_i32();
-        let loading_screen_id = PacketSerializer::read_optional(&mut stream, |s| s.get_u32_le());
+        let loading_screen_id = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
 
         ServerBoundLoadingScreen { loading_screen_type, loading_screen_id }
     }

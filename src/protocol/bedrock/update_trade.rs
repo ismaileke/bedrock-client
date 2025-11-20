@@ -60,19 +60,17 @@ impl Packet for UpdateTrade {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> UpdateTrade {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> UpdateTrade {
         let window_id = stream.get_byte();
         let window_type = stream.get_byte();
         let window_slot_count = stream.get_var_i32();
         let trade_tier = stream.get_var_i32();
-        let trader_actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
-        let player_actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
-        let display_name = PacketSerializer::get_string(&mut stream);
+        let trader_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
+        let player_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
+        let display_name = PacketSerializer::get_string(stream);
         let is_v2_trading = stream.get_bool();
         let is_economy_trading = stream.get_bool();
-        let offers = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(&mut stream)));
+        let offers = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream)));
 
         UpdateTrade { window_id, window_type, window_slot_count, trade_tier, trader_actor_unique_id, player_actor_unique_id, display_name, is_v2_trading, is_economy_trading, offers }
     }

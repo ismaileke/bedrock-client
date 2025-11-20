@@ -30,10 +30,8 @@ impl Packet for UpdateClientOptions {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> UpdateClientOptions {
-        let mut stream = Stream::new(bytes, 0);
-
-        let graphics_mode = PacketSerializer::read_optional(&mut stream, |s| s.get_byte());
+    fn decode(stream: &mut Stream) -> UpdateClientOptions {
+        let graphics_mode = PacketSerializer::read_optional(stream, |s| s.get_byte());
 
         UpdateClientOptions { graphics_mode }
     }

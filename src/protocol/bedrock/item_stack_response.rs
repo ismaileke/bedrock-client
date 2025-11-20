@@ -33,13 +33,11 @@ impl Packet for ItemStackResponse {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ItemStackResponse {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ItemStackResponse {
         let response_count = stream.get_var_u32() as usize;
         let mut responses = Vec::new();
         for _ in 0..response_count {
-            responses.push(ItemStackResponseEntry::read(&mut stream));
+            responses.push(ItemStackResponseEntry::read(stream));
         }
 
         ItemStackResponse { responses }

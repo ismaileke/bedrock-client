@@ -39,15 +39,10 @@ impl Packet for NetworkChunkPublisherUpdate {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> NetworkChunkPublisherUpdate {
-        let mut stream = Stream::new(bytes, 0);
-
-        let block_pos = PacketSerializer::get_block_pos(&mut stream);
-
+    fn decode(stream: &mut Stream) -> NetworkChunkPublisherUpdate {
+        let block_pos = PacketSerializer::get_block_pos(stream);
         let radius = stream.get_var_u32();
-
         let count = stream.get_u32_le();
-
         if count > MAX_SAVED_CHUNKS {
             error!("Expected at most {} saved chunks, got {}", MAX_SAVED_CHUNKS, count)
         }

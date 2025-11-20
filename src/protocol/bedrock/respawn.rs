@@ -34,12 +34,10 @@ impl Packet for Respawn {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> Respawn {
-        let mut stream = Stream::new(bytes, 0);
-
-        let position = PacketSerializer::get_vector3(&mut stream);
+    fn decode(stream: &mut Stream) -> Respawn {
+        let position = PacketSerializer::get_vector3(stream);
         let respawn_state = stream.get_byte();
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
 
         Respawn { position, respawn_state, actor_runtime_id }
     }

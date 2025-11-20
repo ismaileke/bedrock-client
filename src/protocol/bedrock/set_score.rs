@@ -52,15 +52,13 @@ impl Packet for SetScore {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SetScore {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> SetScore {
         let action_type = stream.get_byte();
         let count = stream.get_var_u32();
         let mut entries: Vec<ScoreEntry> = Vec::new();
         for _ in 0..count {
             let scoreboard_id = stream.get_var_i64();
-            let objective_name = PacketSerializer::get_string(&mut stream);
+            let objective_name = PacketSerializer::get_string(stream);
             let score = stream.get_i32_le();
             let mut entity_type = 0; // Why I did IDK
             let mut actor_unique_id = None;
@@ -69,10 +67,10 @@ impl Packet for SetScore {
                 entity_type = stream.get_byte();
                 match entity_type {
                     ScoreEntry::TYPE_PLAYER | ScoreEntry::TYPE_ENTITY => {
-                        actor_unique_id = Some(PacketSerializer::get_actor_unique_id(&mut stream));
+                        actor_unique_id = Some(PacketSerializer::get_actor_unique_id(stream));
                     },
                     ScoreEntry::TYPE_FAKE_PLAYER => {
-                        custom_name = Some(PacketSerializer::get_string(&mut stream));
+                        custom_name = Some(PacketSerializer::get_string(stream));
                     },
                     _ => {
                         panic!("Unknown entry type {}", entity_type);

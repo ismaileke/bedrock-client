@@ -38,15 +38,12 @@ impl Packet for SpawnParticleEffect {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SpawnParticleEffect {
-        let mut stream = Stream::new(bytes, 0);
-
-
+    fn decode(stream: &mut Stream) -> SpawnParticleEffect {
         let dimension_id = stream.get_byte();
-        let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
-        let position = PacketSerializer::get_vector3(&mut stream);
-        let particle_name = PacketSerializer::get_string(&mut stream);
-        let molang_variables_json = PacketSerializer::read_optional(&mut stream, |s| PacketSerializer::get_string(s));
+        let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
+        let position = PacketSerializer::get_vector3(stream);
+        let particle_name = PacketSerializer::get_string(stream);
+        let molang_variables_json = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
 
         SpawnParticleEffect { dimension_id, actor_unique_id, position, particle_name, molang_variables_json }
     }

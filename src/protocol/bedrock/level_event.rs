@@ -34,11 +34,9 @@ impl Packet for LevelEvent {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> LevelEvent {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> LevelEvent {
         let event_id = stream.get_var_i32();
-        let position = PacketSerializer::get_vector3(&mut stream);
+        let position = PacketSerializer::get_vector3(stream);
         let event_data = stream.get_var_i32();
 
         LevelEvent { event_id, position, event_data }

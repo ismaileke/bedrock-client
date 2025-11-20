@@ -32,11 +32,9 @@ impl Packet for TakeItemActor {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> TakeItemActor {
-        let mut stream = Stream::new(bytes, 0);
-
-        let item_actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
-        let taker_actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+    fn decode(stream: &mut Stream) -> TakeItemActor {
+        let item_actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
+        let taker_actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
 
         TakeItemActor { item_actor_runtime_id, taker_actor_runtime_id }
     }

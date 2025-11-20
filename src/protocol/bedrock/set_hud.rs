@@ -34,9 +34,7 @@ impl Packet for SetHud {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SetHud {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> SetHud {
         let count = stream.get_var_u32() as usize;
         let mut hud_elements = Vec::new();
         for _ in 0..count {

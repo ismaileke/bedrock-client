@@ -32,10 +32,8 @@ impl Packet for ShowCredits {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ShowCredits {
-        let mut stream = Stream::new(bytes, 0);
-
-        let player_actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+    fn decode(stream: &mut Stream) -> ShowCredits {
+        let player_actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let status = stream.get_var_i32();
 
         ShowCredits { player_actor_runtime_id, status }

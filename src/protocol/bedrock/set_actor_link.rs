@@ -31,10 +31,8 @@ impl Packet for SetActorLink {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SetActorLink {
-        let mut stream = Stream::new(bytes, 0);
-
-        let link = PacketSerializer::get_entity_link(&mut stream);
+    fn decode(stream: &mut Stream) -> SetActorLink {
+        let link = PacketSerializer::get_entity_link(stream);
 
         SetActorLink { link }
     }

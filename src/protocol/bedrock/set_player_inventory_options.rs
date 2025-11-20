@@ -37,9 +37,7 @@ impl Packet for SetPlayerInventoryOptions {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SetPlayerInventoryOptions {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> SetPlayerInventoryOptions {
         let left_tab = stream.get_var_i32();
         let right_tab = stream.get_var_i32();
         let filtering = stream.get_bool();

@@ -20,14 +20,6 @@ pub fn new(event_type: u8, inventory_slot: u8, page_number: u8, secondary_page_n
     BookEdit { event_type, inventory_slot, page_number, secondary_page_number, text, photo_name, title, author, xuid }
 }
 
-impl BookEdit {
-    pub const TYPE_REPLACE_PAGE: u8 = 0;
-    pub const TYPE_ADD_PAGE: u8 = 1;
-    pub const TYPE_DELETE_PAGE: u8 = 2;
-    pub const TYPE_SWAP_PAGES: u8 = 3;
-    pub const TYPE_SIGN_BOOK: u8 = 4;
-}
-
 impl Packet for BookEdit {
     fn id(&self) -> u16 {
         BedrockPacketType::IDBookEdit.get_byte()
@@ -70,9 +62,7 @@ impl Packet for BookEdit {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> BookEdit {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> BookEdit {
         let event_type = stream.get_byte();
         let inventory_slot = stream.get_byte();
         let mut page_number = 0;
@@ -86,8 +76,8 @@ impl Packet for BookEdit {
         match event_type {
             BookEdit::TYPE_REPLACE_PAGE | BookEdit::TYPE_ADD_PAGE => {
                 page_number = stream.get_byte();
-                text = PacketSerializer::get_string(&mut stream);
-                photo_name = PacketSerializer::get_string(&mut stream);
+                text = PacketSerializer::get_string(stream);
+                photo_name = PacketSerializer::get_string(stream);
             },
             BookEdit::TYPE_DELETE_PAGE => {
                 page_number = stream.get_byte();
@@ -97,9 +87,9 @@ impl Packet for BookEdit {
                 secondary_page_number = stream.get_byte();
             },
             BookEdit::TYPE_SIGN_BOOK => {
-                title = PacketSerializer::get_string(&mut stream);
-                author = PacketSerializer::get_string(&mut stream);
-                xuid = PacketSerializer::get_string(&mut stream);
+                title = PacketSerializer::get_string(stream);
+                author = PacketSerializer::get_string(stream);
+                xuid = PacketSerializer::get_string(stream);
             },
             _ => {
                 panic!("Invalid book edit event type");
@@ -124,4 +114,12 @@ impl Packet for BookEdit {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl BookEdit {
+    pub const TYPE_REPLACE_PAGE: u8 = 0;
+    pub const TYPE_ADD_PAGE: u8 = 1;
+    pub const TYPE_DELETE_PAGE: u8 = 2;
+    pub const TYPE_SWAP_PAGES: u8 = 3;
+    pub const TYPE_SIGN_BOOK: u8 = 4;
 }

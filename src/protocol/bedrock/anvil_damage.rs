@@ -32,11 +32,9 @@ impl Packet for AnvilDamage {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> AnvilDamage {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> AnvilDamage {
         let damage_amount = stream.get_byte();
-        let block_pos = PacketSerializer::get_block_pos(&mut stream);
+        let block_pos = PacketSerializer::get_block_pos(stream);
 
         AnvilDamage { damage_amount, block_pos }
     }

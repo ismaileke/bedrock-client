@@ -85,9 +85,7 @@ impl Packet for CommandBlockUpdate {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> CommandBlockUpdate {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> CommandBlockUpdate {
         let is_block = stream.get_bool();
         let mut block_position = None;
         let mut command_block_mode = None;
@@ -95,17 +93,17 @@ impl Packet for CommandBlockUpdate {
         let mut is_conditional = None;
         let mut minecart_actor_runtime_id = None;
         if is_block {
-            block_position = Some(PacketSerializer::get_block_pos(&mut stream));
+            block_position = Some(PacketSerializer::get_block_pos(stream));
             command_block_mode = Some(stream.get_var_u32());
             is_redstone_mode = Some(stream.get_bool());
             is_conditional = Some(stream.get_bool());
         } else {
-            minecart_actor_runtime_id = Some(PacketSerializer::get_actor_runtime_id(&mut stream));
+            minecart_actor_runtime_id = Some(PacketSerializer::get_actor_runtime_id(stream));
         }
-        let command = PacketSerializer::get_string(&mut stream);
-        let last_output = PacketSerializer::get_string(&mut stream);
-        let name = PacketSerializer::get_string(&mut stream);
-        let filtered_name = PacketSerializer::get_string(&mut stream);
+        let command = PacketSerializer::get_string(stream);
+        let last_output = PacketSerializer::get_string(stream);
+        let name = PacketSerializer::get_string(stream);
+        let filtered_name = PacketSerializer::get_string(stream);
         let should_track_output = stream.get_bool();
         let tick_delay = stream.get_u32_le();
         let execute_on_first_tick = stream.get_bool();

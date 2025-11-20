@@ -21,7 +21,6 @@ impl Packet for SubChunkRequest {
     }
 
     fn encode(&mut self) -> Vec<u8> {
-
         let mut stream = Stream::new(Vec::new(), 0);
         stream.put_var_u32(self.id() as u32);
 
@@ -41,7 +40,7 @@ impl Packet for SubChunkRequest {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(_bytes: Vec<u8>) -> SubChunkRequest {
+    fn decode(_stream: &mut Stream) -> SubChunkRequest {
         todo!()
     }
 

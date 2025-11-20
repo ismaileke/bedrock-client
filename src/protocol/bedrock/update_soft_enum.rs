@@ -37,14 +37,12 @@ impl Packet for UpdateSoftEnum {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> UpdateSoftEnum {
-        let mut stream = Stream::new(bytes, 0);
-
-        let enum_name = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> UpdateSoftEnum {
+        let enum_name = PacketSerializer::get_string(stream);
         let values_length = stream.get_var_u32() as usize;
         let mut values = Vec::new();
         for _ in 0..values_length {
-            values.push(PacketSerializer::get_string(&mut stream));
+            values.push(PacketSerializer::get_string(stream));
         }
         let action_type = stream.get_byte();
 

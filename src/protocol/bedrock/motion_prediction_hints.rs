@@ -34,11 +34,9 @@ impl Packet for MotionPredictionHints {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> MotionPredictionHints {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
-        let motion = PacketSerializer::get_vector3(&mut stream);
+    fn decode(stream: &mut Stream) -> MotionPredictionHints {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
+        let motion = PacketSerializer::get_vector3(stream);
         let on_ground = stream.get_bool();
 
         MotionPredictionHints { actor_runtime_id, motion, on_ground }

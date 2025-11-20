@@ -37,12 +37,10 @@ impl Packet for StructureTemplateDataRequest {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> StructureTemplateDataRequest {
-        let mut stream = Stream::new(bytes, 0);
-
-        let structure_template_name = PacketSerializer::get_string(&mut stream);
-        let structure_block_position = PacketSerializer::get_block_pos(&mut stream);
-        let structure_settings = PacketSerializer::get_structure_settings(&mut stream);
+    fn decode(stream: &mut Stream) -> StructureTemplateDataRequest {
+        let structure_template_name = PacketSerializer::get_string(stream);
+        let structure_block_position = PacketSerializer::get_block_pos(stream);
+        let structure_settings = PacketSerializer::get_structure_settings(stream);
         let request_type = stream.get_byte();
 
         StructureTemplateDataRequest { structure_template_name, structure_block_position, structure_settings, request_type }

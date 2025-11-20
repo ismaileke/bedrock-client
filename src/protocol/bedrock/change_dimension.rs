@@ -36,13 +36,11 @@ impl Packet for ChangeDimension {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ChangeDimension {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ChangeDimension {
         let dimension = stream.get_var_i32();
-        let position = PacketSerializer::get_vector3(&mut stream);
+        let position = PacketSerializer::get_vector3(stream);
         let respawn = stream.get_bool();
-        let loading_screen_id = PacketSerializer::read_optional(&mut stream, |s| s.get_u32_le());
+        let loading_screen_id = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
 
         ChangeDimension { dimension, position, respawn, loading_screen_id }
     }

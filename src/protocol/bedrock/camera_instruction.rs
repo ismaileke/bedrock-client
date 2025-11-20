@@ -61,18 +61,16 @@ impl Packet for CameraInstruction {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> CameraInstruction {
-        let mut stream = Stream::new(bytes, 0);
-
-        let set = PacketSerializer::read_optional(&mut stream, |s| CameraSetInstruction::read(s));
-        let clear = PacketSerializer::read_optional(&mut stream, |s| s.get_bool());
-        let fade = PacketSerializer::read_optional(&mut stream, |s| CameraFadeInstruction::read(s));
-        let target = PacketSerializer::read_optional(&mut stream, |s| CameraTargetInstruction::read(s));
-        let remove_target = PacketSerializer::read_optional(&mut stream, |s| s.get_bool());
-        let field_of_view = PacketSerializer::read_optional(&mut stream, |s| CameraFovInstruction::read(s));
-        let spline = PacketSerializer::read_optional(&mut stream, |s| CameraSplineInstruction::read(s));
-        let attach_to_entity = PacketSerializer::read_optional(&mut stream, |s| s.get_i64_le());
-        let detach_from_entity = PacketSerializer::read_optional(&mut stream, |s| s.get_bool());
+    fn decode(stream: &mut Stream) -> CameraInstruction {
+        let set = PacketSerializer::read_optional(stream, |s| CameraSetInstruction::read(s));
+        let clear = PacketSerializer::read_optional(stream, |s| s.get_bool());
+        let fade = PacketSerializer::read_optional(stream, |s| CameraFadeInstruction::read(s));
+        let target = PacketSerializer::read_optional(stream, |s| CameraTargetInstruction::read(s));
+        let remove_target = PacketSerializer::read_optional(stream, |s| s.get_bool());
+        let field_of_view = PacketSerializer::read_optional(stream, |s| CameraFovInstruction::read(s));
+        let spline = PacketSerializer::read_optional(stream, |s| CameraSplineInstruction::read(s));
+        let attach_to_entity = PacketSerializer::read_optional(stream, |s| s.get_i64_le());
+        let detach_from_entity = PacketSerializer::read_optional(stream, |s| s.get_bool());
 
         CameraInstruction { set, clear, fade, target, remove_target, field_of_view, spline, attach_to_entity, detach_from_entity }
     }

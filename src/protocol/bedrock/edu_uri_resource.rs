@@ -30,10 +30,8 @@ impl Packet for EduUriResource {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> EduUriResource {
-        let mut stream = Stream::new(bytes, 0);
-
-        let resource = EducationUriResource::read(&mut stream);
+    fn decode(stream: &mut Stream) -> EduUriResource {
+        let resource = EducationUriResource::read(stream);
 
         EduUriResource { resource }
     }

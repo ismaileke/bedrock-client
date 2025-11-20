@@ -19,11 +19,6 @@ pub fn new(prediction_type: u8, position: Vec<f32>, delta: Vec<f32>, vehicle_rot
     CorrectPlayerMovePrediction { prediction_type, position, delta, vehicle_rotation_x, vehicle_rotation_y, vehicle_angular_velocity, on_ground, tick }
 }
 
-impl CorrectPlayerMovePrediction {
-    pub const PREDICTION_TYPE_PLAYER: u8 = 0;
-    pub const PREDICTION_TYPE_VEHICLE: u8 = 1;
-}
-
 impl Packet for CorrectPlayerMovePrediction {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCorrectPlayerMovePrediction.get_byte()
@@ -49,15 +44,13 @@ impl Packet for CorrectPlayerMovePrediction {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> CorrectPlayerMovePrediction {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> CorrectPlayerMovePrediction {
         let prediction_type = stream.get_byte();
-        let position = PacketSerializer::get_vector3(&mut stream);
-        let delta = PacketSerializer::get_vector3(&mut stream);
+        let position = PacketSerializer::get_vector3(stream);
+        let delta = PacketSerializer::get_vector3(stream);
         let vehicle_rotation_x = stream.get_f32_le();
         let vehicle_rotation_y = stream.get_f32_le();
-        let vehicle_angular_velocity = PacketSerializer::read_optional(&mut stream, |s| s.get_f32_le());
+        let vehicle_angular_velocity = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let on_ground = stream.get_bool();
         let tick = stream.get_var_u64();
 
@@ -78,4 +71,9 @@ impl Packet for CorrectPlayerMovePrediction {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl CorrectPlayerMovePrediction {
+    pub const PREDICTION_TYPE_PLAYER: u8 = 0;
+    pub const PREDICTION_TYPE_VEHICLE: u8 = 1;
 }

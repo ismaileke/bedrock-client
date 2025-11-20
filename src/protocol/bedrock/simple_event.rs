@@ -29,9 +29,7 @@ impl Packet for SimpleEvent {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SimpleEvent {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> SimpleEvent {
         let event_type = stream.get_u16_le();
 
         SimpleEvent { event_type }

@@ -1,4 +1,5 @@
 use std::any::Any;
+use binary_utils::binary::Stream;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 
@@ -17,7 +18,7 @@ impl Packet for Unknown {
         vec![]
     }
 
-    fn decode(_bytes: Vec<u8>) -> Unknown {
+    fn decode(_stream: &mut Stream) -> Unknown {
         // No Payload
         Unknown {}
     }

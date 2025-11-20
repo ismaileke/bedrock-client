@@ -45,17 +45,15 @@ impl Packet for MoveActorDelta {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> MoveActorDelta {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+    fn decode(stream: &mut Stream) -> MoveActorDelta {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let flags = stream.get_u16_le();
-        let x_pos = MoveActorDelta::maybe_read_coord(flags, Self::FLAG_HAS_X, &mut stream);
-        let y_pos = MoveActorDelta::maybe_read_coord(flags, Self::FLAG_HAS_Y, &mut stream);
-        let z_pos = MoveActorDelta::maybe_read_coord(flags, Self::FLAG_HAS_Z, &mut stream);
-        let pitch = MoveActorDelta::maybe_read_rotation(flags, Self::FLAG_HAS_PITCH, &mut stream);
-        let yaw = MoveActorDelta::maybe_read_rotation(flags, Self::FLAG_HAS_YAW, &mut stream);
-        let head_yaw = MoveActorDelta::maybe_read_rotation(flags, Self::FLAG_HAS_HEAD_YAW, &mut stream);
+        let x_pos = MoveActorDelta::maybe_read_coord(flags, Self::FLAG_HAS_X, stream);
+        let y_pos = MoveActorDelta::maybe_read_coord(flags, Self::FLAG_HAS_Y, stream);
+        let z_pos = MoveActorDelta::maybe_read_coord(flags, Self::FLAG_HAS_Z, stream);
+        let pitch = MoveActorDelta::maybe_read_rotation(flags, Self::FLAG_HAS_PITCH, stream);
+        let yaw = MoveActorDelta::maybe_read_rotation(flags, Self::FLAG_HAS_YAW, stream);
+        let head_yaw = MoveActorDelta::maybe_read_rotation(flags, Self::FLAG_HAS_HEAD_YAW, stream);
 
         MoveActorDelta { actor_runtime_id, flags, x_pos, y_pos, z_pos, pitch, yaw, head_yaw }
     }

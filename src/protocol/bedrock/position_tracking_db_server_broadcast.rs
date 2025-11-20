@@ -35,12 +35,10 @@ impl Packet for PositionTrackingDBServerBroadcast {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PositionTrackingDBServerBroadcast {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> PositionTrackingDBServerBroadcast {
         let action = stream.get_byte();
         let tracking_id = stream.get_var_i32();
-        let nbt = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(&mut stream)));
+        let nbt = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream)));
 
         PositionTrackingDBServerBroadcast { action, tracking_id, nbt }
     }

@@ -34,10 +34,8 @@ impl Packet for StopSound {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> StopSound {
-        let mut stream = Stream::new(bytes, 0);
-
-        let sound_name = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> StopSound {
+        let sound_name = PacketSerializer::get_string(stream);
         let stop_all = stream.get_bool();
         let stop_legacy_music = stream.get_bool();
 

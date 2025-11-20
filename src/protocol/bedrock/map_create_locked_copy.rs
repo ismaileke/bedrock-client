@@ -32,11 +32,9 @@ impl Packet for MapCreateLockedCopy {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> MapCreateLockedCopy {
-        let mut stream = Stream::new(bytes, 0);
-
-        let original_map_id = PacketSerializer::get_actor_unique_id(&mut stream);
-        let new_map_id = PacketSerializer::get_actor_unique_id(&mut stream);
+    fn decode(stream: &mut Stream) -> MapCreateLockedCopy {
+        let original_map_id = PacketSerializer::get_actor_unique_id(stream);
+        let new_map_id = PacketSerializer::get_actor_unique_id(stream);
 
         MapCreateLockedCopy { original_map_id, new_map_id }
     }

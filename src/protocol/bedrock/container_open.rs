@@ -36,13 +36,11 @@ impl Packet for ContainerOpen {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ContainerOpen {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ContainerOpen {
         let window_id = stream.get_byte();
         let window_type = stream.get_byte();
-        let block_position = PacketSerializer::get_block_pos(&mut stream);
-        let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
+        let block_position = PacketSerializer::get_block_pos(stream);
+        let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
 
         ContainerOpen { window_id, window_type, block_position, actor_unique_id }
     }

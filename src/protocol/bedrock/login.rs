@@ -51,9 +51,7 @@ impl Packet for Login {
         Vec::from(main_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> Login {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> Login {
         let client_protocol = stream.get_u32_be();
 
         let length = stream.get_var_u32();

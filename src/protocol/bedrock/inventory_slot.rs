@@ -40,14 +40,12 @@ impl Packet for InventorySlot {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> InventorySlot {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> InventorySlot {
         let window_id = stream.get_var_u32();
         let inventory_slot = stream.get_var_u32();
-        let container_name = FullContainerName::read(&mut stream);
-        let storage = PacketSerializer::get_item_stack_wrapper(&mut stream);
-        let item = PacketSerializer::get_item_stack_wrapper(&mut stream);
+        let container_name = FullContainerName::read(stream);
+        let storage = PacketSerializer::get_item_stack_wrapper(stream);
+        let item = PacketSerializer::get_item_stack_wrapper(stream);
 
         InventorySlot { window_id, inventory_slot, container_name, storage, item }
     }

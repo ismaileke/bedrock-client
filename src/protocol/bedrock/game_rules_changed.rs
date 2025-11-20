@@ -32,10 +32,8 @@ impl Packet for GameRulesChanged {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> GameRulesChanged {
-        let mut stream = Stream::new(bytes, 0);
-
-        let game_rules = PacketSerializer::get_game_rules(&mut stream, false);
+    fn decode(stream: &mut Stream) -> GameRulesChanged {
+        let game_rules = PacketSerializer::get_game_rules(stream, false);
 
         GameRulesChanged { game_rules }
     }

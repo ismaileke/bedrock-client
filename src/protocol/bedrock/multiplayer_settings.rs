@@ -29,9 +29,7 @@ impl Packet for MultiplayerSettings {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> MultiplayerSettings {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> MultiplayerSettings {
         let action = stream.get_var_i32();
 
         MultiplayerSettings { action }

@@ -29,9 +29,7 @@ impl Packet for SetTime {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SetTime {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> SetTime {
         let time = stream.get_var_i32();
 
         SetTime { time }

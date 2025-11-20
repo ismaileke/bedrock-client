@@ -30,10 +30,8 @@ impl Packet for SubClientLogin {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SubClientLogin {
-        let mut stream = Stream::new(bytes, 0);
-
-        let connection_request_data = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> SubClientLogin {
+        let connection_request_data = PacketSerializer::get_string(stream);
 
         SubClientLogin { connection_request_data }
     }

@@ -32,10 +32,8 @@ impl Packet for CodeBuilder {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> CodeBuilder {
-        let mut stream = Stream::new(bytes, 0);
-
-        let url = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> CodeBuilder {
+        let url = PacketSerializer::get_string(stream);
         let open_code_builder = stream.get_bool();
 
         CodeBuilder { url, open_code_builder }

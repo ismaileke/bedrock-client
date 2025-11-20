@@ -42,15 +42,13 @@ impl Packet for PlayerVideoCapture {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PlayerVideoCapture {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> PlayerVideoCapture {
         let is_recording = stream.get_bool();
         let mut frame_rate = None;
         let mut file_prefix = None;
         if is_recording {
             frame_rate = Some(stream.get_u32_le());
-            file_prefix = Some(PacketSerializer::get_string(&mut stream));
+            file_prefix = Some(PacketSerializer::get_string(stream));
         }
 
         PlayerVideoCapture { is_recording, frame_rate, file_prefix }

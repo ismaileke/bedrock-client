@@ -33,9 +33,7 @@ impl Packet for RequestPermissions {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> RequestPermissions {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> RequestPermissions {
         let target_actor_unique_id = stream.get_i64_le();
         let player_permission = stream.get_var_i32();
         let custom_flags = stream.get_u16_le();

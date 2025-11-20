@@ -34,12 +34,10 @@ impl Packet for AgentActionEvent {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> AgentActionEvent {
-        let mut stream = Stream::new(bytes, 0);
-
-        let request_id = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> AgentActionEvent {
+        let request_id = PacketSerializer::get_string(stream);
         let action = stream.get_u32_le();
-        let response_json = PacketSerializer::get_string(&mut stream);
+        let response_json = PacketSerializer::get_string(stream);
 
         AgentActionEvent { request_id, action, response_json }
     }

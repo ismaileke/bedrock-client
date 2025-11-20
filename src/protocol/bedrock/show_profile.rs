@@ -30,10 +30,8 @@ impl Packet for ShowProfile {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ShowProfile {
-        let mut stream = Stream::new(bytes, 0);
-
-        let xuid = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> ShowProfile {
+        let xuid = PacketSerializer::get_string(stream);
 
         ShowProfile { xuid }
     }

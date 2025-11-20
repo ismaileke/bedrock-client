@@ -38,14 +38,12 @@ impl Packet for UpdateAttributes {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> UpdateAttributes {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+    fn decode(stream: &mut Stream) -> UpdateAttributes {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let mut entries = vec![];
         let entries_count = stream.get_var_u32();
         for _ in 0..entries_count {
-            entries.push(UpdateAttribute::read(&mut stream));
+            entries.push(UpdateAttribute::read(stream));
         }
         let tick = stream.get_var_u64();
 

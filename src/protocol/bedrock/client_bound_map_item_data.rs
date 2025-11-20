@@ -27,9 +27,7 @@ impl Packet for ClientBoundMapItemData {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(_bytes: Vec<u8>) -> ClientBoundMapItemData {
-        //let mut stream = Stream::new(bytes, 0);
-
+    fn decode(_stream: &mut Stream) -> ClientBoundMapItemData {
         // TODO
 
         ClientBoundMapItemData { }

@@ -30,10 +30,8 @@ impl Packet for ServerPlayerPostMovePosition {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ServerPlayerPostMovePosition {
-        let mut stream = Stream::new(bytes, 0);
-
-        let position = PacketSerializer::get_vector3(&mut stream);
+    fn decode(stream: &mut Stream) -> ServerPlayerPostMovePosition {
+        let position = PacketSerializer::get_vector3(stream);
 
         ServerPlayerPostMovePosition { position }
     }

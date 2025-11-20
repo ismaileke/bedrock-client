@@ -14,14 +14,6 @@ pub fn new(intensity: f32, duration: f32, shake_type: u8, shake_action: u8) -> C
     CameraShake { intensity, duration, shake_type, shake_action }
 }
 
-impl CameraShake {
-    pub const TYPE_POSITIONAL: u8 = 0;
-    pub const TYPE_ROTATIONAL: u8 = 1;
-
-    pub const ACTION_ADD: u8 = 0;
-    pub const ACTION_STOP: u8 = 1;
-}
-
 impl Packet for CameraShake {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCameraShake.get_byte()
@@ -43,9 +35,7 @@ impl Packet for CameraShake {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> CameraShake {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> CameraShake {
         let intensity = stream.get_f32_le();
         let duration = stream.get_f32_le();
         let shake_type = stream.get_byte();
@@ -64,4 +54,12 @@ impl Packet for CameraShake {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl CameraShake {
+    pub const TYPE_POSITIONAL: u8 = 0;
+    pub const TYPE_ROTATIONAL: u8 = 1;
+
+    pub const ACTION_ADD: u8 = 0;
+    pub const ACTION_STOP: u8 = 1;
 }

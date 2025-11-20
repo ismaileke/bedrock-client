@@ -62,9 +62,7 @@ impl Packet for Text {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> Text {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> Text {
         let text_type = stream.get_byte();
         let needs_translation = stream.get_bool();
 
@@ -73,19 +71,19 @@ impl Packet for Text {
         let mut parameters: Option<Vec<String>> = None;
         match text_type {
             Text::TYPE_CHAT | Text::TYPE_WHISPER | Text::TYPE_ANNOUNCEMENT => {
-                source_name = Option::from(PacketSerializer::get_string(&mut stream));
-                message = PacketSerializer::get_string(&mut stream);
+                source_name = Option::from(PacketSerializer::get_string(stream));
+                message = PacketSerializer::get_string(stream);
 
             },
             Text::TYPE_RAW | Text::TYPE_TIP | Text::TYPE_SYSTEM | Text::TYPE_JSON | Text::TYPE_JSON_WHISPER | Text::TYPE_JSON_ANNOUNCEMENT => {
-                message = PacketSerializer::get_string(&mut stream);
+                message = PacketSerializer::get_string(stream);
             },
             Text::TYPE_TRANSLATION | Text::TYPE_POPUP | Text::TYPE_JUKEBOX_POPUP => {
-                message = PacketSerializer::get_string(&mut stream);
+                message = PacketSerializer::get_string(stream);
                 let length = stream.get_var_u32();
                 let mut params = Vec::new();
                 for _ in 0..length {
-                    let parameter = PacketSerializer::get_string(&mut stream);
+                    let parameter = PacketSerializer::get_string(stream);
                     params.push(parameter);
                 }
                 parameters = Option::from(params);
@@ -93,9 +91,9 @@ impl Packet for Text {
             _ => {}
         }
 
-        let xbox_uid = PacketSerializer::get_string(&mut stream);
-        let platform_chat_id = PacketSerializer::get_string(&mut stream);
-        let filtered_message = PacketSerializer::get_string(&mut stream);
+        let xbox_uid = PacketSerializer::get_string(stream);
+        let platform_chat_id = PacketSerializer::get_string(stream);
+        let filtered_message = PacketSerializer::get_string(stream);
 
         Text { text_type, needs_translation, source_name, message, parameters, xbox_uid, platform_chat_id, filtered_message }
     }

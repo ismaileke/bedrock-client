@@ -40,15 +40,13 @@ impl Packet for MoveActorAbsolute {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> MoveActorAbsolute {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+    fn decode(stream: &mut Stream) -> MoveActorAbsolute {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let flags = stream.get_byte();
-        let position = PacketSerializer::get_vector3(&mut stream);
-        let pitch = PacketSerializer::get_rotation_byte(&mut stream);
-        let yaw = PacketSerializer::get_rotation_byte(&mut stream);
-        let head_yaw = PacketSerializer::get_rotation_byte(&mut stream);
+        let position = PacketSerializer::get_vector3(stream);
+        let pitch = PacketSerializer::get_rotation_byte(stream);
+        let yaw = PacketSerializer::get_rotation_byte(stream);
+        let head_yaw = PacketSerializer::get_rotation_byte(stream);
 
         MoveActorAbsolute { actor_runtime_id, flags, position, pitch, yaw, head_yaw }
     }

@@ -32,11 +32,9 @@ impl Packet for AgentAnimation {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> AgentAnimation {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> AgentAnimation {
         let animation_type = stream.get_byte();
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
 
         AgentAnimation { animation_type, actor_runtime_id }
     }

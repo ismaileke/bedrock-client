@@ -36,15 +36,13 @@ impl Packet for ResourcePackClientResponse {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ResourcePackClientResponse {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ResourcePackClientResponse {
         let status = stream.get_byte();
         let entry_count = stream.get_u16_le();
 
         let mut pack_ids = vec![];
         for _ in 0..entry_count {
-            let pack_id = PacketSerializer::get_string(&mut stream);
+            let pack_id = PacketSerializer::get_string(stream);
             pack_ids.push(pack_id);
         }
 

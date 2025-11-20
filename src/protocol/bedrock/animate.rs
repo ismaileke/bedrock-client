@@ -25,15 +25,6 @@ pub fn boat_hack(action: i32, actor_runtime_id: u64, rowing_time: f32) -> Animat
     animate
 }
 
-impl Animate {
-    pub const ACTION_SWING_ARM: i32 = 1;
-    pub const ACTION_STOP_SLEEP: i32 = 3;
-    pub const ACTION_CRITICAL_HIT: i32 = 4;
-    pub const ACTION_MAGICAL_CRITICAL_HIT: i32 = 5;
-    pub const ACTION_ROW_RIGHT: i32 = 128;
-    pub const ACTION_ROW_LEFT: i32 = 129;
-}
-
 impl Packet for Animate {
     fn id(&self) -> u16 {
         BedrockPacketType::IDAnimate.get_byte()
@@ -58,11 +49,9 @@ impl Packet for Animate {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> Animate {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> Animate {
         let action = stream.get_var_i32();
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let data = stream.get_f32_le();
         let mut rowing_time = 0.0;
         if action == Animate::ACTION_ROW_LEFT || action == Animate::ACTION_ROW_RIGHT {
@@ -82,4 +71,13 @@ impl Packet for Animate {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl Animate {
+    pub const ACTION_SWING_ARM: i32 = 1;
+    pub const ACTION_STOP_SLEEP: i32 = 3;
+    pub const ACTION_CRITICAL_HIT: i32 = 4;
+    pub const ACTION_MAGICAL_CRITICAL_HIT: i32 = 5;
+    pub const ACTION_ROW_RIGHT: i32 = 128;
+    pub const ACTION_ROW_LEFT: i32 = 129;
 }

@@ -36,13 +36,11 @@ impl Packet for ResourcePackChunkData {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ResourcePackChunkData {
-        let mut stream = Stream::new(bytes, 0);
-
-        let pack_id = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> ResourcePackChunkData {
+        let pack_id = PacketSerializer::get_string(stream);
         let chunk_index = stream.get_u32_le();
         let offset = stream.get_u64_le();
-        let data = PacketSerializer::get_string(&mut stream);
+        let data = PacketSerializer::get_string(stream);
 
         ResourcePackChunkData { pack_id, chunk_index, offset, data }
     }

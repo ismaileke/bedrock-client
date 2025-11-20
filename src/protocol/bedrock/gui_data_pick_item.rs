@@ -34,11 +34,9 @@ impl Packet for GUIDataPickItem {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> GUIDataPickItem {
-        let mut stream = Stream::new(bytes, 0);
-
-        let item_description = PacketSerializer::get_string(&mut stream);
-        let item_effects = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> GUIDataPickItem {
+        let item_description = PacketSerializer::get_string(stream);
+        let item_effects = PacketSerializer::get_string(stream);
         let hotbar_slot = stream.get_i32_le();
 
         GUIDataPickItem { item_description, item_effects, hotbar_slot }

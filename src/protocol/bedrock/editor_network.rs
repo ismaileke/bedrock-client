@@ -33,11 +33,9 @@ impl Packet for EditorNetwork {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> EditorNetwork {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> EditorNetwork {
         let is_route_to_manager = stream.get_bool();
-        let payload = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(&mut stream)));
+        let payload = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream)));
 
         EditorNetwork { is_route_to_manager, payload }
     }

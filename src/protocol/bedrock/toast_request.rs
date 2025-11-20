@@ -32,11 +32,9 @@ impl Packet for ToastRequest {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ToastRequest {
-        let mut stream = Stream::new(bytes, 0);
-
-        let title = PacketSerializer::get_string(&mut stream);
-        let body = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> ToastRequest {
+        let title = PacketSerializer::get_string(stream);
+        let body = PacketSerializer::get_string(stream);
 
         ToastRequest { title, body }
     }

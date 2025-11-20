@@ -34,10 +34,8 @@ impl Packet for BlockPickRequest {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> BlockPickRequest {
-        let mut stream = Stream::new(bytes, 0);
-
-        let block_position = PacketSerializer::get_signed_block_pos(&mut stream);
+    fn decode(stream: &mut Stream) -> BlockPickRequest {
+        let block_position = PacketSerializer::get_signed_block_pos(stream);
         let add_user_data = stream.get_bool();
         let hotbar_slot = stream.get_byte();
 

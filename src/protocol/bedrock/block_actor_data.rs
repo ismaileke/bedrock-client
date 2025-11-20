@@ -33,11 +33,9 @@ impl Packet for BlockActorData {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> BlockActorData {
-        let mut stream = Stream::new(bytes, 0);
-
-        let block_position = PacketSerializer::get_block_pos(&mut stream);
-        let nbt = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(&mut stream)));
+    fn decode(stream: &mut Stream) -> BlockActorData {
+        let block_position = PacketSerializer::get_block_pos(stream);
+        let nbt = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream)));
 
         BlockActorData { block_position, nbt }
     }

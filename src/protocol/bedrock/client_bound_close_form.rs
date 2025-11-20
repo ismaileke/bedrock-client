@@ -27,7 +27,7 @@ impl Packet for ClientBoundCloseForm {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(_bytes: Vec<u8>) -> ClientBoundCloseForm {
+    fn decode(_stream: &mut Stream) -> ClientBoundCloseForm {
         // No Payload
         ClientBoundCloseForm {}
     }

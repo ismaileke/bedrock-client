@@ -38,14 +38,12 @@ impl Packet for AddPainting {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> AddPainting {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
-        let position = PacketSerializer::get_vector3(&mut stream);
+    fn decode(stream: &mut Stream) -> AddPainting {
+        let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
+        let position = PacketSerializer::get_vector3(stream);
         let direction = stream.get_var_i32();
-        let title = PacketSerializer::get_string(&mut stream);
+        let title = PacketSerializer::get_string(stream);
 
         AddPainting { actor_unique_id, actor_runtime_id, position, direction, title }
     }

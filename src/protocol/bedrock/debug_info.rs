@@ -32,11 +32,9 @@ impl Packet for DebugInfo {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> DebugInfo {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
-        let data = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> DebugInfo {
+        let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
+        let data = PacketSerializer::get_string(stream);
 
         DebugInfo { actor_unique_id, data }
     }

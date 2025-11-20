@@ -69,9 +69,7 @@ impl Packet for LevelChunk {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> LevelChunk {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> LevelChunk {
         let chunk_x = stream.get_var_i32();
         let chunk_z = stream.get_var_i32();
         let dimension_id = stream.get_var_i32();

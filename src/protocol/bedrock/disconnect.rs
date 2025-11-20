@@ -34,17 +34,15 @@ impl Packet for Disconnect {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> Disconnect {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> Disconnect {
         let reason = stream.get_var_i32();
         let skip_message = stream.get_bool();
         let mut message: Option<String> = None;
         let mut filtered_message: Option<String> = None;
 
         if !skip_message {
-            message = Option::from(PacketSerializer::get_string(&mut stream));
-            filtered_message = Option::from(PacketSerializer::get_string(&mut stream));
+            message = Option::from(PacketSerializer::get_string(stream));
+            filtered_message = Option::from(PacketSerializer::get_string(stream));
         }
 
         Disconnect { reason, skip_message, message, filtered_message }

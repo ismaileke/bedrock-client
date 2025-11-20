@@ -31,9 +31,7 @@ impl Packet for ServerStats {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ServerStats {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ServerStats {
         let server_time = stream.get_f32_le();
         let network_time = stream.get_f32_le();
 

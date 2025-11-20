@@ -309,9 +309,9 @@ impl Client {
                                                     }
                                                 },
                                                 BedrockPacketType::IDServerToClientHandshake => {
-                                                    let s_to_c_handshake = ServerToClientHandshake::decode(packet_stream.get_remaining());
+                                                    let s_to_c_handshake = packet.as_any().downcast_ref::<ServerToClientHandshake>().unwrap();
 
-                                                    let jwt = String::from_utf8(s_to_c_handshake.jwt).unwrap();
+                                                    let jwt = String::from_utf8(s_to_c_handshake.jwt.clone()).unwrap();
 
                                                     let jwt_split: Vec<&str> = jwt.split('.').collect();
 
@@ -349,8 +349,7 @@ impl Client {
                                                     }
                                                 },
                                                 BedrockPacketType::IDResourcePacksInfo => {
-                                                    let resource_packs_info = ResourcePacksInfo::decode(packet_stream.get_remaining());
-
+                                                    let resource_packs_info = packet.as_any().downcast_ref::<ResourcePacksInfo>().unwrap();
 
                                                     let mut rp_uuids = Vec::new();
                                                     for (_, resource_pack) in resource_packs_info.resource_packs.iter().enumerate() {
@@ -381,7 +380,7 @@ impl Client {
                                                     }
                                                 },
                                                 BedrockPacketType::IDResourcePackStack => {
-                                                    let resource_pack_stack = ResourcePackStack::decode(packet_stream.get_remaining());
+                                                    let resource_pack_stack = packet.as_any().downcast_ref::<ResourcePackStack>().unwrap();
 
                                                     let mut pack_ids = vec![];
                                                     for behavior_stack_entry in &resource_pack_stack.behavior_pack_stack {
@@ -403,7 +402,7 @@ impl Client {
                                                     }
                                                 },
                                                 BedrockPacketType::IDPlayStatus => {
-                                                    let play_status = PlayStatus::decode(packet_stream.get_remaining());
+                                                    let play_status = packet.as_any().downcast_ref::<PlayStatus>().unwrap();
                                                     if play_status.status == 3 { // Player Spawn
                                                         // SET LOCAL PLAYER AS INITIALIZED PACKET
                                                         let set_local_player_as_init = set_local_player_as_initialized::new(0).encode();
@@ -419,12 +418,11 @@ impl Client {
 
                                                 },
                                                 BedrockPacketType::IDStartGame => {
-                                                    let start_game = StartGame::decode(packet_stream.get_remaining());
-
+                                                    let start_game = packet.as_any().downcast_ref::<StartGame>().unwrap();
 
 
                                                     // Custom Blok Verileri HashMap'e a Aktarılıyor
-                                                    let block_palette_entries = start_game.block_palette;
+                                                    let block_palette_entries = &start_game.block_palette;
                                                     let mut custom_blocks = HashMap::new();
                                                     for block_palette_entry in block_palette_entries {
                                                         //println!("{}----{}", COLOR_DARK_AQUA, COLOR_WHITE);
@@ -713,9 +711,9 @@ impl Client {
                                                     }
                                                 },
                                                 BedrockPacketType::IDLevelChunk => {
-                                                    let level_chunk = LevelChunk::decode(packet_stream.get_remaining());
+                                                    let level_chunk = packet.as_any().downcast_ref::<LevelChunk>().unwrap();
 
-                                                    let chunk = network_decode(self.bedrock_handler.air_network_id.clone(), level_chunk.extra_payload, level_chunk.sub_chunk_count, get_dimension_chunk_bounds(0));
+                                                    let chunk = network_decode(self.bedrock_handler.air_network_id.clone(), level_chunk.extra_payload.clone(), level_chunk.sub_chunk_count, get_dimension_chunk_bounds(0));
                                                     if chunk.is_ok() {
                                                         self.print_all_blocks(level_chunk.chunk_x.clone(), level_chunk.chunk_z.clone(), chunk.unwrap());
                                                     } else {
@@ -723,7 +721,7 @@ impl Client {
                                                     }
                                                 },
                                                 BedrockPacketType::IDNetworkStackLatency => {
-                                                    let network_stack_latency = NetworkStackLatency::decode(packet_stream.get_remaining());
+                                                    let network_stack_latency = packet.as_any().downcast_ref::<NetworkStackLatency>().unwrap();
 
                                                     if network_stack_latency.need_response { // send
                                                         // NETWORK STACK LATENCY

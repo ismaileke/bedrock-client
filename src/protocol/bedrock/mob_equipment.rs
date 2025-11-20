@@ -39,11 +39,9 @@ impl Packet for MobEquipment {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> MobEquipment {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
-        let item = PacketSerializer::get_item_stack_wrapper(&mut stream);
+    fn decode(stream: &mut Stream) -> MobEquipment {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
+        let item = PacketSerializer::get_item_stack_wrapper(stream);
         let inventory_slot = stream.get_byte();
         let hotbar_slot = stream.get_byte();
         let window_id = stream.get_byte();

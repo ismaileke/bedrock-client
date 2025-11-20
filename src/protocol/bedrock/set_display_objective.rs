@@ -38,13 +38,11 @@ impl Packet for SetDisplayObjective {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SetDisplayObjective {
-        let mut stream = Stream::new(bytes, 0);
-
-        let display_slot = PacketSerializer::get_string(&mut stream);
-        let objective_name = PacketSerializer::get_string(&mut stream);
-        let display_name = PacketSerializer::get_string(&mut stream);
-        let criteria_name = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> SetDisplayObjective {
+        let display_slot = PacketSerializer::get_string(stream);
+        let objective_name = PacketSerializer::get_string(stream);
+        let display_name = PacketSerializer::get_string(stream);
+        let criteria_name = PacketSerializer::get_string(stream);
         let sort_order = stream.get_var_i32();
 
         SetDisplayObjective { display_slot, objective_name, display_name, criteria_name, sort_order }

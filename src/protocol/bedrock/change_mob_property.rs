@@ -40,13 +40,11 @@ impl Packet for ChangeMobProperty {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ChangeMobProperty {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
-        let property_name = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> ChangeMobProperty {
+        let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
+        let property_name = PacketSerializer::get_string(stream);
         let bool_value = stream.get_bool();
-        let string_value = PacketSerializer::get_string(&mut stream);
+        let string_value = PacketSerializer::get_string(stream);
         let int_value = stream.get_var_i32();
         let float_value = stream.get_f32_le();
 

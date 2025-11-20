@@ -42,10 +42,8 @@ impl Packet for MobEffect {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> MobEffect {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+    fn decode(stream: &mut Stream) -> MobEffect {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let event_id = stream.get_byte();
         let effect_id = stream.get_var_i32();
         let amplifier = stream.get_var_i32();

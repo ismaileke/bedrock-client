@@ -34,12 +34,10 @@ impl Packet for GameTestResults {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> GameTestResults {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> GameTestResults {
         let success = stream.get_bool();
-        let error = PacketSerializer::get_string(&mut stream);
-        let test_name = PacketSerializer::get_string(&mut stream);
+        let error = PacketSerializer::get_string(stream);
+        let test_name = PacketSerializer::get_string(stream);
 
         GameTestResults { success, error, test_name }
     }

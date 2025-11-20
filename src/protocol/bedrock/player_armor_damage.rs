@@ -33,13 +33,11 @@ impl Packet for PlayerArmorDamage {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PlayerArmorDamage {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> PlayerArmorDamage {
         let mut armor_slot_and_damage_pairs = Vec::new();
         let count = stream.get_var_u32();
         for _ in 0..count {
-            armor_slot_and_damage_pairs.push(ArmorSlotAndDamagePair::read(&mut stream));
+            armor_slot_and_damage_pairs.push(ArmorSlotAndDamagePair::read(stream));
         }
 
         PlayerArmorDamage { armor_slot_and_damage_pairs }

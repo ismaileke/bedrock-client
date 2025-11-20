@@ -34,10 +34,8 @@ impl Packet for ActorEvent {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ActorEvent {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+    fn decode(stream: &mut Stream) -> ActorEvent {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let event_id = stream.get_byte();
         let event_data = stream.get_var_i32();
 

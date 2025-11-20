@@ -33,9 +33,7 @@ impl Packet for HurtArmor {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> HurtArmor {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> HurtArmor {
         let cause = stream.get_var_i32();
         let health = stream.get_var_i32();
         let armor_slot_flags = stream.get_var_u64();

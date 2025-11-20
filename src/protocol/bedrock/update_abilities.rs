@@ -30,10 +30,8 @@ impl Packet for UpdateAbilities {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> UpdateAbilities {
-        let mut stream = Stream::new(bytes, 0);
-
-        let data = AbilitiesData::read(&mut stream);
+    fn decode(stream: &mut Stream) -> UpdateAbilities {
+        let data = AbilitiesData::read(stream);
 
         UpdateAbilities { data }
     }

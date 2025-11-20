@@ -42,14 +42,12 @@ impl Packet for ResourcePackDataInfo {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ResourcePackDataInfo {
-        let mut stream = Stream::new(bytes, 0);
-
-        let pack_id = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> ResourcePackDataInfo {
+        let pack_id = PacketSerializer::get_string(stream);
         let max_chunk_size = stream.get_u32_le();
         let chunk_count = stream.get_u32_le();
         let compressed_pack_size = stream.get_u64_le();
-        let sha256 = PacketSerializer::get_string(&mut stream);
+        let sha256 = PacketSerializer::get_string(stream);
         let is_premium = stream.get_bool();
         let pack_type = stream.get_byte();
 

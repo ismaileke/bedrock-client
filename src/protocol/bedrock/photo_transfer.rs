@@ -42,16 +42,14 @@ impl Packet for PhotoTransfer {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PhotoTransfer {
-        let mut stream = Stream::new(bytes, 0);
-
-        let photo_name = PacketSerializer::get_string(&mut stream);
-        let photo_data = PacketSerializer::get_string(&mut stream);
-        let book_id = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> PhotoTransfer {
+        let photo_name = PacketSerializer::get_string(stream);
+        let photo_data = PacketSerializer::get_string(stream);
+        let book_id = PacketSerializer::get_string(stream);
         let photo_type = stream.get_byte();
         let source_type = stream.get_byte();
         let owner_actor_unique_id = stream.get_i64_le();
-        let new_photo_name = PacketSerializer::get_string(&mut stream);
+        let new_photo_name = PacketSerializer::get_string(stream);
 
         PhotoTransfer { photo_name, photo_data, book_id, photo_type, source_type, owner_actor_unique_id, new_photo_name }
     }

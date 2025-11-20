@@ -29,9 +29,7 @@ impl Packet for ChunkRadiusUpdated {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ChunkRadiusUpdated {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ChunkRadiusUpdated {
         let radius = stream.get_var_i32();
 
         ChunkRadiusUpdated { radius }

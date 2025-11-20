@@ -65,9 +65,7 @@ impl Packet for ServerBoundDiagnostics {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ServerBoundDiagnostics {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ServerBoundDiagnostics {
         let avg_fps = stream.get_f32_le();
         let avg_server_sim_tick_time_ms = stream.get_f32_le();
         let avg_client_sim_tick_time_ms = stream.get_f32_le();

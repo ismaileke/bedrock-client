@@ -29,9 +29,7 @@ impl Packet for SetCommandsEnabled {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SetCommandsEnabled {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> SetCommandsEnabled {
         let enabled = stream.get_bool();
 
         SetCommandsEnabled { enabled }

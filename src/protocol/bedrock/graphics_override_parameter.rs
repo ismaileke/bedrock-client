@@ -40,15 +40,13 @@ impl Packet for GraphicsOverrideParameter {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> GraphicsOverrideParameter {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> GraphicsOverrideParameter {
         let count = stream.get_var_u32() as usize;
         let mut values = Vec::with_capacity(count);
         for _ in 0..count {
-            values.push(ParameterKeyframeValue::read(&mut stream));
+            values.push(ParameterKeyframeValue::read(stream));
         }
-        let biome_identifier = PacketSerializer::get_string(&mut stream);
+        let biome_identifier = PacketSerializer::get_string(stream);
         let parameter_type = stream.get_byte();
         let reset = stream.get_bool();
 

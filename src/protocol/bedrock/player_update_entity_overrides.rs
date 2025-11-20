@@ -66,10 +66,8 @@ impl Packet for PlayerUpdateEntityOverrides {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PlayerUpdateEntityOverrides {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+    fn decode(stream: &mut Stream) -> PlayerUpdateEntityOverrides {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let property_index = stream.get_var_u32();
         let update_type = stream.get_byte();
         let mut int_override_value = None;

@@ -34,10 +34,8 @@ impl Packet for Transfer {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> Transfer {
-        let mut stream = Stream::new(bytes, 0);
-
-        let address = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> Transfer {
+        let address = PacketSerializer::get_string(stream);
         let port = stream.get_u16_le();
         let reload_world = stream.get_bool();
 

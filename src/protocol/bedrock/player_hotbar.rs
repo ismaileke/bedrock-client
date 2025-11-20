@@ -33,9 +33,7 @@ impl Packet for PlayerHotbar {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PlayerHotbar {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> PlayerHotbar {
         let selected_hotbar_slot = stream.get_var_u32();
         let window_id = stream.get_byte();
         let select_hotbar_slot = stream.get_bool();

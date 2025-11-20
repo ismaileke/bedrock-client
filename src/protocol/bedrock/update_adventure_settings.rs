@@ -37,9 +37,7 @@ impl Packet for UpdateAdventureSettings {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> UpdateAdventureSettings {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> UpdateAdventureSettings {
         let no_attacking_mobs = stream.get_bool();
         let no_attacking_players = stream.get_bool();
         let world_immutable = stream.get_bool();

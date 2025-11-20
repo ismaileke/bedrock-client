@@ -16,10 +16,8 @@ impl Packet for ServerToClientHandshake {
         todo!()
     }
 
-    fn decode(bytes: Vec<u8>) -> ServerToClientHandshake {
-        let mut stream = Stream::new(bytes, 0);
-
-        //let jwt = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> ServerToClientHandshake {
+        //let jwt = PacketSerializer::get_string(stream);
         let length = stream.get_var_u32();
         let jwt = stream.get(length);
 

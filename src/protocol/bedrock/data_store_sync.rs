@@ -27,9 +27,7 @@ impl Packet for DataStoreSync {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(_bytes: Vec<u8>) -> DataStoreSync {
-        //let mut stream = Stream::new(bytes, 0);
-
+    fn decode(_stream: &mut Stream) -> DataStoreSync {
         // No Payload
         DataStoreSync {}
     }

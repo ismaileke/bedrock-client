@@ -31,10 +31,8 @@ impl Packet for AvailableActorIdentifiers {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> AvailableActorIdentifiers {
-        let mut stream = Stream::new(bytes, 0);
-
-        let identifiers = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(&mut stream)));
+    fn decode(stream: &mut Stream) -> AvailableActorIdentifiers {
+        let identifiers = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream)));
 
         AvailableActorIdentifiers { identifiers }
     }

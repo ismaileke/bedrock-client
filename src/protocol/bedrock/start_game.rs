@@ -48,30 +48,28 @@ impl Packet for StartGame {
         todo!()
     }
 
-    fn decode(bytes: Vec<u8>) -> StartGame {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+    fn decode(stream: &mut Stream) -> StartGame {
+        let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
 
         let player_game_mode = stream.get_var_i32();
 
-        let player_position = PacketSerializer::get_vector3(&mut stream);
+        let player_position = PacketSerializer::get_vector3(stream);
 
         let pitch = stream.get_f32_le();
         let yaw = stream.get_f32_le();
 
-        let level_settings = LevelSettings::read(&mut stream);
+        let level_settings = LevelSettings::read(stream);
 
-        let level_id = PacketSerializer::get_string(&mut stream);
+        let level_id = PacketSerializer::get_string(stream);
 
-        let world_name = PacketSerializer::get_string(&mut stream);
+        let world_name = PacketSerializer::get_string(stream);
 
-        let premium_world_template_id = PacketSerializer::get_string(&mut stream);
+        let premium_world_template_id = PacketSerializer::get_string(stream);
 
         let is_trial = stream.get_bool();
 
-        let player_movement_settings = PlayerMovementSettings::read(&mut stream);
+        let player_movement_settings = PlayerMovementSettings::read(stream);
 
         let current_tick = stream.get_u64_le();
 
@@ -80,7 +78,7 @@ impl Packet for StartGame {
         let mut block_palette: Vec<BlockPaletteEntry> = vec![];
         let palette_len = stream.get_var_u32();
         for _ in 0..palette_len {
-            let block_name = PacketSerializer::get_string(&mut stream);
+            let block_name = PacketSerializer::get_string(stream);
 
             let mut offset = stream.get_offset();
             let mut nbt_serializer = NetworkNBTSerializer::new();
@@ -92,11 +90,11 @@ impl Packet for StartGame {
             block_palette.push(BlockPaletteEntry::new(block_name, CacheableNBT::new(state)));
         }
 
-        let multiplayer_correlation_id = PacketSerializer::get_string(&mut stream);
+        let multiplayer_correlation_id = PacketSerializer::get_string(stream);
 
         let enable_new_inventory_system = stream.get_bool();
 
-        let server_software_version = PacketSerializer::get_string(&mut stream);
+        let server_software_version = PacketSerializer::get_string(stream);
 
         let mut offset = stream.get_offset();
         let mut nbt_serializer = NetworkNBTSerializer::new();
@@ -106,7 +104,7 @@ impl Packet for StartGame {
 
         let block_palette_checksum = stream.get_u64_le();
 
-        let world_template_id = PacketSerializer::get_uuid(&mut stream);
+        let world_template_id = PacketSerializer::get_uuid(stream);
 
         let enable_client_side_chunk_generation = stream.get_bool();
 
@@ -114,7 +112,7 @@ impl Packet for StartGame {
 
         let enable_tick_death_systems = stream.get_bool();
 
-        let network_permissions = NetworkPermissions::read(&mut stream);
+        let network_permissions = NetworkPermissions::read(stream);
 
         StartGame{
             actor_unique_id,

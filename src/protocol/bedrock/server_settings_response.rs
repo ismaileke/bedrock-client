@@ -32,11 +32,9 @@ impl Packet for ServerSettingsResponse {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ServerSettingsResponse {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ServerSettingsResponse {
         let form_id = stream.get_var_u32();
-        let form_data = PacketSerializer::get_string(&mut stream);
+        let form_data = PacketSerializer::get_string(stream);
 
         ServerSettingsResponse { form_id, form_data }
     }

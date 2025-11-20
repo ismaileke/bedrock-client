@@ -44,13 +44,11 @@ impl Packet for SetSpawnPosition {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SetSpawnPosition {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> SetSpawnPosition {
         let spawn_type = stream.get_var_i32();
-        let spawn_position = PacketSerializer::get_block_pos(&mut stream);
+        let spawn_position = PacketSerializer::get_block_pos(stream);
         let dimension = stream.get_var_i32();
-        let causing_block_position = PacketSerializer::get_block_pos(&mut stream);
+        let causing_block_position = PacketSerializer::get_block_pos(stream);
 
 
         SetSpawnPosition { spawn_type, spawn_position, dimension, causing_block_position }

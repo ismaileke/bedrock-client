@@ -29,9 +29,7 @@ impl Packet for SetDefaultGameType {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SetDefaultGameType {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> SetDefaultGameType {
         let game_mode = stream.get_var_i32();
 
         SetDefaultGameType { game_mode }

@@ -29,9 +29,7 @@ impl Packet for AwardAchievement {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> AwardAchievement {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> AwardAchievement {
         let achievement_id = stream.get_i32_le();
 
         AwardAchievement { achievement_id }

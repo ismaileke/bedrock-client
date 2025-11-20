@@ -31,9 +31,7 @@ impl Packet for RemoveVolumeEntity {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> RemoveVolumeEntity {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> RemoveVolumeEntity {
         let entity_net_id = stream.get_var_u32();
         let dimension = stream.get_var_i32();
 

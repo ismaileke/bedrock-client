@@ -30,9 +30,7 @@ impl Packet for RequestNetworkSettings {
         Vec::from(main_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> RequestNetworkSettings {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> RequestNetworkSettings {
         let protocol_version = stream.get_u32_be();
 
         RequestNetworkSettings { protocol_version }

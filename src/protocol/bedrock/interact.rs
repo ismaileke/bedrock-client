@@ -40,11 +40,9 @@ impl Packet for Interact {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> Interact {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> Interact {
         let action = stream.get_byte();
-        let target_actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
+        let target_actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let (mut x, mut y, mut z) = (None, None, None);
         if action == Interact::ACTION_MOUSEOVER || action == Interact::ACTION_LEAVE_VEHICLE {
             x = Some(stream.get_f32_le());

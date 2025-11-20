@@ -42,16 +42,14 @@ impl Packet for GameTestRequest {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> GameTestRequest {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> GameTestRequest {
         let max_test_per_batch = stream.get_var_i32();
         let repeat_count = stream.get_var_i32();
         let rotation = stream.get_byte();
         let stop_on_failure = stream.get_bool();
-        let test_position = PacketSerializer::get_signed_block_pos(&mut stream);
+        let test_position = PacketSerializer::get_signed_block_pos(stream);
         let tests_per_row = stream.get_var_i32();
-        let test_name = PacketSerializer::get_string(&mut stream);
+        let test_name = PacketSerializer::get_string(stream);
 
         GameTestRequest { max_test_per_batch, repeat_count, rotation, stop_on_failure, test_position, tests_per_row, test_name }
     }

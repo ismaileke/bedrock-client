@@ -36,31 +36,27 @@ impl Packet for ResourcePacksInfo {
         todo!()
     }
 
-    fn decode(bytes: Vec<u8>) -> ResourcePacksInfo {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ResourcePacksInfo {
         let must_accept = stream.get_bool();
         let has_addons = stream.get_bool();
         let has_scripts = stream.get_bool();
         let force_disable_vibrant_visuals = stream.get_bool();
-
-
-        let world_template_id = PacketSerializer::get_uuid(&mut stream);
-        let world_template_version = PacketSerializer::get_string(&mut stream);
+        let world_template_id = PacketSerializer::get_uuid(stream);
+        let world_template_version = PacketSerializer::get_string(stream);
 
         let resource_pack_count = stream.get_u16_le();
         let mut resource_packs = Vec::new();
         for _ in 0..resource_pack_count {
-            let uuid = PacketSerializer::get_uuid(&mut stream);
-            let version = PacketSerializer::get_string(&mut stream);
+            let uuid = PacketSerializer::get_uuid(stream);
+            let version = PacketSerializer::get_string(stream);
             let size_bytes = stream.get_u64_le();
-            let encryption_key = PacketSerializer::get_string(&mut stream);
-            let sub_pack_name = PacketSerializer::get_string(&mut stream);
-            let content_id = PacketSerializer::get_string(&mut stream);
+            let encryption_key = PacketSerializer::get_string(stream);
+            let sub_pack_name = PacketSerializer::get_string(stream);
+            let content_id = PacketSerializer::get_string(stream);
             let has_scripts = stream.get_bool();
             let is_addon_pack = stream.get_bool();
             let is_rtx_capable = stream.get_bool();
-            let cdn_url = PacketSerializer::get_string(&mut stream);
+            let cdn_url = PacketSerializer::get_string(stream);
 
             resource_packs.push(ResourcePack{ uuid, version, size_bytes, encryption_key, sub_pack_name, content_id, has_scripts, is_addon_pack, is_rtx_capable, cdn_url });
         }

@@ -34,12 +34,10 @@ impl Packet for LessonProgress {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> LessonProgress {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> LessonProgress {
         let action = stream.get_var_i32();
         let score = stream.get_var_i32();
-        let activity_id = PacketSerializer::get_string(&mut stream);
+        let activity_id = PacketSerializer::get_string(stream);
 
         LessonProgress { action, score, activity_id }
     }

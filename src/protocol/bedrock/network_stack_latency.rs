@@ -39,9 +39,7 @@ impl Packet for NetworkStackLatency {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> NetworkStackLatency {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> NetworkStackLatency {
         let timestamp = stream.get_u64_le();
         let need_response = stream.get_bool();
 

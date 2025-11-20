@@ -30,10 +30,8 @@ impl Packet for AddBehaviorTree {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> AddBehaviorTree {
-        let mut stream = Stream::new(bytes, 0);
-
-        let behavior_tree_json = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> AddBehaviorTree {
+        let behavior_tree_json = PacketSerializer::get_string(stream);
 
         AddBehaviorTree { behavior_tree_json }
     }

@@ -38,14 +38,12 @@ impl Packet for StructureTemplateDataResponse {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> StructureTemplateDataResponse {
-        let mut stream = Stream::new(bytes, 0);
-
-        let structure_template_name = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> StructureTemplateDataResponse {
+        let structure_template_name = PacketSerializer::get_string(stream);
         let has_nbt = stream.get_bool();
         let mut nbt: Option<CacheableNBT> = None;
         if has_nbt {
-            nbt = Some(CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(&mut stream))));
+            nbt = Some(CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream))));
         }
         let response_type = stream.get_byte();
 

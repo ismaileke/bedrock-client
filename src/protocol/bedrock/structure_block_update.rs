@@ -37,11 +37,9 @@ impl Packet for StructureBlockUpdate {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> StructureBlockUpdate {
-        let mut stream = Stream::new(bytes, 0);
-
-        let block_position = PacketSerializer::get_block_pos(&mut stream);
-        let structure_editor_data = PacketSerializer::get_structure_editor_data(&mut stream);
+    fn decode(stream: &mut Stream) -> StructureBlockUpdate {
+        let block_position = PacketSerializer::get_block_pos(stream);
+        let structure_editor_data = PacketSerializer::get_structure_editor_data(stream);
         let is_powered = stream.get_bool();
         let water_logged = stream.get_bool();
 

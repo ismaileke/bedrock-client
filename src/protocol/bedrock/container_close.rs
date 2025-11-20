@@ -33,9 +33,7 @@ impl Packet for ContainerClose {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ContainerClose {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ContainerClose {
         let window_id = stream.get_byte();
         let window_type = stream.get_byte();
         let server = stream.get_bool();

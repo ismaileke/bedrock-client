@@ -52,9 +52,7 @@ impl Packet for PlayStatus {
         todo!()
     }
 
-    fn decode(bytes: Vec<u8>) -> PlayStatus {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> PlayStatus {
         PlayStatus { status: stream.get_u32_be() }
     }
 

@@ -27,9 +27,7 @@ impl Packet for NetworkSettings {
         todo!()
     }
 
-    fn decode(bytes: Vec<u8>) -> NetworkSettings {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> NetworkSettings {
         let compression_threshold = stream.get_u16_le();
         let compression_algorithm = stream.get_u16_le();
         let enable_client_throttling = stream.get_bool();

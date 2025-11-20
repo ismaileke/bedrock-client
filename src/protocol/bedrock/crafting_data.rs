@@ -32,19 +32,6 @@ pub fn new(
     CraftingData { recipes_with_type_ids, potion_type_recipes, potion_container_recipes, material_reducer_recipes, clean_recipes }
 }
 
-impl CraftingData {
-    pub const ENTRY_SHAPELESS: i32 = 0;
-    pub const ENTRY_SHAPED: i32 = 1;
-    pub const ENTRY_FURNACE: i32 = 2;
-    pub const ENTRY_FURNACE_DATA: i32 = 3;
-    pub const ENTRY_MULTI: i32 = 4;
-    pub const ENTRY_USER_DATA_SHAPELESS: i32 = 5;
-    pub const ENTRY_SHAPELESS_CHEMISTRY: i32 = 6;
-    pub const ENTRY_SHAPED_CHEMISTRY: i32 = 7;
-    pub const ENTRY_SMITHING_TRANSFORM: i32 = 8;
-    pub const ENTRY_SMITHING_TRIM: i32 = 9;
-}
-
 impl Packet for CraftingData {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCraftingData.get_byte()
@@ -92,9 +79,7 @@ impl Packet for CraftingData {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> CraftingData {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> CraftingData {
         let recipe_count = stream.get_var_u32();
         let mut previous_type = 100; // 100 = none (I made it up)
         let mut recipes_with_type_ids = Vec::new();
@@ -103,22 +88,22 @@ impl Packet for CraftingData {
             recipes_with_type_ids.push(
                 match recipe_type {
                     Self::ENTRY_SHAPELESS | Self::ENTRY_USER_DATA_SHAPELESS | Self::ENTRY_SHAPELESS_CHEMISTRY => {
-                        Box::new(ShapelessRecipe::read(recipe_type, &mut stream)) as Box<dyn RecipeWithTypeId>
+                        Box::new(ShapelessRecipe::read(recipe_type, stream)) as Box<dyn RecipeWithTypeId>
                     },
                     Self::ENTRY_SHAPED | Self::ENTRY_SHAPED_CHEMISTRY => {
-                        Box::new(ShapedRecipe::read(recipe_type, &mut stream)) as Box<dyn RecipeWithTypeId>
+                        Box::new(ShapedRecipe::read(recipe_type, stream)) as Box<dyn RecipeWithTypeId>
                     },
                     Self::ENTRY_FURNACE | Self::ENTRY_FURNACE_DATA => {
-                        Box::new(FurnaceRecipe::read(recipe_type, &mut stream)) as Box<dyn RecipeWithTypeId>
+                        Box::new(FurnaceRecipe::read(recipe_type, stream)) as Box<dyn RecipeWithTypeId>
                     },
                     Self::ENTRY_MULTI => {
-                        Box::new(MultiRecipe::read(recipe_type, &mut stream)) as Box<dyn RecipeWithTypeId>
+                        Box::new(MultiRecipe::read(recipe_type, stream)) as Box<dyn RecipeWithTypeId>
                     },
                     Self::ENTRY_SMITHING_TRANSFORM => {
-                        Box::new(SmithingTransformRecipe::read(recipe_type, &mut stream)) as Box<dyn RecipeWithTypeId>
+                        Box::new(SmithingTransformRecipe::read(recipe_type, stream)) as Box<dyn RecipeWithTypeId>
                     },
                     Self::ENTRY_SMITHING_TRIM => {
-                        Box::new(SmithingTrimRecipe::read(recipe_type, &mut stream)) as Box<dyn RecipeWithTypeId>
+                        Box::new(SmithingTrimRecipe::read(recipe_type, stream)) as Box<dyn RecipeWithTypeId>
                     },
                     _ => {
                         panic!("Unhandled recipe type {} (previous was {})", recipe_type, previous_type);
@@ -186,4 +171,17 @@ impl Packet for CraftingData {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl CraftingData {
+    pub const ENTRY_SHAPELESS: i32 = 0;
+    pub const ENTRY_SHAPED: i32 = 1;
+    pub const ENTRY_FURNACE: i32 = 2;
+    pub const ENTRY_FURNACE_DATA: i32 = 3;
+    pub const ENTRY_MULTI: i32 = 4;
+    pub const ENTRY_USER_DATA_SHAPELESS: i32 = 5;
+    pub const ENTRY_SHAPELESS_CHEMISTRY: i32 = 6;
+    pub const ENTRY_SHAPED_CHEMISTRY: i32 = 7;
+    pub const ENTRY_SMITHING_TRANSFORM: i32 = 8;
+    pub const ENTRY_SMITHING_TRIM: i32 = 9;
 }

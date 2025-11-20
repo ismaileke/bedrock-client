@@ -48,15 +48,13 @@ impl Packet for MobArmorEquipment {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> MobArmorEquipment {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
-        let head = PacketSerializer::get_item_stack_wrapper(&mut stream);
-        let chest = PacketSerializer::get_item_stack_wrapper(&mut stream);
-        let legs = PacketSerializer::get_item_stack_wrapper(&mut stream);
-        let feet = PacketSerializer::get_item_stack_wrapper(&mut stream);
-        let body = PacketSerializer::get_item_stack_wrapper(&mut stream);
+    fn decode(stream: &mut Stream) -> MobArmorEquipment {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
+        let head = PacketSerializer::get_item_stack_wrapper(stream);
+        let chest = PacketSerializer::get_item_stack_wrapper(stream);
+        let legs = PacketSerializer::get_item_stack_wrapper(stream);
+        let feet = PacketSerializer::get_item_stack_wrapper(stream);
+        let body = PacketSerializer::get_item_stack_wrapper(stream);
 
         MobArmorEquipment { actor_runtime_id, head, chest, legs, feet, body }
     }

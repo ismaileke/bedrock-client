@@ -35,14 +35,12 @@ impl Packet for DeathInfo {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> DeathInfo {
-        let mut stream = Stream::new(bytes, 0);
-
-        let message_translation_key = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> DeathInfo {
+        let message_translation_key = PacketSerializer::get_string(stream);
         let message_parameters_length = stream.get_var_u32() as usize;
         let mut message_parameters = Vec::new();
         for _ in 0..message_parameters_length {
-            let message_parameter = PacketSerializer::get_string(&mut stream);
+            let message_parameter = PacketSerializer::get_string(stream);
             message_parameters.push(message_parameter);
         }
 

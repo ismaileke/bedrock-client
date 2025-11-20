@@ -36,13 +36,11 @@ impl Packet for PacketViolationWarning {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PacketViolationWarning {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> PacketViolationWarning {
         let violation_type = stream.get_var_i32();
         let severity = stream.get_var_i32();
         let packet_id = stream.get_var_i32();
-        let message = PacketSerializer::get_string(&mut stream);
+        let message = PacketSerializer::get_string(stream);
 
         PacketViolationWarning { violation_type, severity, packet_id, message }
     }

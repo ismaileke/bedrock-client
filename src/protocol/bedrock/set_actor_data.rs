@@ -39,12 +39,10 @@ impl Packet for SetActorData {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SetActorData {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(&mut stream);
-        let metadata = PacketSerializer::get_entity_metadata(&mut stream);
-        let synced_properties = PropertySyncData::read(&mut stream);
+    fn decode(stream: &mut Stream) -> SetActorData {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
+        let metadata = PacketSerializer::get_entity_metadata(stream);
+        let synced_properties = PropertySyncData::read(stream);
         let tick = stream.get_var_u64();
 
         SetActorData { actor_runtime_id, metadata, synced_properties, tick }

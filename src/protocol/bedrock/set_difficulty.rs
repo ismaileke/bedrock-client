@@ -29,9 +29,7 @@ impl Packet for SetDifficulty {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SetDifficulty {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> SetDifficulty {
         let difficulty = stream.get_var_u32();
 
         SetDifficulty { difficulty }

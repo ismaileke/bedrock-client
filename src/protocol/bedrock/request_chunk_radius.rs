@@ -31,9 +31,7 @@ impl Packet for RequestChunkRadius {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> RequestChunkRadius {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> RequestChunkRadius {
         let radius = stream.get_var_i32();
         let max_radius = stream.get_byte();
 

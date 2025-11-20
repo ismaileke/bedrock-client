@@ -30,10 +30,8 @@ impl Packet for AutomationClientConnect {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> AutomationClientConnect {
-        let mut stream = Stream::new(bytes, 0);
-
-        let server_uri = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> AutomationClientConnect {
+        let server_uri = PacketSerializer::get_string(stream);
 
         AutomationClientConnect { server_uri }
     }

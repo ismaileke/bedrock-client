@@ -38,13 +38,11 @@ impl Packet for PlayerSkin {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PlayerSkin {
-        let mut stream = Stream::new(bytes, 0);
-
-        let uuid = PacketSerializer::get_uuid(&mut stream);
-        let mut skin = PacketSerializer::get_skin(&mut stream);
-        let new_skin_name = PacketSerializer::get_string(&mut stream);
-        let old_skin_name = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> PlayerSkin {
+        let uuid = PacketSerializer::get_uuid(stream);
+        let mut skin = PacketSerializer::get_skin(stream);
+        let new_skin_name = PacketSerializer::get_string(stream);
+        let old_skin_name = PacketSerializer::get_string(stream);
         skin.is_verified = stream.get_bool();
 
         PlayerSkin { uuid, skin, new_skin_name, old_skin_name }

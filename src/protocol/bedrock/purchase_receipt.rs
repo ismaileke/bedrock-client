@@ -33,13 +33,11 @@ impl Packet for PurchaseReceipt {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PurchaseReceipt {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> PurchaseReceipt {
         let mut entries = Vec::new();
         let count = stream.get_var_u32();
         for _ in 0..count {
-            entries.push(PacketSerializer::get_string(&mut stream));
+            entries.push(PacketSerializer::get_string(stream));
         }
 
         PurchaseReceipt { entries }

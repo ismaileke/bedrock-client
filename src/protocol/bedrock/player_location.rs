@@ -48,14 +48,12 @@ impl Packet for PlayerLocation {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> PlayerLocation {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> PlayerLocation {
         let location_type = stream.get_u32_le();
-        let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
+        let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let mut position: Option<Vec<f32>> = None;
         if location_type == PlayerLocationType::PLAYER_LOCATION_COORDINATES {
-            position = Some(PacketSerializer::get_vector3(&mut stream));
+            position = Some(PacketSerializer::get_vector3(stream));
         }
 
         PlayerLocation { location_type, actor_unique_id, position }

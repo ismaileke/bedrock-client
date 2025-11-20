@@ -37,11 +37,9 @@ impl Packet for CommandRequest {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> CommandRequest {
-        let mut stream = Stream::new(bytes, 0);
-
-        let command = PacketSerializer::get_string(&mut stream);
-        let origin_data = PacketSerializer::get_command_origin_data(&mut stream);
+    fn decode(stream: &mut Stream) -> CommandRequest {
+        let command = PacketSerializer::get_string(stream);
+        let origin_data = PacketSerializer::get_command_origin_data(stream);
         let is_internal = stream.get_bool();
         let version = stream.get_var_i32();
 

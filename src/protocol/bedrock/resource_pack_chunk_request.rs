@@ -32,10 +32,8 @@ impl Packet for ResourcePackChunkRequest {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ResourcePackChunkRequest {
-        let mut stream = Stream::new(bytes, 0);
-
-        let pack_id = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> ResourcePackChunkRequest {
+        let pack_id = PacketSerializer::get_string(stream);
         let chunk_index = stream.get_u32_le();
 
         ResourcePackChunkRequest { pack_id, chunk_index }

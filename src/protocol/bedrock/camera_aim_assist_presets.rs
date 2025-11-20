@@ -41,18 +41,16 @@ impl Packet for CameraAimAssistPresets {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> CameraAimAssistPresets {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> CameraAimAssistPresets {
         let mut categories = Vec::new();
         let mut presets = Vec::new();
         let mut count = stream.get_var_u32();
         for _ in 0..count {
-            categories.push(CameraAimAssistCategory::read(&mut stream));
+            categories.push(CameraAimAssistCategory::read(stream));
         }
         count = stream.get_var_u32();
         for _ in 0..count {
-            presets.push(CameraAimAssistPreset::read(&mut stream));
+            presets.push(CameraAimAssistPreset::read(stream));
         }
         let operation = stream.get_byte();
 

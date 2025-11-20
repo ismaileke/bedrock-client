@@ -31,10 +31,8 @@ impl Packet for JigsawStructureData {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> JigsawStructureData {
-        let mut stream = Stream::new(bytes, 0);
-
-        let nbt = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(&mut stream)));
+    fn decode(stream: &mut Stream) -> JigsawStructureData {
+        let nbt = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream)));
 
         JigsawStructureData { nbt }
     }

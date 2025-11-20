@@ -41,19 +41,17 @@ impl Packet for UpdateSubChunkBlocks {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> UpdateSubChunkBlocks {
-        let mut stream = Stream::new(bytes, 0);
-
-        let base_block_position = PacketSerializer::get_block_pos(&mut stream);
+    fn decode(stream: &mut Stream) -> UpdateSubChunkBlocks {
+        let base_block_position = PacketSerializer::get_block_pos(stream);
         let layer_0_updates_count = stream.get_var_u32() as usize;
         let mut layer_0_updates = Vec::new();
         for _ in 0..layer_0_updates_count {
-            layer_0_updates.push(UpdateSubChunkBlocksEntry::read(&mut stream));
+            layer_0_updates.push(UpdateSubChunkBlocksEntry::read(stream));
         }
         let layer_1_updates_count = stream.get_var_u32() as usize;
         let mut layer_1_updates = Vec::new();
         for _ in 0..layer_1_updates_count {
-            layer_1_updates.push(UpdateSubChunkBlocksEntry::read(&mut stream));
+            layer_1_updates.push(UpdateSubChunkBlocksEntry::read(stream));
         }
 
         UpdateSubChunkBlocks { base_block_position, layer_0_updates, layer_1_updates }

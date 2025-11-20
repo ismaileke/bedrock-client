@@ -34,10 +34,8 @@ impl Packet for ActorPickRequest {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ActorPickRequest {
-        let mut stream = Stream::new(bytes, 0);
-
-        let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
+    fn decode(stream: &mut Stream) -> ActorPickRequest {
+        let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let add_user_data = stream.get_bool();
         let hotbar_slot = stream.get_byte();
 

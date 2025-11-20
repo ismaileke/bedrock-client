@@ -30,27 +30,6 @@ pub fn new(
     BossEvent { boss_actor_unique_id, event_type, player_actor_unique_id, health_percent, title, filtered_title, darken_screen, color, overlay }
 }
 
-impl BossEvent {
-    /** S2C: Shows the boss-bar to the player. */
-    pub const TYPE_SHOW: u32 = 0;
-    /** C2S: Registers a player to a boss fight. */
-    pub const TYPE_REGISTER_PLAYER: u32 = 1;
-    /** S2C: Removes the boss-bar from the client. */
-    pub const TYPE_HIDE: u32 = 2;
-    /** C2S: Unregisters a player from a boss fight. */
-    pub const TYPE_UNREGISTER_PLAYER: u32 = 3;
-    /** S2C: Sets the bar percentage. */
-    pub const TYPE_HEALTH_PERCENT: u32 = 4;
-    /** S2C: Sets the title of the bar. */
-    pub const TYPE_TITLE: u32 = 5;
-    /** S2C: Updates misc properties of the bar and environment. */
-    pub const TYPE_PROPERTIES: u32 = 6;
-    /** S2C: Updates boss-bar color and overlay texture. */
-    pub const TYPE_TEXTURE: u32 = 7;
-    /** C2S: Client asking the server to resend all boss data. */
-    pub const TYPE_QUERY: u32 = 8;
-}
-
 impl Packet for BossEvent {
     fn id(&self) -> u16 {
         BedrockPacketType::IDBossEvent.get_byte()
@@ -101,10 +80,8 @@ impl Packet for BossEvent {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> BossEvent {
-        let mut stream = Stream::new(bytes, 0);
-
-        let boss_actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
+    fn decode(stream: &mut Stream) -> BossEvent {
+        let boss_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let event_type = stream.get_var_u32();
         let mut player_actor_unique_id = 0;
         let mut health_percent = 0.0;
@@ -116,11 +93,11 @@ impl Packet for BossEvent {
 
         match event_type {
             BossEvent::TYPE_REGISTER_PLAYER | BossEvent::TYPE_UNREGISTER_PLAYER | BossEvent::TYPE_QUERY => {
-                player_actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
+                player_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
             }
             BossEvent::TYPE_SHOW => {
-                title = PacketSerializer::get_string(&mut stream);
-                filtered_title = PacketSerializer::get_string(&mut stream);
+                title = PacketSerializer::get_string(stream);
+                filtered_title = PacketSerializer::get_string(stream);
                 health_percent = stream.get_f32_le();
 
                 // fallthrough: PROPERTIES
@@ -147,8 +124,8 @@ impl Packet for BossEvent {
                 health_percent = stream.get_f32_le();
             }
             BossEvent::TYPE_TITLE => {
-                title = PacketSerializer::get_string(&mut stream);
-                filtered_title = PacketSerializer::get_string(&mut stream);
+                title = PacketSerializer::get_string(stream);
+                filtered_title = PacketSerializer::get_string(stream);
             }
             _ => {}
         }
@@ -171,4 +148,25 @@ impl Packet for BossEvent {
     fn as_any(&self) -> &dyn Any {
         self
     }
+}
+
+impl BossEvent {
+    /** S2C: Shows the boss-bar to the player. */
+    pub const TYPE_SHOW: u32 = 0;
+    /** C2S: Registers a player to a boss fight. */
+    pub const TYPE_REGISTER_PLAYER: u32 = 1;
+    /** S2C: Removes the boss-bar from the client. */
+    pub const TYPE_HIDE: u32 = 2;
+    /** C2S: Unregisters a player from a boss fight. */
+    pub const TYPE_UNREGISTER_PLAYER: u32 = 3;
+    /** S2C: Sets the bar percentage. */
+    pub const TYPE_HEALTH_PERCENT: u32 = 4;
+    /** S2C: Sets the title of the bar. */
+    pub const TYPE_TITLE: u32 = 5;
+    /** S2C: Updates misc properties of the bar and environment. */
+    pub const TYPE_PROPERTIES: u32 = 6;
+    /** S2C: Updates boss-bar color and overlay texture. */
+    pub const TYPE_TEXTURE: u32 = 7;
+    /** C2S: Client asking the server to resend all boss data. */
+    pub const TYPE_QUERY: u32 = 8;
 }

@@ -54,17 +54,15 @@ impl Packet for AddVolumeEntity {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> AddVolumeEntity {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> AddVolumeEntity {
         let entity_net_id = stream.get_var_u32();
-        let data = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(&mut stream)));
-        let json_identifier = PacketSerializer::get_string(&mut stream);
-        let instance_name = PacketSerializer::get_string(&mut stream);
-        let min_bound = PacketSerializer::get_block_pos(&mut stream);
-        let max_bound = PacketSerializer::get_block_pos(&mut stream);
+        let data = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream)));
+        let json_identifier = PacketSerializer::get_string(stream);
+        let instance_name = PacketSerializer::get_string(stream);
+        let min_bound = PacketSerializer::get_block_pos(stream);
+        let max_bound = PacketSerializer::get_block_pos(stream);
         let dimension = stream.get_var_i32();
-        let engine_version = PacketSerializer::get_string(&mut stream);
+        let engine_version = PacketSerializer::get_string(stream);
 
         AddVolumeEntity { entity_net_id, data, json_identifier, instance_name, min_bound, max_bound, dimension, engine_version }
     }

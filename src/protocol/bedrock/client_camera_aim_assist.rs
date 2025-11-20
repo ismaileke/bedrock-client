@@ -34,10 +34,8 @@ impl Packet for ClientCameraAimAssist {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ClientCameraAimAssist {
-        let mut stream = Stream::new(bytes, 0);
-
-        let preset_id = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> ClientCameraAimAssist {
+        let preset_id = PacketSerializer::get_string(stream);
         let action_type = stream.get_byte();
         let allow_aim_assist = stream.get_bool();
 

@@ -39,18 +39,16 @@ impl Packet for BiomeDefinitionList {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> BiomeDefinitionList {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> BiomeDefinitionList {
         let mut definition_data = Vec::new();
         let mut strings = Vec::new();
         let mut count = stream.get_var_u32();
         for _ in 0..count {
-            definition_data.push(BiomeDefinitionData::read(&mut stream));
+            definition_data.push(BiomeDefinitionData::read(stream));
         }
         count = stream.get_var_u32();
         for _ in 0..count {
-            strings.push(PacketSerializer::get_string(&mut stream));
+            strings.push(PacketSerializer::get_string(stream));
         }
 
         BiomeDefinitionList { definition_data, strings }

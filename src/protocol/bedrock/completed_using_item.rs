@@ -31,9 +31,7 @@ impl Packet for CompletedUsingItem {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> CompletedUsingItem {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> CompletedUsingItem {
         let item_id = stream.get_i16_le();
         let action = stream.get_i32_le();
 

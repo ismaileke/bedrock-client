@@ -30,10 +30,8 @@ impl Packet for CurrentStructureFeature {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> CurrentStructureFeature {
-        let mut stream = Stream::new(bytes, 0);
-
-        let current_structure_feature = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> CurrentStructureFeature {
+        let current_structure_feature = PacketSerializer::get_string(stream);
 
         CurrentStructureFeature { current_structure_feature }
     }

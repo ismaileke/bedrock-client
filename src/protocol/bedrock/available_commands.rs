@@ -45,9 +45,7 @@ impl Packet for AvailableCommands {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(_bytes: Vec<u8>) -> AvailableCommands {
-        //let mut stream = Stream::new(bytes, 0);
-
+    fn decode(_stream: &mut Stream) -> AvailableCommands {
         // TODO
 
         AvailableCommands { }
@@ -234,10 +232,9 @@ impl Packet for AvailableCommands {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> AvailableCommands {
-        let mut stream = Stream::new(bytes, 0);
+    fn decode(stream: &mut Stream) -> AvailableCommands {
 
-        let actor_unique_id = PacketSerializer::get_actor_unique_id(&mut stream);
+        let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
 
         AvailableCommands { actor_unique_id }
     }

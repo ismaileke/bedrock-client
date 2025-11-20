@@ -29,9 +29,7 @@ impl Packet for SimulationType {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> SimulationType {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> SimulationType {
         let simulation_type = stream.get_byte();
 
         SimulationType { simulation_type }

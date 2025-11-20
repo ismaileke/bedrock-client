@@ -49,15 +49,13 @@ impl Packet for InventoryTransaction {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> InventoryTransaction {
-        let mut stream = Stream::new(bytes, 0);
-
-        let request_id = PacketSerializer::read_legacy_item_stack_request_id(&mut stream);
+    fn decode(stream: &mut Stream) -> InventoryTransaction {
+        let request_id = PacketSerializer::read_legacy_item_stack_request_id(stream);
         let mut request_changed_slots = Vec::new();
         if request_id != 0 {
             let slot_count = stream.get_var_u32() as usize;
             for _ in 0..slot_count {
-                request_changed_slots.push(InventoryTransactionChangedSlotsHack::read(&mut stream));
+                request_changed_slots.push(InventoryTransactionChangedSlotsHack::read(stream));
             }
         }
         let tr_type = stream.get_var_u32();
@@ -71,7 +69,7 @@ impl Packet for InventoryTransaction {
             _ => { Box::new(NormalTransactionData::new(vec![])) }
 
         };
-        tr_data.decode(&mut stream);
+        tr_data.decode(stream);
 
         InventoryTransaction { request_id, request_changed_slots, tr_data }
     }

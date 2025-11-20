@@ -25,7 +25,7 @@ impl Packet for ClientToServerHandshake {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(_bytes: Vec<u8>) -> ClientToServerHandshake {
+    fn decode(_stream: &mut Stream) -> ClientToServerHandshake {
         ClientToServerHandshake{}
     }
 

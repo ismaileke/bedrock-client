@@ -34,11 +34,9 @@ impl Packet for LabTable {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> LabTable {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> LabTable {
         let action_type = stream.get_byte();
-        let block_position = PacketSerializer::get_signed_block_pos(&mut stream);
+        let block_position = PacketSerializer::get_signed_block_pos(stream);
         let reaction_type = stream.get_byte();
 
         LabTable { action_type, block_position, reaction_type }

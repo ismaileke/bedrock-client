@@ -33,13 +33,11 @@ impl Packet for ContainerRegistryCleanup {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ContainerRegistryCleanup {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ContainerRegistryCleanup {
         let removed_containers_count = stream.get_var_u32() as usize;
         let mut removed_containers = Vec::new();
         for _ in 0..removed_containers_count {
-            removed_containers.push(FullContainerName::read(&mut stream));
+            removed_containers.push(FullContainerName::read(stream));
         }
 
         ContainerRegistryCleanup { removed_containers }

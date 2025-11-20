@@ -37,9 +37,7 @@ impl Packet for LevelEventGeneric {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> LevelEventGeneric {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> LevelEventGeneric {
         let event_id = stream.get_var_i32();
         let mut offset = stream.get_offset();
         let mut nbt_serializer = NetworkNBTSerializer::new();

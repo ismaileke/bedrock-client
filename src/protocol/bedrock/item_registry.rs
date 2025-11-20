@@ -39,17 +39,15 @@ impl Packet for ItemRegistry {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ItemRegistry {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> ItemRegistry {
         let entries_len = stream.get_var_u32() as usize;
         let mut entries = Vec::new();
         for _ in 0..entries_len {
-            let string_id = PacketSerializer::get_string(&mut stream);
+            let string_id = PacketSerializer::get_string(stream);
             let numeric_id = stream.get_i16_le();
             let component_based = stream.get_bool();
             let version = stream.get_var_i32();
-            let component_nbt = PacketSerializer::get_nbt_compound_root(&mut stream);
+            let component_nbt = PacketSerializer::get_nbt_compound_root(stream);
             entries.push(ItemTypeEntry { string_id, numeric_id, component_based, version, component_nbt: CacheableNBT::new(Box::new(component_nbt)) });
         }
 

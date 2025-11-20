@@ -33,13 +33,11 @@ impl Packet for FeatureRegistry {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> FeatureRegistry {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> FeatureRegistry {
         let count = stream.get_var_u32() as usize;
         let mut entries = Vec::new();
         for _ in 0..count {
-            entries.push(FeatureRegistryPacketEntry::read(&mut stream));
+            entries.push(FeatureRegistryPacketEntry::read(stream));
         }
 
         FeatureRegistry { entries }

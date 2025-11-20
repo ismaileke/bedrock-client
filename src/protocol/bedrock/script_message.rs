@@ -32,11 +32,9 @@ impl Packet for ScriptMessage {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> ScriptMessage {
-        let mut stream = Stream::new(bytes, 0);
-
-        let message_id = PacketSerializer::get_string(&mut stream);
-        let value = PacketSerializer::get_string(&mut stream);
+    fn decode(stream: &mut Stream) -> ScriptMessage {
+        let message_id = PacketSerializer::get_string(stream);
+        let value = PacketSerializer::get_string(stream);
 
         ScriptMessage { message_id, value }
     }

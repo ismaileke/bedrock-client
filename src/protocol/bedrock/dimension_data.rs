@@ -38,14 +38,12 @@ impl Packet for DimensionData {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(bytes: Vec<u8>) -> DimensionData {
-        let mut stream = Stream::new(bytes, 0);
-
+    fn decode(stream: &mut Stream) -> DimensionData {
         let mut definitions = HashMap::new();
         let count = stream.get_var_u32();
         for _ in 0..count {
-            let dimension_name_id = PacketSerializer::get_string(&mut stream);
-            let dimension_data = DimensionDataEntry::read(&mut stream);
+            let dimension_name_id = PacketSerializer::get_string(stream);
+            let dimension_data = DimensionDataEntry::read(stream);
 
             if definitions.contains_key(&dimension_name_id) {
                 panic!("Repeated dimension data for key \"{}\"", dimension_name_id);
