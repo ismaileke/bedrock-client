@@ -64,22 +64,24 @@ impl Packet for PlayerList {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> PlayerList {
+    fn decode(bytes: Vec<u8>) -> PlayerList {
+        let mut stream = Stream::new(bytes, 0);
+
         let list_type = stream.get_byte();
         let count = stream.get_var_u32();
         let mut entries: Vec<PlayerListEntry> = Vec::with_capacity(count as usize);
         for _ in 0..count {
-            let uuid = PacketSerializer::get_uuid(stream);
+            let uuid = PacketSerializer::get_uuid(&mut stream);
             let mut player_list_entry = PlayerListEntry::create_removal_entry(uuid.clone());
             if list_type == Self::TYPE_ADD {
                 player_list_entry = PlayerListEntry::create_addition_entry(
                     uuid,
-                    PacketSerializer::get_actor_unique_id(stream),
-                    PacketSerializer::get_string(stream),
-                    PacketSerializer::get_string(stream),
-                    PacketSerializer::get_string(stream),
+                    PacketSerializer::get_actor_unique_id(&mut stream),
+                    PacketSerializer::get_string(&mut stream),
+                    PacketSerializer::get_string(&mut stream),
+                    PacketSerializer::get_string(&mut stream),
                     stream.get_i32_le(),
-                    PacketSerializer::get_skin(stream),
+                    PacketSerializer::get_skin(&mut stream),
                     stream.get_bool(),
                     stream.get_bool(),
                     stream.get_bool(),
