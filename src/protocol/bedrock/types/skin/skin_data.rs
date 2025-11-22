@@ -42,7 +42,7 @@ impl SkinData {
             animations: vec![],
             cape_image: Some(SkinImage::new(0, 0, String::new())),
             geometry_data: String::new(),
-            geometry_data_engine_version: String::from("1.21.120"),
+            geometry_data_engine_version: String::from("1.21.124"),
             animation_data: String::new(),
             cape_id: String::new(),
             full_skin_id: Some(Uuid::new_v4().to_string()),
