@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::types::command::command_parameter::CommandParameter;
 
-#[derive(Debug, Clone)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct CommandOverload {
     chaining: bool,
     parameters: Vec<CommandParameter>

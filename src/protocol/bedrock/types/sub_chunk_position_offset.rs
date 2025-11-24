@@ -1,6 +1,6 @@
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct SubChunkPositionOffset {
     pub x_offset: u8,
     pub y_offset: u8,

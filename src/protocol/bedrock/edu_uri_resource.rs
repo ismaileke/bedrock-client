@@ -4,6 +4,7 @@ use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::education_uri_resource::EducationUriResource;
 
+#[derive(serde::Serialize, Debug)]
 pub struct EduUriResource {
     pub resource: EducationUriResource
 }
@@ -42,5 +43,9 @@ impl Packet for EduUriResource {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

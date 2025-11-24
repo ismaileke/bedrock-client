@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct ItemTypeEntry {
     pub string_id: String,
     pub numeric_id: i16,

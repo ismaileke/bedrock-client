@@ -7,13 +7,14 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 
+#[derive(serde::Serialize, Debug)]
 pub struct AddItemActor {
     pub actor_unique_id: i64,
     pub actor_runtime_id: u64,
     pub item: ItemStackWrapper,
     pub position: Vec<f32>,
     pub motion: Vec<f32>,
-    pub metadata: HashMap<u32, Box<dyn MetadataProperty>>,
+    pub metadata: HashMap<u32, MetadataProperty>,
     pub is_from_fishing: bool
 }
 
@@ -23,7 +24,7 @@ pub fn new(
     item: ItemStackWrapper,
     position: Vec<f32>,
     motion: Vec<f32>,
-    metadata: HashMap<u32, Box<dyn MetadataProperty>>,
+    metadata: HashMap<u32, MetadataProperty>,
     is_from_fishing: bool
 ) -> AddItemActor {
     AddItemActor { actor_unique_id, actor_runtime_id, item, position, motion, metadata, is_from_fishing }
@@ -78,5 +79,9 @@ impl Packet for AddItemActor {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

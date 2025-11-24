@@ -2,7 +2,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::update_block::UpdateBlock;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct UpdateSubChunkBlocksEntry {
     block_position: Vec<i32>,
     block_runtime_id: u32,

@@ -13,13 +13,14 @@ use crate::protocol::bedrock::types::inventory::transaction_data::TransactionDat
 use crate::protocol::bedrock::types::inventory::use_item_on_entity_transaction_data::UseItemOnEntityTransactionData;
 use crate::protocol::bedrock::types::inventory::use_item_transaction_data::UseItemTransactionData;
 
+#[derive(serde::Serialize, Debug)]
 pub struct InventoryTransaction {
     pub request_id: i32,
     pub request_changed_slots: Vec<InventoryTransactionChangedSlotsHack>,
-    pub tr_data: Box<dyn TransactionData>
+    pub tr_data: TransactionData
 }
 
-pub fn new(request_id: i32, request_changed_slots: Vec<InventoryTransactionChangedSlotsHack>, tr_data: Box<dyn TransactionData>) -> InventoryTransaction {
+pub fn new(request_id: i32, request_changed_slots: Vec<InventoryTransactionChangedSlotsHack>, tr_data: TransactionData) -> InventoryTransaction {
     InventoryTransaction { request_id, request_changed_slots, tr_data }
 }
 
@@ -61,12 +62,12 @@ impl Packet for InventoryTransaction {
         let tr_type = stream.get_var_u32();
         // check later, bad using
         let mut tr_data = match tr_type {
-            Self::TYPE_NORMAL => { Box::new(NormalTransactionData::new(vec![])) as Box<dyn TransactionData> },
-            Self::TYPE_MISMATCH => { Box::new(MismatchTransactionData::new()) as Box<dyn TransactionData> },
-            Self::TYPE_USE_ITEM => { Box::new(UseItemTransactionData::new(vec![], 0, 0, vec![], 0, 0, ItemStackWrapper{ stack_id: 0, item_stack: ItemStack::null() }, vec![], vec![], 0, 0)) as Box<dyn TransactionData> },
-            Self::TYPE_USE_ITEM_ON_ENTITY => { Box::new(UseItemOnEntityTransactionData::new(vec![], 0, 0, 0, ItemStackWrapper{ stack_id: 0, item_stack: ItemStack::null() }, vec![], vec![])) as Box<dyn TransactionData> },
-            Self::TYPE_RELEASE_ITEM => { Box::new(ReleaseItemTransactionData::new(vec![], 0, 0, ItemStackWrapper{ stack_id: 0, item_stack: ItemStack::null() }, vec![])) as Box<dyn TransactionData> },
-            _ => { Box::new(NormalTransactionData::new(vec![])) }
+            Self::TYPE_NORMAL => TransactionData::Normal(NormalTransactionData::new(vec![])),
+            Self::TYPE_MISMATCH => TransactionData::Mismatch(MismatchTransactionData::new()),
+            Self::TYPE_USE_ITEM => TransactionData::UseItem(UseItemTransactionData::new(vec![], 0, 0, vec![], 0, 0, ItemStackWrapper{ stack_id: 0, item_stack: ItemStack::null() }, vec![], vec![], 0, 0)),
+            Self::TYPE_USE_ITEM_ON_ENTITY => TransactionData::UseItemOnEntity(UseItemOnEntityTransactionData::new(vec![], 0, 0, 0, ItemStackWrapper{ stack_id: 0, item_stack: ItemStack::null() }, vec![], vec![])),
+            Self::TYPE_RELEASE_ITEM => TransactionData::ReleaseItem(ReleaseItemTransactionData::new(vec![], 0, 0, ItemStackWrapper{ stack_id: 0, item_stack: ItemStack::null() }, vec![])),
+            _ => TransactionData::Normal(NormalTransactionData::new(vec![]))
 
         };
         tr_data.decode(stream);
@@ -82,6 +83,10 @@ impl Packet for InventoryTransaction {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

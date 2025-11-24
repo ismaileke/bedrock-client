@@ -1,7 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_coordinate_data::BiomeCoordinateData;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct BiomeScatterParamData {
     pub coordinates: Vec<BiomeCoordinateData>,
     pub eval_order: i32,

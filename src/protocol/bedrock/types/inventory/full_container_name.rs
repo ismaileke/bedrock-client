@@ -1,7 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct FullContainerName {
     container_id: u8,
     dynamic_id: Option<u32>

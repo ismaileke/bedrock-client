@@ -1,6 +1,6 @@
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CameraSetInstructionRotation {
     pub pitch: f32,
     pub yaw: f32

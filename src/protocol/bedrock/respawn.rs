@@ -4,6 +4,7 @@ use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
+#[derive(serde::Serialize, Debug)]
 pub struct Respawn {
     pub position: Vec<f32>,
     pub respawn_state: u8,
@@ -50,6 +51,10 @@ impl Packet for Respawn {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

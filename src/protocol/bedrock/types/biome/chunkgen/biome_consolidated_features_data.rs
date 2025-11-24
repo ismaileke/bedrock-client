@@ -1,7 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_consolidated_feature_data::BiomeConsolidatedFeatureData;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct BiomeConsolidatedFeaturesData {
     pub features: Vec<BiomeConsolidatedFeatureData>
 }

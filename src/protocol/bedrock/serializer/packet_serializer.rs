@@ -7,18 +7,10 @@ use mojang_nbt::tree_root::TreeRoot;
 use uuid::Uuid;
 use crate::protocol::bedrock::serializer::network_nbt_serializer::NetworkNBTSerializer;
 use crate::protocol::bedrock::types::bool_game_rule::BoolGameRule;
+use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 use crate::protocol::bedrock::types::command::command_origin_data::CommandOriginData;
-use crate::protocol::bedrock::types::entity::block_pos_metadata_property::BlockPosMetadataProperty;
-use crate::protocol::bedrock::types::entity::byte_metadata_property::ByteMetadataProperty;
-use crate::protocol::bedrock::types::entity::compound_tag_metadata_property::CompoundTagMetadataProperty;
 use crate::protocol::bedrock::types::entity::entity_link::EntityLink;
 use crate::protocol::bedrock::types::entity::entity_metadata_types::EntityMetadataTypes;
-use crate::protocol::bedrock::types::entity::float_metadata_property::FloatMetadataProperty;
-use crate::protocol::bedrock::types::entity::int_metadata_property::IntMetadataProperty;
-use crate::protocol::bedrock::types::entity::long_metadata_property::LongMetadataProperty;
-use crate::protocol::bedrock::types::entity::short_metadata_property::ShortMetadataProperty;
-use crate::protocol::bedrock::types::entity::string_metadata_property::StringMetadataProperty;
-use crate::protocol::bedrock::types::entity::vec3_metadata_property::Vec3MetadataProperty;
 use crate::protocol::bedrock::types::float_game_rule::FloatGameRule;
 use crate::protocol::bedrock::types::game_rule::GameRule;
 use crate::protocol::bedrock::types::game_rule_types::GameRuleTypes;
@@ -41,6 +33,7 @@ use crate::protocol::bedrock::types::skin::skin_image::SkinImage;
 use crate::protocol::bedrock::types::structure_editor_data::StructureEditorData;
 use crate::protocol::bedrock::types::structure_settings::StructureSettings;
 
+#[derive(serde::Serialize, Debug)]
 pub struct PacketSerializer {}
 
 impl PacketSerializer {
@@ -198,7 +191,7 @@ impl PacketSerializer {
         ct
     }
 
-    pub fn get_entity_metadata(stream: &mut Stream) -> HashMap<u32, Box<dyn MetadataProperty>> {
+    pub fn get_entity_metadata(stream: &mut Stream) -> HashMap<u32, MetadataProperty> {
         let count = stream.get_var_u32() as usize;
         let mut data = HashMap::new();
         for _ in 0..count {
@@ -210,42 +203,42 @@ impl PacketSerializer {
         data
     }
 
-    fn read_metadata_property(stream: &mut Stream, metadata_type: u32) -> Box<dyn MetadataProperty> {
+    fn read_metadata_property(stream: &mut Stream, metadata_type: u32) -> MetadataProperty {
         match metadata_type {
             EntityMetadataTypes::BYTE => {
-                Box::new(ByteMetadataProperty::read(stream)) as Box<dyn MetadataProperty>
+                MetadataProperty::Byte(stream.get_byte())
             },
             EntityMetadataTypes::SHORT => {
-                Box::new(ShortMetadataProperty::read(stream)) as Box<dyn MetadataProperty>
+                MetadataProperty::Short(stream.get_i16_le())
             },
             EntityMetadataTypes::INT => {
-                Box::new(IntMetadataProperty::read(stream)) as Box<dyn MetadataProperty>
+                MetadataProperty::Int(stream.get_var_i32())
             },
             EntityMetadataTypes::FLOAT => {
-                Box::new(FloatMetadataProperty::read(stream)) as Box<dyn MetadataProperty>
+                MetadataProperty::Float(stream.get_f32_le())
             },
             EntityMetadataTypes::STRING => {
-                Box::new(StringMetadataProperty::read(stream)) as Box<dyn MetadataProperty>
+                MetadataProperty::String(PacketSerializer::get_string(stream))
             },
             EntityMetadataTypes::COMPOUND_TAG => {
-                Box::new(CompoundTagMetadataProperty::read(stream)) as Box<dyn MetadataProperty>
-            }
+                MetadataProperty::CompoundTag(CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream))))
+            },
             EntityMetadataTypes::BLOCK_POS => {
-                Box::new(BlockPosMetadataProperty::read(stream)) as Box<dyn MetadataProperty>
+                MetadataProperty::BlockPos(PacketSerializer::get_signed_block_pos(stream))
             },
             EntityMetadataTypes::LONG => {
-                Box::new(LongMetadataProperty::read(stream)) as Box<dyn MetadataProperty>
+                MetadataProperty::Long(stream.get_var_i64())
             },
             EntityMetadataTypes::VECTOR3F => {
-                Box::new(Vec3MetadataProperty::read(stream)) as Box<dyn MetadataProperty>
+                MetadataProperty::Vector3f(PacketSerializer::get_vector3(stream))
             },
             _ => {
-                panic!("Unknown metadata type: {}", metadata_type);
+                panic!("Unknown metadata type id: {}", metadata_type);
             }
         }
     }
 
-    pub fn put_entity_metadata(stream: &mut Stream, data: &mut HashMap<u32, Box<dyn MetadataProperty>>) {
+    pub fn put_entity_metadata(stream: &mut Stream, data: &mut HashMap<u32, MetadataProperty>) {
         stream.put_var_u32(data.len() as u32);
         for (key, value) in data.iter_mut() {
             stream.put_var_u32(*key);
@@ -271,22 +264,22 @@ impl PacketSerializer {
     }
 
     /**
-     * This is a union of ItemStackRequestId, LegacyItemStackRequestId, and ServerItemStackId, used in serverbound
-     * packets to allow the client to refer to server known items, or items which may have been modified by a previous
+     * This is a union of ItemStackRequestId, LegacyItemStackRequestId, and ServerItemStackId, used in server-bound
+     * packets to allow the client to refer to server-known items, or items which may have been modified by a previous
      * as-yet unacknowledged request from the client.
      *
-     * - Server itemstack ID is positive
+     * - Server item stack ID is positive
      * - InventoryTransaction "legacy" request ID is negative and even
-     * - ItemStackRequest request ID is negative and odd
-     * - 0 refers to an empty itemstack (air)
+     * - ItemStackRequest request ID is negative, and odd
+     * - 0 refers to an empty item stack (air)
      */
     pub fn read_item_stack_net_id_variant(stream: &mut Stream) -> i32 {
         stream.get_var_i32()
     }
 
     /**
-     * This is a union of ItemStackRequestId, LegacyItemStackRequestId, and ServerItemStackId, used in serverbound
-     * packets to allow the client to refer to server known items, or items which may have been modified by a previous
+     * This is a union of ItemStackRequestId, LegacyItemStackRequestId, and ServerItemStackId, used in server-bound
+     * packets to allow the client to refer to server-known items, or items which may have been modified by a previous
      * as-yet unacknowledged request from the client.
      */
     pub fn write_item_stack_net_id_variant(stream: &mut Stream, id: i32) {
@@ -400,11 +393,11 @@ impl PacketSerializer {
     pub fn get_recipe_ingredient(stream: &mut Stream) -> RecipeIngredient {
         let descriptor_type = stream.get_byte();
         let descriptor = match descriptor_type {
-            ItemDescriptorType::INT_ID_META => { Some(Box::new(IntIdMetaItemDescriptor::read(stream)) as Box<dyn ItemDescriptor>) },
-            ItemDescriptorType::STRING_ID_META => { Some(Box::new(StringIdMetaItemDescriptor::read(stream)) as Box<dyn ItemDescriptor>) },
-            ItemDescriptorType::TAG => { Some(Box::new(TagItemDescriptor::read(stream)) as Box<dyn ItemDescriptor>) },
-            ItemDescriptorType::MOLANG => { Some(Box::new(MolangItemDescriptor::read(stream)) as Box<dyn ItemDescriptor>) },
-            ItemDescriptorType::COMPLEX_ALIAS => { Some(Box::new(ComplexAliasItemDescriptor::read(stream)) as Box<dyn ItemDescriptor>) },
+            ItemDescriptorType::INT_ID_META => Some(ItemDescriptor::IntIDMeta(IntIdMetaItemDescriptor::read(stream))),
+            ItemDescriptorType::STRING_ID_META => Some(ItemDescriptor::StringIDMeta(StringIdMetaItemDescriptor::read(stream))),
+            ItemDescriptorType::TAG => Some(ItemDescriptor::Tag(TagItemDescriptor::read(stream))),
+            ItemDescriptorType::MOLANG => Some(ItemDescriptor::Molang(MolangItemDescriptor::read(stream))),
+            ItemDescriptorType::COMPLEX_ALIAS => Some(ItemDescriptor::ComplexAlias(ComplexAliasItemDescriptor::read(stream))),
             _ => {
                 None
             }
@@ -416,7 +409,7 @@ impl PacketSerializer {
 
     pub fn put_recipe_ingredient(stream: &mut Stream, ingredient: &mut RecipeIngredient) {
         if let Some(ref mut descriptor) = ingredient.descriptor {
-            stream.put_byte(descriptor.get_type_id());
+            stream.put_byte(descriptor.type_id());
             descriptor.write(stream);
         } else {
             stream.put_byte(0);
@@ -424,24 +417,18 @@ impl PacketSerializer {
         stream.put_var_i32(ingredient.count);
     }
 
-    fn read_game_rule(stream: &mut Stream, rule_type: u32, is_player_modifiable: bool, is_start_game: bool) -> Box<dyn GameRule> {
+    fn read_game_rule(stream: &mut Stream, rule_type: u32, is_player_modifiable: bool, is_start_game: bool) -> GameRule {
         match rule_type {
-            GameRuleTypes::BOOL => {
-                Box::new(BoolGameRule::read(stream, is_player_modifiable)) as Box<dyn GameRule>
-            },
-            GameRuleTypes::INT => {
-                Box::new(IntGameRule::read(stream, is_player_modifiable, is_start_game)) as Box<dyn GameRule>
-            },
-            GameRuleTypes::FLOAT => {
-                Box::new(FloatGameRule::read(stream, is_player_modifiable)) as Box<dyn GameRule>
-            },
+            GameRuleTypes::BOOL => GameRule::Bool(BoolGameRule::read(stream, is_player_modifiable)),
+            GameRuleTypes::INT => GameRule::Int(IntGameRule::read(stream, is_player_modifiable, is_start_game)),
+            GameRuleTypes::FLOAT => GameRule::Float(FloatGameRule::read(stream, is_player_modifiable)),
             _ => {
                 panic!("Unknown game rule type: {}", rule_type);
             }
         }
     }
 
-    pub fn get_game_rules(stream: &mut Stream, is_start_game: bool) -> HashMap<String, Box<dyn GameRule>> {
+    pub fn get_game_rules(stream: &mut Stream, is_start_game: bool) -> HashMap<String, GameRule> {
         let count = stream.get_var_u32() as usize;
         let mut rules = HashMap::new();
         for _ in 0..count {
@@ -453,7 +440,7 @@ impl PacketSerializer {
         rules
     }
 
-    pub fn put_game_rules(stream: &mut Stream, rules: &mut HashMap<String, Box<dyn GameRule>>, is_start_game: bool) {
+    pub fn put_game_rules(stream: &mut Stream, rules: &mut HashMap<String, GameRule>, is_start_game: bool) {
         stream.put_var_u32(rules.len() as u32);
         for (name, rule) in rules {
             PacketSerializer::put_string(stream, name.clone());

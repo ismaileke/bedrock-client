@@ -4,6 +4,7 @@ use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
+#[derive(serde::Serialize, Debug)]
 pub struct UnlockedRecipes {
     pub unlock_type: u32,
     pub recipes: Vec<String>
@@ -54,6 +55,10 @@ impl Packet for UnlockedRecipes {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

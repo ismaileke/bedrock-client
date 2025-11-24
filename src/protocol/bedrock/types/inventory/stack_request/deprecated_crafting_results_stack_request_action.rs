@@ -1,10 +1,8 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
-use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_action::ItemStackRequestAction;
-use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_action_type::ItemStackRequestActionType;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct DeprecatedCraftingResultsStackRequestAction {
     results: Vec<ItemStack>,
     iterations: u8
@@ -25,14 +23,8 @@ impl DeprecatedCraftingResultsStackRequestAction {
 
         DeprecatedCraftingResultsStackRequestAction{ results, iterations }
     }
-}
 
-impl ItemStackRequestAction for DeprecatedCraftingResultsStackRequestAction {
-    fn get_type_id(&self) -> u8 {
-        ItemStackRequestActionType::CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING
-    }
-
-    fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Stream) {
         stream.put_var_u32(self.results.len() as u32);
         for result in &self.results {
             PacketSerializer::put_item_stack_without_stack_id(stream, result);
@@ -40,5 +32,3 @@ impl ItemStackRequestAction for DeprecatedCraftingResultsStackRequestAction {
         stream.put_byte(self.iterations);
     }
 }
-
-

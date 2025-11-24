@@ -7,6 +7,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::dimension_data_entry::DimensionDataEntry;
 use crate::protocol::bedrock::types::dimension_name_ids::DimensionNameIds;
 
+#[derive(serde::Serialize, Debug)]
 pub struct DimensionData {
     pub definitions: HashMap<String, DimensionDataEntry>
 
@@ -64,5 +65,9 @@ impl Packet for DimensionData {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

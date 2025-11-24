@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct PotionContainerChangeRecipe {
     pub input_item_id: i32,
     pub ingredient_item_id: i32,

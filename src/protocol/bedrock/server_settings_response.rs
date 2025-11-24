@@ -4,6 +4,7 @@ use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
+#[derive(serde::Serialize, Debug)]
 pub struct ServerSettingsResponse {
     pub form_id: u32,
     pub form_data: String // json
@@ -46,5 +47,9 @@ impl Packet for ServerSettingsResponse {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

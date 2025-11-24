@@ -4,6 +4,7 @@ use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::enchant_option::EnchantOption;
 
+#[derive(serde::Serialize, Debug)]
 pub struct PlayerEnchantOptions {
     pub options: Vec<EnchantOption>
 }
@@ -49,5 +50,9 @@ impl Packet for PlayerEnchantOptions {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

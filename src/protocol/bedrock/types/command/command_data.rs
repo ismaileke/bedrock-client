@@ -2,7 +2,7 @@ use crate::protocol::bedrock::types::command::chained_sub_command_data::ChainedS
 use crate::protocol::bedrock::types::command::command_enum::CommandEnum;
 use crate::protocol::bedrock::types::command::command_overload::CommandOverload;
 
-#[derive(Debug, Clone)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct CommandData {
     name: String,
     description: String,

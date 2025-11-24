@@ -3,7 +3,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_set_instruction_ease::CameraSetInstructionEase;
 use crate::protocol::bedrock::types::camera::camera_set_instruction_rotation::CameraSetInstructionRotation;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CameraSetInstruction {
     pub preset: Option<u32>,
     pub ease: Option<CameraSetInstructionEase>,

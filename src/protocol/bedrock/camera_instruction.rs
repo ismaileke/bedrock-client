@@ -9,6 +9,7 @@ use crate::protocol::bedrock::types::camera::camera_set_instruction::CameraSetIn
 use crate::protocol::bedrock::types::camera::camera_spline_instruction::CameraSplineInstruction;
 use crate::protocol::bedrock::types::camera::camera_target_instruction::CameraTargetInstruction;
 
+#[derive(serde::Serialize, Debug)]
 pub struct CameraInstruction {
     pub set: Option<CameraSetInstruction>,
     pub clear: Option<bool>,
@@ -89,5 +90,9 @@ impl Packet for CameraInstruction {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

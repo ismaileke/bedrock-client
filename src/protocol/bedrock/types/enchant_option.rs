@@ -2,7 +2,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::enchant::Enchant;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct EnchantOption {
     cost: u32,
     slot_flags: u32,

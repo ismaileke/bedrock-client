@@ -2,7 +2,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CreativeItemEntry {
     entry_id: u32,
     item: ItemStack,

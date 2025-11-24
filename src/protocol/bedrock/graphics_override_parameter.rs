@@ -5,6 +5,7 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::parameter_keyframe_value::ParameterKeyframeValue;
 
+#[derive(serde::Serialize, Debug)]
 pub struct GraphicsOverrideParameter {
     pub values: Vec<ParameterKeyframeValue>,
     pub biome_identifier: String,
@@ -62,6 +63,10 @@ impl Packet for GraphicsOverrideParameter {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

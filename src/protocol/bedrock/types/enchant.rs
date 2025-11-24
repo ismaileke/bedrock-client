@@ -1,6 +1,6 @@
 use binary_utils::binary::Stream;
 
-#[derive(Debug, Clone)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct Enchant {
     id: u8,
     level: u8

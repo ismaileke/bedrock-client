@@ -5,6 +5,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 
+#[derive(serde::Serialize, Debug)]
 pub struct StructureTemplateDataResponse {
     pub structure_template_name: String,
     pub nbt: Option<CacheableNBT>,
@@ -58,6 +59,10 @@ impl Packet for StructureTemplateDataResponse {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

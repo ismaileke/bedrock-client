@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::types::structure_settings::StructureSettings;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct StructureEditorData {
     pub structure_name: String,
     pub filtered_structure_name: String,

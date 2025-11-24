@@ -1,7 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct BiomeCappedSurfaceData {
     pub floor_blocks: Vec<u32>,
     pub ceiling_blocks: Vec<u32>,

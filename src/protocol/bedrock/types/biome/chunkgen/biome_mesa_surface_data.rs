@@ -1,6 +1,6 @@
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct BiomeMesaSurfaceData {
     pub clay_material: u32,
     pub hard_clay_material: u32,

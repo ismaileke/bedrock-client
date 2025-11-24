@@ -3,6 +3,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 
+#[derive(serde::Serialize, Debug)]
 pub struct RequestPermissions {
     pub target_actor_unique_id: i64,
     pub player_permission: i32, //see types/player_permissions.rs
@@ -49,6 +50,10 @@ impl Packet for RequestPermissions {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

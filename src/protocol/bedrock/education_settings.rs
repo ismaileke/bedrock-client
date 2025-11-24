@@ -6,6 +6,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::education_settings_agent_capabilities::EducationSettingsAgentCapabilities;
 use crate::protocol::bedrock::types::education_settings_external_link_settings::EducationSettingsExternalLinkSettings;
 
+#[derive(serde::Serialize, Debug)]
 pub struct EducationSettings {
     pub code_builder_default_uri: String,
     pub code_builder_title: String,
@@ -113,5 +114,9 @@ impl Packet for EducationSettings {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

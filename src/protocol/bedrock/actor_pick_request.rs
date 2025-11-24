@@ -4,6 +4,7 @@ use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
+#[derive(serde::Serialize, Debug)]
 pub struct ActorPickRequest {
     pub actor_unique_id: i64,
     pub add_user_data: bool,
@@ -50,5 +51,9 @@ impl Packet for ActorPickRequest {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

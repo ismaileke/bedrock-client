@@ -1,8 +1,6 @@
 use binary_utils::binary::Stream;
-use crate::protocol::bedrock::types::recipe::item_descriptor::ItemDescriptor;
-use crate::protocol::bedrock::types::recipe::item_descriptor_type::ItemDescriptorType;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct IntIdMetaItemDescriptor {
     id: i16,
     meta: i16
@@ -22,19 +20,11 @@ impl IntIdMetaItemDescriptor {
 
         IntIdMetaItemDescriptor{ id, meta }
     }
-}
 
-impl ItemDescriptor for IntIdMetaItemDescriptor {
-    fn get_type_id(&self) -> u8 {
-        ItemDescriptorType::INT_ID_META
-    }
-
-    fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Stream) {
         stream.put_i16_le(self.id);
         if self.id != 0 {
             stream.put_i16_le(self.meta);
         }
     }
 }
-
-

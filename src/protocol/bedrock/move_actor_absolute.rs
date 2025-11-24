@@ -4,6 +4,7 @@ use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
+#[derive(serde::Serialize, Debug)]
 pub struct MoveActorAbsolute {
     pub actor_runtime_id: u64,
     pub flags: u8,
@@ -62,6 +63,10 @@ impl Packet for MoveActorAbsolute {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

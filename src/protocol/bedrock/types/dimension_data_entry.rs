@@ -1,6 +1,6 @@
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct DimensionDataEntry {
     max_height: i32,
     min_height: i32,

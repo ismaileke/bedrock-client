@@ -1,9 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use crate::protocol::bedrock::types::recipe::item_descriptor::ItemDescriptor;
-use crate::protocol::bedrock::types::recipe::item_descriptor_type::ItemDescriptorType;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct MolangItemDescriptor {
     molang_expression: String,
     version: u8
@@ -20,17 +18,9 @@ impl MolangItemDescriptor {
 
         MolangItemDescriptor{ molang_expression, version }
     }
-}
 
-impl ItemDescriptor for MolangItemDescriptor {
-    fn get_type_id(&self) -> u8 {
-        ItemDescriptorType::MOLANG
-    }
-
-    fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Stream) {
         PacketSerializer::put_string(stream, self.molang_expression.clone());
         stream.put_byte(self.version);
     }
 }
-
-

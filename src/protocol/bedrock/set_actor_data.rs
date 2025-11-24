@@ -7,14 +7,15 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty;
 use crate::protocol::bedrock::types::entity::property_sync_data::PropertySyncData;
 
+#[derive(serde::Serialize, Debug)]
 pub struct SetActorData {
     pub actor_runtime_id: u64,
-    pub metadata: HashMap<u32, Box<dyn MetadataProperty>>,
+    pub metadata: HashMap<u32, MetadataProperty>,
     pub synced_properties: PropertySyncData,
     pub tick: u64
 }
 
-pub fn new(actor_runtime_id: u64, metadata: HashMap<u32, Box<dyn MetadataProperty>>, synced_properties: PropertySyncData, tick: u64) -> SetActorData {
+pub fn new(actor_runtime_id: u64, metadata: HashMap<u32, MetadataProperty>, synced_properties: PropertySyncData, tick: u64) -> SetActorData {
     SetActorData { actor_runtime_id, metadata, synced_properties, tick }
 }
 
@@ -57,5 +58,9 @@ impl Packet for SetActorData {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

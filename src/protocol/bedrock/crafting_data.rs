@@ -8,14 +8,15 @@ use crate::protocol::bedrock::types::recipe::material_reducer_recipe_output::Mat
 use crate::protocol::bedrock::types::recipe::multi_recipe::MultiRecipe;
 use crate::protocol::bedrock::types::recipe::potion_container_change_recipe::PotionContainerChangeRecipe;
 use crate::protocol::bedrock::types::recipe::potion_type_recipe::PotionTypeRecipe;
-use crate::protocol::bedrock::types::recipe::recipe_with_type_id::RecipeWithTypeId;
+use crate::protocol::bedrock::types::recipe::recipe::Recipe;
 use crate::protocol::bedrock::types::recipe::shaped_recipe::ShapedRecipe;
 use crate::protocol::bedrock::types::recipe::shapeless_recipe::ShapelessRecipe;
 use crate::protocol::bedrock::types::recipe::smithing_transform_recipe::SmithingTransformRecipe;
 use crate::protocol::bedrock::types::recipe::smithing_trim_recipe::SmithingTrimRecipe;
 
+#[derive(serde::Serialize, Debug)]
 pub struct CraftingData {
-    pub recipes_with_type_ids: Vec<Box<dyn RecipeWithTypeId>>,
+    pub recipes: Vec<Recipe>,
     pub potion_type_recipes: Vec<PotionTypeRecipe>,
     pub potion_container_recipes: Vec<PotionContainerChangeRecipe>,
     pub material_reducer_recipes: Vec<MaterialReducerRecipe>,
@@ -23,13 +24,13 @@ pub struct CraftingData {
 }
 
 pub fn new(
-    recipes_with_type_ids: Vec<Box<dyn RecipeWithTypeId>>,
+    recipes: Vec<Recipe>,
     potion_type_recipes: Vec<PotionTypeRecipe>,
     potion_container_recipes: Vec<PotionContainerChangeRecipe>,
     material_reducer_recipes: Vec<MaterialReducerRecipe>,
     clean_recipes: bool
 ) -> CraftingData {
-    CraftingData { recipes_with_type_ids, potion_type_recipes, potion_container_recipes, material_reducer_recipes, clean_recipes }
+    CraftingData { recipes, potion_type_recipes, potion_container_recipes, material_reducer_recipes, clean_recipes }
 }
 
 impl Packet for CraftingData {
@@ -41,10 +42,10 @@ impl Packet for CraftingData {
         let mut stream = Stream::new(Vec::new(), 0);
         stream.put_var_u32(self.id() as u32);
 
-        stream.put_var_u32(self.recipes_with_type_ids.len() as u32);
-        for recipes_with_type_id in self.recipes_with_type_ids.iter_mut() {
-            stream.put_var_i32(recipes_with_type_id.get_selected_type_id());
-            recipes_with_type_id.write(&mut stream);
+        stream.put_var_u32(self.recipes.len() as u32);
+        for recipe in self.recipes.iter_mut() {
+            stream.put_var_i32(recipe.get_selected_type_id());
+            recipe.write(&mut stream);
         }
         stream.put_var_u32(self.potion_type_recipes.len() as u32);
         for potion_type_recipe in &self.potion_type_recipes {
@@ -82,28 +83,28 @@ impl Packet for CraftingData {
     fn decode(stream: &mut Stream) -> CraftingData {
         let recipe_count = stream.get_var_u32();
         let mut previous_type = 100; // 100 = none (I made it up)
-        let mut recipes_with_type_ids = Vec::new();
+        let mut recipes = Vec::new();
         for _ in 0..recipe_count {
             let recipe_type = stream.get_var_i32();
-            recipes_with_type_ids.push(
+            recipes.push(
                 match recipe_type {
                     Self::ENTRY_SHAPELESS | Self::ENTRY_USER_DATA_SHAPELESS | Self::ENTRY_SHAPELESS_CHEMISTRY => {
-                        Box::new(ShapelessRecipe::read(recipe_type, stream)) as Box<dyn RecipeWithTypeId>
+                        Recipe::Shapeless(ShapelessRecipe::read(recipe_type, stream))
                     },
                     Self::ENTRY_SHAPED | Self::ENTRY_SHAPED_CHEMISTRY => {
-                        Box::new(ShapedRecipe::read(recipe_type, stream)) as Box<dyn RecipeWithTypeId>
+                        Recipe::Shaped(ShapedRecipe::read(recipe_type, stream))
                     },
                     Self::ENTRY_FURNACE | Self::ENTRY_FURNACE_DATA => {
-                        Box::new(FurnaceRecipe::read(recipe_type, stream)) as Box<dyn RecipeWithTypeId>
+                        Recipe::Furnace(FurnaceRecipe::read(recipe_type, stream))
                     },
                     Self::ENTRY_MULTI => {
-                        Box::new(MultiRecipe::read(recipe_type, stream)) as Box<dyn RecipeWithTypeId>
+                        Recipe::Multi(MultiRecipe::read(recipe_type, stream))
                     },
                     Self::ENTRY_SMITHING_TRANSFORM => {
-                        Box::new(SmithingTransformRecipe::read(recipe_type, stream)) as Box<dyn RecipeWithTypeId>
+                        Recipe::SmitingTransform(SmithingTransformRecipe::read(recipe_type, stream))
                     },
                     Self::ENTRY_SMITHING_TRIM => {
-                        Box::new(SmithingTrimRecipe::read(recipe_type, stream)) as Box<dyn RecipeWithTypeId>
+                        Recipe::SmithingTrim(SmithingTrimRecipe::read(recipe_type, stream))
                     },
                     _ => {
                         panic!("Unhandled recipe type {} (previous was {})", recipe_type, previous_type);
@@ -157,11 +158,11 @@ impl Packet for CraftingData {
         }
         let clean_recipes = stream.get_bool();
 
-        CraftingData { recipes_with_type_ids, potion_type_recipes, potion_container_recipes, material_reducer_recipes, clean_recipes }
+        CraftingData { recipes, potion_type_recipes, potion_container_recipes, material_reducer_recipes, clean_recipes }
     }
 
     fn debug(&self) {
-        println!("Recipes With Type IDs: {:?}", self.recipes_with_type_ids);
+        println!("Recipes: {:?}", self.recipes);
         println!("Potion Type Recipes: {:?}", self.potion_type_recipes);
         println!("Potion Container Change Recipe: {:?}", self.potion_container_recipes);
         println!("Material Reducer Recipes: {:?}", self.material_reducer_recipes);
@@ -170,6 +171,10 @@ impl Packet for CraftingData {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

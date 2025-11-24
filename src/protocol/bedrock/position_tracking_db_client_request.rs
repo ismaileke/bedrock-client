@@ -3,6 +3,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 
+#[derive(serde::Serialize, Debug)]
 pub struct PositionTrackingDBClientRequest {
     pub action: u8,
     pub tracking_id: i32
@@ -49,5 +50,9 @@ impl Packet for PositionTrackingDBClientRequest {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

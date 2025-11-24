@@ -1,6 +1,6 @@
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct BiomeReplacementData {
     pub biome: i16,
     pub dimension: i32,

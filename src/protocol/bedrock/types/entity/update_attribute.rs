@@ -2,7 +2,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::attribute_modifier::AttributeModifier;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct UpdateAttribute {
     pub min: f32,
     pub max: f32,

@@ -12,7 +12,7 @@ use crate::protocol::bedrock::types::biome::chunkgen::biome_replacement_data::Bi
 use crate::protocol::bedrock::types::biome::chunkgen::biome_surface_material_adjustment_data::BiomeSurfaceMaterialAdjustmentData;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_surface_material_data::BiomeSurfaceMaterialData;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct BiomeDefinitionChunkGenData {
     pub climate: Option<BiomeClimateData>,
     pub consolidated_features: Option<BiomeConsolidatedFeaturesData>,

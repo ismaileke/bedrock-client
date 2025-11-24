@@ -2,7 +2,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_rotation_option::CameraRotationOption;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CameraSplineInstruction {
     pub total_time: f32,
     pub ease_type: u8, // see types/camera/camera_set_instruction_ease_type.rs

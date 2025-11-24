@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::types::entity::attribute_modifier::AttributeModifier;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct Attribute {
     pub id: String,
     pub min: f32,

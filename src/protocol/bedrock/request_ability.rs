@@ -3,12 +3,19 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 
+#[derive(serde::Serialize, Debug)]
 pub struct RequestAbility {
     pub ability_id: i32,
-    pub ability_value: Box<dyn Any>
+    pub ability_value: AbilityValue
 }
 
-pub fn new(ability_id: i32, ability_value: Box<dyn Any>) -> RequestAbility {
+#[derive(serde::Serialize, Debug)]
+pub enum AbilityValue {
+    Bool(bool),
+    Float(f32)
+}
+
+pub fn new(ability_id: i32, ability_value: AbilityValue) -> RequestAbility {
     RequestAbility { ability_id, ability_value }
 }
 
@@ -22,14 +29,17 @@ impl Packet for RequestAbility {
         stream.put_var_u32(self.id() as u32);
 
         stream.put_var_i32(self.ability_id);
-        if let Some(b) = self.ability_value.downcast_ref::<bool>() {
-            stream.put_byte(RequestAbility::VALUE_TYPE_BOOL);
-            stream.put_bool(*b);
-            stream.put_f32_le(0.0);
-        } else if let Some(f) = self.ability_value.downcast_ref::<f32>() {
-            stream.put_byte(RequestAbility::VALUE_TYPE_FLOAT);
-            stream.put_bool(false);
-            stream.put_f32_le(*f);
+        match &self.ability_value {
+            AbilityValue::Bool(b) => {
+                stream.put_byte(RequestAbility::VALUE_TYPE_BOOL);
+                stream.put_bool(*b);
+                stream.put_f32_le(0.0);
+            },
+            AbilityValue::Float(f) => {
+                stream.put_byte(RequestAbility::VALUE_TYPE_FLOAT);
+                stream.put_bool(false);
+                stream.put_f32_le(*f);
+            }
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
@@ -44,23 +54,26 @@ impl Packet for RequestAbility {
         let value_type = stream.get_byte();
         let bool_value = stream.get_bool();
         let float_value = stream.get_f32_le();
-        let ability_value = if value_type == RequestAbility::VALUE_TYPE_BOOL { Box::new(bool_value) as Box<dyn Any> } else { Box::new(float_value) as Box<dyn Any> };
+        let ability_value = if value_type == RequestAbility::VALUE_TYPE_BOOL {
+            AbilityValue::Bool(bool_value)
+        } else {
+            AbilityValue::Float(float_value)
+        };
 
         RequestAbility { ability_id, ability_value }
     }
 
     fn debug(&self) {
         println!("Ability ID: {}", self.ability_id);
-        if let Some(b) = self.ability_value.downcast_ref::<bool>() {
-            println!("Ability Value, Bool Value: {}", b);
-        }
-        if let Some(f) = self.ability_value.downcast_ref::<f32>() {
-            println!("Ability Value, Float Value: {}", f);
-        }
+        println!("Ability Value: {:?}", self.ability_value);
     }
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

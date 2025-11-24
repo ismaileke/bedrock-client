@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct ChunkCacheBlob {
     hash: u64,
     payload: String

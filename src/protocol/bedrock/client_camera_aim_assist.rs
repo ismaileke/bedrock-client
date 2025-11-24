@@ -4,6 +4,7 @@ use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
+#[derive(serde::Serialize, Debug)]
 pub struct ClientCameraAimAssist {
     pub preset_id: String,
     pub action_type: u8, //see types/camera/camera_aim_assist_action_type.rs
@@ -50,5 +51,9 @@ impl Packet for ClientCameraAimAssist {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

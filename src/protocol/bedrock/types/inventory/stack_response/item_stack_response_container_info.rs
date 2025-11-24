@@ -2,7 +2,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::inventory::full_container_name::FullContainerName;
 use crate::protocol::bedrock::types::inventory::stack_response::item_stack_response_slot_info::ItemStackResponseSlotInfo;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct ItemStackResponseContainerInfo {
     container_name: FullContainerName,
     slots: Vec<ItemStackResponseSlotInfo>

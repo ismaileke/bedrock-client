@@ -1,7 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::sub_chunk_entry_common::SubChunkEntryCommon;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct SubChunkEntryWithoutCache {
     base: SubChunkEntryCommon
 }

@@ -10,6 +10,7 @@ use crate::protocol::bedrock::types::entity::property_sync_data::PropertySyncDat
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::update_abilities::UpdateAbilities;
 
+#[derive(serde::Serialize, Debug)]
 pub struct AddPlayer {
     pub uuid: String,
     pub username: String,
@@ -22,7 +23,7 @@ pub struct AddPlayer {
     pub head_yaw: f32,
     pub item: ItemStackWrapper,
     pub game_mode: i32,
-    pub metadata: HashMap<u32, Box<dyn MetadataProperty>>,
+    pub metadata: HashMap<u32, MetadataProperty>,
     pub synced_properties: PropertySyncData,
     pub abilities_packet: UpdateAbilities,
     pub links: Vec<EntityLink>,
@@ -42,7 +43,7 @@ pub fn new(
     head_yaw: f32,
     item: ItemStackWrapper,
     game_mode: i32,
-    metadata: HashMap<u32, Box<dyn MetadataProperty>>,
+    metadata: HashMap<u32, MetadataProperty>,
     synced_properties: PropertySyncData,
     abilities_packet: UpdateAbilities,
     links: Vec<EntityLink>,
@@ -155,5 +156,9 @@ impl Packet for AddPlayer {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

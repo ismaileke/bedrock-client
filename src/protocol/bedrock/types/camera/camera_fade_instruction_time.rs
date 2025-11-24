@@ -1,6 +1,6 @@
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CameraFadeInstructionTime {
     pub fade_in_time: f32,
     pub stay_time: f32,

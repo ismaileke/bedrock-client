@@ -4,7 +4,7 @@ use crate::protocol::bedrock::types::skin::persona_skin_piece::PersonaSkinPiece;
 use crate::protocol::bedrock::types::skin::skin_animation::SkinAnimation;
 use crate::protocol::bedrock::types::skin::skin_image::SkinImage;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct SkinData {
     pub skin_id: String,
     pub play_fab_id: String,

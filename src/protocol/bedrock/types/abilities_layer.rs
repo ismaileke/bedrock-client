@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct AbilitiesLayer {
     layer_id: u16,
     bool_abilities: HashMap<u32, bool>,

@@ -1,11 +1,9 @@
 use binary_utils::binary::Stream;
-use crate::protocol::bedrock::inventory_transaction::InventoryTransaction;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::types::inventory::network_inventory_action::NetworkInventoryAction;
-use crate::protocol::bedrock::types::inventory::transaction_data::TransactionData;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct UseItemTransactionData {
     actions: Vec<NetworkInventoryAction>,
     action_type: u32,
@@ -41,22 +39,16 @@ impl UseItemTransactionData {
     ) -> UseItemTransactionData {
         UseItemTransactionData{ actions, action_type, trigger_type, block_position, face, hotbar_slot, item_in_hand, player_position, click_position, block_runtime_id, client_interact_prediction }
     }
-}
 
-impl TransactionData for UseItemTransactionData {
-    fn get_type_id(&self) -> u32 {
-        InventoryTransaction::TYPE_USE_ITEM
-    }
-
-    fn get_actions(&self) -> &Vec<NetworkInventoryAction> {
+    pub fn get_actions(&self) -> &Vec<NetworkInventoryAction> {
         self.actions.as_ref()
     }
 
-    fn get_actions_mut(&mut self) -> &mut Vec<NetworkInventoryAction> {
+    pub fn get_actions_mut(&mut self) -> &mut Vec<NetworkInventoryAction> {
         self.actions.as_mut()
     }
 
-    fn decode_data(&mut self, stream: &mut Stream) {
+    pub fn decode_data(&mut self, stream: &mut Stream) {
         self.action_type = stream.get_var_u32();
         self.trigger_type = stream.get_var_u32();
         self.block_position = PacketSerializer::get_block_pos(stream);
@@ -69,7 +61,7 @@ impl TransactionData for UseItemTransactionData {
         self.client_interact_prediction = stream.get_var_u32();
     }
 
-    fn encode_data(&self, stream: &mut Stream) {
+    pub fn encode_data(&self, stream: &mut Stream) {
         stream.put_var_u32(self.action_type);
         stream.put_var_u32(self.trigger_type);
         PacketSerializer::put_block_pos(stream, self.block_position.clone());

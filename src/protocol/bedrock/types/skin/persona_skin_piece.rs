@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct PersonaSkinPiece {
     piece_id: String,
     piece_type: String,

@@ -3,6 +3,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 
+#[derive(serde::Serialize, Debug)]
 pub struct CodeBuilderSource {
     pub operation: u8,
     pub category: u8,
@@ -49,5 +50,9 @@ impl Packet for CodeBuilderSource {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

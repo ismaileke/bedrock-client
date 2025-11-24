@@ -1,7 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_scatter_param_data::BiomeScatterParamData;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct BiomeConsolidatedFeatureData {
     pub scatter: BiomeScatterParamData,
     pub feature: i16,

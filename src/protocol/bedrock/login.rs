@@ -10,6 +10,7 @@ use openssl::pkey::{PKey, Private};
 use openssl::sign::Signer;
 use serde_json::{json, to_vec, Value};
 
+#[derive(serde::Serialize, Debug)]
 pub struct Login {
     pub client_protocol: u32,
     pub auth_info_json: String,
@@ -80,6 +81,10 @@ impl Packet for Login {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

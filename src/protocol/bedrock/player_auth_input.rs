@@ -13,6 +13,7 @@ use crate::protocol::bedrock::types::player_block_action::PlayerBlockAction;
 use crate::protocol::bedrock::types::player_block_action_stop_break::PlayerBlockActionStopBreak;
 use crate::protocol::bedrock::types::player_block_action_with_block_info::PlayerBlockActionWithBlockInfo;
 
+#[derive(serde::Serialize, Debug)]
 pub struct PlayerAuthInput {
     pub pitch: f32,
     pub yaw: f32,
@@ -29,7 +30,7 @@ pub struct PlayerAuthInput {
     pub delta: Vec<f32>,
     pub item_interaction_data: Option<ItemInteractionData>,
     pub item_stack_request: Option<ItemStackRequestEntry>,
-    pub block_actions: Option<Vec<Box<dyn PlayerBlockAction>>>,
+    pub block_actions: Option<Vec<PlayerBlockAction>>,
     pub vehicle_info: Option<PlayerAuthInputVehicleInfo>,
     pub analog_move_vec_x: f32,
     pub analog_move_vec_z: f32,
@@ -53,7 +54,7 @@ pub fn new(
     delta: Vec<f32>,
     item_interaction_data: Option<ItemInteractionData>,
     item_stack_request: Option<ItemStackRequestEntry>,
-    block_actions: Option<Vec<Box<dyn PlayerBlockAction>>>,
+    block_actions: Option<Vec<PlayerBlockAction>>,
     vehicle_info: Option<PlayerAuthInputVehicleInfo>,
     analog_move_vec_x: f32,
     analog_move_vec_z: f32,
@@ -163,16 +164,16 @@ impl Packet for PlayerAuthInput {
         if input_flags.get(PlayerAuthInputFlags::PERFORM_ITEM_STACK_REQUEST) {
             item_stack_request = Some(ItemStackRequestEntry::read(stream));
         }
-        let mut block_actions: Option<Vec<Box<dyn PlayerBlockAction>>> = None;
+        let mut block_actions: Option<Vec<PlayerBlockAction>> = None;
         if input_flags.get(PlayerAuthInputFlags::PERFORM_BLOCK_ACTIONS) {
             let mut sub_block_actions = vec![];
             let max = stream.get_var_i32();
             for _ in 0..max {
                 let action_type = stream.get_var_i32();
                 let block_action = if PlayerBlockActionWithBlockInfo::is_valid_action_type(action_type) {
-                    Box::new(PlayerBlockActionWithBlockInfo::read(stream, action_type)) as Box<dyn PlayerBlockAction>
+                    PlayerBlockAction::WithBlockInfo(PlayerBlockActionWithBlockInfo::read(stream, action_type))
                 } else if action_type == PlayerActionTypes::STOP_BREAK {
-                    Box::new(PlayerBlockActionStopBreak{}) as Box<dyn PlayerBlockAction>
+                    PlayerBlockAction::StopBreak(PlayerBlockActionStopBreak::read(stream, action_type))
                 } else {
                     panic!("Unexpected block action type {}", action_type);
                 };
@@ -240,6 +241,10 @@ impl Packet for PlayerAuthInput {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

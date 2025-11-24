@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::types::command::command_enum::CommandEnum;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CommandEnumConstraint {
     command_enum: CommandEnum,
     value_offset: u32,

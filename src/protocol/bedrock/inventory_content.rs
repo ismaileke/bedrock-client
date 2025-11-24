@@ -6,6 +6,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::full_container_name::FullContainerName;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 
+#[derive(serde::Serialize, Debug)]
 pub struct InventoryContent {
     pub window_id: u32,
     pub items: Vec<ItemStackWrapper>,
@@ -63,5 +64,9 @@ impl Packet for InventoryContent {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

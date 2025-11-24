@@ -1,6 +1,6 @@
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct BiomeMountainParamsData {
     pub steep_block: u32,
     pub north_slopes: bool,

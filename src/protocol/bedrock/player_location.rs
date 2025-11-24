@@ -5,6 +5,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::player_location_type::PlayerLocationType;
 
+#[derive(serde::Serialize, Debug)]
 pub struct PlayerLocation {
     pub location_type: u32, //see types/player_location_type.rs
     pub actor_unique_id: i64,
@@ -67,5 +68,9 @@ impl Packet for PlayerLocation {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

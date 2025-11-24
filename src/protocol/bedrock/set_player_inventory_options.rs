@@ -3,6 +3,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 
+#[derive(serde::Serialize, Debug)]
 pub struct SetPlayerInventoryOptions {
     pub left_tab: i32, //see types/inventory/inventory_left_tab.rs
     pub right_tab: i32, //see types/inventory/inventory_right_tab.rs
@@ -57,5 +58,9 @@ impl Packet for SetPlayerInventoryOptions {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

@@ -5,7 +5,7 @@ use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWra
 use crate::protocol::bedrock::types::inventory::transaction_data::TransactionData;
 use crate::protocol::bedrock::types::inventory::use_item_transaction_data::UseItemTransactionData;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct ItemInteractionData {
     request_id: i32,
     request_changed_slots: Vec<InventoryTransactionChangedSlotsHack>,
@@ -26,10 +26,15 @@ impl ItemInteractionData {
                 request_changed_slots.push(InventoryTransactionChangedSlotsHack::read(stream));
             }
         }
-        let mut tr_data = UseItemTransactionData::new(vec![], 0, 0, vec![], 0, 0, ItemStackWrapper{ stack_id: 0, item_stack: ItemStack::null() }, vec![], vec![], 0, 0); // bad way LOL
+        let mut tr_data = TransactionData::UseItem(UseItemTransactionData::new(vec![], 0, 0, vec![], 0, 0, ItemStackWrapper{ stack_id: 0, item_stack: ItemStack::null() }, vec![], vec![], 0, 0)); // bad way LOL
         tr_data.decode(stream);
 
-        ItemInteractionData{ request_id, request_changed_slots, tr_data }
+        let use_item_tr_data = match tr_data {
+            TransactionData::UseItem(data) => { data },
+            _ => { panic!("Expected UseItemTransactionData, got {:?}", tr_data.get_type_id()) }
+        };
+
+        ItemInteractionData{ request_id, request_changed_slots, tr_data: use_item_tr_data }
     }
 
     pub fn write(&self, stream: &mut Stream) {
@@ -40,6 +45,7 @@ impl ItemInteractionData {
                 slots.write(stream);
             }
         }
-        self.tr_data.encode(stream);
+        let tr_data = TransactionData::UseItem(self.tr_data.clone());
+        tr_data.encode(stream);
     }
 }

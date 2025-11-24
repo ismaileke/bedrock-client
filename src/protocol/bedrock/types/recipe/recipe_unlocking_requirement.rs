@@ -2,7 +2,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::recipe::recipe_ingredient::RecipeIngredient;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct RecipeUnlockingRequirement {
     unlocking_ingredients: Option<Vec<RecipeIngredient>>
 }

@@ -9,12 +9,13 @@ use crate::protocol::bedrock::types::pack_setting::PackSetting;
 use crate::protocol::bedrock::types::pack_setting_type::PackSettingType;
 use crate::protocol::bedrock::types::string_pack_setting::StringPackSetting;
 
+#[derive(serde::Serialize, Debug)]
 pub struct ServerBoundPackSettingChange {
     pub pack_id: String,
-    pub pack_setting: Box<dyn PackSetting>
+    pub pack_setting: PackSetting
 }
 
-pub fn new(pack_id: String, pack_setting: Box<dyn PackSetting>) -> ServerBoundPackSettingChange {
+pub fn new(pack_id: String, pack_setting: PackSetting) -> ServerBoundPackSettingChange {
     ServerBoundPackSettingChange { pack_id, pack_setting }
 }
 
@@ -44,9 +45,9 @@ impl Packet for ServerBoundPackSettingChange {
         let name = PacketSerializer::get_string(stream);
         let id = stream.get_var_u32();
         let pack_setting = match id {
-            PackSettingType::FLOAT => Box::new(FloatPackSetting::read(stream, name)) as Box<dyn PackSetting>,
-            PackSettingType::BOOL => Box::new(BoolPackSetting::read(stream, name)) as Box<dyn PackSetting>,
-            PackSettingType::STRING => Box::new(StringPackSetting::read(stream, name)) as Box<dyn PackSetting>,
+            PackSettingType::FLOAT => PackSetting::Float(FloatPackSetting::read(stream, name)),
+            PackSettingType::BOOL => PackSetting::Bool(BoolPackSetting::read(stream, name)),
+            PackSettingType::STRING => PackSetting::String(StringPackSetting::read(stream, name)),
             _ => {
                 panic!("Unknown pack id: {}", id);
             }
@@ -62,5 +63,9 @@ impl Packet for ServerBoundPackSettingChange {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

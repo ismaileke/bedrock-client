@@ -5,6 +5,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_category::CameraAimAssistCategory;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_preset::CameraAimAssistPreset;
 
+#[derive(serde::Serialize, Debug)]
 pub struct CameraAimAssistPresets {
     pub categories: Vec<CameraAimAssistCategory>,
     pub presets: Vec<CameraAimAssistPreset>,
@@ -65,5 +66,9 @@ impl Packet for CameraAimAssistPresets {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

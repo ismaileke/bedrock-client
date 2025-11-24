@@ -1,9 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_action::ItemStackRequestAction;
-use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_action_type::ItemStackRequestActionType;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct LoomStackRequestAction {
     pattern_id: String,
     repetitions: u8
@@ -20,17 +18,9 @@ impl LoomStackRequestAction {
 
         LoomStackRequestAction{ pattern_id, repetitions }
     }
-}
 
-impl ItemStackRequestAction for LoomStackRequestAction {
-    fn get_type_id(&self) -> u8 {
-        ItemStackRequestActionType::CRAFTING_LOOM
-    }
-
-    fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Stream) {
         PacketSerializer::put_string(stream, self.pattern_id.clone());
         stream.put_byte(self.repetitions);
     }
 }
-
-

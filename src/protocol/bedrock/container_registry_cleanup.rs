@@ -4,6 +4,7 @@ use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::inventory::full_container_name::FullContainerName;
 
+#[derive(serde::Serialize, Debug)]
 pub struct ContainerRegistryCleanup {
     pub removed_containers: Vec<FullContainerName>
 }
@@ -49,5 +50,9 @@ impl Packet for ContainerRegistryCleanup {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

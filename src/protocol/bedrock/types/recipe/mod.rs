@@ -6,7 +6,7 @@ pub mod molang_item_descriptor;
 pub mod complex_alias_item_descriptor;
 pub mod item_descriptor_type;
 pub mod item_descriptor;
-pub mod recipe_with_type_id;
+pub mod recipe;
 pub mod shapeless_recipe;
 pub mod recipe_unlocking_requirement;
 pub mod shaped_recipe;

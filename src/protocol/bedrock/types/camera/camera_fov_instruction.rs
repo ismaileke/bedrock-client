@@ -1,6 +1,6 @@
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CameraFovInstruction {
     pub field_of_view: f32,
     pub ease_time: f32,

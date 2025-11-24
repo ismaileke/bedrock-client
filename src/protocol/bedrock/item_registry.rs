@@ -6,6 +6,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 use crate::protocol::bedrock::types::item_type_entry::ItemTypeEntry;
 
+#[derive(serde::Serialize, Debug)]
 pub struct ItemRegistry {
     pub entries: Vec<ItemTypeEntry>
 }
@@ -60,5 +61,9 @@ impl Packet for ItemRegistry {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

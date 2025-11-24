@@ -3,7 +3,7 @@ use crate::protocol::bedrock::types::skin::skin_data::SkinData;
 use crate::protocol::bedrock::types::skin::skin_image::SkinImage;
 use crate::utils::color::Color;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct PlayerListEntry {
     pub uuid: String,
     pub actor_unique_id: i64,

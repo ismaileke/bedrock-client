@@ -2,7 +2,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct NetworkInventoryAction {
     source_type: u32,
     window_id: i32,

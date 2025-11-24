@@ -1,9 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_action::ItemStackRequestAction;
-use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_action_type::ItemStackRequestActionType;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct GrindstoneStackRequestAction {
     recipe_id: u32,
     repair_cost: i32, //WHY
@@ -22,18 +20,10 @@ impl GrindstoneStackRequestAction {
 
         GrindstoneStackRequestAction{ recipe_id, repair_cost, repetitions }
     }
-}
 
-impl ItemStackRequestAction for GrindstoneStackRequestAction {
-    fn get_type_id(&self) -> u8 {
-        ItemStackRequestActionType::CRAFTING_GRINDSTONE
-    }
-
-    fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Stream) {
         PacketSerializer::write_recipe_net_id(stream, self.recipe_id);
         stream.put_var_i32(self.repair_cost);
         stream.put_byte(self.repetitions);
     }
 }
-
-

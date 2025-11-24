@@ -3,6 +3,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 
+#[derive(serde::Serialize, Debug)]
 pub struct ServerBoundDiagnostics {
     pub avg_fps: f32,
     pub avg_server_sim_tick_time_ms: f32,
@@ -103,5 +104,9 @@ impl Packet for ServerBoundDiagnostics {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

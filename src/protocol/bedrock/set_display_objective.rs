@@ -4,6 +4,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use binary_utils::binary::Stream;
 use std::any::Any;
 
+#[derive(serde::Serialize, Debug)]
 pub struct SetDisplayObjective {
     pub display_slot: String,
     pub objective_name: String,
@@ -58,6 +59,10 @@ impl Packet for SetDisplayObjective {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

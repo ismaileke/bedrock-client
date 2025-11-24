@@ -3,7 +3,7 @@ use crate::protocol::bedrock::types::biome::chunkgen::biome_conditional_transfor
 use crate::protocol::bedrock::types::biome::chunkgen::biome_weighted_data::BiomeWeightedData;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_weighted_temperature_data::BiomeWeightedTemperatureData;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct BiomeOverworldGenRulesData {
     pub hill_transformations: Vec<BiomeWeightedData>,
     pub mutate_transformations: Vec<BiomeWeightedData>,

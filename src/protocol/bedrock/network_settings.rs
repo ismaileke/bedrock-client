@@ -10,6 +10,7 @@ pub const ZLIB: u8 = 0;
 pub const SNAPPY: u8 = 1;
 pub const NONE: u8 = 255;
 
+#[derive(serde::Serialize, Debug)]
 pub struct NetworkSettings {
     pub compression_threshold: u16,
     pub compression_algorithm: u16,
@@ -47,5 +48,9 @@ impl Packet for NetworkSettings {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

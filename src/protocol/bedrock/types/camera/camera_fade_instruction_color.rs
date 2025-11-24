@@ -1,6 +1,6 @@
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CameraFadeInstructionColor {
     pub red: f32,
     pub green: f32,

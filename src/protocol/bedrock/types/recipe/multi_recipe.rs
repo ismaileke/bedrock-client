@@ -1,9 +1,8 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::crafting_data::CraftingData;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use crate::protocol::bedrock::types::recipe::recipe_with_type_id::RecipeWithTypeId;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct MultiRecipe {
     type_id: i32,
     recipe_id: String,
@@ -34,20 +33,18 @@ impl MultiRecipe {
         ])
     }
 
+    pub fn get_selected_type_id(&self) -> i32 {
+        self.type_id
+    }
+
     pub fn read(type_id: i32, stream: &mut Stream) -> MultiRecipe {
         let recipe_id = PacketSerializer::get_uuid(stream);
         let recipe_net_id = PacketSerializer::read_recipe_net_id(stream);
 
         MultiRecipe{ type_id, recipe_id, recipe_net_id }
     }
-}
 
-impl RecipeWithTypeId for MultiRecipe {
-    fn get_selected_type_id(&self) -> i32 {
-        self.type_id
-    }
-
-    fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Stream) {
         PacketSerializer::put_uuid(stream, self.recipe_id.clone());
         PacketSerializer::write_recipe_net_id(stream, self.recipe_net_id);
     }

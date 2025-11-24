@@ -7,8 +7,10 @@ use mojang_nbt::nbt::TAG_COMPOUND;
 use mojang_nbt::tag::tag::Tag;
 use crate::protocol::bedrock::serializer::network_nbt_serializer::NetworkNBTSerializer;
 
+#[derive(serde::Serialize, Debug)]
 pub struct LevelEventGeneric {
     pub event_id: i32,
+    #[serde(skip)]
     pub event_data: Box<dyn Tag>
 }
 
@@ -54,5 +56,9 @@ impl Packet for LevelEventGeneric {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

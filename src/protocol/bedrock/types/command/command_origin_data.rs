@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CommandOriginData {
     pub origin_type: u32,
     pub uuid: String,

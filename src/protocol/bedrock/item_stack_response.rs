@@ -4,6 +4,7 @@ use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::inventory::stack_response::item_stack_response_entry::ItemStackResponseEntry;
 
+#[derive(serde::Serialize, Debug)]
 pub struct ItemStackResponse {
     pub responses: Vec<ItemStackResponseEntry>
 }
@@ -49,5 +50,9 @@ impl Packet for ItemStackResponse {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

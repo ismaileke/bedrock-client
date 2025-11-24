@@ -1,7 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_element_data::BiomeElementData;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct BiomeSurfaceMaterialAdjustmentData {
     pub adjustments: Vec<BiomeElementData>
 }

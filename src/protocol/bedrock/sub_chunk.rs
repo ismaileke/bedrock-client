@@ -7,13 +7,14 @@ use crate::protocol::bedrock::types::sub_chunk_entry_with_cache_list::SubChunkEn
 use crate::protocol::bedrock::types::sub_chunk_entry_without_cache::SubChunkEntryWithoutCache;
 use crate::protocol::bedrock::types::sub_chunk_entry_without_cache_list::SubChunkEntryWithoutCacheList;
 
+#[derive(serde::Serialize, Debug)]
 pub struct SubChunk {
     pub dimension: i32,
     pub base_sub_chunk_position: Vec<i32>,
     pub entries: SubChunkEntries
 }
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub enum SubChunkEntries {
     ListWithCache(SubChunkEntryWithCacheList),
     ListWithoutCache(SubChunkEntryWithoutCacheList),
@@ -98,5 +99,9 @@ impl Packet for SubChunk {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

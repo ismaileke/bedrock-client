@@ -1,7 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CameraTargetInstruction {
     pub target_center_offset: Option<Vec<f32>>,
     pub actor_unique_id: i64

@@ -5,6 +5,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::update_attribute::UpdateAttribute;
 
+#[derive(serde::Serialize, Debug)]
 pub struct UpdateAttributes {
     pub actor_runtime_id: u64,
     pub entries: Vec<UpdateAttribute>,
@@ -60,5 +61,9 @@ impl Packet for UpdateAttributes {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

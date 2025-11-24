@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct StructureSettings {
     pub palette_name: String,
     pub ignore_entities: bool,

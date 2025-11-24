@@ -2,7 +2,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_category_priorities::CameraAimAssistCategoryPriorities;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CameraAimAssistCategory {
     pub name: String,
     pub priorities: CameraAimAssistCategoryPriorities

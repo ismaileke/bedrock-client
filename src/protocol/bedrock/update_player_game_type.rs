@@ -4,6 +4,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
+#[derive(serde::Serialize, Debug)]
 pub struct UpdatePlayerGameType {
     pub game_mode: i32,
     pub player_actor_unique_id: i64,
@@ -50,6 +51,10 @@ impl Packet for UpdatePlayerGameType {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

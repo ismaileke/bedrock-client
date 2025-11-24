@@ -2,7 +2,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::stack_response::item_stack_response_container_info::ItemStackResponseContainerInfo;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct ItemStackResponseEntry {
     result: u8,
     request_id: i32,

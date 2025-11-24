@@ -4,9 +4,8 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
 use crate::protocol::bedrock::types::recipe::recipe_ingredient::RecipeIngredient;
 use crate::protocol::bedrock::types::recipe::recipe_unlocking_requirement::RecipeUnlockingRequirement;
-use crate::protocol::bedrock::types::recipe::recipe_with_type_id::RecipeWithTypeId;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct ShapedRecipe {
     type_id: i32,
     recipe_id: String,
@@ -34,6 +33,10 @@ impl ShapedRecipe {
             CraftingData::ENTRY_SHAPED,
             CraftingData::ENTRY_SHAPED_CHEMISTRY
         ])
+    }
+
+    pub fn get_selected_type_id(&self) -> i32 {
+        self.type_id
     }
 
     pub fn get_width(&self) -> usize {
@@ -72,14 +75,8 @@ impl ShapedRecipe {
 
         ShapedRecipe{ type_id, recipe_id, inputs, outputs, uuid, block_name, priority, symmetric, unlocking_requirement, recipe_net_id }
     }
-}
 
-impl RecipeWithTypeId for ShapedRecipe {
-    fn get_selected_type_id(&self) -> i32 {
-        self.type_id
-    }
-
-    fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Stream) {
         PacketSerializer::put_string(stream, self.recipe_id.clone());
         stream.put_var_i32(self.get_width() as i32);
         stream.put_var_i32(self.get_height() as i32);

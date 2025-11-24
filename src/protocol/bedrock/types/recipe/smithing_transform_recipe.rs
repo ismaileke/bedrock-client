@@ -3,9 +3,8 @@ use crate::protocol::bedrock::crafting_data::CraftingData;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
 use crate::protocol::bedrock::types::recipe::recipe_ingredient::RecipeIngredient;
-use crate::protocol::bedrock::types::recipe::recipe_with_type_id::RecipeWithTypeId;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct SmithingTransformRecipe {
     type_id: i32,
     recipe_id: String,
@@ -27,6 +26,10 @@ impl SmithingTransformRecipe {
             CraftingData::ENTRY_SMITHING_TRANSFORM
         ])
     }
+
+    pub fn get_selected_type_id(&self) -> i32 {
+        self.type_id
+    }
     
     pub fn read(type_id: i32, stream: &mut Stream) -> SmithingTransformRecipe {
         let recipe_id = PacketSerializer::get_string(stream);
@@ -39,14 +42,8 @@ impl SmithingTransformRecipe {
 
         SmithingTransformRecipe{ type_id, recipe_id, template, input, addition, output, block_name, recipe_net_id }
     }
-}
 
-impl RecipeWithTypeId for SmithingTransformRecipe {
-    fn get_selected_type_id(&self) -> i32 {
-        self.type_id
-    }
-
-    fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Stream) {
         PacketSerializer::put_string(stream, self.recipe_id.clone());
         PacketSerializer::put_recipe_ingredient(stream, &mut self.template);
         PacketSerializer::put_recipe_ingredient(stream, &mut self.input);

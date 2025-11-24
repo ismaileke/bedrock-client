@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::types::skin::skin_image::SkinImage;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct SkinAnimation {
     image: SkinImage,
     animation_type: u32,

@@ -1,6 +1,6 @@
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct InventoryTransactionChangedSlotsHack {
     container_id: u8,
     changed_slot_indexes: Vec<u8>

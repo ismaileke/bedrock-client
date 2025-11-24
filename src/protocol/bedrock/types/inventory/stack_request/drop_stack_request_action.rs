@@ -1,9 +1,7 @@
 use binary_utils::binary::Stream;
-use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_action::ItemStackRequestAction;
-use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_action_type::ItemStackRequestActionType;
 use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_slot_info::ItemStackRequestSlotInfo;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct DropStackRequestAction {
     count: u8,
     source: ItemStackRequestSlotInfo,
@@ -22,18 +20,10 @@ impl DropStackRequestAction {
 
         DropStackRequestAction{ count, source, randomly }
     }
-}
 
-impl ItemStackRequestAction for DropStackRequestAction {
-    fn get_type_id(&self) -> u8 {
-        ItemStackRequestActionType::DROP
-    }
-
-    fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Stream) {
         stream.put_byte(self.count);
         self.source.write(stream);
         stream.put_bool(self.randomly);
     }
 }
-
-

@@ -1,7 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct SpawnSettings {
     pub biome_type: u16,
     pub biome_name: String,

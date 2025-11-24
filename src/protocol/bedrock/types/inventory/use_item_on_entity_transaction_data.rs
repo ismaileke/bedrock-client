@@ -1,11 +1,9 @@
 use binary_utils::binary::Stream;
-use crate::protocol::bedrock::inventory_transaction::InventoryTransaction;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::types::inventory::network_inventory_action::NetworkInventoryAction;
-use crate::protocol::bedrock::types::inventory::transaction_data::TransactionData;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct UseItemOnEntityTransactionData {
     actions: Vec<NetworkInventoryAction>,
     actor_runtime_id: u64,
@@ -32,22 +30,16 @@ impl UseItemOnEntityTransactionData {
     ) -> UseItemOnEntityTransactionData {
         UseItemOnEntityTransactionData{ actions, actor_runtime_id, action_type, hotbar_slot, item_in_hand, player_position, click_position }
     }
-}
 
-impl TransactionData for UseItemOnEntityTransactionData {
-    fn get_type_id(&self) -> u32 {
-        InventoryTransaction::TYPE_USE_ITEM_ON_ENTITY
-    }
-
-    fn get_actions(&self) -> &Vec<NetworkInventoryAction> {
+    pub fn get_actions(&self) -> &Vec<NetworkInventoryAction> {
         self.actions.as_ref()
     }
 
-    fn get_actions_mut(&mut self) -> &mut Vec<NetworkInventoryAction> {
+    pub fn get_actions_mut(&mut self) -> &mut Vec<NetworkInventoryAction> {
         self.actions.as_mut()
     }
 
-    fn decode_data(&mut self, stream: &mut Stream) {
+    pub fn decode_data(&mut self, stream: &mut Stream) {
         self.actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         self.action_type = stream.get_var_u32();
         self.hotbar_slot = stream.get_var_i32();
@@ -56,7 +48,7 @@ impl TransactionData for UseItemOnEntityTransactionData {
         self.click_position = PacketSerializer::get_vector3(stream);
     }
 
-    fn encode_data(&self, stream: &mut Stream) {
+    pub fn encode_data(&self, stream: &mut Stream) {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
         stream.put_var_u32(self.action_type);
         stream.put_var_i32(self.hotbar_slot);

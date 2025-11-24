@@ -1,7 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::abilities_layer::AbilitiesLayer;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct AbilitiesData {
     target_actor_unique_id: i64,
     player_permission: u8,

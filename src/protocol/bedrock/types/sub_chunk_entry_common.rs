@@ -5,7 +5,7 @@ use crate::protocol::bedrock::types::sub_chunk_height_map_type::SubChunkHeightMa
 use crate::protocol::bedrock::types::sub_chunk_position_offset::SubChunkPositionOffset;
 use crate::protocol::bedrock::types::sub_chunk_request_result::SubChunkRequestResult;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct SubChunkEntryCommon {
     offset: SubChunkPositionOffset,
     request_result: u8,

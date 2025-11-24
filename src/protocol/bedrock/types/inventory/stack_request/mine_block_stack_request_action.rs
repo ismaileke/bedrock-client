@@ -1,9 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_action::ItemStackRequestAction;
-use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_action_type::ItemStackRequestActionType;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct MineBlockStackRequestAction {
     hotbar_slot: i32,
     predicted_durability: i32,
@@ -22,18 +20,11 @@ impl MineBlockStackRequestAction {
 
         MineBlockStackRequestAction{ hotbar_slot, predicted_durability, stack_id }
     }
-}
 
-impl ItemStackRequestAction for MineBlockStackRequestAction {
-    fn get_type_id(&self) -> u8 {
-        ItemStackRequestActionType::MINE_BLOCK
-    }
-
-    fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Stream) {
         stream.put_var_i32(self.hotbar_slot);
         stream.put_var_i32(self.predicted_durability);
         PacketSerializer::write_item_stack_net_id_variant(stream, self.stack_id);
     }
 }
-
 

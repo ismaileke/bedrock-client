@@ -5,6 +5,7 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::sub_chunk_position_offset::SubChunkPositionOffset;
 
+#[derive(serde::Serialize, Debug)]
 pub struct SubChunkRequest {
     pub dimension: i32,
     pub base_position: Vec<i32>,
@@ -52,5 +53,9 @@ impl Packet for SubChunkRequest {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

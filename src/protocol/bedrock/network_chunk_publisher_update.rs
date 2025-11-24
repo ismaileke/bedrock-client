@@ -7,6 +7,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 const MAX_SAVED_CHUNKS: u32 = 9216;
 
+#[derive(serde::Serialize, Debug)]
 pub struct NetworkChunkPublisherUpdate {
     pub block_pos: Vec<i32>,
     pub radius: u32,
@@ -65,5 +66,9 @@ impl Packet for NetworkChunkPublisherUpdate {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

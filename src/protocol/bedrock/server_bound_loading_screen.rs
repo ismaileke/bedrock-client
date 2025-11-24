@@ -4,6 +4,7 @@ use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
+#[derive(serde::Serialize, Debug)]
 pub struct ServerBoundLoadingScreen {
     pub loading_screen_type: i32, //see types/hud/loading_screen_type.rs
     pub loading_screen_id: Option<u32>
@@ -46,5 +47,9 @@ impl Packet for ServerBoundLoadingScreen {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

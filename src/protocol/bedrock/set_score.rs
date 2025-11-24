@@ -5,6 +5,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::score_entry::ScoreEntry;
 
+#[derive(serde::Serialize, Debug)]
 pub struct SetScore {
     pub action_type: u8,
     pub entries: Vec<ScoreEntry>
@@ -90,6 +91,10 @@ impl Packet for SetScore {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

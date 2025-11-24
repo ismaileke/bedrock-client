@@ -1,17 +1,16 @@
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
-#[derive(Clone)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct SubChunkHeightMapInfo {
-    heights: [i8; 256]
+    heights: Vec<i8>
 }
 
 impl SubChunkHeightMapInfo {
     pub fn new(heights: [i8; 256]) -> Self {
-        Self { heights }
+        Self { heights: heights.to_vec() }
     }
 
-    pub fn get_heights(&self) -> &[i8; 256] {
+    pub fn get_heights(&self) -> &[i8] {
         &self.heights
     }
 
@@ -21,11 +20,11 @@ impl SubChunkHeightMapInfo {
     }
 
     pub fn all_too_low() -> Self {
-        Self::new([-1i8; 256])
+        Self { heights: vec![-1i8; 256] }
     }
 
     pub fn all_too_high() -> Self {
-        Self::new([16i8; 256])
+        Self { heights: vec![16i8; 256] }
     }
 
     pub fn is_all_too_low(&self) -> bool {
@@ -37,11 +36,11 @@ impl SubChunkHeightMapInfo {
     }
 
     pub fn read(stream: &mut Stream) -> SubChunkHeightMapInfo {
-        let mut heights = [0i8; 256];
-        for i in 0..256 {
-            heights[i] = stream.get_byte() as i8;
+        let mut heights = Vec::with_capacity(256);
+        for _ in 0..256 {
+            heights.push(stream.get_byte() as i8);
         }
-        SubChunkHeightMapInfo::new(heights)
+        SubChunkHeightMapInfo { heights }
     }
 
     pub fn write(&self, stream: &mut Stream) {

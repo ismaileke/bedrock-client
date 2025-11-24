@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct ScoreEntry {
     pub scoreboard_id: i64,
     pub objective_name: String,

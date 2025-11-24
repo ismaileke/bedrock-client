@@ -6,7 +6,7 @@ use crate::protocol::bedrock::types::experiments::Experiments;
 use crate::protocol::bedrock::types::game_rule::GameRule;
 use crate::protocol::bedrock::types::spawn_settings::SpawnSettings;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct LevelSettings {
     pub seed: u64,
     pub spawn_settings: SpawnSettings,
@@ -32,7 +32,7 @@ pub struct LevelSettings {
     pub platform_broadcast_mode: i32,
     pub commands_enabled: bool,
     pub is_texture_packs_required: bool,
-    pub game_rules: HashMap<String, Box<dyn GameRule>>,
+    pub game_rules: HashMap<String, GameRule>,
     pub experiments: Experiments,
     pub has_bonus_chest_enabled: bool,
     pub has_start_with_map_enabled: bool,

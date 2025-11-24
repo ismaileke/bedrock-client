@@ -3,6 +3,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 
+#[derive(serde::Serialize, Debug)]
 pub struct AvailableCommands {}
 
 pub fn new() -> AvailableCommands {
@@ -58,6 +59,10 @@ impl Packet for AvailableCommands {
     fn as_any(&self) -> &dyn Any {
         self
     }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
+    }
 }
 
 
@@ -72,6 +77,7 @@ use crate::protocol::bedrock::types::command::command_enum::CommandEnum;
 use crate::protocol::bedrock::types::command::command_enum_constraint::CommandEnumConstraint;
 
 
+#[derive(serde::Serialize, Debug)]
 pub struct AvailableCommands {
     pub command_data: Vec<CommandData>,
     pub hardcoded_enums: Vec<CommandEnum>,
@@ -245,6 +251,10 @@ impl Packet for AvailableCommands {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 */

@@ -3,6 +3,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 
+#[derive(serde::Serialize, Debug)]
 pub struct ServerToClientHandshake {
     pub jwt: Vec<u8>,
 }
@@ -30,5 +31,9 @@ impl Packet for ServerToClientHandshake {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

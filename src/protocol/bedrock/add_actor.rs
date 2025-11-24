@@ -9,6 +9,7 @@ use crate::protocol::bedrock::types::entity::entity_link::EntityLink;
 use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty;
 use crate::protocol::bedrock::types::entity::property_sync_data::PropertySyncData;
 
+#[derive(serde::Serialize, Debug)]
 pub struct AddActor {
     pub actor_unique_id: i64,
     pub actor_runtime_id: u64,
@@ -20,7 +21,7 @@ pub struct AddActor {
     pub head_yaw: f32,
     pub body_yaw: f32,
     pub attributes: Vec<Attribute>,
-    pub metadata: HashMap<u32, Box<dyn MetadataProperty>>,
+    pub metadata: HashMap<u32, MetadataProperty>,
     pub synced_properties: PropertySyncData,
     pub links: Vec<EntityLink>
 }
@@ -36,7 +37,7 @@ pub fn new(
     head_yaw: f32,
     body_yaw: f32,
     attributes: Vec<Attribute>,
-    metadata: HashMap<u32, Box<dyn MetadataProperty>>,
+    metadata: HashMap<u32, MetadataProperty>,
     synced_properties: PropertySyncData,
     links: Vec<EntityLink>
 ) -> AddActor {
@@ -130,5 +131,9 @@ impl Packet for AddActor {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

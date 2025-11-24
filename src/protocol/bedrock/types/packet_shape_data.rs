@@ -3,7 +3,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::script_debug_shape_type::ScriptDebugShapeType;
 use crate::utils::color::Color;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct PacketShapeData {
     pub network_id: u64,
     pub shape_type: Option<u8>, //see types/script_debug_shape_type.rs

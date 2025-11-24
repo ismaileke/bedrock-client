@@ -3,7 +3,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_fade_instruction_color::CameraFadeInstructionColor;
 use crate::protocol::bedrock::types::camera::camera_fade_instruction_time::CameraFadeInstructionTime;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CameraFadeInstruction {
     pub time: Option<CameraFadeInstructionTime>,
     pub color: Option<CameraFadeInstructionColor>

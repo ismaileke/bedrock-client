@@ -6,6 +6,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::player_list_entry::PlayerListEntry;
 use crate::utils::color::Color;
 
+#[derive(serde::Serialize, Debug)]
 pub struct PlayerList {
     pub list_type: u8,
     pub entries: Vec<PlayerListEntry>
@@ -99,6 +100,10 @@ impl Packet for PlayerList {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

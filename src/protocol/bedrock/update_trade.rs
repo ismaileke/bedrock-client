@@ -5,6 +5,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 
+#[derive(serde::Serialize, Debug)]
 pub struct UpdateTrade {
     pub window_id: u8,
     pub window_type: u8,
@@ -90,5 +91,9 @@ impl Packet for UpdateTrade {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

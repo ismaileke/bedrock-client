@@ -1,7 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CameraPresetAimAssist {
     pub preset_id: Option<String>,
     pub target_mode: Option<u8>, //see types/camera_aim_assist_target_mode.rs

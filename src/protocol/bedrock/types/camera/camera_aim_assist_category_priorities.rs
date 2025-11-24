@@ -3,7 +3,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_category_block_priority::CameraAimAssistCategoryBlockPriority;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_category_entity_priority::CameraAimAssistCategoryEntityPriority;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CameraAimAssistCategoryPriorities {
     pub entities: Vec<CameraAimAssistCategoryEntityPriority>,
     pub blocks: Vec<CameraAimAssistCategoryBlockPriority>,

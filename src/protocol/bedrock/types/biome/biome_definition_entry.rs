@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::types::biome::chunkgen::biome_definition_chunk_gen_data::BiomeDefinitionChunkGenData;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct BiomeDefinitionEntry {
     pub biome_name: String,
     pub id: u16,

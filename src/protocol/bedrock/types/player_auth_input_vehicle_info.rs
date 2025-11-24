@@ -1,7 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct PlayerAuthInputVehicleInfo {
     vehicle_rotation_x: f32,
     vehicle_rotation_z: f32,

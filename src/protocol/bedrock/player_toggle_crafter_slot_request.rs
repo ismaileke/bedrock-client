@@ -3,6 +3,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 
+#[derive(serde::Serialize, Debug)]
 pub struct PlayerToggleCrafterSlotRequest {
     pub block_position: Vec<i32>,
     pub slot: u8,
@@ -54,5 +55,9 @@ impl Packet for PlayerToggleCrafterSlotRequest {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

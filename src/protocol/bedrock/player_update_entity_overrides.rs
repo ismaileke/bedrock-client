@@ -5,6 +5,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::override_update_type::OverrideUpdateType;
 
+#[derive(serde::Serialize, Debug)]
 pub struct PlayerUpdateEntityOverrides {
     pub actor_runtime_id: u64,
     pub property_index: u32,
@@ -87,5 +88,9 @@ impl Packet for PlayerUpdateEntityOverrides {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

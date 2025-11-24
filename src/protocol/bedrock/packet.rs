@@ -9,4 +9,5 @@ pub trait Packet: Any {
         Self: Sized;
     fn debug(&self);
     fn as_any(&self) -> &dyn Any;
+    fn as_json(&self) -> String;
 }

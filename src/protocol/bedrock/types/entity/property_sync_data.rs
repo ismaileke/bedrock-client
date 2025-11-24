@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct PropertySyncData {
     int_properties: HashMap<u32, i32>,
     float_properties: HashMap<u32, f32>

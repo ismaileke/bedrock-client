@@ -5,6 +5,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::biome::biome_definition_data::BiomeDefinitionData;
 
+#[derive(serde::Serialize, Debug)]
 pub struct BiomeDefinitionList {
     pub definition_data: Vec<BiomeDefinitionData>,
     pub strings: Vec<String>
@@ -61,5 +62,9 @@ impl Packet for BiomeDefinitionList {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

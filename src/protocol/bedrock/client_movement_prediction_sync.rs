@@ -6,6 +6,7 @@ use crate::protocol::bedrock::serializer::bit_set::BitSet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::entity_metadata_flags::EntityMetadataFlags;
 
+#[derive(serde::Serialize, Debug)]
 pub struct ClientMovementPredictionSync {
     pub flags: BitSet,
     pub scale: f32,
@@ -118,5 +119,9 @@ impl Packet for ClientMovementPredictionSync {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

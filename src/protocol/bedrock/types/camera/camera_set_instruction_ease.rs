@@ -1,6 +1,6 @@
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CameraSetInstructionEase {
     pub ease_type: u8, //see types/camera_set_instruction_ease_type.rs
     pub duration: f32

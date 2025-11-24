@@ -1,4 +1,4 @@
-#[derive(Clone, Debug)]
+#[derive(serde::Serialize, Clone, Debug)]
 pub struct EntityLink{
     pub from_actor_unique_id: i64,
     pub to_actor_unique_id: i64,

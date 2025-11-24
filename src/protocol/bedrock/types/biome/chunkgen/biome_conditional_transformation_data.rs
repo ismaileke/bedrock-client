@@ -1,7 +1,7 @@
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_weighted_data::BiomeWeightedData;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct BiomeConditionalTransformationData {
     pub weighted_biomes: Vec<BiomeWeightedData>,
     pub condition_json: i16,

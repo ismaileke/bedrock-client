@@ -5,6 +5,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::inventory::creative_group_entry::CreativeGroupEntry;
 use crate::protocol::bedrock::types::inventory::creative_item_entry::CreativeItemEntry;
 
+#[derive(serde::Serialize, Debug)]
 pub struct CreativeContent {
     pub groups: Vec<CreativeGroupEntry>,
     pub items: Vec<CreativeItemEntry>
@@ -61,6 +62,10 @@ impl Packet for CreativeContent {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }
 

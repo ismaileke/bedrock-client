@@ -4,9 +4,8 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
 use crate::protocol::bedrock::types::recipe::recipe_ingredient::RecipeIngredient;
 use crate::protocol::bedrock::types::recipe::recipe_unlocking_requirement::RecipeUnlockingRequirement;
-use crate::protocol::bedrock::types::recipe::recipe_with_type_id::RecipeWithTypeId;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct ShapelessRecipe {
     type_id: i32,
     recipe_id: String,
@@ -31,6 +30,10 @@ impl ShapelessRecipe {
             CraftingData::ENTRY_SHAPELESS_CHEMISTRY
         ])
     }
+
+    pub fn get_selected_type_id(&self) -> i32 {
+        self.type_id
+    }
     
     pub fn read(type_id: i32, stream: &mut Stream) -> ShapelessRecipe {
         let recipe_id = PacketSerializer::get_string(stream);
@@ -53,14 +56,8 @@ impl ShapelessRecipe {
 
         ShapelessRecipe{ type_id, recipe_id, inputs, outputs, uuid, block_name, priority, unlocking_requirement, recipe_net_id }
     }
-}
 
-impl RecipeWithTypeId for ShapelessRecipe {
-    fn get_selected_type_id(&self) -> i32 {
-        self.type_id
-    }
-
-    fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Stream) {
         PacketSerializer::put_string(stream, self.recipe_id.clone());
         stream.put_var_u32(self.inputs.len() as u32);
         for input in self.inputs.iter_mut() {

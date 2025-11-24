@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::types::sub_chunk_entry_without_cache::SubChunkEntryWithoutCache;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct SubChunkEntryWithoutCacheList {
     entries: Vec<SubChunkEntryWithoutCache>
 }

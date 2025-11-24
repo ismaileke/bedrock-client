@@ -39,6 +39,7 @@ impl TryFrom<u32> for LoginStatus {
     }
 }
 
+#[derive(serde::Serialize, Debug)]
 pub struct PlayStatus {
     pub status: u32,
 }
@@ -74,5 +75,9 @@ impl Packet for PlayStatus {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

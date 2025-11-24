@@ -4,7 +4,9 @@ use mojang_nbt::tag::tag::Tag;
 use mojang_nbt::tree_root::TreeRoot;
 use std::fmt::Debug;
 
+#[derive(serde::Serialize)]
 pub struct CacheableNBT {
+    #[serde(skip)]
     nbt_root: Box<dyn Tag>,
     encoded_nbt: Option<Vec<u8>>
 }

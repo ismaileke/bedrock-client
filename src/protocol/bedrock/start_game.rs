@@ -11,6 +11,7 @@ use crate::protocol::bedrock::types::level_settings::LevelSettings;
 use crate::protocol::bedrock::types::network_permissions::NetworkPermissions;
 use crate::protocol::bedrock::types::player_movement_settings::PlayerMovementSettings;
 
+#[derive(serde::Serialize, Debug)]
 pub struct StartGame {
     pub actor_unique_id: i64,
     pub actor_runtime_id: u64,
@@ -172,5 +173,9 @@ impl Packet for StartGame {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

@@ -49,6 +49,7 @@ async fn main() {
 
     client.set_packet_callback(|packet_name, packet| {
         println!("New packet received: {} Packet", packet_name);
+        println!("Packet as JSON: {}", packet.as_json());
         downcast_bedrock_packet!(packet, Text, |txt: &Text| {
                 println!("Text Packet Message: {:?}", txt.message);
                 println!("Text Parameters: {:?}", txt.parameters);

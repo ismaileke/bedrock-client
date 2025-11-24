@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::available_commands::AvailableCommands;
 use crate::protocol::bedrock::types::command::command_enum::CommandEnum;
 
-#[derive(Debug, Clone)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct CommandParameter {
     pub param_name: String,
     pub param_type: u32,

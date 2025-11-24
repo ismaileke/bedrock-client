@@ -1,6 +1,6 @@
 use binary_utils::binary::Stream;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct BiomeMultinoiseGenRulesData {
     pub temperature: f32,
     pub humidity: f32,

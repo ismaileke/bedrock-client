@@ -2,7 +2,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_preset_item_settings::CameraAimAssistPresetItemSettings;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct CameraAimAssistPreset {
     pub identifier: String,
     pub exclusion_list: Vec<String>,

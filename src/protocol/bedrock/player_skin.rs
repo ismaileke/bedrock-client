@@ -5,6 +5,7 @@ use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::skin::skin_data::SkinData;
 
+#[derive(serde::Serialize, Debug)]
 pub struct PlayerSkin {
     pub uuid: String,
     pub skin: SkinData,
@@ -57,5 +58,9 @@ impl Packet for PlayerSkin {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

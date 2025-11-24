@@ -4,6 +4,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
+#[derive(serde::Serialize, Debug)]
 pub struct ResourcePacksInfo {
     pub must_accept: bool,
     pub has_addons: bool,
@@ -14,6 +15,7 @@ pub struct ResourcePacksInfo {
     pub resource_packs: Vec<ResourcePack>
 }
 
+#[derive(serde::Serialize, Debug)]
 pub struct ResourcePack {
     pub uuid: String,
     pub version: String,
@@ -90,5 +92,9 @@ impl Packet for ResourcePacksInfo {
 
     fn as_any(&self) -> &dyn Any {
         self
+    }
+
+    fn as_json(&self) -> String {
+        serde_json::to_string(self).unwrap()
     }
 }

@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::types::recipe::material_reducer_recipe_output::MaterialReducerRecipeOutput;
 
-#[derive(Debug)]
+#[derive(serde::Serialize, Debug)]
 pub struct MaterialReducerRecipe {
     pub input_item_id: i32,
     pub input_item_meta: i32,
