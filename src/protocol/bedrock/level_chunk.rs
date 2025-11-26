@@ -8,8 +8,9 @@ pub struct LevelChunk {
     pub chunk_x: i32,
     pub chunk_z: i32,
     pub dimension_id: i32,
+    pub highest_sub_chunk: u16,
     pub sub_chunk_count: u32,
-    pub client_sub_chunk_requests_enabled: bool,
+    pub cache_enabled: bool,
     pub used_blob_hashes: Option<Vec<u64>>,
     pub extra_payload: Vec<u8>
 }
@@ -18,12 +19,12 @@ impl LevelChunk {
     /**
     * Client will request all sub chunks as needed up to the top of the world
     */
-    pub const CLIENT_REQUEST_FULL_COLUMN_FAKE_COUNT: u32 = u32::MAX;
+    pub const SUB_CHUNK_REQUEST_MODE_LIMITLESS: u32 = u32::MAX;
     /**
      * Client will request sub chunks as needed up to the height written in the packet, and assume that anything above
      * that height is air (wtf mojang ...)
      */
-    pub const CLIENT_REQUEST_TRUNCATED_COLUMN_FAKE_COUNT: u32 = u32::MAX - 1;
+    pub const SUB_CHUNK_REQUEST_MODE_LIMITED: u32 = u32::MAX - 1;
 
     //this appears large enough for a world height of 1024 blocks - it may need to be increased in the future
     pub const MAX_BLOB_HASHES: u32 = 64;
@@ -38,7 +39,7 @@ impl Packet for LevelChunk {
         let mut stream = Stream::new(Vec::new(), 0);
         stream.put_var_u32(self.id() as u32);
 
-        stream.put_var_i32(self.chunk_x);
+        /*stream.put_var_i32(self.chunk_x);
         stream.put_var_i32(self.chunk_z);
         stream.put_var_i32(self.dimension_id);
         if self.client_sub_chunk_requests_enabled {
@@ -58,7 +59,7 @@ impl Packet for LevelChunk {
             for blob in self.used_blob_hashes.clone().unwrap() {
                 stream.put_u64_le(blob);
             }
-        }
+        }*/
 
         stream.put_var_u32(self.extra_payload.len() as u32);
         stream.put(self.extra_payload.clone());
@@ -75,7 +76,31 @@ impl Packet for LevelChunk {
         let chunk_z = stream.get_var_i32();
         let dimension_id = stream.get_var_i32();
 
-        let sub_chunk_count: u32;
+        let sub_chunk_count = stream.get_var_u32();
+        let mut highest_sub_chunk = 0;
+        if sub_chunk_count == LevelChunk::SUB_CHUNK_REQUEST_MODE_LIMITED {
+            highest_sub_chunk = stream.get_u16_le();
+        }
+        let cache_enabled = stream.get_bool();
+        let mut used_blob_hashes: Option<Vec<u64>> = None;
+        if cache_enabled {
+            let count = stream.get_var_u32();
+            if count > LevelChunk::MAX_BLOB_HASHES {
+                panic!("Expected at most {} blob hashes, got {}", LevelChunk::MAX_BLOB_HASHES, count);
+            } else {
+                let mut blob_hashes = vec![];
+                for _ in 0..count {
+                    let blob = stream.get_u64_le();
+                    blob_hashes.push(blob);
+                }
+                used_blob_hashes = Some(blob_hashes)
+            }
+        }
+
+        let length = stream.get_var_u32();
+        let extra_payload = stream.get(length);
+
+        /*let sub_chunk_count: u32;
         let client_sub_chunk_requests_enabled: bool;
 
         let sub_chunk_count_but_not_really = stream.get_var_u32();
@@ -108,17 +133,18 @@ impl Packet for LevelChunk {
         }
 
         let length = stream.get_var_u32();
-        let extra_payload = stream.get(length);
+        let extra_payload = stream.get(length);*/
 
-        LevelChunk { chunk_x, chunk_z, dimension_id, sub_chunk_count, client_sub_chunk_requests_enabled, used_blob_hashes, extra_payload }
+        LevelChunk { chunk_x, chunk_z, dimension_id, highest_sub_chunk, sub_chunk_count, cache_enabled, used_blob_hashes, extra_payload }
     }
 
     fn debug(&self) {
         println!("Chunk X: {}", self.chunk_x);
         println!("Chunk Z: {}", self.chunk_z);
         println!("Dimension ID: {}", self.dimension_id);
+        println!("Highest Sub Chunk: {}", self.highest_sub_chunk);
         println!("Sub Chunk Count: {}", self.sub_chunk_count);
-        println!("Client Sub Chunk Requests Enabled: {}", self.client_sub_chunk_requests_enabled);
+        println!("Cache Enabled: {}", self.cache_enabled);
         println!("Used Blob Hashes: {:?}", self.used_blob_hashes);
         println!("Extra Payload (Length): {}", self.extra_payload.len());
     }

@@ -1,3 +1,4 @@
+use std::any::TypeId;
 use crate::handler::bedrock_packet_handler::BedrockPacketHandler;
 use crate::handler::raknet_packet_handler::RakNetPacketHandler;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
@@ -44,6 +45,7 @@ use openssl::base64::decode_block;
 use openssl::pkey::PKey;
 use serde_json::Value;
 use std::collections::HashMap;
+use linked_hash_map::LinkedHashMap;
 use std::io::{Cursor, Read, Result};
 use std::net::UdpSocket;
 use std::sync::Arc;
@@ -475,21 +477,22 @@ impl Client {
                                                                 //println!("property name: {}", property_name);
                                                                 property_enums.get_value().downcast_ref::<Vec<Box<dyn Tag>>>().unwrap().iter().for_each(|property_enum| {
                                                                     let id = property_enum.as_any().type_id();
-                                                                    if id == std::any::TypeId::of::<IntTag>() {
-                                                                        let pce = property_enum.as_any().downcast_ref::<IntTag>().unwrap().clone();
+                                                                    if id == TypeId::of::<ByteTag>() {
+                                                                        let pce = property_enum.as_any().downcast_ref::<ByteTag>().unwrap().clone();
                                                                         let any_value = pce.get_value();
-                                                                        let value = any_value.downcast_ref::<i32>().unwrap();
-                                                                        property_enums_map.push(PropertyValue::Int(value.clone()));
-                                                                    } else if id == std::any::TypeId::of::<StringTag>() {
+                                                                        let value = any_value.downcast_ref::<i8>().unwrap();
+                                                                        property_enums_map.push(PropertyValue::Byte(*value));
+                                                                    } else if id == TypeId::of::<StringTag>() {
                                                                         let pce = property_enum.as_any().downcast_ref::<StringTag>().unwrap().clone();
                                                                         let any_value = pce.get_value();
                                                                         let value = any_value.downcast_ref::<String>().unwrap();
                                                                         property_enums_map.push(PropertyValue::Str(value.clone()));
-                                                                    } else if id == std::any::TypeId::of::<ByteTag>() {
-                                                                        let pce = property_enum.as_any().downcast_ref::<ByteTag>().unwrap().clone();
+                                                                    } else if id == TypeId::of::<IntTag>() {
+                                                                        let pce = property_enum.as_any().downcast_ref::<IntTag>().unwrap().clone();
                                                                         let any_value = pce.get_value();
-                                                                        let value = any_value.downcast_ref::<i8>().unwrap();
-                                                                        property_enums_map.push(PropertyValue::Byte(value.clone()));
+                                                                        let value = any_value.downcast_ref::<i32>().unwrap();
+                                                                        property_enums_map.push(PropertyValue::Int(*value));
+
                                                                     } else { println!("Unknown property enum id {:?}", id); }
                                                                 });
                                                                 properties_map.insert(property_name, property_enums_map);
@@ -578,7 +581,7 @@ impl Client {
 
                                                             let combinations = block::cartesian_product_enum(&properties);
                                                             for combo in combinations {
-                                                                let mut state = CompoundTag::new(HashMap::new());
+                                                                let mut state = CompoundTag::new(LinkedHashMap::new());
                                                                 for (k, v) in &combo {
                                                                     match v {
                                                                         PropertyValue::Int(i) => {
@@ -593,7 +596,7 @@ impl Client {
                                                                     }
                                                                 }
 
-                                                                let mut custom_ct = CompoundTag::new(HashMap::new());
+                                                                let mut custom_ct = CompoundTag::new(LinkedHashMap::new());
                                                                 custom_ct.set_string("name".to_string(), block_name.clone());
                                                                 custom_ct.set_tag("states".to_string(), Box::new(state.clone()));
 
@@ -601,7 +604,6 @@ impl Client {
                                                                 let mut serializer = LittleEndianNBTSerializer::new();
                                                                 let binding = serializer.write(root);
                                                                 let data = binding.as_slice();
-
 
                                                                 let mut custom_ct_list = custom_ct.clone();
                                                                 custom_ct_list.set_int("block_id".to_string(), block_id);
@@ -654,7 +656,7 @@ impl Client {
 
                                                             let combinations = block::cartesian_product_enum(&properties);
                                                             for combo in combinations {
-                                                                let mut state = CompoundTag::new(HashMap::new());
+                                                                let mut state = CompoundTag::new(LinkedHashMap::new());
                                                                 for (k, v) in &combo {
                                                                     match v {
                                                                         PropertyValue::Int(i) => {
@@ -669,7 +671,7 @@ impl Client {
                                                                     }
                                                                 }
 
-                                                                let mut cct = CompoundTag::new(HashMap::new());
+                                                                let mut cct = CompoundTag::new(LinkedHashMap::new());
                                                                 cct.set_string("name".to_string(), block_name.clone());
                                                                 cct.set_long("name_hash".to_string(), block::fnv1_64(block_name.as_bytes()) as i64); ///////////////////////////
                                                                 cct.set_int("block_id".to_string(), block_id);
@@ -790,21 +792,21 @@ impl Client {
     pub fn print_all_blocks(&self, chunk_x: i32, chunk_z: i32, chunk: Chunk) {
         for (sub_chunk_index, sub_chunk) in chunk.sub.iter().enumerate() {
             for (layer_index, storage) in sub_chunk.storages.iter().enumerate() {
-                println!("SubChunk {} - Layer {}:", sub_chunk_index, layer_index);
+                //println!("SubChunk {} - Layer {}:", sub_chunk_index, layer_index);
                 if layer_index == 0 {
                     for y in 0..16 {
                         for x in 0..16 {
                             for z in 0..16 {
                                 let block_id = storage.at(x as u8, y as u8, z as u8);
-                                let block_info;
-                                if self.bedrock_handler.hashed_network_ids.len() != 0 {
-                                    block_info = self.bedrock_handler.hashed_network_ids.get(&block_id).unwrap();
-                                } else {
-                                    block_info = self.bedrock_handler.runtime_network_ids.get(block_id as usize).unwrap();
-                                }
                                 let real_x = chunk_x*16 + x;
                                 let real_y = chunk.r.0 + (sub_chunk_index*16 + y) as isize;
                                 let real_z = chunk_z*16 + z;
+                                let block_info = if self.bedrock_handler.hashed_network_ids.len() != 0 {
+                                    self.bedrock_handler.hashed_network_ids.get(&block_id).expect(format!("({},{},{}) Block ID not found in hashed network ids {}", real_x, real_y, real_z, block_id).as_str())
+                                } else {
+                                    self.bedrock_handler.runtime_network_ids.get(block_id as usize).expect(format!("({},{},{}) Block ID not found in runtime network ids {}", real_x, real_y, real_z, block_id).as_str())
+                                };
+
                                 let name = block_info.get_string("name").unwrap();
                                 if name != "minecraft:air" {
                                     // Call the block callback if set

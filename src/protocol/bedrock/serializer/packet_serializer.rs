@@ -205,36 +205,16 @@ impl PacketSerializer {
 
     fn read_metadata_property(stream: &mut Stream, metadata_type: u32) -> MetadataProperty {
         match metadata_type {
-            EntityMetadataTypes::BYTE => {
-                MetadataProperty::Byte(stream.get_byte())
-            },
-            EntityMetadataTypes::SHORT => {
-                MetadataProperty::Short(stream.get_i16_le())
-            },
-            EntityMetadataTypes::INT => {
-                MetadataProperty::Int(stream.get_var_i32())
-            },
-            EntityMetadataTypes::FLOAT => {
-                MetadataProperty::Float(stream.get_f32_le())
-            },
-            EntityMetadataTypes::STRING => {
-                MetadataProperty::String(PacketSerializer::get_string(stream))
-            },
-            EntityMetadataTypes::COMPOUND_TAG => {
-                MetadataProperty::CompoundTag(CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream))))
-            },
-            EntityMetadataTypes::BLOCK_POS => {
-                MetadataProperty::BlockPos(PacketSerializer::get_signed_block_pos(stream))
-            },
-            EntityMetadataTypes::LONG => {
-                MetadataProperty::Long(stream.get_var_i64())
-            },
-            EntityMetadataTypes::VECTOR3F => {
-                MetadataProperty::Vector3f(PacketSerializer::get_vector3(stream))
-            },
-            _ => {
-                panic!("Unknown metadata type id: {}", metadata_type);
-            }
+            EntityMetadataTypes::BYTE => MetadataProperty::Byte(stream.get_byte()),
+            EntityMetadataTypes::SHORT => MetadataProperty::Short(stream.get_i16_le()),
+            EntityMetadataTypes::INT => MetadataProperty::Int(stream.get_var_i32()),
+            EntityMetadataTypes::FLOAT => MetadataProperty::Float(stream.get_f32_le()),
+            EntityMetadataTypes::STRING => MetadataProperty::String(PacketSerializer::get_string(stream)),
+            EntityMetadataTypes::COMPOUND_TAG => MetadataProperty::CompoundTag(CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream)))),
+            EntityMetadataTypes::BLOCK_POS => MetadataProperty::BlockPos(PacketSerializer::get_signed_block_pos(stream)),
+            EntityMetadataTypes::LONG => MetadataProperty::Long(stream.get_var_i64()),
+            EntityMetadataTypes::VECTOR3F => MetadataProperty::Vector3f(PacketSerializer::get_vector3(stream)),
+            _ => panic!("Unknown metadata type id: {}", metadata_type)
         }
     }
 

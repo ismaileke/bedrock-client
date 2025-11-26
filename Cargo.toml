@@ -22,6 +22,8 @@ ctr = "0.10.0-rc.1"
 libdeflater = "1.24.0"
 uuid = "1.18.1"
 serde = { version = "1.0.228", features = ["derive"] }
+fnv = "1.0.7"
+linked-hash-map = "0.5.6"
 
 
 #[lib]
