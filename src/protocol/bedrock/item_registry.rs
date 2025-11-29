@@ -1,5 +1,6 @@
 use std::any::Any;
 use binary_utils::binary::Stream;
+use mojang_nbt::tag::tag::Tag;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
@@ -49,7 +50,7 @@ impl Packet for ItemRegistry {
             let component_based = stream.get_bool();
             let version = stream.get_var_i32();
             let component_nbt = PacketSerializer::get_nbt_compound_root(stream);
-            entries.push(ItemTypeEntry { string_id, numeric_id, component_based, version, component_nbt: CacheableNBT::new(Box::new(component_nbt)) });
+            entries.push(ItemTypeEntry { string_id, numeric_id, component_based, version, component_nbt: CacheableNBT::new(Tag::Compound(component_nbt)) });
         }
 
         ItemRegistry { entries }

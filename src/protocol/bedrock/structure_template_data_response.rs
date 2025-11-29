@@ -2,6 +2,7 @@ use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use mojang_nbt::tag::tag::Tag;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 
@@ -44,7 +45,7 @@ impl Packet for StructureTemplateDataResponse {
         let has_nbt = stream.get_bool();
         let mut nbt: Option<CacheableNBT> = None;
         if has_nbt {
-            nbt = Some(CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream))));
+            nbt = Some(CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream))));
         }
         let response_type = stream.get_byte();
 

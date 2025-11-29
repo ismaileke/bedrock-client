@@ -2,6 +2,7 @@ use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use mojang_nbt::tag::tag::Tag;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 
@@ -33,7 +34,7 @@ impl Packet for JigsawStructureData {
     }
 
     fn decode(stream: &mut Stream) -> JigsawStructureData {
-        let nbt = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream)));
+        let nbt = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)));
 
         JigsawStructureData { nbt }
     }

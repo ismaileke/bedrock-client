@@ -1,5 +1,6 @@
 use binary_utils::binary::Stream;
 
+#[derive(Clone)]
 pub struct PaletteSize(pub u8);
 impl PaletteSize {
 
@@ -42,7 +43,7 @@ pub struct SubChunk {
     pub block_light: Vec<u8>,
     pub sky_light: Vec<u8>
 }
-
+#[derive(Clone)]
 pub struct PalettedStorage {
     pub bits_per_index: u16,
     pub filled_bits_per_index: u16,
@@ -52,6 +53,7 @@ pub struct PalettedStorage {
     pub indices: Vec<u32>
 }
 
+#[derive(Clone)]
 pub struct Palette {
     pub last: u32,
     pub last_index: i16,

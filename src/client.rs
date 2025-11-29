@@ -1,4 +1,3 @@
-use std::any::TypeId;
 use crate::handler::bedrock_packet_handler::BedrockPacketHandler;
 use crate::handler::raknet_packet_handler::RakNetPacketHandler;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
@@ -32,13 +31,7 @@ use binary_utils::binary::Stream;
 use chrono::Utc;
 use flate2::read::GzDecoder;
 use minecraft_auth::bedrock;
-use mojang_nbt::base_nbt_serializer::BaseNBTSerializer;
-use mojang_nbt::big_endian_nbt_serializer::BigEndianNBTSerializer;
-use mojang_nbt::little_endian_nbt_serializer::LittleEndianNBTSerializer;
-use mojang_nbt::tag::byte_tag::ByteTag;
 use mojang_nbt::tag::compound_tag::CompoundTag;
-use mojang_nbt::tag::int_tag::IntTag;
-use mojang_nbt::tag::string_tag::StringTag;
 use mojang_nbt::tag::tag::Tag;
 use mojang_nbt::tree_root::TreeRoot;
 use openssl::base64::decode_block;
@@ -50,6 +43,8 @@ use std::io::{Cursor, Read, Result};
 use std::net::UdpSocket;
 use std::sync::Arc;
 use std::sync::Mutex;
+use mojang_nbt::nbt::NBT;
+use mojang_nbt::nbt_serializer::NBTSerializer;
 //use crate::handle_incoming_data;
 
 // conn_req update
@@ -430,110 +425,104 @@ impl Client {
                                                         //println!("{}----{}", COLOR_DARK_AQUA, COLOR_WHITE);
                                                         //println!("Block Name: {}", block_palette_entry.get_name());
                                                         let root = block_palette_entry.get_states().get_root();
-                                                        let bct = root.as_any().downcast_ref::<CompoundTag>().unwrap();
+                                                        if let Tag::Compound(bct) = root {
+                                                            let vanilla_block_data = bct.get_compound_tag("vanilla_block_data".to_string());
+                                                            let menu_category = bct.get_compound_tag("menu_category".to_string());
+                                                            let components = bct.get_compound_tag("components".to_string());
+                                                            let properties = bct.get_list_tag("properties".to_string());
+                                                            let permutations = bct.get_list_tag("permutations".to_string());
 
-                                                        let vanilla_block_data = bct.get_compound_tag("vanilla_block_data".to_string());
-                                                        let menu_category = bct.get_compound_tag("menu_category".to_string());
-                                                        let components = bct.get_compound_tag("components".to_string());
-                                                        let properties = bct.get_list_tag("properties".to_string());
-                                                        let permutations = bct.get_list_tag("permutations".to_string());
+                                                            let mut properties_map = HashMap::new();
 
-                                                        let mut properties_map = HashMap::new();
+                                                            /*if vanilla_block_data.is_some() {
+                                                                let vbd = vanilla_block_data.unwrap();
+                                                                let block_id = vbd.get_int("block_id").unwrap();
+                                                                let material = vbd.get_string("material").unwrap();
+                                                                //println!("Block ID: {}, Material: {}", block_id, material); // Block ID: 10000, Material: dirt
+                                                                // block_palette_827.nbt dosyasına tüm stateslere göre eklicen misal
+                                                                // block name: dirt, id: 1, states: [up: 0, down: 0]
+                                                                // block name: dirt, id: 1, states: [up: 1, down: 0]
+                                                                // block name: dirt, id: 1, states: [up: 0, down: 1]
+                                                                // block name: dirt, id: 1, states: [up: 1, down: 1]
 
-                                                        /*if vanilla_block_data.is_some() {
+
+                                                                /*for (key, value) in vanilla_block_data.unwrap().get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
+                                                                    println!("vanilla_block_data - {} - {}", key, value.get_type());
+                                                                }*/
+                                                            }*/
+                                                            /* Unnecessary */if menu_category.is_some() {
+                                                                /*for (key, value) in menu_category.unwrap().get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
+                                                                    println!("menu_category - {} - {}", key, value.get_type());
+                                                                }*/
+                                                            }
+                                                            /* Unnecessary */if components.is_some() {
+                                                                /*for (key, value) in components.unwrap().get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
+                                                                    println!("components - {} - {}", key, value.get_type());
+                                                                }*/
+                                                            }
+                                                            if properties.is_some() {
+                                                                properties.unwrap().get_value().iter().for_each(|property| {
+                                                                    let mut property_enums_map: Vec<PropertyValue> = vec![];
+
+                                                                    if let Tag::Compound(pct) = property {
+                                                                        let property_name = pct.get_string("name").unwrap();
+                                                                        let property_enums = pct.get_list_tag("enum".to_string()).unwrap();
+                                                                        // Blok Özellikleri ve Alabileceği Değerler
+                                                                        //println!("property name: {}", property_name);
+                                                                        property_enums.get_value().iter().for_each(|property_enum| {
+                                                                            let id = property_enum.get_id();
+                                                                            if id == NBT::TAG_BYTE {
+                                                                                if let Tag::Byte(pce) = property_enum {
+                                                                                    property_enums_map.push(PropertyValue::Byte(pce.get_value()));
+                                                                                }
+                                                                            } else if id == NBT::TAG_STRING {
+                                                                                if let Tag::String(pce) = property_enum {
+                                                                                    property_enums_map.push(PropertyValue::Str(pce.get_value().clone()));
+                                                                                }
+                                                                            } else if id == NBT::TAG_INT {
+                                                                                if let Tag::Int(pce) = property_enum {
+                                                                                    property_enums_map.push(PropertyValue::Int(pce.get_value()));
+                                                                                }
+                                                                            } else { println!("Unknown property enum id {:?}", id); }
+                                                                        });
+                                                                        properties_map.insert(property_name, property_enums_map);
+                                                                    }
+
+                                                                    /*block_enum.get_value().downcast_ref::<Vec<Box<dyn Tag>>>().unwrap().iter().for_each(|enum_value| {
+                                                                        let enum_value_tag = enum_value.as_any().downcast_ref::<IntTag>().unwrap();
+                                                                        println!("  - {}", enum_value_tag.get_value().downcast_ref::<u32>().unwrap());
+                                                                    })*/
+                                                                    /*for (key, value) in pct.get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
+                                                                        println!("property - {} - {}", key, value.get_type());
+                                                                    }*/
+                                                                });
+                                                            }
+                                                            /* Unnecessary */if permutations.is_some() {
+                                                                /*permutations.unwrap().get_value().downcast_ref::<Vec<Box<dyn Tag>>>().unwrap().iter().for_each(|permutation| {
+                                                                    let pct = permutation.as_any().downcast_ref::<CompoundTag>().unwrap();
+                                                                    for (key, value) in pct.get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
+                                                                        if key == "condition" {
+                                                                            let condition_tag = pct.get_string("condition").unwrap();
+                                                                            println!("Condition Name  - {}", condition_tag);
+                                                                        }
+                                                                        if key == "components" {
+                                                                            let components_tag = pct.get_compound_tag("components".to_string()).unwrap();
+                                                                            for (key, value) in components_tag.get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
+                                                                                //println!("  - {} - {}", key, value.get_type());
+                                                                            }
+                                                                        }
+                                                                        println!("permutation -> {} - {}", key, value.get_type());
+                                                                    }
+                                                                });*/
+                                                            }
+
+                                                            //////////////////////////
                                                             let vbd = vanilla_block_data.unwrap();
                                                             let block_id = vbd.get_int("block_id").unwrap();
-                                                            let material = vbd.get_string("material").unwrap();
-                                                            //println!("Block ID: {}, Material: {}", block_id, material); // Block ID: 10000, Material: dirt
-                                                            // block_palette_827.nbt dosyasına tüm stateslere göre eklicen misal
-                                                            // block name: dirt, id: 1, states: [up: 0, down: 0]
-                                                            // block name: dirt, id: 1, states: [up: 1, down: 0]
-                                                            // block name: dirt, id: 1, states: [up: 0, down: 1]
-                                                            // block name: dirt, id: 1, states: [up: 1, down: 1]
-
-
-                                                            /*for (key, value) in vanilla_block_data.unwrap().get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
-                                                                println!("vanilla_block_data - {} - {}", key, value.get_type());
-                                                            }*/
-                                                        }*/
-                                                        /* Unnecessary */if menu_category.is_some() {
-                                                            /*for (key, value) in menu_category.unwrap().get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
-                                                                println!("menu_category - {} - {}", key, value.get_type());
-                                                            }*/
+                                                            let block_data = format!("{}/{}", block_id, block_palette_entry.get_name());
+                                                            custom_blocks.insert(block_data, properties_map);
+                                                            //////////////////////////
                                                         }
-                                                        /* Unnecessary */if components.is_some() {
-                                                            /*for (key, value) in components.unwrap().get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
-                                                                println!("components - {} - {}", key, value.get_type());
-                                                            }*/
-                                                        }
-                                                        if properties.is_some() {
-                                                            properties.unwrap().get_value().downcast_ref::<Vec<Box<dyn Tag>>>().unwrap().iter().for_each(|property| {
-                                                                let mut property_enums_map: Vec<PropertyValue> = vec![];
-
-                                                                let pct = property.as_any().downcast_ref::<CompoundTag>().unwrap();
-                                                                let property_name = pct.get_string("name").unwrap();
-                                                                let property_enums = pct.get_list_tag("enum".to_string()).unwrap();
-                                                                // Blok Özellikleri ve Alabileceği Değerler
-                                                                //println!("property name: {}", property_name);
-                                                                property_enums.get_value().downcast_ref::<Vec<Box<dyn Tag>>>().unwrap().iter().for_each(|property_enum| {
-                                                                    let id = property_enum.as_any().type_id();
-                                                                    if id == TypeId::of::<ByteTag>() {
-                                                                        let pce = property_enum.as_any().downcast_ref::<ByteTag>().unwrap().clone();
-                                                                        let any_value = pce.get_value();
-                                                                        let value = any_value.downcast_ref::<i8>().unwrap();
-                                                                        property_enums_map.push(PropertyValue::Byte(*value));
-                                                                    } else if id == TypeId::of::<StringTag>() {
-                                                                        let pce = property_enum.as_any().downcast_ref::<StringTag>().unwrap().clone();
-                                                                        let any_value = pce.get_value();
-                                                                        let value = any_value.downcast_ref::<String>().unwrap();
-                                                                        property_enums_map.push(PropertyValue::Str(value.clone()));
-                                                                    } else if id == TypeId::of::<IntTag>() {
-                                                                        let pce = property_enum.as_any().downcast_ref::<IntTag>().unwrap().clone();
-                                                                        let any_value = pce.get_value();
-                                                                        let value = any_value.downcast_ref::<i32>().unwrap();
-                                                                        property_enums_map.push(PropertyValue::Int(*value));
-
-                                                                    } else { println!("Unknown property enum id {:?}", id); }
-                                                                });
-                                                                properties_map.insert(property_name, property_enums_map);
-
-
-
-                                                                /*block_enum.get_value().downcast_ref::<Vec<Box<dyn Tag>>>().unwrap().iter().for_each(|enum_value| {
-                                                                    let enum_value_tag = enum_value.as_any().downcast_ref::<IntTag>().unwrap();
-                                                                    println!("  - {}", enum_value_tag.get_value().downcast_ref::<u32>().unwrap());
-                                                                })*/
-                                                                /*for (key, value) in pct.get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
-                                                                    println!("property - {} - {}", key, value.get_type());
-                                                                }*/
-                                                            });
-                                                        }
-                                                        /* Unnecessary */if permutations.is_some() {
-                                                            /*permutations.unwrap().get_value().downcast_ref::<Vec<Box<dyn Tag>>>().unwrap().iter().for_each(|permutation| {
-                                                                let pct = permutation.as_any().downcast_ref::<CompoundTag>().unwrap();
-                                                                for (key, value) in pct.get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
-                                                                    if key == "condition" {
-                                                                        let condition_tag = pct.get_string("condition").unwrap();
-                                                                        println!("Condition Name  - {}", condition_tag);
-                                                                    }
-                                                                    if key == "components" {
-                                                                        let components_tag = pct.get_compound_tag("components".to_string()).unwrap();
-                                                                        for (key, value) in components_tag.get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
-                                                                            //println!("  - {} - {}", key, value.get_type());
-                                                                        }
-                                                                    }
-                                                                    println!("permutation -> {} - {}", key, value.get_type());
-                                                                }
-                                                            });*/
-                                                        }
-
-                                                        //////////////////////////
-                                                        let vbd = vanilla_block_data.unwrap();
-                                                        let block_id = vbd.get_int("block_id").unwrap();
-                                                        let block_data = format!("{}/{}", block_id, block_palette_entry.get_name());
-                                                        custom_blocks.insert(block_data, properties_map);
-                                                        //////////////////////////
-
                                                     }
 
                                                     ////////////////////////////////////////////////////
@@ -547,7 +536,7 @@ impl Client {
                                                     decoder.read_to_end(&mut contents).unwrap();
                                                     let mut stream = Stream::new(contents, 0);
 
-                                                    let mut nbt_serializer = BigEndianNBTSerializer::new();
+                                                    let mut nbt_serializer = NBTSerializer::new_big_endian();
                                                     let mut offset = stream.get_offset();
                                                     let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
                                                     stream.set_offset(offset);
@@ -565,12 +554,13 @@ impl Client {
                                                         // Adding vanilla blocks to Hashed Network IDs
                                                         for i in 0..vanilla_blocks.count() {
                                                             let vanilla_block = vanilla_blocks.get(i);
-                                                            let mut vanilla_ct = vanilla_block.as_any().downcast_ref::<CompoundTag>().unwrap().clone();
-                                                            let hashed_network_id = vanilla_ct.get_int("network_id").unwrap() as u32;
-                                                            //let block_name = vanilla_ct.get_string("name").unwrap();
-                                                            //println!("{}, Block Name: {}, Network ID: {}", i, block_name, hashed_network_id);
-                                                            vanilla_ct.remove_tag(vec!["network_id".to_string(), "name_hash".to_string(), "version".to_string()]);
-                                                            self.bedrock_handler.hashed_network_ids.insert(hashed_network_id, vanilla_ct.clone());
+                                                            if let Tag::Compound(mut vanilla_ct) = vanilla_block {
+                                                                let hashed_network_id = vanilla_ct.get_int("network_id").unwrap() as u32;
+                                                                //let block_name = vanilla_ct.get_string("name").unwrap();
+                                                                //println!("{}, Block Name: {}, Network ID: {}", i, block_name, hashed_network_id);
+                                                                vanilla_ct.remove_tag(vec!["network_id".to_string(), "name_hash".to_string(), "version".to_string()]);
+                                                                self.bedrock_handler.hashed_network_ids.insert(hashed_network_id, vanilla_ct.clone());
+                                                            }
                                                         }
 
                                                         // Adding custom blocks to Hashed Network IDs
@@ -598,10 +588,10 @@ impl Client {
 
                                                                 let mut custom_ct = CompoundTag::new(LinkedHashMap::new());
                                                                 custom_ct.set_string("name".to_string(), block_name.clone());
-                                                                custom_ct.set_tag("states".to_string(), Box::new(state.clone()));
+                                                                custom_ct.set_tag("states".to_string(), Tag::Compound(state.clone()));
 
-                                                                let root = TreeRoot::new(Box::new(custom_ct.clone()), "".to_string());
-                                                                let mut serializer = LittleEndianNBTSerializer::new();
+                                                                let root = TreeRoot::new(Tag::Compound(custom_ct.clone()), "".to_string());
+                                                                let mut serializer = NBTSerializer::new_little_endian();
                                                                 let binding = serializer.write(root);
                                                                 let data = binding.as_slice();
 
@@ -642,10 +632,10 @@ impl Client {
                                                         // Adding vanilla blocks to Runtime Network IDs
                                                         for i in 0..vanilla_blocks.count() {
                                                             let vanilla_block = vanilla_blocks.get(i);
-                                                            let mut vanilla_ct = vanilla_block.as_any().downcast_ref::<CompoundTag>().unwrap().clone();
-
-                                                            vanilla_ct.remove_tag(vec!["version".to_string(), "network_id".to_string()]);
-                                                            name_hashes.push(vanilla_ct);
+                                                            if let Tag::Compound(mut vanilla_ct) = vanilla_block {
+                                                                vanilla_ct.remove_tag(vec!["version".to_string(), "network_id".to_string()]);
+                                                                name_hashes.push(vanilla_ct);
+                                                            }
                                                         }
 
                                                         // Adding custom blocks to Runtime Network IDs
@@ -675,7 +665,7 @@ impl Client {
                                                                 cct.set_string("name".to_string(), block_name.clone());
                                                                 cct.set_long("name_hash".to_string(), block::fnv1_64(block_name.as_bytes()) as i64); ///////////////////////////
                                                                 cct.set_int("block_id".to_string(), block_id);
-                                                                cct.set_tag("states".to_string(), Box::new(state.clone()));
+                                                                cct.set_tag("states".to_string(), Tag::Compound(state.clone()));
                                                                 name_hashes.push(cct);
                                                             }
                                                         }

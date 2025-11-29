@@ -2,6 +2,7 @@ use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use mojang_nbt::tag::tag::Tag;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 
@@ -57,7 +58,7 @@ impl Packet for AddVolumeEntity {
 
     fn decode(stream: &mut Stream) -> AddVolumeEntity {
         let entity_net_id = stream.get_var_u32();
-        let data = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream)));
+        let data = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)));
         let json_identifier = PacketSerializer::get_string(stream);
         let instance_name = PacketSerializer::get_string(stream);
         let min_bound = PacketSerializer::get_block_pos(stream);

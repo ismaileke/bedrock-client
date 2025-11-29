@@ -1,11 +1,11 @@
 use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty;
 use std::collections::HashMap;
 use binary_utils::binary::Stream;
-use mojang_nbt::base_nbt_serializer::BaseNBTSerializer;
+use mojang_nbt::nbt_serializer::NBTSerializer;
 use mojang_nbt::tag::compound_tag::CompoundTag;
+use mojang_nbt::tag::tag::Tag;
 use mojang_nbt::tree_root::TreeRoot;
 use uuid::Uuid;
-use crate::protocol::bedrock::serializer::network_nbt_serializer::NetworkNBTSerializer;
 use crate::protocol::bedrock::types::bool_game_rule::BoolGameRule;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 use crate::protocol::bedrock::types::command::command_origin_data::CommandOriginData;
@@ -178,9 +178,9 @@ impl PacketSerializer {
         stream.put_f32_le(data.vehicle_angular_velocity);
     }
 
-    pub fn get_nbt_root(stream: &mut Stream) -> Box<TreeRoot> {
+    pub fn get_nbt_root(stream: &mut Stream) -> TreeRoot {
         let mut offset = stream.get_offset();
-        let mut nbt_serializer = NetworkNBTSerializer::new();
+        let mut nbt_serializer = NBTSerializer::new_network();
         let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
         stream.set_offset(offset);
         nbt_root
@@ -210,7 +210,7 @@ impl PacketSerializer {
             EntityMetadataTypes::INT => MetadataProperty::Int(stream.get_var_i32()),
             EntityMetadataTypes::FLOAT => MetadataProperty::Float(stream.get_f32_le()),
             EntityMetadataTypes::STRING => MetadataProperty::String(PacketSerializer::get_string(stream)),
-            EntityMetadataTypes::COMPOUND_TAG => MetadataProperty::CompoundTag(CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream)))),
+            EntityMetadataTypes::COMPOUND_TAG => MetadataProperty::CompoundTag(CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)))),
             EntityMetadataTypes::BLOCK_POS => MetadataProperty::BlockPos(PacketSerializer::get_signed_block_pos(stream)),
             EntityMetadataTypes::LONG => MetadataProperty::Long(stream.get_var_i64()),
             EntityMetadataTypes::VECTOR3F => MetadataProperty::Vector3f(PacketSerializer::get_vector3(stream)),

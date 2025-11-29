@@ -1,9 +1,9 @@
 use std::any::Any;
 use binary_utils::binary::Stream;
-use mojang_nbt::base_nbt_serializer::BaseNBTSerializer;
+use mojang_nbt::nbt_serializer::NBTSerializer;
+use mojang_nbt::tag::tag::Tag;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use crate::protocol::bedrock::serializer::network_nbt_serializer::NetworkNBTSerializer;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::block_palette_entry::BlockPaletteEntry;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
@@ -82,11 +82,11 @@ impl Packet for StartGame {
             let block_name = PacketSerializer::get_string(stream);
 
             let mut offset = stream.get_offset();
-            let mut nbt_serializer = NetworkNBTSerializer::new();
+            let mut nbt_serializer = NBTSerializer::new_network();
             let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
             stream.set_offset(offset);
 
-            let state = Box::new(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error"));
+            let state = Tag::Compound(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error"));
 
             block_palette.push(BlockPaletteEntry::new(block_name, CacheableNBT::new(state)));
         }
@@ -98,10 +98,10 @@ impl Packet for StartGame {
         let server_software_version = PacketSerializer::get_string(stream);
 
         let mut offset = stream.get_offset();
-        let mut nbt_serializer = NetworkNBTSerializer::new();
+        let mut nbt_serializer = NBTSerializer::new_network();
         let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
         stream.set_offset(offset);
-        let player_actor_properties = CacheableNBT::new(Box::new(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error")));
+        let player_actor_properties = CacheableNBT::new(Tag::Compound(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error")));
 
         let block_palette_checksum = stream.get_u64_le();
 
@@ -162,11 +162,10 @@ impl Packet for StartGame {
         println!("Multiplayer Correlation ID: {}", self.multiplayer_correlation_id);
         println!("Enable New Inventory System: {}", self.enable_new_inventory_system);
         println!("Server Software Version: {}", self.server_software_version);
-        //println!("player_actor_properties: {}", self.player_actor_properties); Cacheable NBT
+        println!("player_actor_properties: {:?}", self.player_actor_properties);
         println!("Block Palette Checksum: {:?}", self.block_palette_checksum);
         println!("World Template ID: {:?}", self.world_template_id);
         println!("Enable Client-side Chunk Generation: {}", self.enable_client_side_chunk_generation);
-        // false = sırasına göre, true = state hash
         println!("Block Network IDs Are Hashes: {}", self.block_network_ids_are_hashes);
         println!("Network Permissions: {:?}", self.network_permissions);
     }

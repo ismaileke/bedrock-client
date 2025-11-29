@@ -2,6 +2,7 @@ use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use mojang_nbt::tag::tag::Tag;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 
@@ -36,7 +37,7 @@ impl Packet for EditorNetwork {
 
     fn decode(stream: &mut Stream) -> EditorNetwork {
         let is_route_to_manager = stream.get_bool();
-        let payload = CacheableNBT::new(Box::new(PacketSerializer::get_nbt_compound_root(stream)));
+        let payload = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)));
 
         EditorNetwork { is_route_to_manager, payload }
     }
