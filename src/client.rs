@@ -432,7 +432,7 @@ impl Client {
                                                             let properties = bct.get_list_tag("properties".to_string());
                                                             let permutations = bct.get_list_tag("permutations".to_string());
 
-                                                            let mut properties_map = HashMap::new();
+                                                            let mut properties_map = LinkedHashMap::new();
 
                                                             /*if vanilla_block_data.is_some() {
                                                                 let vbd = vanilla_block_data.unwrap();
@@ -594,6 +594,9 @@ impl Client {
                                                                 let mut serializer = NBTSerializer::new_little_endian();
                                                                 let binding = serializer.write(root);
                                                                 let data = binding.as_slice();
+
+                                                                //let hash_id = block::fnv1a_32(data);
+                                                                //println!("Block Name: {}, Hash ID: {}", block_name.clone(), hash_id);
 
                                                                 let mut custom_ct_list = custom_ct.clone();
                                                                 custom_ct_list.set_int("block_id".to_string(), block_id);

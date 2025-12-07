@@ -1,7 +1,7 @@
-use std::collections::HashMap;
+use linked_hash_map::LinkedHashMap;
 
-pub type PropertyMap = HashMap<String, Vec<PropertyValue>>;
-pub type StateCombination = HashMap<String, PropertyValue>;
+pub type PropertyMap = LinkedHashMap<String, Vec<PropertyValue>>;
+pub type StateCombination = LinkedHashMap<String, PropertyValue>;
 
 const FNV1_32_INIT: u32 = 0x811c9dc5;
 const FNV1_PRIME_32: u32 = 0x0100_0193;
@@ -61,7 +61,7 @@ pub fn cartesian_product_enum(properties: &PropertyMap) -> Vec<StateCombination>
         }
     }
 
-    let mut current = HashMap::new();
+    let mut current = LinkedHashMap::new();
     helper(&keys, 0, properties, &mut current, &mut results);
 
     results
