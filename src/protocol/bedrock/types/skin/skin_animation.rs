@@ -5,7 +5,7 @@ pub struct SkinAnimation {
     image: SkinImage,
     animation_type: u32,
     frames: f32,
-    expression_type: u32
+    expression_type: u32,
 }
 
 impl SkinAnimation {
@@ -16,8 +16,18 @@ impl SkinAnimation {
     pub const EXPRESSION_LINEAR: u32 = 0; //???
     pub const EXPRESSION_BLINKING: u32 = 1;
 
-    pub fn new(image: SkinImage, animation_type: u32, frames: f32, expression_type: u32) -> SkinAnimation {
-        SkinAnimation { image, animation_type, frames, expression_type }
+    pub fn new(
+        image: SkinImage,
+        animation_type: u32,
+        frames: f32,
+        expression_type: u32,
+    ) -> SkinAnimation {
+        SkinAnimation {
+            image,
+            animation_type,
+            frames,
+            expression_type,
+        }
     }
 
     pub fn image(&self) -> &SkinImage {

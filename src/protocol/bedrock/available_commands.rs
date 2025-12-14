@@ -1,13 +1,13 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AvailableCommands {}
 
 pub fn new() -> AvailableCommands {
-    AvailableCommands { }
+    AvailableCommands {}
 }
 
 impl AvailableCommands {
@@ -15,7 +15,7 @@ impl AvailableCommands {
      * This flag is set on all types EXCEPT the POSTFIX type. Not completely sure what this is for, but it is required
      * for the argtype to work correctly. VALID seems as good a name as any.
      */
-    pub const ARG_FLAG_VALID: u32  = 0x100000;
+    pub const ARG_FLAG_VALID: u32 = 0x100000;
     /**
      * Enums are a little different: they are composed as follows:
      * ARG_FLAG_ENUM | ARG_FLAG_VALID | (enum index)
@@ -49,7 +49,7 @@ impl Packet for AvailableCommands {
     fn decode(_stream: &mut Stream) -> AvailableCommands {
         // TODO
 
-        AvailableCommands { }
+        AvailableCommands {}
     }
 
     fn debug(&self) {
@@ -64,7 +64,6 @@ impl Packet for AvailableCommands {
         serde_json::to_string(self).unwrap()
     }
 }
-
 
 /*use std::any::Any;
 use std::collections::HashMap;
@@ -215,7 +214,7 @@ impl AvailableCommands {
             panic!("Enum constraint refers to unknown enum index {}", enum_index);
         }
         let value_offset = enum_values.get(value_index).unwrap();
-        
+
 
     }
 }

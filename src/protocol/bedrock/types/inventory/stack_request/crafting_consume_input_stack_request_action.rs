@@ -5,14 +5,12 @@ pub struct CraftingConsumeInputStackRequestAction {}
 
 impl CraftingConsumeInputStackRequestAction {
     pub fn new() -> CraftingConsumeInputStackRequestAction {
-        CraftingConsumeInputStackRequestAction{}
+        CraftingConsumeInputStackRequestAction {}
     }
 
     pub fn read(_stream: &mut Stream) -> CraftingConsumeInputStackRequestAction {
-
-        CraftingConsumeInputStackRequestAction{}
+        CraftingConsumeInputStackRequestAction {}
     }
 
-    pub fn write(&mut self, _stream: &mut Stream) {
-    }
+    pub fn write(&mut self, _stream: &mut Stream) {}
 }

@@ -1,11 +1,11 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientBoundControlSchemeSet {
-    pub scheme: u8 //see types/control_scheme.rs
+    pub scheme: u8, //see types/control_scheme.rs
 }
 
 pub fn new(scheme: u8) -> ClientBoundControlSchemeSet {

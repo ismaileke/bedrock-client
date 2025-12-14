@@ -1,6 +1,6 @@
 pub mod address;
-pub mod encryption;
-pub mod color_format;
-pub mod chunk;
 pub mod block;
+pub mod chunk;
 pub mod color;
+pub mod color_format;
+pub mod encryption;

@@ -1,8 +1,8 @@
-use uuid::Uuid;
 use crate::protocol::bedrock::types::skin::persona_piece_tint_color::PersonaPieceTintColor;
 use crate::protocol::bedrock::types::skin::persona_skin_piece::PersonaSkinPiece;
 use crate::protocol::bedrock::types::skin::skin_animation::SkinAnimation;
 use crate::protocol::bedrock::types::skin::skin_image::SkinImage;
+use uuid::Uuid;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SkinData {
@@ -26,14 +26,19 @@ pub struct SkinData {
     pub persona: bool,
     pub persona_cape_on_classic: bool,
     pub is_primary_user: bool,
-    pub is_override: bool
+    pub is_override: bool,
 }
 
 impl SkinData {
     pub const ARM_SIZE_SLIM: &'static str = "slim";
     pub const ARM_SIZE_WIDE: &'static str = "wide";
 
-    pub fn default(skin_id: String, play_fab_id: String, resource_patch: String, skin_image: SkinImage) -> SkinData {
+    pub fn default(
+        skin_id: String,
+        play_fab_id: String,
+        resource_patch: String,
+        skin_image: SkinImage,
+    ) -> SkinData {
         SkinData {
             skin_id,
             play_fab_id,
@@ -55,7 +60,7 @@ impl SkinData {
             persona: false,
             persona_cape_on_classic: false,
             is_primary_user: true,
-            is_override: true
+            is_override: true,
         }
     }
 }

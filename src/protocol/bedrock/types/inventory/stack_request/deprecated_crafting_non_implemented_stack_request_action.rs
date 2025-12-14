@@ -5,11 +5,11 @@ pub struct DeprecatedCraftingNonImplementedStackRequestAction {}
 
 impl DeprecatedCraftingNonImplementedStackRequestAction {
     pub fn new() -> DeprecatedCraftingNonImplementedStackRequestAction {
-        DeprecatedCraftingNonImplementedStackRequestAction{}
+        DeprecatedCraftingNonImplementedStackRequestAction {}
     }
 
     pub fn read(_stream: &mut Stream) -> DeprecatedCraftingNonImplementedStackRequestAction {
-        DeprecatedCraftingNonImplementedStackRequestAction{}
+        DeprecatedCraftingNonImplementedStackRequestAction {}
     }
 
     pub fn write(&mut self, _stream: &mut Stream) {}

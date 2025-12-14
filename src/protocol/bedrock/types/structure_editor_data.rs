@@ -9,7 +9,7 @@ pub struct StructureEditorData {
     pub show_bounding_box: bool,
     pub structure_block_type: i32,
     pub structure_settings: StructureSettings,
-    pub structure_redstone_save_mode: i32
+    pub structure_redstone_save_mode: i32,
 }
 
 impl StructureEditorData {

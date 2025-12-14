@@ -1,9 +1,9 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct MobArmorEquipment {
@@ -12,7 +12,7 @@ pub struct MobArmorEquipment {
     pub chest: ItemStackWrapper,
     pub legs: ItemStackWrapper,
     pub feet: ItemStackWrapper,
-    pub body: ItemStackWrapper
+    pub body: ItemStackWrapper,
 }
 
 pub fn new(
@@ -21,9 +21,16 @@ pub fn new(
     chest: ItemStackWrapper,
     legs: ItemStackWrapper,
     feet: ItemStackWrapper,
-    body: ItemStackWrapper
+    body: ItemStackWrapper,
 ) -> MobArmorEquipment {
-    MobArmorEquipment { actor_runtime_id, head, chest, legs, feet, body }
+    MobArmorEquipment {
+        actor_runtime_id,
+        head,
+        chest,
+        legs,
+        feet,
+        body,
+    }
 }
 
 impl Packet for MobArmorEquipment {
@@ -57,7 +64,14 @@ impl Packet for MobArmorEquipment {
         let feet = PacketSerializer::get_item_stack_wrapper(stream);
         let body = PacketSerializer::get_item_stack_wrapper(stream);
 
-        MobArmorEquipment { actor_runtime_id, head, chest, legs, feet, body }
+        MobArmorEquipment {
+            actor_runtime_id,
+            head,
+            chest,
+            legs,
+            feet,
+            body,
+        }
     }
 
     fn debug(&self) {

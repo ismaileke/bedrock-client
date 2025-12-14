@@ -1,14 +1,14 @@
-use std::fmt::Debug;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::bool_pack_setting::BoolPackSetting;
 use crate::protocol::bedrock::types::float_pack_setting::FloatPackSetting;
 use crate::protocol::bedrock::types::string_pack_setting::StringPackSetting;
+use binary_utils::binary::Stream;
+use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
 pub enum PackSetting {
     Float(FloatPackSetting),
     Bool(BoolPackSetting),
-    String(StringPackSetting)
+    String(StringPackSetting),
 }
 
 impl PackSetting {
@@ -16,7 +16,7 @@ impl PackSetting {
         match self {
             PackSetting::Float(r) => r.id(),
             PackSetting::Bool(r) => r.id(),
-            PackSetting::String(r) => r.id()
+            PackSetting::String(r) => r.id(),
         }
     }
 
@@ -24,7 +24,7 @@ impl PackSetting {
         match self {
             PackSetting::Float(r) => r.name(),
             PackSetting::Bool(r) => r.name(),
-            PackSetting::String(r) => r.name()
+            PackSetting::String(r) => r.name(),
         }
     }
 
@@ -32,7 +32,7 @@ impl PackSetting {
         match self {
             PackSetting::Float(r) => r.write(stream),
             PackSetting::Bool(r) => r.write(stream),
-            PackSetting::String(r) => r.write(stream)
+            PackSetting::String(r) => r.write(stream),
         }
     }
 }

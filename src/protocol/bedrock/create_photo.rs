@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CreatePhoto {
     pub actor_unique_id: i64,
     pub photo_name: String,
-    pub photo_item_name: String
+    pub photo_item_name: String,
 }
 
 pub fn new(actor_unique_id: i64, photo_name: String, photo_item_name: String) -> CreatePhoto {
-    CreatePhoto { actor_unique_id, photo_name, photo_item_name }
+    CreatePhoto {
+        actor_unique_id,
+        photo_name,
+        photo_item_name,
+    }
 }
 
 impl Packet for CreatePhoto {
@@ -40,7 +44,11 @@ impl Packet for CreatePhoto {
         let photo_name = PacketSerializer::get_string(stream);
         let photo_item_name = PacketSerializer::get_string(stream);
 
-        CreatePhoto { actor_unique_id, photo_name, photo_item_name }
+        CreatePhoto {
+            actor_unique_id,
+            photo_name,
+            photo_item_name,
+        }
     }
 
     fn debug(&self) {

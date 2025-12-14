@@ -1,17 +1,21 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerToggleCrafterSlotRequest {
     pub block_position: Vec<i32>,
     pub slot: u8,
-    pub disabled: bool
+    pub disabled: bool,
 }
 
 pub fn new(block_position: Vec<i32>, slot: u8, disabled: bool) -> PlayerToggleCrafterSlotRequest {
-    PlayerToggleCrafterSlotRequest { block_position, slot, disabled }
+    PlayerToggleCrafterSlotRequest {
+        block_position,
+        slot,
+        disabled,
+    }
 }
 
 impl Packet for PlayerToggleCrafterSlotRequest {
@@ -44,7 +48,11 @@ impl Packet for PlayerToggleCrafterSlotRequest {
         let disabled = stream.get_bool();
         let block_position = vec![x, y, z];
 
-        PlayerToggleCrafterSlotRequest { block_position, slot, disabled }
+        PlayerToggleCrafterSlotRequest {
+            block_position,
+            slot,
+            disabled,
+        }
     }
 
     fn debug(&self) {

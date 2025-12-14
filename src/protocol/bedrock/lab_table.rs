@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct LabTable {
     pub action_type: u8,
     pub block_position: Vec<i32>,
-    pub reaction_type: u8
+    pub reaction_type: u8,
 }
 
 pub fn new(action_type: u8, block_position: Vec<i32>, reaction_type: u8) -> LabTable {
-    LabTable { action_type, block_position, reaction_type }
+    LabTable {
+        action_type,
+        block_position,
+        reaction_type,
+    }
 }
 
 impl Packet for LabTable {
@@ -40,7 +44,11 @@ impl Packet for LabTable {
         let block_position = PacketSerializer::get_signed_block_pos(stream);
         let reaction_type = stream.get_byte();
 
-        LabTable { action_type, block_position, reaction_type }
+        LabTable {
+            action_type,
+            block_position,
+            reaction_type,
+        }
     }
 
     fn debug(&self) {

@@ -2,14 +2,14 @@ use crate::protocol::bedrock::types::sub_chunk_entry_without_cache::SubChunkEntr
 
 #[derive(serde::Serialize, Debug)]
 pub struct SubChunkEntryWithoutCacheList {
-    entries: Vec<SubChunkEntryWithoutCache>
+    entries: Vec<SubChunkEntryWithoutCache>,
 }
 
 impl SubChunkEntryWithoutCacheList {
     pub fn new(entries: Vec<SubChunkEntryWithoutCache>) -> SubChunkEntryWithoutCacheList {
-        SubChunkEntryWithoutCacheList{ entries }
+        SubChunkEntryWithoutCacheList { entries }
     }
-    
+
     pub fn get_entries(&self) -> &Vec<SubChunkEntryWithoutCache> {
         self.entries.as_ref()
     }

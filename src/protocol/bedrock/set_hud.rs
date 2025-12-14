@@ -1,16 +1,19 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetHud {
     pub hud_elements: Vec<i32>, //see types/hud/hud_element.rs
-    pub visibility: i32 // see types/hud/hud_visibility.rs
+    pub visibility: i32,        // see types/hud/hud_visibility.rs
 }
 
 pub fn new(hud_elements: Vec<i32>, visibility: i32) -> SetHud {
-    SetHud { hud_elements, visibility }
+    SetHud {
+        hud_elements,
+        visibility,
+    }
 }
 
 impl Packet for SetHud {
@@ -43,7 +46,10 @@ impl Packet for SetHud {
         }
         let visibility = stream.get_var_i32();
 
-        SetHud { hud_elements, visibility }
+        SetHud {
+            hud_elements,
+            visibility,
+        }
     }
 
     fn debug(&self) {

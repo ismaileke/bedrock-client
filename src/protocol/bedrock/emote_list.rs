@@ -1,17 +1,20 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct EmoteList {
     pub player_actor_runtime_id: u64,
-    pub emote_ids: Vec<String>
+    pub emote_ids: Vec<String>,
 }
 
 pub fn new(player_actor_runtime_id: u64, emote_ids: Vec<String>) -> EmoteList {
-    EmoteList { player_actor_runtime_id, emote_ids }
+    EmoteList {
+        player_actor_runtime_id,
+        emote_ids,
+    }
 }
 
 impl Packet for EmoteList {
@@ -44,7 +47,10 @@ impl Packet for EmoteList {
             emote_ids.push(PacketSerializer::get_uuid(stream));
         }
 
-        EmoteList { player_actor_runtime_id, emote_ids }
+        EmoteList {
+            player_actor_runtime_id,
+            emote_ids,
+        }
     }
 
     fn debug(&self) {

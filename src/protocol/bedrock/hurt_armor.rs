@@ -1,17 +1,21 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct HurtArmor {
     pub cause: i32,
     pub health: i32,
-    pub armor_slot_flags: u64
+    pub armor_slot_flags: u64,
 }
 
 pub fn new(cause: i32, health: i32, armor_slot_flags: u64) -> HurtArmor {
-    HurtArmor { cause, health, armor_slot_flags }
+    HurtArmor {
+        cause,
+        health,
+        armor_slot_flags,
+    }
 }
 
 impl Packet for HurtArmor {
@@ -39,7 +43,11 @@ impl Packet for HurtArmor {
         let health = stream.get_var_i32();
         let armor_slot_flags = stream.get_var_u64();
 
-        HurtArmor { cause, health, armor_slot_flags }
+        HurtArmor {
+            cause,
+            health,
+            armor_slot_flags,
+        }
     }
 
     fn debug(&self) {

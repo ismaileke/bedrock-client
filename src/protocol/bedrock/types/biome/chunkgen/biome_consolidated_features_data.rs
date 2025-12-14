@@ -1,13 +1,13 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_consolidated_feature_data::BiomeConsolidatedFeatureData;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeConsolidatedFeaturesData {
-    pub features: Vec<BiomeConsolidatedFeatureData>
+    pub features: Vec<BiomeConsolidatedFeatureData>,
 }
 impl BiomeConsolidatedFeaturesData {
     pub fn new(features: Vec<BiomeConsolidatedFeatureData>) -> Self {
-        BiomeConsolidatedFeaturesData{ features }
+        BiomeConsolidatedFeaturesData { features }
     }
 
     pub fn read(stream: &mut Stream) -> BiomeConsolidatedFeaturesData {

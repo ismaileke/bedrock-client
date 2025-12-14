@@ -1,16 +1,19 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct RemoveVolumeEntity {
     pub entity_net_id: u32,
-    pub dimension: i32
+    pub dimension: i32,
 }
 
 pub fn new(entity_net_id: u32, dimension: i32) -> RemoveVolumeEntity {
-    RemoveVolumeEntity { entity_net_id, dimension }
+    RemoveVolumeEntity {
+        entity_net_id,
+        dimension,
+    }
 }
 
 impl Packet for RemoveVolumeEntity {
@@ -36,7 +39,10 @@ impl Packet for RemoveVolumeEntity {
         let entity_net_id = stream.get_var_u32();
         let dimension = stream.get_var_i32();
 
-        RemoveVolumeEntity { entity_net_id, dimension }
+        RemoveVolumeEntity {
+            entity_net_id,
+            dimension,
+        }
     }
 
     fn debug(&self) {

@@ -1,8 +1,8 @@
-use std::collections::HashMap;
 use minecraft_auth::bedrock::Bedrock;
 use mojang_nbt::tag::compound_tag::CompoundTag;
 use openssl::ec::EcKey;
 use openssl::pkey::Private;
+use std::collections::HashMap;
 
 pub struct BedrockPacketHandler {
     pub chain: Vec<String>,
@@ -12,7 +12,7 @@ pub struct BedrockPacketHandler {
     pub encryption_enabled: bool,
     pub hashed_network_ids: HashMap<u32, CompoundTag>,
     pub runtime_network_ids: Vec<CompoundTag>,
-    pub air_network_id: u32
+    pub air_network_id: u32,
 }
 
 impl BedrockPacketHandler {
@@ -26,7 +26,7 @@ impl BedrockPacketHandler {
         let runtime_network_ids = vec![];
         let air_network_id = 0;
 
-        BedrockPacketHandler{
+        BedrockPacketHandler {
             chain,
             ec_key,
             signed_token,
@@ -34,7 +34,7 @@ impl BedrockPacketHandler {
             encryption_enabled,
             hashed_network_ids,
             runtime_network_ids,
-            air_network_id
+            air_network_id,
         }
     }
 }

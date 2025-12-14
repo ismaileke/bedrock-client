@@ -1,22 +1,25 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::bool_pack_setting::BoolPackSetting;
 use crate::protocol::bedrock::types::float_pack_setting::FloatPackSetting;
 use crate::protocol::bedrock::types::pack_setting::PackSetting;
 use crate::protocol::bedrock::types::pack_setting_type::PackSettingType;
 use crate::protocol::bedrock::types::string_pack_setting::StringPackSetting;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ServerBoundPackSettingChange {
     pub pack_id: String,
-    pub pack_setting: PackSetting
+    pub pack_setting: PackSetting,
 }
 
 pub fn new(pack_id: String, pack_setting: PackSetting) -> ServerBoundPackSettingChange {
-    ServerBoundPackSettingChange { pack_id, pack_setting }
+    ServerBoundPackSettingChange {
+        pack_id,
+        pack_setting,
+    }
 }
 
 impl Packet for ServerBoundPackSettingChange {
@@ -53,7 +56,10 @@ impl Packet for ServerBoundPackSettingChange {
             }
         };
 
-        ServerBoundPackSettingChange { pack_id, pack_setting }
+        ServerBoundPackSettingChange {
+            pack_id,
+            pack_setting,
+        }
     }
 
     fn debug(&self) {

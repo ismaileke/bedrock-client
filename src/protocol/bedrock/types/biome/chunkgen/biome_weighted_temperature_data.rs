@@ -3,16 +3,19 @@ use binary_utils::binary::Stream;
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeWeightedTemperatureData {
     pub temperature: i32,
-    pub weight: u32
+    pub weight: u32,
 }
 
 impl BiomeWeightedTemperatureData {
     pub fn new(temperature: i32, weight: u32) -> Self {
-        BiomeWeightedTemperatureData{ temperature , weight }
+        BiomeWeightedTemperatureData {
+            temperature,
+            weight,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> BiomeWeightedTemperatureData {
-        let temperature  = stream.get_var_i32();
+        let temperature = stream.get_var_i32();
         let weight = stream.get_u32_le();
 
         BiomeWeightedTemperatureData::new(temperature, weight)

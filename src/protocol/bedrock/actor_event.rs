@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ActorEvent {
     pub actor_runtime_id: u64,
     pub event_id: u8, //see types/actor_event.rs
-    pub event_data: i32
+    pub event_data: i32,
 }
 
 pub fn new(actor_runtime_id: u64, event_id: u8, event_data: i32) -> ActorEvent {
-    ActorEvent { actor_runtime_id, event_id, event_data }
+    ActorEvent {
+        actor_runtime_id,
+        event_id,
+        event_data,
+    }
 }
 
 impl Packet for ActorEvent {
@@ -40,7 +44,11 @@ impl Packet for ActorEvent {
         let event_id = stream.get_byte();
         let event_data = stream.get_var_i32();
 
-        ActorEvent { actor_runtime_id, event_id, event_data }
+        ActorEvent {
+            actor_runtime_id,
+            event_id,
+            event_data,
+        }
     }
 
     fn debug(&self) {

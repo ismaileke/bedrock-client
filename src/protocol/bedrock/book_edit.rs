@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BookEdit {
@@ -14,11 +14,31 @@ pub struct BookEdit {
     pub photo_name: String,
     pub title: String,
     pub author: String,
-    pub xuid: String
+    pub xuid: String,
 }
 
-pub fn new(event_type: u8, inventory_slot: u8, page_number: u8, secondary_page_number: u8, text: String, photo_name: String, title: String, author: String, xuid: String) -> BookEdit {
-    BookEdit { event_type, inventory_slot, page_number, secondary_page_number, text, photo_name, title, author, xuid }
+pub fn new(
+    event_type: u8,
+    inventory_slot: u8,
+    page_number: u8,
+    secondary_page_number: u8,
+    text: String,
+    photo_name: String,
+    title: String,
+    author: String,
+    xuid: String,
+) -> BookEdit {
+    BookEdit {
+        event_type,
+        inventory_slot,
+        page_number,
+        secondary_page_number,
+        text,
+        photo_name,
+        title,
+        author,
+        xuid,
+    }
 }
 
 impl Packet for BookEdit {
@@ -38,19 +58,19 @@ impl Packet for BookEdit {
                 stream.put_byte(self.page_number);
                 PacketSerializer::put_string(&mut stream, self.text.clone());
                 PacketSerializer::put_string(&mut stream, self.photo_name.clone());
-            },
+            }
             BookEdit::TYPE_DELETE_PAGE => {
                 stream.put_byte(self.page_number);
-            },
+            }
             BookEdit::TYPE_SWAP_PAGES => {
                 stream.put_byte(self.page_number);
                 stream.put_byte(self.secondary_page_number);
-            },
+            }
             BookEdit::TYPE_SIGN_BOOK => {
                 PacketSerializer::put_string(&mut stream, self.title.clone());
                 PacketSerializer::put_string(&mut stream, self.author.clone());
                 PacketSerializer::put_string(&mut stream, self.xuid.clone());
-            },
+            }
             _ => {
                 panic!("Invalid book edit event type");
             }
@@ -79,25 +99,35 @@ impl Packet for BookEdit {
                 page_number = stream.get_byte();
                 text = PacketSerializer::get_string(stream);
                 photo_name = PacketSerializer::get_string(stream);
-            },
+            }
             BookEdit::TYPE_DELETE_PAGE => {
                 page_number = stream.get_byte();
-            },
+            }
             BookEdit::TYPE_SWAP_PAGES => {
                 page_number = stream.get_byte();
                 secondary_page_number = stream.get_byte();
-            },
+            }
             BookEdit::TYPE_SIGN_BOOK => {
                 title = PacketSerializer::get_string(stream);
                 author = PacketSerializer::get_string(stream);
                 xuid = PacketSerializer::get_string(stream);
-            },
+            }
             _ => {
                 panic!("Invalid book edit event type");
             }
         }
 
-        BookEdit { event_type, inventory_slot, page_number, secondary_page_number, text, photo_name, title, author, xuid }
+        BookEdit {
+            event_type,
+            inventory_slot,
+            page_number,
+            secondary_page_number,
+            text,
+            photo_name,
+            title,
+            author,
+            xuid,
+        }
     }
 
     fn debug(&self) {

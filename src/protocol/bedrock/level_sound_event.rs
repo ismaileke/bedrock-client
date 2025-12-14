@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct LevelSoundEvent {
@@ -15,8 +15,24 @@ pub struct LevelSoundEvent {
     pub actor_unique_id: i64,
 }
 
-pub fn new(sound: u32, position: Vec<f32>, extra_data: i32, entity_type: String, is_baby_mob: bool, disable_relative_volume: bool, actor_unique_id: i64,) -> LevelSoundEvent {
-    LevelSoundEvent { sound, position, extra_data, entity_type, is_baby_mob, disable_relative_volume, actor_unique_id }
+pub fn new(
+    sound: u32,
+    position: Vec<f32>,
+    extra_data: i32,
+    entity_type: String,
+    is_baby_mob: bool,
+    disable_relative_volume: bool,
+    actor_unique_id: i64,
+) -> LevelSoundEvent {
+    LevelSoundEvent {
+        sound,
+        position,
+        extra_data,
+        entity_type,
+        is_baby_mob,
+        disable_relative_volume,
+        actor_unique_id,
+    }
 }
 
 impl Packet for LevelSoundEvent {
@@ -52,7 +68,15 @@ impl Packet for LevelSoundEvent {
         let disable_relative_volume = stream.get_bool();
         let actor_unique_id = stream.get_i64_le();
 
-        LevelSoundEvent { sound, position, extra_data, entity_type, is_baby_mob, disable_relative_volume, actor_unique_id }
+        LevelSoundEvent {
+            sound,
+            position,
+            extra_data,
+            entity_type,
+            is_baby_mob,
+            disable_relative_volume,
+            actor_unique_id,
+        }
     }
 
     fn debug(&self) {
@@ -607,4 +631,16 @@ impl LevelSoundEvent {
     pub const PLACE_ITEM: u32 = 563;
     pub const SINGLE_SWAP: u32 = 564;
     pub const MULTI_SWAP: u32 = 565;
+    pub const ITEM_ENCHANT_LUNGE1: u32 = 566;
+    pub const ITEM_ENCHANT_LUNGE2: u32 = 567;
+    pub const ITEM_ENCHANT_LUNGE3: u32 = 568;
+    pub const ATTACK_CRITICAL: u32 = 569;
+    pub const ITEM_SPEAR_ATTACK_HIT: u32 = 570;
+    pub const ITEM_SPEAR_ATTACK_MISS: u32 = 571;
+    pub const ITEM_WOODEN_SPEAR_ATTACK_HIT: u32 = 572;
+    pub const ITEM_WOODEN_SPEAR_ATTACK_MISS: u32 = 573;
+    pub const IMITATE_PARCHED: u32 = 574;
+    pub const IMITATE_CAMEL_HUSK: u32 = 575;
+    pub const ITEM_SPEAR_USE: u32 = 576;
+    pub const ITEM_WOODEN_SPEAR_USE: u32 = 577;
 }

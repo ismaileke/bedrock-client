@@ -1,6 +1,6 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::enchant::Enchant;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct EnchantOption {
@@ -10,7 +10,7 @@ pub struct EnchantOption {
     held_activated_enchantments: Vec<Enchant>,
     self_activated_enchantments: Vec<Enchant>,
     name: String,
-    option_id: u32
+    option_id: u32,
 }
 
 impl EnchantOption {
@@ -21,9 +21,17 @@ impl EnchantOption {
         held_activated_enchantments: Vec<Enchant>,
         self_activated_enchantments: Vec<Enchant>,
         name: String,
-        option_id: u32
+        option_id: u32,
     ) -> EnchantOption {
-        EnchantOption{ cost, slot_flags, equip_activated_enchantments, held_activated_enchantments, self_activated_enchantments, name, option_id }
+        EnchantOption {
+            cost,
+            slot_flags,
+            equip_activated_enchantments,
+            held_activated_enchantments,
+            self_activated_enchantments,
+            name,
+            option_id,
+        }
     }
 
     fn read_enchant_list(stream: &mut Stream) -> Vec<Enchant> {
@@ -51,7 +59,15 @@ impl EnchantOption {
         let name = PacketSerializer::get_string(stream);
         let option_id = PacketSerializer::read_recipe_net_id(stream);
 
-        EnchantOption{ cost, slot_flags, equip_activated_enchantments, held_activated_enchantments, self_activated_enchantments, name, option_id }
+        EnchantOption {
+            cost,
+            slot_flags,
+            equip_activated_enchantments,
+            held_activated_enchantments,
+            self_activated_enchantments,
+            name,
+            option_id,
+        }
     }
 
     pub fn write(&self, stream: &mut Stream) {

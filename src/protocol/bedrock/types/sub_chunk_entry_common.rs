@@ -1,9 +1,9 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::sub_chunk_height_map_info::SubChunkHeightMapInfo;
 use crate::protocol::bedrock::types::sub_chunk_height_map_type::SubChunkHeightMapType;
 use crate::protocol::bedrock::types::sub_chunk_position_offset::SubChunkPositionOffset;
 use crate::protocol::bedrock::types::sub_chunk_request_result::SubChunkRequestResult;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SubChunkEntryCommon {
@@ -11,18 +11,35 @@ pub struct SubChunkEntryCommon {
     request_result: u8,
     terrain_data: String,
     height_map: Option<SubChunkHeightMapInfo>,
-    render_height_map: Option<SubChunkHeightMapInfo>
+    render_height_map: Option<SubChunkHeightMapInfo>,
 }
 
 impl SubChunkEntryCommon {
-    pub fn new(offset: SubChunkPositionOffset, request_result: u8, terrain_data: String, height_map: Option<SubChunkHeightMapInfo>, render_height_map: Option<SubChunkHeightMapInfo>) -> SubChunkEntryCommon {
-        SubChunkEntryCommon{ offset, request_result, terrain_data, height_map, render_height_map }
+    pub fn new(
+        offset: SubChunkPositionOffset,
+        request_result: u8,
+        terrain_data: String,
+        height_map: Option<SubChunkHeightMapInfo>,
+        render_height_map: Option<SubChunkHeightMapInfo>,
+    ) -> SubChunkEntryCommon {
+        SubChunkEntryCommon {
+            offset,
+            request_result,
+            terrain_data,
+            height_map,
+            render_height_map,
+        }
     }
 
     pub fn read(stream: &mut Stream, cache_enabled: bool) -> SubChunkEntryCommon {
         let offset = SubChunkPositionOffset::read(stream);
         let request_result = stream.get_byte();
-        let terrain_data = if !cache_enabled || request_result != SubChunkRequestResult::SUCCESS_ALL_AIR { PacketSerializer::get_string(stream) } else { String::new() };
+        let terrain_data =
+            if !cache_enabled || request_result != SubChunkRequestResult::SUCCESS_ALL_AIR {
+                PacketSerializer::get_string(stream)
+            } else {
+                String::new()
+            };
 
         let height_map_data_type = stream.get_byte();
         let height_map = match height_map_data_type {
@@ -30,7 +47,7 @@ impl SubChunkEntryCommon {
             SubChunkHeightMapType::DATA => Some(SubChunkHeightMapInfo::read(stream)),
             SubChunkHeightMapType::ALL_TOO_HIGH => Some(SubChunkHeightMapInfo::all_too_high()),
             SubChunkHeightMapType::ALL_TOO_LOW => Some(SubChunkHeightMapInfo::all_too_low()),
-            _ => panic!("Unknown heightmap data type {}", height_map_data_type)
+            _ => panic!("Unknown heightmap data type {}", height_map_data_type),
         };
 
         let render_height_map_data_type = stream.get_byte();
@@ -40,10 +57,19 @@ impl SubChunkEntryCommon {
             SubChunkHeightMapType::ALL_TOO_HIGH => Some(SubChunkHeightMapInfo::all_too_high()),
             SubChunkHeightMapType::ALL_TOO_LOW => Some(SubChunkHeightMapInfo::all_too_low()),
             SubChunkHeightMapType::ALL_COPIED => height_map.clone(),
-            _ => panic!("Unknown render heightmap data type {}", height_map_data_type)
+            _ => panic!(
+                "Unknown render heightmap data type {}",
+                height_map_data_type
+            ),
         };
 
-        SubChunkEntryCommon{ offset, request_result, terrain_data, height_map, render_height_map }
+        SubChunkEntryCommon {
+            offset,
+            request_result,
+            terrain_data,
+            height_map,
+            render_height_map,
+        }
     }
 
     pub fn write(&self, stream: &mut Stream, cache_enabled: bool) {

@@ -2,12 +2,16 @@
 pub struct SkinImage {
     height: u32,
     width: u32,
-    data: String
+    data: String,
 }
 
 impl SkinImage {
     pub fn new(height: u32, width: u32, data: String) -> SkinImage {
-        SkinImage { height, width, data }
+        SkinImage {
+            height,
+            width,
+            data,
+        }
     }
 
     pub fn height(&self) -> u32 {

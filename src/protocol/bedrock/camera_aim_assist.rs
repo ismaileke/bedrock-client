@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraAimAssist {
@@ -11,11 +11,25 @@ pub struct CameraAimAssist {
     pub distance: f32,
     pub target_mode: u8, //see types/camera/camera_aim_assist_target_mode
     pub action_type: u8, //see types/camera/camera_aim_assist_action_type
-    pub show_debug_render: bool
+    pub show_debug_render: bool,
 }
 
-pub fn new(preset_id: String, view_angle: Vec<f32>, distance: f32, target_mode: u8, action_type: u8, show_debug_render: bool) -> CameraAimAssist {
-    CameraAimAssist { preset_id, view_angle, distance, target_mode, action_type, show_debug_render }
+pub fn new(
+    preset_id: String,
+    view_angle: Vec<f32>,
+    distance: f32,
+    target_mode: u8,
+    action_type: u8,
+    show_debug_render: bool,
+) -> CameraAimAssist {
+    CameraAimAssist {
+        preset_id,
+        view_angle,
+        distance,
+        target_mode,
+        action_type,
+        show_debug_render,
+    }
 }
 
 impl Packet for CameraAimAssist {
@@ -49,7 +63,14 @@ impl Packet for CameraAimAssist {
         let action_type = stream.get_byte();
         let show_debug_render = stream.get_bool();
 
-        CameraAimAssist { preset_id, view_angle, distance, target_mode, action_type, show_debug_render }
+        CameraAimAssist {
+            preset_id,
+            view_angle,
+            distance,
+            target_mode,
+            action_type,
+            show_debug_render,
+        }
     }
 
     fn debug(&self) {

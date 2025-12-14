@@ -1,6 +1,6 @@
-use binary_utils::binary::Stream;
 use crate::protocol::raknet::packet_ids::PacketType;
 use crate::utils::address::InternetAddress;
+use binary_utils::binary::Stream;
 
 pub struct OpenConnReq2 {
     magic: [u8; 16],
@@ -8,13 +8,26 @@ pub struct OpenConnReq2 {
     cookie: Option<u32>,
     client_supports_security: bool,
     mtu: u16,
-    client_guid: u64
+    client_guid: u64,
 }
 
 impl OpenConnReq2 {
-
-    pub fn new(magic: [u8;16], server_address: InternetAddress, cookie: Option<u32>, client_supports_security: bool, mtu: u16, client_guid: u64) -> OpenConnReq2 {
-        OpenConnReq2{ magic, server_address, cookie, client_supports_security, mtu, client_guid }
+    pub fn new(
+        magic: [u8; 16],
+        server_address: InternetAddress,
+        cookie: Option<u32>,
+        client_supports_security: bool,
+        mtu: u16,
+        client_guid: u64,
+    ) -> OpenConnReq2 {
+        OpenConnReq2 {
+            magic,
+            server_address,
+            cookie,
+            client_supports_security,
+            mtu,
+            client_guid,
+        }
     }
 
     pub fn encode(&self) -> Vec<u8> {

@@ -1,19 +1,24 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct MovementEffect {
     pub actor_runtime_id: u64,
     pub effect_type: u32, //see types/movement_effect_type.rs
     pub duration: u32,
-    pub tick: u64
+    pub tick: u64,
 }
 
 pub fn new(actor_runtime_id: u64, effect_type: u32, duration: u32, tick: u64) -> MovementEffect {
-    MovementEffect { actor_runtime_id, effect_type, duration, tick }
+    MovementEffect {
+        actor_runtime_id,
+        effect_type,
+        duration,
+        tick,
+    }
 }
 
 impl Packet for MovementEffect {
@@ -43,7 +48,12 @@ impl Packet for MovementEffect {
         let duration = stream.get_var_u32();
         let tick = stream.get_var_u64();
 
-        MovementEffect { actor_runtime_id, effect_type, duration, tick }
+        MovementEffect {
+            actor_runtime_id,
+            effect_type,
+            duration,
+            tick,
+        }
     }
 
     fn debug(&self) {

@@ -1,19 +1,31 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetPlayerInventoryOptions {
-    pub left_tab: i32, //see types/inventory/inventory_left_tab.rs
+    pub left_tab: i32,  //see types/inventory/inventory_left_tab.rs
     pub right_tab: i32, //see types/inventory/inventory_right_tab.rs
     pub filtering: bool,
     pub inventory_layout: i32, //see types/inventory/inventory_layout.rs
-    pub crafting_layout: i32
+    pub crafting_layout: i32,
 }
 
-pub fn new(left_tab: i32, right_tab: i32, filtering: bool, inventory_layout: i32, crafting_layout: i32) -> SetPlayerInventoryOptions {
-    SetPlayerInventoryOptions { left_tab, right_tab, filtering, inventory_layout, crafting_layout }
+pub fn new(
+    left_tab: i32,
+    right_tab: i32,
+    filtering: bool,
+    inventory_layout: i32,
+    crafting_layout: i32,
+) -> SetPlayerInventoryOptions {
+    SetPlayerInventoryOptions {
+        left_tab,
+        right_tab,
+        filtering,
+        inventory_layout,
+        crafting_layout,
+    }
 }
 
 impl Packet for SetPlayerInventoryOptions {
@@ -45,7 +57,13 @@ impl Packet for SetPlayerInventoryOptions {
         let inventory_layout = stream.get_var_i32();
         let crafting_layout = stream.get_var_i32();
 
-        SetPlayerInventoryOptions { left_tab, right_tab, filtering, inventory_layout, crafting_layout }
+        SetPlayerInventoryOptions {
+            left_tab,
+            right_tab,
+            filtering,
+            inventory_layout,
+            crafting_layout,
+        }
     }
 
     fn debug(&self) {

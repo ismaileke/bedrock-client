@@ -1,19 +1,23 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::update_attribute::UpdateAttribute;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct UpdateAttributes {
     pub actor_runtime_id: u64,
     pub entries: Vec<UpdateAttribute>,
-    pub tick: u64
+    pub tick: u64,
 }
 
 pub fn new(actor_runtime_id: u64, entries: Vec<UpdateAttribute>, tick: u64) -> UpdateAttributes {
-    UpdateAttributes { actor_runtime_id, entries, tick }
+    UpdateAttributes {
+        actor_runtime_id,
+        entries,
+        tick,
+    }
 }
 
 impl Packet for UpdateAttributes {
@@ -48,7 +52,11 @@ impl Packet for UpdateAttributes {
         }
         let tick = stream.get_var_u64();
 
-        UpdateAttributes { actor_runtime_id, entries, tick }
+        UpdateAttributes {
+            actor_runtime_id,
+            entries,
+            tick,
+        }
     }
 
     fn debug(&self) {

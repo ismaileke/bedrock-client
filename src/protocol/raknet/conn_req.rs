@@ -4,13 +4,16 @@ use binary_utils::binary::Stream;
 pub struct ConnReq {
     client_guid: u64,
     request_time: u64,
-    secure: bool
+    secure: bool,
 }
 
 impl ConnReq {
-
     pub fn new(client_guid: u64, request_time: u64, secure: bool) -> ConnReq {
-        ConnReq{ client_guid, request_time, secure }
+        ConnReq {
+            client_guid,
+            request_time,
+            secure,
+        }
     }
 
     pub fn encode(&self) -> Vec<u8> {

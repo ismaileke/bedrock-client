@@ -1,14 +1,13 @@
-use binary_utils::binary::Stream;
 use crate::protocol::raknet::packet_ids::PacketType;
 use crate::utils::color_format;
 use crate::utils::color_format::COLOR_WHITE;
+use binary_utils::binary::Stream;
 
 pub struct ConnectedPing {
-    pub ping_time: u64
+    pub ping_time: u64,
 }
 
 impl ConnectedPing {
-
     pub fn create(ping_time: u64) -> ConnectedPing {
         ConnectedPing { ping_time }
     }
@@ -25,11 +24,15 @@ impl ConnectedPing {
 
         let _ = stream.get_byte();
         let ping_time = stream.get_u64_be();
-        ConnectedPing{ ping_time }
+        ConnectedPing { ping_time }
     }
 
     pub fn debug(&self) {
-        println!("--- {}ConnectedPing{} ---", color_format::COLOR_GOLD, COLOR_WHITE);
+        println!(
+            "--- {}ConnectedPing{} ---",
+            color_format::COLOR_GOLD,
+            COLOR_WHITE
+        );
         println!("Ping Time: {:?}", self.ping_time);
     }
 }

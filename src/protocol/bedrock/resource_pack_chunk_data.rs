@@ -1,19 +1,24 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ResourcePackChunkData {
     pub pack_id: String,
     pub chunk_index: u32,
     pub offset: u64,
-    pub data: String
+    pub data: String,
 }
 
 pub fn new(pack_id: String, chunk_index: u32, offset: u64, data: String) -> ResourcePackChunkData {
-    ResourcePackChunkData { pack_id, chunk_index, offset, data }
+    ResourcePackChunkData {
+        pack_id,
+        chunk_index,
+        offset,
+        data,
+    }
 }
 
 impl Packet for ResourcePackChunkData {
@@ -43,7 +48,12 @@ impl Packet for ResourcePackChunkData {
         let offset = stream.get_u64_le();
         let data = PacketSerializer::get_string(stream);
 
-        ResourcePackChunkData { pack_id, chunk_index, offset, data }
+        ResourcePackChunkData {
+            pack_id,
+            chunk_index,
+            offset,
+            data,
+        }
     }
 
     fn debug(&self) {

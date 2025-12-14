@@ -1,17 +1,20 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct MapCreateLockedCopy {
     pub original_map_id: i64,
-    pub new_map_id: i64
+    pub new_map_id: i64,
 }
 
 pub fn new(original_map_id: i64, new_map_id: i64) -> MapCreateLockedCopy {
-    MapCreateLockedCopy { original_map_id, new_map_id }
+    MapCreateLockedCopy {
+        original_map_id,
+        new_map_id,
+    }
 }
 
 impl Packet for MapCreateLockedCopy {
@@ -37,7 +40,10 @@ impl Packet for MapCreateLockedCopy {
         let original_map_id = PacketSerializer::get_actor_unique_id(stream);
         let new_map_id = PacketSerializer::get_actor_unique_id(stream);
 
-        MapCreateLockedCopy { original_map_id, new_map_id }
+        MapCreateLockedCopy {
+            original_map_id,
+            new_map_id,
+        }
     }
 
     fn debug(&self) {

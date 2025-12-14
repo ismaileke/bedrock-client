@@ -1,13 +1,13 @@
-use binary_utils::binary::Stream;
 use crate::utils::color_format;
 use crate::utils::color_format::COLOR_WHITE;
+use binary_utils::binary::Stream;
 
 pub struct OpenConnReply1 {
     pub magic: [u8; 16],
     pub server_guid: u64,
     pub server_security: bool,
     pub cookie: Option<u32>,
-    pub mtu: u16
+    pub mtu: u16,
 }
 
 impl OpenConnReply1 {
@@ -24,11 +24,21 @@ impl OpenConnReply1 {
         }
         let mtu = stream.get_u16_be();
 
-        OpenConnReply1 { magic, server_guid, server_security, cookie, mtu }
+        OpenConnReply1 {
+            magic,
+            server_guid,
+            server_security,
+            cookie,
+            mtu,
+        }
     }
 
     pub fn debug(&self) {
-        println!("--- {}OpenConnReply1{} ---", color_format::COLOR_GOLD, COLOR_WHITE);
+        println!(
+            "--- {}OpenConnReply1{} ---",
+            color_format::COLOR_GOLD,
+            COLOR_WHITE
+        );
         println!("Magic: {:?}", self.magic);
         let guid_format = format!("{:x}", self.server_guid);
         println!("Server GUID (Format DecToHex): {}", guid_format);

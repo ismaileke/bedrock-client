@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ResourcePackDataInfo {
@@ -12,11 +12,27 @@ pub struct ResourcePackDataInfo {
     pub compressed_pack_size: u64,
     pub sha256: String,
     pub is_premium: bool,
-    pub pack_type: u8 // see types/resource_pack_type
+    pub pack_type: u8, // see types/resource_pack_type
 }
 
-pub fn new(pack_id: String, max_chunk_size: u32, chunk_count: u32, compressed_pack_size: u64, sha256: String, is_premium: bool, pack_type: u8) -> ResourcePackDataInfo {
-    ResourcePackDataInfo { pack_id, max_chunk_size, chunk_count, compressed_pack_size, sha256, is_premium, pack_type }
+pub fn new(
+    pack_id: String,
+    max_chunk_size: u32,
+    chunk_count: u32,
+    compressed_pack_size: u64,
+    sha256: String,
+    is_premium: bool,
+    pack_type: u8,
+) -> ResourcePackDataInfo {
+    ResourcePackDataInfo {
+        pack_id,
+        max_chunk_size,
+        chunk_count,
+        compressed_pack_size,
+        sha256,
+        is_premium,
+        pack_type,
+    }
 }
 
 impl Packet for ResourcePackDataInfo {
@@ -52,7 +68,15 @@ impl Packet for ResourcePackDataInfo {
         let is_premium = stream.get_bool();
         let pack_type = stream.get_byte();
 
-        ResourcePackDataInfo { pack_id, max_chunk_size, chunk_count, compressed_pack_size, sha256, is_premium, pack_type }
+        ResourcePackDataInfo {
+            pack_id,
+            max_chunk_size,
+            chunk_count,
+            compressed_pack_size,
+            sha256,
+            is_premium,
+            pack_type,
+        }
     }
 
     fn debug(&self) {

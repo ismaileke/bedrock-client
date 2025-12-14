@@ -1,5 +1,5 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemStackResponseSlotInfo {
@@ -9,7 +9,7 @@ pub struct ItemStackResponseSlotInfo {
     item_stack_id: i32,
     custom_name: String,
     filtered_custom_name: String,
-    durability_correction: i32
+    durability_correction: i32,
 }
 
 impl ItemStackResponseSlotInfo {
@@ -20,9 +20,17 @@ impl ItemStackResponseSlotInfo {
         item_stack_id: i32,
         custom_name: String,
         filtered_custom_name: String,
-        durability_correction: i32
+        durability_correction: i32,
     ) -> ItemStackResponseSlotInfo {
-        ItemStackResponseSlotInfo { slot, hotbar_slot, count, item_stack_id, custom_name, filtered_custom_name, durability_correction }
+        ItemStackResponseSlotInfo {
+            slot,
+            hotbar_slot,
+            count,
+            item_stack_id,
+            custom_name,
+            filtered_custom_name,
+            durability_correction,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> ItemStackResponseSlotInfo {
@@ -34,7 +42,15 @@ impl ItemStackResponseSlotInfo {
         let filtered_custom_name = PacketSerializer::get_string(stream);
         let durability_correction = stream.get_var_i32();
 
-        ItemStackResponseSlotInfo{ slot, hotbar_slot, count, item_stack_id, custom_name, filtered_custom_name, durability_correction }
+        ItemStackResponseSlotInfo {
+            slot,
+            hotbar_slot,
+            count,
+            item_stack_id,
+            custom_name,
+            filtered_custom_name,
+            durability_correction,
+        }
     }
 
     pub fn write(&self, stream: &mut Stream) {

@@ -1,20 +1,30 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::command::command_origin_data::CommandOriginData;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CommandRequest {
     pub command: String,
     pub origin_data: CommandOriginData,
     pub is_internal: bool,
-    pub version: i32
+    pub version: String,
 }
 
-pub fn new(command: String, origin_data: CommandOriginData, is_internal: bool, version: i32) -> CommandRequest {
-    CommandRequest { command, origin_data, is_internal, version }
+pub fn new(
+    command: String,
+    origin_data: CommandOriginData,
+    is_internal: bool,
+    version: String,
+) -> CommandRequest {
+    CommandRequest {
+        command,
+        origin_data,
+        is_internal,
+        version,
+    }
 }
 
 impl Packet for CommandRequest {
@@ -29,7 +39,7 @@ impl Packet for CommandRequest {
         PacketSerializer::put_string(&mut stream, self.command.clone());
         PacketSerializer::put_command_origin_data(&mut stream, &self.origin_data);
         stream.put_bool(self.is_internal);
-        stream.put_var_i32(self.version);
+        PacketSerializer::put_string(&mut stream, self.version.clone());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -42,9 +52,14 @@ impl Packet for CommandRequest {
         let command = PacketSerializer::get_string(stream);
         let origin_data = PacketSerializer::get_command_origin_data(stream);
         let is_internal = stream.get_bool();
-        let version = stream.get_var_i32();
+        let version = PacketSerializer::get_string(stream);
 
-        CommandRequest { command, origin_data, is_internal, version }
+        CommandRequest {
+            command,
+            origin_data,
+            is_internal,
+            version,
+        }
     }
 
     fn debug(&self) {

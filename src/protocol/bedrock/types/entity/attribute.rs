@@ -7,5 +7,5 @@ pub struct Attribute {
     pub max: f32,
     pub current: f32,
     pub default: f32,
-    pub modifiers: Vec<AttributeModifier>
+    pub modifiers: Vec<AttributeModifier>,
 }

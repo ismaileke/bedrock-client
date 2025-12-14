@@ -1,10 +1,10 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
-use mojang_nbt::tag::tag::Tag;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
+use binary_utils::binary::Stream;
+use mojang_nbt::tag::tag::Tag;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AddVolumeEntity {
@@ -15,7 +15,7 @@ pub struct AddVolumeEntity {
     pub min_bound: Vec<i32>,
     pub max_bound: Vec<i32>,
     pub dimension: i32,
-    pub engine_version: String
+    pub engine_version: String,
 }
 
 pub fn new(
@@ -26,9 +26,18 @@ pub fn new(
     min_bound: Vec<i32>,
     max_bound: Vec<i32>,
     dimension: i32,
-    engine_version: String
+    engine_version: String,
 ) -> AddVolumeEntity {
-    AddVolumeEntity { entity_net_id, data, json_identifier, instance_name, min_bound, max_bound, dimension, engine_version }
+    AddVolumeEntity {
+        entity_net_id,
+        data,
+        json_identifier,
+        instance_name,
+        min_bound,
+        max_bound,
+        dimension,
+        engine_version,
+    }
 }
 
 impl Packet for AddVolumeEntity {
@@ -58,7 +67,9 @@ impl Packet for AddVolumeEntity {
 
     fn decode(stream: &mut Stream) -> AddVolumeEntity {
         let entity_net_id = stream.get_var_u32();
-        let data = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)));
+        let data = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(
+            stream,
+        )));
         let json_identifier = PacketSerializer::get_string(stream);
         let instance_name = PacketSerializer::get_string(stream);
         let min_bound = PacketSerializer::get_block_pos(stream);
@@ -66,7 +77,16 @@ impl Packet for AddVolumeEntity {
         let dimension = stream.get_var_i32();
         let engine_version = PacketSerializer::get_string(stream);
 
-        AddVolumeEntity { entity_net_id, data, json_identifier, instance_name, min_bound, max_bound, dimension, engine_version }
+        AddVolumeEntity {
+            entity_net_id,
+            data,
+            json_identifier,
+            instance_name,
+            min_bound,
+            max_bound,
+            dimension,
+            engine_version,
+        }
     }
 
     fn debug(&self) {

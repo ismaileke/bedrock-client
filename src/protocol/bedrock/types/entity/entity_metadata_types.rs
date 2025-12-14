@@ -1,4 +1,4 @@
-pub struct EntityMetadataTypes{}
+pub struct EntityMetadataTypes {}
 
 impl EntityMetadataTypes {
     pub const BYTE: u32 = 0;

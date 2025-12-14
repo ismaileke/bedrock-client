@@ -1,10 +1,10 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::education_settings_agent_capabilities::EducationSettingsAgentCapabilities;
 use crate::protocol::bedrock::types::education_settings_external_link_settings::EducationSettingsExternalLinkSettings;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct EducationSettings {
@@ -17,7 +17,7 @@ pub struct EducationSettings {
     pub agent_capabilities: Option<EducationSettingsAgentCapabilities>,
     pub code_builder_override_uri: Option<String>,
     pub has_quiz: bool,
-    pub link_settings: Option<EducationSettingsExternalLinkSettings>
+    pub link_settings: Option<EducationSettingsExternalLinkSettings>,
 }
 
 pub fn new(
@@ -30,7 +30,7 @@ pub fn new(
     agent_capabilities: Option<EducationSettingsAgentCapabilities>,
     code_builder_override_uri: Option<String>,
     has_quiz: bool,
-    link_settings: Option<EducationSettingsExternalLinkSettings>
+    link_settings: Option<EducationSettingsExternalLinkSettings>,
 ) -> EducationSettings {
     EducationSettings {
         code_builder_default_uri,
@@ -42,7 +42,7 @@ pub fn new(
         agent_capabilities,
         code_builder_override_uri,
         has_quiz,
-        link_settings
+        link_settings,
     }
 }
 
@@ -62,7 +62,9 @@ impl Packet for EducationSettings {
         PacketSerializer::put_string(&mut stream, self.post_process_filter.clone());
         PacketSerializer::put_string(&mut stream, self.screenshot_border_resource_path.clone());
         PacketSerializer::write_optional(&mut stream, &self.agent_capabilities, |s, v| v.write(s));
-        PacketSerializer::write_optional(&mut stream, &self.code_builder_override_uri, |s, v| PacketSerializer::put_string(s, v.clone()));
+        PacketSerializer::write_optional(&mut stream, &self.code_builder_override_uri, |s, v| {
+            PacketSerializer::put_string(s, v.clone())
+        });
         stream.put_bool(self.has_quiz);
         PacketSerializer::write_optional(&mut stream, &self.link_settings, |s, v| v.write(s));
 
@@ -80,10 +82,15 @@ impl Packet for EducationSettings {
         let disable_legacy_title_bar = stream.get_bool();
         let post_process_filter = PacketSerializer::get_string(stream);
         let screenshot_border_resource_path = PacketSerializer::get_string(stream);
-        let agent_capabilities = PacketSerializer::read_optional(stream, |s| EducationSettingsAgentCapabilities::read(s));
-        let code_builder_override_uri = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
+        let agent_capabilities = PacketSerializer::read_optional(stream, |s| {
+            EducationSettingsAgentCapabilities::read(s)
+        });
+        let code_builder_override_uri =
+            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
         let has_quiz = stream.get_bool();
-        let link_settings = PacketSerializer::read_optional(stream, |s| EducationSettingsExternalLinkSettings::read(s));
+        let link_settings = PacketSerializer::read_optional(stream, |s| {
+            EducationSettingsExternalLinkSettings::read(s)
+        });
 
         EducationSettings {
             code_builder_default_uri,
@@ -95,19 +102,31 @@ impl Packet for EducationSettings {
             agent_capabilities,
             code_builder_override_uri,
             has_quiz,
-            link_settings
+            link_settings,
         }
     }
 
     fn debug(&self) {
-        println!("Code Builder Default URI: {}", self.code_builder_default_uri);
+        println!(
+            "Code Builder Default URI: {}",
+            self.code_builder_default_uri
+        );
         println!("Code Builder Title: {}", self.code_builder_title);
         println!("Can Resize Code Builder: {}", self.can_resize_code_builder);
-        println!("Disable Legacy Title Bar: {}", self.disable_legacy_title_bar);
+        println!(
+            "Disable Legacy Title Bar: {}",
+            self.disable_legacy_title_bar
+        );
         println!("Post Process Filter: {}", self.post_process_filter);
-        println!("Screenshot Border Resource Path: {}", self.screenshot_border_resource_path);
+        println!(
+            "Screenshot Border Resource Path: {}",
+            self.screenshot_border_resource_path
+        );
         println!("Agent Capabilities: {:?}", self.agent_capabilities);
-        println!("Code Builder Override URI: {:?}", self.code_builder_override_uri);
+        println!(
+            "Code Builder Override URI: {:?}",
+            self.code_builder_override_uri
+        );
         println!("Has Quiz: {}", self.has_quiz);
         println!("Link Settings: {:?}", self.link_settings);
     }

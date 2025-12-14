@@ -1,15 +1,15 @@
-use std::any::Any;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct RequestNetworkSettings {
-    pub protocol_version: u32
+    pub protocol_version: u32,
 }
 
 pub fn new(protocol_version: u32) -> RequestNetworkSettings {
-    RequestNetworkSettings{ protocol_version }
+    RequestNetworkSettings { protocol_version }
 }
 
 impl Packet for RequestNetworkSettings {

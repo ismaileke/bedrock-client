@@ -13,5 +13,5 @@ pub struct StructureSettings {
     pub animation_seconds: f32,
     pub integrity_value: f32,
     pub integrity_seed: u32,
-    pub pivot: Vec<f32>
+    pub pivot: Vec<f32>,
 }

@@ -1,11 +1,11 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SpawnSettings {
     pub biome_type: u16,
     pub biome_name: String,
-    pub dimension_id: i32
+    pub dimension_id: i32,
 }
 
 impl SpawnSettings {
@@ -17,6 +17,10 @@ impl SpawnSettings {
         let biome_name = PacketSerializer::get_string(stream);
         let dimension_id = stream.get_var_i32();
 
-        SpawnSettings{ biome_type, biome_name, dimension_id }
+        SpawnSettings {
+            biome_type,
+            biome_name,
+            dimension_id,
+        }
     }
 }

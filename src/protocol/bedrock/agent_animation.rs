@@ -1,17 +1,20 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AgentAnimation {
     pub animation_type: u8,
-    pub actor_runtime_id: u64
+    pub actor_runtime_id: u64,
 }
 
 pub fn new(animation_type: u8, actor_runtime_id: u64) -> AgentAnimation {
-    AgentAnimation { animation_type, actor_runtime_id }
+    AgentAnimation {
+        animation_type,
+        actor_runtime_id,
+    }
 }
 
 impl Packet for AgentAnimation {
@@ -37,7 +40,10 @@ impl Packet for AgentAnimation {
         let animation_type = stream.get_byte();
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
 
-        AgentAnimation { animation_type, actor_runtime_id }
+        AgentAnimation {
+            animation_type,
+            actor_runtime_id,
+        }
     }
 
     fn debug(&self) {

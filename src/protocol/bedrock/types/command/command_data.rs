@@ -7,10 +7,10 @@ pub struct CommandData {
     name: String,
     description: String,
     flags: u16,
-    permission: u8,
+    permission: String,
     aliases: Option<CommandEnum>,
     overloads: Vec<CommandOverload>,
-    chained_sub_command_data: Vec<ChainedSubCommandData>
+    chained_sub_command_data: Vec<ChainedSubCommandData>,
 }
 
 impl CommandData {
@@ -26,8 +26,8 @@ impl CommandData {
         self.flags
     }
 
-    pub fn get_permission(&self) -> u8 {
-        self.permission
+    pub fn get_permission(&self) -> String {
+        self.permission.clone()
     }
 
     pub fn get_aliases(&self) -> Option<CommandEnum> {

@@ -1,13 +1,13 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct MapInfoRequest {}
 
 pub fn new() -> MapInfoRequest {
-    MapInfoRequest { }
+    MapInfoRequest {}
 }
 
 impl Packet for MapInfoRequest {
@@ -32,7 +32,7 @@ impl Packet for MapInfoRequest {
         //
         // TODO
 
-        MapInfoRequest { }
+        MapInfoRequest {}
     }
 
     fn debug(&self) {

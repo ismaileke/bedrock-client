@@ -1,16 +1,19 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ServerStats {
     pub server_time: f32,
-    pub network_time: f32
+    pub network_time: f32,
 }
 
 pub fn new(server_time: f32, network_time: f32) -> ServerStats {
-    ServerStats { server_time, network_time }
+    ServerStats {
+        server_time,
+        network_time,
+    }
 }
 
 impl Packet for ServerStats {
@@ -36,7 +39,10 @@ impl Packet for ServerStats {
         let server_time = stream.get_f32_le();
         let network_time = stream.get_f32_le();
 
-        ServerStats { server_time, network_time }
+        ServerStats {
+            server_time,
+            network_time,
+        }
     }
 
     fn debug(&self) {

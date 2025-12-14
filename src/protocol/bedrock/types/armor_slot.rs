@@ -1,4 +1,4 @@
-pub struct ArmorSlot{}
+pub struct ArmorSlot {}
 
 impl ArmorSlot {
     pub const HEAD: u8 = 0;

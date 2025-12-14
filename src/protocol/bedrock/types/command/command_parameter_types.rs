@@ -1,4 +1,4 @@
-pub struct  CommandParameterType {}
+pub struct CommandParameterType {}
 
 impl CommandParameterType {
     pub const INT: u32 = 1; // int

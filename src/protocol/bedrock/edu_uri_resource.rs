@@ -1,12 +1,12 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::education_uri_resource::EducationUriResource;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct EduUriResource {
-    pub resource: EducationUriResource
+    pub resource: EducationUriResource,
 }
 
 pub fn new(resource: EducationUriResource) -> EduUriResource {

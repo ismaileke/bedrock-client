@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct LevelEvent {
     pub event_id: i32, //see types/level_event
     pub position: Vec<f32>,
-    pub event_data: i32
+    pub event_data: i32,
 }
 
 pub fn new(event_id: i32, position: Vec<f32>, event_data: i32) -> LevelEvent {
-    LevelEvent { event_id, position, event_data }
+    LevelEvent {
+        event_id,
+        position,
+        event_data,
+    }
 }
 
 impl Packet for LevelEvent {
@@ -40,7 +44,11 @@ impl Packet for LevelEvent {
         let position = PacketSerializer::get_vector3(stream);
         let event_data = stream.get_var_i32();
 
-        LevelEvent { event_id, position, event_data }
+        LevelEvent {
+            event_id,
+            position,
+            event_data,
+        }
     }
 
     fn debug(&self) {

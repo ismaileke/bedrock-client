@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct LessonProgress {
     pub action: i32,
     pub score: i32,
-    pub activity_id: String
+    pub activity_id: String,
 }
 
 pub fn new(action: i32, score: i32, activity_id: String) -> LessonProgress {
-    LessonProgress { action, score, activity_id }
+    LessonProgress {
+        action,
+        score,
+        activity_id,
+    }
 }
 
 impl Packet for LessonProgress {
@@ -40,7 +44,11 @@ impl Packet for LessonProgress {
         let score = stream.get_var_i32();
         let activity_id = PacketSerializer::get_string(stream);
 
-        LessonProgress { action, score, activity_id }
+        LessonProgress {
+            action,
+            score,
+            activity_id,
+        }
     }
 
     fn debug(&self) {

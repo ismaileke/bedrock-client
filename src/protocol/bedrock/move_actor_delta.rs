@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct MoveActorDelta {
@@ -13,11 +13,29 @@ pub struct MoveActorDelta {
     pub z_pos: f32,
     pub pitch: f32,
     pub yaw: f32,
-    pub head_yaw: f32
+    pub head_yaw: f32,
 }
 
-pub fn new(actor_runtime_id: u64, flags: u16, x_pos: f32, y_pos: f32, z_pos: f32, pitch: f32, yaw: f32, head_yaw: f32) -> MoveActorDelta {
-    MoveActorDelta { actor_runtime_id, flags, x_pos, y_pos, z_pos, pitch, yaw, head_yaw }
+pub fn new(
+    actor_runtime_id: u64,
+    flags: u16,
+    x_pos: f32,
+    y_pos: f32,
+    z_pos: f32,
+    pitch: f32,
+    yaw: f32,
+    head_yaw: f32,
+) -> MoveActorDelta {
+    MoveActorDelta {
+        actor_runtime_id,
+        flags,
+        x_pos,
+        y_pos,
+        z_pos,
+        pitch,
+        yaw,
+        head_yaw,
+    }
 }
 
 impl Packet for MoveActorDelta {
@@ -35,9 +53,19 @@ impl Packet for MoveActorDelta {
         MoveActorDelta::maybe_write_coord(self.flags, Self::FLAG_HAS_X, self.x_pos, &mut stream);
         MoveActorDelta::maybe_write_coord(self.flags, Self::FLAG_HAS_Y, self.y_pos, &mut stream);
         MoveActorDelta::maybe_write_coord(self.flags, Self::FLAG_HAS_Z, self.z_pos, &mut stream);
-        MoveActorDelta::maybe_write_rotation(self.flags, Self::FLAG_HAS_PITCH, self.pitch, &mut stream);
+        MoveActorDelta::maybe_write_rotation(
+            self.flags,
+            Self::FLAG_HAS_PITCH,
+            self.pitch,
+            &mut stream,
+        );
         MoveActorDelta::maybe_write_rotation(self.flags, Self::FLAG_HAS_YAW, self.yaw, &mut stream);
-        MoveActorDelta::maybe_write_rotation(self.flags, Self::FLAG_HAS_HEAD_YAW, self.head_yaw, &mut stream);
+        MoveActorDelta::maybe_write_rotation(
+            self.flags,
+            Self::FLAG_HAS_HEAD_YAW,
+            self.head_yaw,
+            &mut stream,
+        );
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -56,7 +84,16 @@ impl Packet for MoveActorDelta {
         let yaw = MoveActorDelta::maybe_read_rotation(flags, Self::FLAG_HAS_YAW, stream);
         let head_yaw = MoveActorDelta::maybe_read_rotation(flags, Self::FLAG_HAS_HEAD_YAW, stream);
 
-        MoveActorDelta { actor_runtime_id, flags, x_pos, y_pos, z_pos, pitch, yaw, head_yaw }
+        MoveActorDelta {
+            actor_runtime_id,
+            flags,
+            x_pos,
+            y_pos,
+            z_pos,
+            pitch,
+            yaw,
+            head_yaw,
+        }
     }
 
     fn debug(&self) {

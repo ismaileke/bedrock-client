@@ -1,13 +1,13 @@
-use std::any::Any;
-use std::collections::HashMap;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::attribute::Attribute;
 use crate::protocol::bedrock::types::entity::entity_link::EntityLink;
 use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty;
 use crate::protocol::bedrock::types::entity::property_sync_data::PropertySyncData;
+use binary_utils::binary::Stream;
+use std::any::Any;
+use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AddActor {
@@ -23,7 +23,7 @@ pub struct AddActor {
     pub attributes: Vec<Attribute>,
     pub metadata: HashMap<u32, MetadataProperty>,
     pub synced_properties: PropertySyncData,
-    pub links: Vec<EntityLink>
+    pub links: Vec<EntityLink>,
 }
 
 pub fn new(
@@ -39,9 +39,23 @@ pub fn new(
     attributes: Vec<Attribute>,
     metadata: HashMap<u32, MetadataProperty>,
     synced_properties: PropertySyncData,
-    links: Vec<EntityLink>
+    links: Vec<EntityLink>,
 ) -> AddActor {
-    AddActor { actor_unique_id, actor_runtime_id, entity_type, position, motion, pitch, yaw, head_yaw, body_yaw, attributes, metadata, synced_properties, links }
+    AddActor {
+        actor_unique_id,
+        actor_runtime_id,
+        entity_type,
+        position,
+        motion,
+        pitch,
+        yaw,
+        head_yaw,
+        body_yaw,
+        attributes,
+        metadata,
+        synced_properties,
+        links,
+    }
 }
 
 impl Packet for AddActor {
@@ -98,9 +112,16 @@ impl Packet for AddActor {
         for _ in 0..attribute_count {
             let id = PacketSerializer::get_string(stream);
             let min = stream.get_f32_le();
-            let current =  stream.get_f32_le();
+            let current = stream.get_f32_le();
             let max = stream.get_f32_le();
-            attributes.push(Attribute{ id, min, max, current, default: current, modifiers: vec![] });
+            attributes.push(Attribute {
+                id,
+                min,
+                max,
+                current,
+                default: current,
+                modifiers: vec![],
+            });
         }
         let metadata = PacketSerializer::get_entity_metadata(stream);
         let synced_properties = PropertySyncData::read(stream);
@@ -110,7 +131,21 @@ impl Packet for AddActor {
             links.push(PacketSerializer::get_entity_link(stream));
         }
 
-        AddActor { actor_unique_id, actor_runtime_id, entity_type, position, motion: Option::from(motion), pitch, yaw, head_yaw, body_yaw, attributes, metadata, synced_properties, links }
+        AddActor {
+            actor_unique_id,
+            actor_runtime_id,
+            entity_type,
+            position,
+            motion: Option::from(motion),
+            pitch,
+            yaw,
+            head_yaw,
+            body_yaw,
+            attributes,
+            metadata,
+            synced_properties,
+            links,
+        }
     }
 
     fn debug(&self) {

@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct LegacyTelemetryEvent {
     pub player_unique_id: i64,
     pub event_type: i32,
-    pub use_player_id: u8
+    pub use_player_id: u8,
 }
 
 pub fn new(player_unique_id: i64, event_type: i32, use_player_id: u8) -> LegacyTelemetryEvent {
-    LegacyTelemetryEvent { player_unique_id, event_type, use_player_id }
+    LegacyTelemetryEvent {
+        player_unique_id,
+        event_type,
+        use_player_id,
+    }
 }
 
 impl Packet for LegacyTelemetryEvent {
@@ -40,7 +44,11 @@ impl Packet for LegacyTelemetryEvent {
         let event_type = stream.get_var_i32();
         let use_player_id = stream.get_byte();
 
-        LegacyTelemetryEvent { player_unique_id, event_type, use_player_id }
+        LegacyTelemetryEvent {
+            player_unique_id,
+            event_type,
+            use_player_id,
+        }
     }
 
     fn debug(&self) {

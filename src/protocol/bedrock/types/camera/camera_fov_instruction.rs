@@ -5,12 +5,22 @@ pub struct CameraFovInstruction {
     pub field_of_view: f32,
     pub ease_time: f32,
     pub ease_type: u8,
-    pub clear: bool
+    pub clear: bool,
 }
 
 impl CameraFovInstruction {
-    pub fn new(field_of_view: f32, ease_time: f32, ease_type: u8, clear: bool) -> CameraFovInstruction {
-        CameraFovInstruction{ field_of_view, ease_time, ease_type, clear }
+    pub fn new(
+        field_of_view: f32,
+        ease_time: f32,
+        ease_type: u8,
+        clear: bool,
+    ) -> CameraFovInstruction {
+        CameraFovInstruction {
+            field_of_view,
+            ease_time,
+            ease_type,
+            clear,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> CameraFovInstruction {
@@ -19,7 +29,12 @@ impl CameraFovInstruction {
         let ease_type = stream.get_byte();
         let clear = stream.get_bool();
 
-        CameraFovInstruction{ field_of_view, ease_time, ease_type, clear }
+        CameraFovInstruction {
+            field_of_view,
+            ease_time,
+            ease_type,
+            clear,
+        }
     }
 
     pub fn write(&self, stream: &mut Stream) {

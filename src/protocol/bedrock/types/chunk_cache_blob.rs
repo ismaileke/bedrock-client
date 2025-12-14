@@ -1,12 +1,12 @@
 #[derive(serde::Serialize, Debug)]
 pub struct ChunkCacheBlob {
     hash: u64,
-    payload: String
+    payload: String,
 }
 
 impl ChunkCacheBlob {
     pub fn new(hash: u64, payload: String) -> Self {
-        ChunkCacheBlob{ hash, payload }
+        ChunkCacheBlob { hash, payload }
     }
 
     pub fn get_hash(&self) -> u64 {

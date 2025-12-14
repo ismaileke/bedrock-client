@@ -5,11 +5,11 @@ pub struct PlaceStackRequestAction {}
 
 impl PlaceStackRequestAction {
     pub fn new() -> PlaceStackRequestAction {
-        PlaceStackRequestAction{}
+        PlaceStackRequestAction {}
     }
 
     pub fn read(_stream: &mut Stream) -> PlaceStackRequestAction {
-        PlaceStackRequestAction{}
+        PlaceStackRequestAction {}
     }
 
     pub fn write(&mut self, _stream: &mut Stream) {}

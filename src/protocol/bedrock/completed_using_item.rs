@@ -1,12 +1,12 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CompletedUsingItem {
     pub item_id: i16,
-    pub action: i32
+    pub action: i32,
 }
 
 pub fn new(item_id: i16, action: i32) -> CompletedUsingItem {

@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct GUIDataPickItem {
     pub item_description: String,
     pub item_effects: String,
-    pub hotbar_slot: i32
+    pub hotbar_slot: i32,
 }
 
 pub fn new(item_description: String, item_effects: String, hotbar_slot: i32) -> GUIDataPickItem {
-    GUIDataPickItem { item_description, item_effects, hotbar_slot }
+    GUIDataPickItem {
+        item_description,
+        item_effects,
+        hotbar_slot,
+    }
 }
 
 impl Packet for GUIDataPickItem {
@@ -40,7 +44,11 @@ impl Packet for GUIDataPickItem {
         let item_effects = PacketSerializer::get_string(stream);
         let hotbar_slot = stream.get_i32_le();
 
-        GUIDataPickItem { item_description, item_effects, hotbar_slot }
+        GUIDataPickItem {
+            item_description,
+            item_effects,
+            hotbar_slot,
+        }
     }
 
     fn debug(&self) {

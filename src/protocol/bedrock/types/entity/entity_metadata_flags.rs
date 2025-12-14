@@ -127,7 +127,7 @@ impl EntityMetadataFlags {
     pub const WASD_FREE_CAMERA_CONTROLLED: u32 = 122;
     pub const DOES_SERVER_AUTH_ONLY_DISMOUNT: u32 = 123;
     pub const BODY_ROTATION_ALWAYS_FOLLOWS_HEAD: u32 = 124;
-
     pub const CAN_USE_VERTICAL_MOVEMENT_ACTION: u32 = 125;
-    pub const NUMBER_OF_FLAGS: u32 = 126;
+    pub const ROTATION_LOCKED_TO_VEHICLE: u32 = 126;
+    pub const NUMBER_OF_FLAGS: u32 = 127;
 }

@@ -1,12 +1,12 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::inventory::full_container_name::FullContainerName;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ContainerRegistryCleanup {
-    pub removed_containers: Vec<FullContainerName>
+    pub removed_containers: Vec<FullContainerName>,
 }
 
 pub fn new(removed_containers: Vec<FullContainerName>) -> ContainerRegistryCleanup {

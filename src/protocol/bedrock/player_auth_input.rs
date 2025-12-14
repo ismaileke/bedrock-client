@@ -1,7 +1,5 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::bit_set::BitSet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_entry::ItemStackRequestEntry;
@@ -12,6 +10,8 @@ use crate::protocol::bedrock::types::player_auth_input_vehicle_info::PlayerAuthI
 use crate::protocol::bedrock::types::player_block_action::PlayerBlockAction;
 use crate::protocol::bedrock::types::player_block_action_stop_break::PlayerBlockActionStopBreak;
 use crate::protocol::bedrock::types::player_block_action_with_block_info::PlayerBlockActionWithBlockInfo;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerAuthInput {
@@ -35,7 +35,7 @@ pub struct PlayerAuthInput {
     pub analog_move_vec_x: f32,
     pub analog_move_vec_z: f32,
     pub camera_orientation: Vec<f32>,
-    pub raw_move: Vec<f32>
+    pub raw_move: Vec<f32>,
 }
 
 pub fn new(
@@ -59,15 +59,30 @@ pub fn new(
     analog_move_vec_x: f32,
     analog_move_vec_z: f32,
     camera_orientation: Vec<f32>,
-    raw_move: Vec<f32>
+    raw_move: Vec<f32>,
 ) -> PlayerAuthInput {
     if input_flags.get_length() != PlayerAuthInputFlags::NUMBER_OF_FLAGS {
-        panic!("Input flags must be {} bits long", PlayerAuthInputFlags::NUMBER_OF_FLAGS);
+        panic!(
+            "Input flags must be {} bits long",
+            PlayerAuthInputFlags::NUMBER_OF_FLAGS
+        );
     }
-    input_flags.set(PlayerAuthInputFlags::PERFORM_ITEM_STACK_REQUEST, item_stack_request.is_some());
-    input_flags.set(PlayerAuthInputFlags::PERFORM_ITEM_INTERACTION, item_interaction_data.is_some());
-    input_flags.set(PlayerAuthInputFlags::PERFORM_BLOCK_ACTIONS, block_actions.is_some());
-    input_flags.set(PlayerAuthInputFlags::IN_CLIENT_PREDICTED_VEHICLE, vehicle_info.is_some());
+    input_flags.set(
+        PlayerAuthInputFlags::PERFORM_ITEM_STACK_REQUEST,
+        item_stack_request.is_some(),
+    );
+    input_flags.set(
+        PlayerAuthInputFlags::PERFORM_ITEM_INTERACTION,
+        item_interaction_data.is_some(),
+    );
+    input_flags.set(
+        PlayerAuthInputFlags::PERFORM_BLOCK_ACTIONS,
+        block_actions.is_some(),
+    );
+    input_flags.set(
+        PlayerAuthInputFlags::IN_CLIENT_PREDICTED_VEHICLE,
+        vehicle_info.is_some(),
+    );
     PlayerAuthInput {
         pitch,
         yaw,
@@ -89,7 +104,7 @@ pub fn new(
         analog_move_vec_x,
         analog_move_vec_z,
         camera_orientation,
-        raw_move
+        raw_move,
     }
 }
 
@@ -170,13 +185,20 @@ impl Packet for PlayerAuthInput {
             let max = stream.get_var_i32();
             for _ in 0..max {
                 let action_type = stream.get_var_i32();
-                let block_action = if PlayerBlockActionWithBlockInfo::is_valid_action_type(action_type) {
-                    PlayerBlockAction::WithBlockInfo(PlayerBlockActionWithBlockInfo::read(stream, action_type))
-                } else if action_type == PlayerActionTypes::STOP_BREAK {
-                    PlayerBlockAction::StopBreak(PlayerBlockActionStopBreak::read(stream, action_type))
-                } else {
-                    panic!("Unexpected block action type {}", action_type);
-                };
+                let block_action =
+                    if PlayerBlockActionWithBlockInfo::is_valid_action_type(action_type) {
+                        PlayerBlockAction::WithBlockInfo(PlayerBlockActionWithBlockInfo::read(
+                            stream,
+                            action_type,
+                        ))
+                    } else if action_type == PlayerActionTypes::STOP_BREAK {
+                        PlayerBlockAction::StopBreak(PlayerBlockActionStopBreak::read(
+                            stream,
+                            action_type,
+                        ))
+                    } else {
+                        panic!("Unexpected block action type {}", action_type);
+                    };
                 sub_block_actions.push(block_action);
             }
             block_actions = Some(sub_block_actions);
@@ -211,7 +233,7 @@ impl Packet for PlayerAuthInput {
             analog_move_vec_x,
             analog_move_vec_z,
             camera_orientation,
-            raw_move
+            raw_move,
         }
     }
 
@@ -259,4 +281,3 @@ impl PlayerAuthInput {
     pub const SCREEN: u32 = 2;
     pub const EXIT_LEVEL: u32 = 7;
 }
-

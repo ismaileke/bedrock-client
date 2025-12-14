@@ -1,16 +1,16 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::packet::Packet;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct RequestChunkRadius {
     pub radius: i32,
-    pub max_radius: u8
+    pub max_radius: u8,
 }
 
 pub fn new(radius: i32, max_radius: u8) -> RequestChunkRadius {
-    RequestChunkRadius{ radius, max_radius }
+    RequestChunkRadius { radius, max_radius }
 }
 
 impl Packet for RequestChunkRadius {
@@ -38,7 +38,6 @@ impl Packet for RequestChunkRadius {
 
         RequestChunkRadius { radius, max_radius }
     }
-
 
     fn debug(&self) {
         println!("Radius: {}", self.radius);

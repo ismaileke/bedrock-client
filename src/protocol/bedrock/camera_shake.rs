@@ -1,18 +1,23 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraShake {
     pub intensity: f32,
     pub duration: f32,
     pub shake_type: u8,
-    pub shake_action: u8
+    pub shake_action: u8,
 }
 
 pub fn new(intensity: f32, duration: f32, shake_type: u8, shake_action: u8) -> CameraShake {
-    CameraShake { intensity, duration, shake_type, shake_action }
+    CameraShake {
+        intensity,
+        duration,
+        shake_type,
+        shake_action,
+    }
 }
 
 impl Packet for CameraShake {
@@ -42,7 +47,12 @@ impl Packet for CameraShake {
         let shake_type = stream.get_byte();
         let shake_action = stream.get_byte();
 
-        CameraShake { intensity, duration, shake_type, shake_action }
+        CameraShake {
+            intensity,
+            duration,
+            shake_type,
+            shake_action,
+        }
     }
 
     fn debug(&self) {

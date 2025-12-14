@@ -1,16 +1,22 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct DeprecatedCraftingResultsStackRequestAction {
     results: Vec<ItemStack>,
-    iterations: u8
+    iterations: u8,
 }
 
 impl DeprecatedCraftingResultsStackRequestAction {
-    pub fn new(results: Vec<ItemStack>, iterations: u8) -> DeprecatedCraftingResultsStackRequestAction {
-        DeprecatedCraftingResultsStackRequestAction{ results, iterations }
+    pub fn new(
+        results: Vec<ItemStack>,
+        iterations: u8,
+    ) -> DeprecatedCraftingResultsStackRequestAction {
+        DeprecatedCraftingResultsStackRequestAction {
+            results,
+            iterations,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> DeprecatedCraftingResultsStackRequestAction {
@@ -21,7 +27,10 @@ impl DeprecatedCraftingResultsStackRequestAction {
         }
         let iterations = stream.get_byte();
 
-        DeprecatedCraftingResultsStackRequestAction{ results, iterations }
+        DeprecatedCraftingResultsStackRequestAction {
+            results,
+            iterations,
+        }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {

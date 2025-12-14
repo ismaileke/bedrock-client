@@ -1,19 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 use mojang_nbt::nbt::NBT;
 use mojang_nbt::nbt_serializer::NBTSerializer;
 use mojang_nbt::tag::tag::Tag;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct LevelEventGeneric {
     pub event_id: i32,
-    pub event_data: Tag
+    pub event_data: Tag,
 }
 
 pub fn new(event_id: i32, event_data: Tag) -> LevelEventGeneric {
-    LevelEventGeneric { event_id, event_data }
+    LevelEventGeneric {
+        event_id,
+        event_data,
+    }
 }
 
 impl Packet for LevelEventGeneric {
@@ -41,10 +44,18 @@ impl Packet for LevelEventGeneric {
         let event_id = stream.get_var_i32();
         let mut offset = stream.get_offset();
         let mut nbt_serializer = NBTSerializer::new_network();
-        let event_data = nbt_serializer.read_headless(Vec::from(stream.get_buffer()), &mut offset, NBT::TAG_COMPOUND, 0);
+        let event_data = nbt_serializer.read_headless(
+            Vec::from(stream.get_buffer()),
+            &mut offset,
+            NBT::TAG_COMPOUND,
+            0,
+        );
         stream.set_offset(offset);
 
-        LevelEventGeneric { event_id, event_data }
+        LevelEventGeneric {
+            event_id,
+            event_data,
+        }
     }
 
     fn debug(&self) {

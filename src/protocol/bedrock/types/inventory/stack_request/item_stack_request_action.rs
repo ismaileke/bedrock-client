@@ -37,38 +37,54 @@ pub enum ItemStackRequestAction {
     Grindstone(GrindstoneStackRequestAction),
     Loom(LoomStackRequestAction),
     DeprecatedCraftingNonImplemented(DeprecatedCraftingNonImplementedStackRequestAction),
-    DeprecatedCraftingResults(DeprecatedCraftingResultsStackRequestAction)
+    DeprecatedCraftingResults(DeprecatedCraftingResultsStackRequestAction),
 }
 
 impl ItemStackRequestAction {
     pub fn get_type_id(&self) -> u8 {
         match self {
-            ItemStackRequestAction::Take(_)  => ItemStackRequestActionType::TAKE,
+            ItemStackRequestAction::Take(_) => ItemStackRequestActionType::TAKE,
             ItemStackRequestAction::Place(_) => ItemStackRequestActionType::PLACE,
-            ItemStackRequestAction::Swap(_)  => ItemStackRequestActionType::SWAP,
-            ItemStackRequestAction::Drop(_)  => ItemStackRequestActionType::DROP,
+            ItemStackRequestAction::Swap(_) => ItemStackRequestActionType::SWAP,
+            ItemStackRequestAction::Drop(_) => ItemStackRequestActionType::DROP,
             ItemStackRequestAction::Destroy(_) => ItemStackRequestActionType::DESTROY,
-            ItemStackRequestAction::CraftingConsumeInput(_) => ItemStackRequestActionType::CRAFTING_CONSUME_INPUT,
-            ItemStackRequestAction::LabTableCombine(_) => ItemStackRequestActionType::LAB_TABLE_COMBINE,
+            ItemStackRequestAction::CraftingConsumeInput(_) => {
+                ItemStackRequestActionType::CRAFTING_CONSUME_INPUT
+            }
+            ItemStackRequestAction::LabTableCombine(_) => {
+                ItemStackRequestActionType::LAB_TABLE_COMBINE
+            }
             ItemStackRequestAction::BeaconPayment(_) => ItemStackRequestActionType::BEACON_PAYMENT,
             ItemStackRequestAction::MineBlock(_) => ItemStackRequestActionType::MINE_BLOCK,
             ItemStackRequestAction::CraftRecipe(_) => ItemStackRequestActionType::CRAFTING_RECIPE,
-            ItemStackRequestAction::CraftRecipeAuto(_) => ItemStackRequestActionType::CRAFTING_RECIPE_AUTO,
-            ItemStackRequestAction::CreativeCreate(_) => ItemStackRequestActionType::CREATIVE_CREATE,
-            ItemStackRequestAction::CraftRecipeOptional(_) => ItemStackRequestActionType::CRAFTING_RECIPE_OPTIONAL,
-            ItemStackRequestAction::Grindstone(_) => ItemStackRequestActionType::CRAFTING_GRINDSTONE,
+            ItemStackRequestAction::CraftRecipeAuto(_) => {
+                ItemStackRequestActionType::CRAFTING_RECIPE_AUTO
+            }
+            ItemStackRequestAction::CreativeCreate(_) => {
+                ItemStackRequestActionType::CREATIVE_CREATE
+            }
+            ItemStackRequestAction::CraftRecipeOptional(_) => {
+                ItemStackRequestActionType::CRAFTING_RECIPE_OPTIONAL
+            }
+            ItemStackRequestAction::Grindstone(_) => {
+                ItemStackRequestActionType::CRAFTING_GRINDSTONE
+            }
             ItemStackRequestAction::Loom(_) => ItemStackRequestActionType::CRAFTING_LOOM,
-            ItemStackRequestAction::DeprecatedCraftingNonImplemented(_) => ItemStackRequestActionType::CRAFTING_NON_IMPLEMENTED_DEPRECATED_ASK_TY_LAING,
-            ItemStackRequestAction::DeprecatedCraftingResults(_) => ItemStackRequestActionType::CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING
+            ItemStackRequestAction::DeprecatedCraftingNonImplemented(_) => {
+                ItemStackRequestActionType::CRAFTING_NON_IMPLEMENTED_DEPRECATED_ASK_TY_LAING
+            }
+            ItemStackRequestAction::DeprecatedCraftingResults(_) => {
+                ItemStackRequestActionType::CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING
+            }
         }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {
         match self {
-            ItemStackRequestAction::Take(r)  => r.write(stream),
+            ItemStackRequestAction::Take(r) => r.write(stream),
             ItemStackRequestAction::Place(r) => r.write(stream),
-            ItemStackRequestAction::Swap(r)  => r.write(stream),
-            ItemStackRequestAction::Drop(r)  => r.write(stream),
+            ItemStackRequestAction::Swap(r) => r.write(stream),
+            ItemStackRequestAction::Drop(r) => r.write(stream),
             ItemStackRequestAction::Destroy(r) => r.write(stream),
             ItemStackRequestAction::CraftingConsumeInput(r) => r.write(stream),
             ItemStackRequestAction::LabTableCombine(r) => r.write(stream),
@@ -81,7 +97,7 @@ impl ItemStackRequestAction {
             ItemStackRequestAction::Grindstone(r) => r.write(stream),
             ItemStackRequestAction::Loom(r) => r.write(stream),
             ItemStackRequestAction::DeprecatedCraftingNonImplemented(r) => r.write(stream),
-            ItemStackRequestAction::DeprecatedCraftingResults(r) => r.write(stream)
+            ItemStackRequestAction::DeprecatedCraftingResults(r) => r.write(stream),
         }
     }
 }

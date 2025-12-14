@@ -1,9 +1,9 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::override_update_type::OverrideUpdateType;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerUpdateEntityOverrides {
@@ -14,24 +14,74 @@ pub struct PlayerUpdateEntityOverrides {
     pub float_override_value: Option<f32>,
 }
 
-fn new(actor_runtime_id: u64, property_index: u32, update_type: u8, int_override_value: Option<i32>, float_override_value: Option<f32>) -> PlayerUpdateEntityOverrides {
-    PlayerUpdateEntityOverrides { actor_runtime_id, property_index, update_type, int_override_value, float_override_value }
+fn new(
+    actor_runtime_id: u64,
+    property_index: u32,
+    update_type: u8,
+    int_override_value: Option<i32>,
+    float_override_value: Option<f32>,
+) -> PlayerUpdateEntityOverrides {
+    PlayerUpdateEntityOverrides {
+        actor_runtime_id,
+        property_index,
+        update_type,
+        int_override_value,
+        float_override_value,
+    }
 }
 
-pub fn create_int_override(actor_runtime_id: u64, property_index: u32, value: i32) -> PlayerUpdateEntityOverrides {
-    new(actor_runtime_id, property_index, OverrideUpdateType::SET_INT_OVERRIDE, Some(value), None)
+pub fn create_int_override(
+    actor_runtime_id: u64,
+    property_index: u32,
+    value: i32,
+) -> PlayerUpdateEntityOverrides {
+    new(
+        actor_runtime_id,
+        property_index,
+        OverrideUpdateType::SET_INT_OVERRIDE,
+        Some(value),
+        None,
+    )
 }
 
-pub fn create_float_override(actor_runtime_id: u64, property_index: u32, value: f32) -> PlayerUpdateEntityOverrides {
-    new(actor_runtime_id, property_index, OverrideUpdateType::SET_FLOAT_OVERRIDE, None, Some(value))
+pub fn create_float_override(
+    actor_runtime_id: u64,
+    property_index: u32,
+    value: f32,
+) -> PlayerUpdateEntityOverrides {
+    new(
+        actor_runtime_id,
+        property_index,
+        OverrideUpdateType::SET_FLOAT_OVERRIDE,
+        None,
+        Some(value),
+    )
 }
 
-pub fn create_clear_overrides(actor_runtime_id: u64, property_index: u32) -> PlayerUpdateEntityOverrides {
-    new(actor_runtime_id, property_index, OverrideUpdateType::CLEAR_OVERRIDES, None, None)
+pub fn create_clear_overrides(
+    actor_runtime_id: u64,
+    property_index: u32,
+) -> PlayerUpdateEntityOverrides {
+    new(
+        actor_runtime_id,
+        property_index,
+        OverrideUpdateType::CLEAR_OVERRIDES,
+        None,
+        None,
+    )
 }
 
-pub fn create_remove_overrides(actor_runtime_id: u64, property_index: u32) -> PlayerUpdateEntityOverrides {
-    new(actor_runtime_id, property_index, OverrideUpdateType::REMOVE_OVERRIDE, None, None)
+pub fn create_remove_overrides(
+    actor_runtime_id: u64,
+    property_index: u32,
+) -> PlayerUpdateEntityOverrides {
+    new(
+        actor_runtime_id,
+        property_index,
+        OverrideUpdateType::REMOVE_OVERRIDE,
+        None,
+        None,
+    )
 }
 
 impl Packet for PlayerUpdateEntityOverrides {
@@ -79,12 +129,16 @@ impl Packet for PlayerUpdateEntityOverrides {
             float_override_value = Some(stream.get_f32_le());
         }
 
-        PlayerUpdateEntityOverrides { actor_runtime_id, property_index, update_type, int_override_value, float_override_value }
+        PlayerUpdateEntityOverrides {
+            actor_runtime_id,
+            property_index,
+            update_type,
+            int_override_value,
+            float_override_value,
+        }
     }
 
-    fn debug(&self) {
-
-    }
+    fn debug(&self) {}
 
     fn as_any(&self) -> &dyn Any {
         self

@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BlockEvent {
     pub block_position: Vec<i32>,
     pub event_type: i32,
-    pub event_data: i32
+    pub event_data: i32,
 }
 
 pub fn new(block_position: Vec<i32>, event_type: i32, event_data: i32) -> BlockEvent {
-    BlockEvent { block_position, event_type, event_data }
+    BlockEvent {
+        block_position,
+        event_type,
+        event_data,
+    }
 }
 
 impl Packet for BlockEvent {
@@ -40,7 +44,11 @@ impl Packet for BlockEvent {
         let event_type = stream.get_var_i32();
         let event_data = stream.get_var_i32();
 
-        BlockEvent { block_position, event_type, event_data }
+        BlockEvent {
+            block_position,
+            event_type,
+            event_data,
+        }
     }
 
     fn debug(&self) {

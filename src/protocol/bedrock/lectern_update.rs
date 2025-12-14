@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct LecternUpdate {
     pub page: u8,
     pub total_pages: u8,
-    pub block_position: Vec<i32>
+    pub block_position: Vec<i32>,
 }
 
 pub fn new(page: u8, total_pages: u8, block_position: Vec<i32>) -> LecternUpdate {
-    LecternUpdate { page, total_pages, block_position }
+    LecternUpdate {
+        page,
+        total_pages,
+        block_position,
+    }
 }
 
 impl Packet for LecternUpdate {
@@ -40,7 +44,11 @@ impl Packet for LecternUpdate {
         let total_pages = stream.get_byte();
         let block_position = PacketSerializer::get_block_pos(stream);
 
-        LecternUpdate { page, total_pages, block_position }
+        LecternUpdate {
+            page,
+            total_pages,
+            block_position,
+        }
     }
 
     fn debug(&self) {

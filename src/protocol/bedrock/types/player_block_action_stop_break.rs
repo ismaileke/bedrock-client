@@ -1,5 +1,5 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::player_action_types::PlayerActionTypes;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerBlockActionStopBreak {}

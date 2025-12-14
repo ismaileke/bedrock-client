@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ActorPickRequest {
     pub actor_unique_id: i64,
     pub add_user_data: bool,
-    pub hotbar_slot: u8
+    pub hotbar_slot: u8,
 }
 
 pub fn new(actor_unique_id: i64, add_user_data: bool, hotbar_slot: u8) -> ActorPickRequest {
-    ActorPickRequest { actor_unique_id, add_user_data, hotbar_slot }
+    ActorPickRequest {
+        actor_unique_id,
+        add_user_data,
+        hotbar_slot,
+    }
 }
 
 impl Packet for ActorPickRequest {
@@ -40,7 +44,11 @@ impl Packet for ActorPickRequest {
         let add_user_data = stream.get_bool();
         let hotbar_slot = stream.get_byte();
 
-        ActorPickRequest { actor_unique_id, add_user_data, hotbar_slot }
+        ActorPickRequest {
+            actor_unique_id,
+            add_user_data,
+            hotbar_slot,
+        }
     }
 
     fn debug(&self) {

@@ -1,19 +1,27 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_category::CameraAimAssistCategory;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_preset::CameraAimAssistPreset;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraAimAssistPresets {
     pub categories: Vec<CameraAimAssistCategory>,
     pub presets: Vec<CameraAimAssistPreset>,
-    pub operation: u8
+    pub operation: u8,
 }
 
-pub fn new(categories: Vec<CameraAimAssistCategory>, presets: Vec<CameraAimAssistPreset>, operation: u8) -> CameraAimAssistPresets {
-    CameraAimAssistPresets { categories, presets, operation }
+pub fn new(
+    categories: Vec<CameraAimAssistCategory>,
+    presets: Vec<CameraAimAssistPreset>,
+    operation: u8,
+) -> CameraAimAssistPresets {
+    CameraAimAssistPresets {
+        categories,
+        presets,
+        operation,
+    }
 }
 
 impl Packet for CameraAimAssistPresets {
@@ -55,7 +63,11 @@ impl Packet for CameraAimAssistPresets {
         }
         let operation = stream.get_byte();
 
-        CameraAimAssistPresets { categories, presets, operation }
+        CameraAimAssistPresets {
+            categories,
+            presets,
+            operation,
+        }
     }
 
     fn debug(&self) {

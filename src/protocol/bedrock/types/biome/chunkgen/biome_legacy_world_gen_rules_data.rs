@@ -1,14 +1,14 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_conditional_transformation_data::BiomeConditionalTransformationData;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeLegacyWorldGenRulesData {
-    pub legacy_pre_hills: Vec<BiomeConditionalTransformationData>
+    pub legacy_pre_hills: Vec<BiomeConditionalTransformationData>,
 }
 
 impl BiomeLegacyWorldGenRulesData {
     pub fn new(legacy_pre_hills: Vec<BiomeConditionalTransformationData>) -> Self {
-        BiomeLegacyWorldGenRulesData{ legacy_pre_hills }
+        BiomeLegacyWorldGenRulesData { legacy_pre_hills }
     }
 
     pub fn read(stream: &mut Stream) -> BiomeLegacyWorldGenRulesData {

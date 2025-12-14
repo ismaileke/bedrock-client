@@ -6,12 +6,24 @@ pub struct BiomeReplacementData {
     pub dimension: i32,
     pub target_biomes: Vec<i16>,
     pub amount: f32,
-    pub replacement_index: u32
+    pub replacement_index: u32,
 }
 
 impl BiomeReplacementData {
-    pub fn new(biome: i16, dimension: i32, target_biomes: Vec<i16>, amount: f32, replacement_index: u32) -> Self {
-        BiomeReplacementData { biome, dimension, target_biomes, amount, replacement_index }
+    pub fn new(
+        biome: i16,
+        dimension: i32,
+        target_biomes: Vec<i16>,
+        amount: f32,
+        replacement_index: u32,
+    ) -> Self {
+        BiomeReplacementData {
+            biome,
+            dimension,
+            target_biomes,
+            amount,
+            replacement_index,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> BiomeReplacementData {

@@ -1,11 +1,11 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetHealth {
-    pub health: i32
+    pub health: i32,
 }
 
 pub fn new(health: i32) -> SetHealth {

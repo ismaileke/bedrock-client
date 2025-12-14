@@ -1,11 +1,11 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ResourcePackStackEntry {
     pub pack_id: String,
     pub version: String,
-    pub sub_pack_name: String
+    pub sub_pack_name: String,
 }
 
 impl ResourcePackStackEntry {
@@ -14,6 +14,10 @@ impl ResourcePackStackEntry {
         let version = PacketSerializer::get_string(stream);
         let sub_pack_name = PacketSerializer::get_string(stream);
 
-        ResourcePackStackEntry{ pack_id, version, sub_pack_name }
+        ResourcePackStackEntry {
+            pack_id,
+            version,
+            sub_pack_name,
+        }
     }
 }

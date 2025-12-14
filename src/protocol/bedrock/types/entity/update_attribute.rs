@@ -1,6 +1,6 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::attribute_modifier::AttributeModifier;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct UpdateAttribute {
@@ -11,16 +11,33 @@ pub struct UpdateAttribute {
     pub default_max: f32,
     pub default: f32,
     pub id: String,
-    pub modifiers: Vec<AttributeModifier>
+    pub modifiers: Vec<AttributeModifier>,
 }
 
-pub fn new(min: f32, max: f32, current: f32, default_min: f32, default_max: f32, default: f32, id: String, modifiers: Vec<AttributeModifier>) -> UpdateAttribute {
-    UpdateAttribute{ min, max, current, default_min, default_max, default, id, modifiers }
+pub fn new(
+    min: f32,
+    max: f32,
+    current: f32,
+    default_min: f32,
+    default_max: f32,
+    default: f32,
+    id: String,
+    modifiers: Vec<AttributeModifier>,
+) -> UpdateAttribute {
+    UpdateAttribute {
+        min,
+        max,
+        current,
+        default_min,
+        default_max,
+        default,
+        id,
+        modifiers,
+    }
 }
 
 impl UpdateAttribute {
     pub fn read(stream: &mut Stream) -> UpdateAttribute {
-
         let min = stream.get_f32_le();
         let max = stream.get_f32_le();
         let current = stream.get_f32_le();
@@ -35,7 +52,16 @@ impl UpdateAttribute {
             modifiers.push(AttributeModifier::read(stream));
         }
 
-        UpdateAttribute{ min, max, current, default_min, default_max, default, id, modifiers }
+        UpdateAttribute {
+            min,
+            max,
+            current,
+            default_min,
+            default_max,
+            default,
+            id,
+            modifiers,
+        }
     }
 
     pub fn write(&self, stream: &mut Stream) {

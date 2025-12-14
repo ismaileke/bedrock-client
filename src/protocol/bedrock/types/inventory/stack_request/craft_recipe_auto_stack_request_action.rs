@@ -1,18 +1,28 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::recipe::recipe_ingredient::RecipeIngredient;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CraftRecipeAutoStackRequestAction {
     recipe_id: u32,
     repetitions: u8,
     repetitions2: u8,
-    ingredients: Vec<RecipeIngredient>
+    ingredients: Vec<RecipeIngredient>,
 }
 
 impl CraftRecipeAutoStackRequestAction {
-    pub fn new(recipe_id: u32, repetitions: u8, repetitions2: u8, ingredients: Vec<RecipeIngredient>) -> CraftRecipeAutoStackRequestAction {
-        CraftRecipeAutoStackRequestAction{ recipe_id, repetitions, repetitions2, ingredients }
+    pub fn new(
+        recipe_id: u32,
+        repetitions: u8,
+        repetitions2: u8,
+        ingredients: Vec<RecipeIngredient>,
+    ) -> CraftRecipeAutoStackRequestAction {
+        CraftRecipeAutoStackRequestAction {
+            recipe_id,
+            repetitions,
+            repetitions2,
+            ingredients,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> CraftRecipeAutoStackRequestAction {
@@ -25,7 +35,12 @@ impl CraftRecipeAutoStackRequestAction {
             ingredients.push(PacketSerializer::get_recipe_ingredient(stream));
         }
 
-        CraftRecipeAutoStackRequestAction{ recipe_id, repetitions, repetitions2, ingredients }
+        CraftRecipeAutoStackRequestAction {
+            recipe_id,
+            repetitions,
+            repetitions2,
+            ingredients,
+        }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {

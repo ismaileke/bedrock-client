@@ -1,19 +1,29 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PacketViolationWarning {
     pub violation_type: i32,
     pub severity: i32,
     pub packet_id: i32,
-    pub message: String
+    pub message: String,
 }
 
-pub fn new(violation_type: i32, severity: i32, packet_id: i32, message: String) -> PacketViolationWarning {
-    PacketViolationWarning { violation_type, severity, packet_id, message }
+pub fn new(
+    violation_type: i32,
+    severity: i32,
+    packet_id: i32,
+    message: String,
+) -> PacketViolationWarning {
+    PacketViolationWarning {
+        violation_type,
+        severity,
+        packet_id,
+        message,
+    }
 }
 
 impl Packet for PacketViolationWarning {
@@ -43,7 +53,12 @@ impl Packet for PacketViolationWarning {
         let packet_id = stream.get_var_i32();
         let message = PacketSerializer::get_string(stream);
 
-        PacketViolationWarning { violation_type, severity, packet_id, message }
+        PacketViolationWarning {
+            violation_type,
+            severity,
+            packet_id,
+            message,
+        }
     }
 
     fn debug(&self) {

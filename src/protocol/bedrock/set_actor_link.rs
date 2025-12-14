@@ -1,13 +1,13 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::entity_link::EntityLink;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetActorLink {
-    pub link: EntityLink
+    pub link: EntityLink,
 }
 
 pub fn new(link: EntityLink) -> SetActorLink {

@@ -1,18 +1,21 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::biome::biome_definition_data::BiomeDefinitionData;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeDefinitionList {
     pub definition_data: Vec<BiomeDefinitionData>,
-    pub strings: Vec<String>
+    pub strings: Vec<String>,
 }
 
 pub fn new(definition_data: Vec<BiomeDefinitionData>, strings: Vec<String>) -> BiomeDefinitionList {
-    BiomeDefinitionList { definition_data, strings }
+    BiomeDefinitionList {
+        definition_data,
+        strings,
+    }
 }
 
 impl Packet for BiomeDefinitionList {
@@ -52,7 +55,10 @@ impl Packet for BiomeDefinitionList {
             strings.push(PacketSerializer::get_string(stream));
         }
 
-        BiomeDefinitionList { definition_data, strings }
+        BiomeDefinitionList {
+            definition_data,
+            strings,
+        }
     }
 
     fn debug(&self) {

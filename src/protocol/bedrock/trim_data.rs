@@ -1,18 +1,21 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::trim_material::TrimMaterial;
 use crate::protocol::bedrock::types::trim_pattern::TrimPattern;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct TrimData {
     pub trim_patterns: Vec<TrimPattern>,
-    pub trim_materials: Vec<TrimMaterial>
+    pub trim_materials: Vec<TrimMaterial>,
 }
 
 pub fn new(trim_patterns: Vec<TrimPattern>, trim_materials: Vec<TrimMaterial>) -> TrimData {
-    TrimData { trim_patterns, trim_materials }
+    TrimData {
+        trim_patterns,
+        trim_materials,
+    }
 }
 
 impl Packet for TrimData {
@@ -52,7 +55,10 @@ impl Packet for TrimData {
             trim_materials.push(TrimMaterial::read(stream));
         }
 
-        TrimData { trim_patterns, trim_materials }
+        TrimData {
+            trim_patterns,
+            trim_materials,
+        }
     }
 
     fn debug(&self) {

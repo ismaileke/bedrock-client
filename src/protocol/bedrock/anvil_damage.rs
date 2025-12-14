@@ -1,17 +1,20 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AnvilDamage {
     pub damage_amount: u8,
-    pub block_pos: Vec<i32>
+    pub block_pos: Vec<i32>,
 }
 
 pub fn new(damage_amount: u8, block_pos: Vec<i32>) -> AnvilDamage {
-    AnvilDamage { damage_amount, block_pos }
+    AnvilDamage {
+        damage_amount,
+        block_pos,
+    }
 }
 
 impl Packet for AnvilDamage {
@@ -37,7 +40,10 @@ impl Packet for AnvilDamage {
         let damage_amount = stream.get_byte();
         let block_pos = PacketSerializer::get_block_pos(stream);
 
-        AnvilDamage { damage_amount, block_pos }
+        AnvilDamage {
+            damage_amount,
+            block_pos,
+        }
     }
 
     fn debug(&self) {

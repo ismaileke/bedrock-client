@@ -1,17 +1,25 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct RequestPermissions {
     pub target_actor_unique_id: i64,
     pub player_permission: i32, //see types/player_permissions.rs
-    pub custom_flags: u16
+    pub custom_flags: u16,
 }
 
-pub fn new(target_actor_unique_id: i64, player_permission: i32, custom_flags: u16) -> RequestPermissions {
-    RequestPermissions { target_actor_unique_id, player_permission, custom_flags }
+pub fn new(
+    target_actor_unique_id: i64,
+    player_permission: i32,
+    custom_flags: u16,
+) -> RequestPermissions {
+    RequestPermissions {
+        target_actor_unique_id,
+        player_permission,
+        custom_flags,
+    }
 }
 
 impl Packet for RequestPermissions {
@@ -39,7 +47,11 @@ impl Packet for RequestPermissions {
         let player_permission = stream.get_var_i32();
         let custom_flags = stream.get_u16_le();
 
-        RequestPermissions { target_actor_unique_id, player_permission, custom_flags }
+        RequestPermissions {
+            target_actor_unique_id,
+            player_permission,
+            custom_flags,
+        }
     }
 
     fn debug(&self) {

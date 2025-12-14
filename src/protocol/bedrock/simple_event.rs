@@ -1,11 +1,11 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SimpleEvent {
-    pub event_type: u16
+    pub event_type: u16,
 }
 
 pub fn new(event_type: u16) -> SimpleEvent {

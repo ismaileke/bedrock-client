@@ -3,10 +3,10 @@ use crate::protocol::bedrock::types::command::chained_sub_command_value::Chained
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct ChainedSubCommandData {
     name: String,
-    values: Vec<ChainedSubCommandValue>
+    values: Vec<ChainedSubCommandValue>,
 }
 
-impl ChainedSubCommandData{
+impl ChainedSubCommandData {
     pub fn get_name(&self) -> &String {
         &self.name
     }

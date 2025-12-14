@@ -1,13 +1,13 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientBoundMapItemData {}
 
 pub fn new() -> ClientBoundMapItemData {
-    ClientBoundMapItemData { }
+    ClientBoundMapItemData {}
 }
 
 impl Packet for ClientBoundMapItemData {
@@ -31,7 +31,7 @@ impl Packet for ClientBoundMapItemData {
     fn decode(_stream: &mut Stream) -> ClientBoundMapItemData {
         // TODO
 
-        ClientBoundMapItemData { }
+        ClientBoundMapItemData {}
     }
 
     fn debug(&self) {

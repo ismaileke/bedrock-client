@@ -1,9 +1,9 @@
-use std::any::Any;
-use binary_utils::binary::Stream;
-use log::error;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use log::error;
+use std::any::Any;
 
 const MAX_SAVED_CHUNKS: u32 = 9216;
 
@@ -11,7 +11,7 @@ const MAX_SAVED_CHUNKS: u32 = 9216;
 pub struct NetworkChunkPublisherUpdate {
     pub block_pos: Vec<i32>,
     pub radius: u32,
-    pub saved_chunks: Vec<Vec<i32>>
+    pub saved_chunks: Vec<Vec<i32>>,
 }
 
 impl Packet for NetworkChunkPublisherUpdate {
@@ -45,7 +45,10 @@ impl Packet for NetworkChunkPublisherUpdate {
         let radius = stream.get_var_u32();
         let count = stream.get_u32_le();
         if count > MAX_SAVED_CHUNKS {
-            error!("Expected at most {} saved chunks, got {}", MAX_SAVED_CHUNKS, count)
+            error!(
+                "Expected at most {} saved chunks, got {}",
+                MAX_SAVED_CHUNKS, count
+            )
         }
 
         let mut saved_chunks = vec![];
@@ -55,7 +58,11 @@ impl Packet for NetworkChunkPublisherUpdate {
             saved_chunks.push(vec![chunk_x, chunk_z]);
         }
 
-        NetworkChunkPublisherUpdate { block_pos, radius, saved_chunks }
+        NetworkChunkPublisherUpdate {
+            block_pos,
+            radius,
+            saved_chunks,
+        }
     }
 
     fn debug(&self) {

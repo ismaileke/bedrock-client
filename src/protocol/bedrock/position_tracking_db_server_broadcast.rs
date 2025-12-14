@@ -1,20 +1,24 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
-use mojang_nbt::tag::tag::Tag;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
+use binary_utils::binary::Stream;
+use mojang_nbt::tag::tag::Tag;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PositionTrackingDBServerBroadcast {
     pub action: u8,
     pub tracking_id: i32,
-    pub nbt: CacheableNBT
+    pub nbt: CacheableNBT,
 }
 
 pub fn new(action: u8, tracking_id: i32, nbt: CacheableNBT) -> PositionTrackingDBServerBroadcast {
-    PositionTrackingDBServerBroadcast { action, tracking_id, nbt }
+    PositionTrackingDBServerBroadcast {
+        action,
+        tracking_id,
+        nbt,
+    }
 }
 
 impl Packet for PositionTrackingDBServerBroadcast {
@@ -40,9 +44,15 @@ impl Packet for PositionTrackingDBServerBroadcast {
     fn decode(stream: &mut Stream) -> PositionTrackingDBServerBroadcast {
         let action = stream.get_byte();
         let tracking_id = stream.get_var_i32();
-        let nbt = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)));
+        let nbt = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(
+            stream,
+        )));
 
-        PositionTrackingDBServerBroadcast { action, tracking_id, nbt }
+        PositionTrackingDBServerBroadcast {
+            action,
+            tracking_id,
+            nbt,
+        }
     }
 
     fn debug(&self) {

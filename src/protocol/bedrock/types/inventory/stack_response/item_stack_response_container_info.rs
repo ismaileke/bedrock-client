@@ -1,16 +1,22 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::inventory::full_container_name::FullContainerName;
 use crate::protocol::bedrock::types::inventory::stack_response::item_stack_response_slot_info::ItemStackResponseSlotInfo;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemStackResponseContainerInfo {
     container_name: FullContainerName,
-    slots: Vec<ItemStackResponseSlotInfo>
+    slots: Vec<ItemStackResponseSlotInfo>,
 }
 
 impl ItemStackResponseContainerInfo {
-    pub fn new(container_name: FullContainerName, slots: Vec<ItemStackResponseSlotInfo>) -> ItemStackResponseContainerInfo {
-        ItemStackResponseContainerInfo { container_name, slots }
+    pub fn new(
+        container_name: FullContainerName,
+        slots: Vec<ItemStackResponseSlotInfo>,
+    ) -> ItemStackResponseContainerInfo {
+        ItemStackResponseContainerInfo {
+            container_name,
+            slots,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> ItemStackResponseContainerInfo {
@@ -21,7 +27,10 @@ impl ItemStackResponseContainerInfo {
             slots.push(ItemStackResponseSlotInfo::read(stream));
         }
 
-        ItemStackResponseContainerInfo{ container_name, slots }
+        ItemStackResponseContainerInfo {
+            container_name,
+            slots,
+        }
     }
 
     pub fn write(&self, stream: &mut Stream) {

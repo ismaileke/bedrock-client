@@ -4,7 +4,7 @@ use crate::protocol::bedrock::types::recipe::material_reducer_recipe_output::Mat
 pub struct MaterialReducerRecipe {
     pub input_item_id: i32,
     pub input_item_meta: i32,
-    pub outputs: Vec<MaterialReducerRecipeOutput>
+    pub outputs: Vec<MaterialReducerRecipeOutput>,
 }
 
 impl MaterialReducerRecipe {

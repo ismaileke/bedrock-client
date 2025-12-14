@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CommandBlockUpdate {
@@ -18,7 +18,7 @@ pub struct CommandBlockUpdate {
     pub filtered_name: String,
     pub should_track_output: bool,
     pub tick_delay: u32,
-    pub execute_on_first_tick: bool
+    pub execute_on_first_tick: bool,
 }
 
 pub fn new(
@@ -34,7 +34,7 @@ pub fn new(
     filtered_name: String,
     should_track_output: bool,
     tick_delay: u32,
-    execute_on_first_tick: bool
+    execute_on_first_tick: bool,
 ) -> CommandBlockUpdate {
     CommandBlockUpdate {
         is_block,
@@ -49,7 +49,7 @@ pub fn new(
         filtered_name,
         should_track_output,
         tick_delay,
-        execute_on_first_tick
+        execute_on_first_tick,
     }
 }
 
@@ -69,7 +69,10 @@ impl Packet for CommandBlockUpdate {
             stream.put_bool(self.is_redstone_mode.unwrap());
             stream.put_bool(self.is_conditional.unwrap());
         } else {
-            PacketSerializer::put_actor_runtime_id(&mut stream, self.minecart_actor_runtime_id.unwrap());
+            PacketSerializer::put_actor_runtime_id(
+                &mut stream,
+                self.minecart_actor_runtime_id.unwrap(),
+            );
         }
         PacketSerializer::put_string(&mut stream, self.command.clone());
         PacketSerializer::put_string(&mut stream, self.last_output.clone());
@@ -122,7 +125,7 @@ impl Packet for CommandBlockUpdate {
             filtered_name,
             should_track_output,
             tick_delay,
-            execute_on_first_tick
+            execute_on_first_tick,
         }
     }
 
@@ -132,7 +135,10 @@ impl Packet for CommandBlockUpdate {
         println!("Command Block Mode: {:?}", self.command_block_mode);
         println!("Is Redstone Mode: {:?}", self.is_redstone_mode);
         println!("Is Conditional: {:?}", self.is_conditional);
-        println!("Minecart Actor Runtime ID: {:?}", self.minecart_actor_runtime_id);
+        println!(
+            "Minecart Actor Runtime ID: {:?}",
+            self.minecart_actor_runtime_id
+        );
         println!("Command: {}", self.command);
         println!("Last Output: {}", self.last_output);
         println!("Name: {}", self.name);

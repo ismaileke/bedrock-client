@@ -6,12 +6,24 @@ pub struct BiomeMultinoiseGenRulesData {
     pub humidity: f32,
     pub altitude: f32,
     pub weirdness: f32,
-    pub weight: f32
+    pub weight: f32,
 }
 
 impl BiomeMultinoiseGenRulesData {
-    pub fn new(temperature: f32, humidity: f32, altitude: f32, weirdness: f32, weight: f32) -> Self {
-        BiomeMultinoiseGenRulesData{ temperature, humidity, altitude, weirdness, weight }
+    pub fn new(
+        temperature: f32,
+        humidity: f32,
+        altitude: f32,
+        weirdness: f32,
+        weight: f32,
+    ) -> Self {
+        BiomeMultinoiseGenRulesData {
+            temperature,
+            humidity,
+            altitude,
+            weirdness,
+            weight,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> BiomeMultinoiseGenRulesData {

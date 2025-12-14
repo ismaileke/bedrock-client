@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ChangeMobProperty {
@@ -11,11 +11,25 @@ pub struct ChangeMobProperty {
     pub bool_value: bool,
     pub string_value: String,
     pub int_value: i32,
-    pub float_value: f32
+    pub float_value: f32,
 }
 
-pub fn new(actor_unique_id: i64, property_name: String, bool_value: bool, string_value: String, int_value: i32, float_value: f32) -> ChangeMobProperty {
-    ChangeMobProperty { actor_unique_id, property_name, bool_value, string_value, int_value, float_value }
+pub fn new(
+    actor_unique_id: i64,
+    property_name: String,
+    bool_value: bool,
+    string_value: String,
+    int_value: i32,
+    float_value: f32,
+) -> ChangeMobProperty {
+    ChangeMobProperty {
+        actor_unique_id,
+        property_name,
+        bool_value,
+        string_value,
+        int_value,
+        float_value,
+    }
 }
 
 impl Packet for ChangeMobProperty {
@@ -49,7 +63,14 @@ impl Packet for ChangeMobProperty {
         let int_value = stream.get_var_i32();
         let float_value = stream.get_f32_le();
 
-        ChangeMobProperty { actor_unique_id, property_name, bool_value, string_value, int_value, float_value }
+        ChangeMobProperty {
+            actor_unique_id,
+            property_name,
+            bool_value,
+            string_value,
+            int_value,
+            float_value,
+        }
     }
 
     fn debug(&self) {

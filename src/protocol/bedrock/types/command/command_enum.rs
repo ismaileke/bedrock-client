@@ -2,12 +2,16 @@
 pub struct CommandEnum {
     enum_name: String,
     enum_values: Vec<String>,
-    is_soft: bool
+    is_soft: bool,
 }
 
 impl CommandEnum {
     pub fn new(enum_name: String, enum_values: Vec<String>, is_soft: bool) -> CommandEnum {
-        CommandEnum { enum_name, enum_values, is_soft }
+        CommandEnum {
+            enum_name,
+            enum_values,
+            is_soft,
+        }
     }
     pub fn get_enum_name(&self) -> &String {
         &self.enum_name

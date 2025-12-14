@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct GameTestRequest {
@@ -12,11 +12,27 @@ pub struct GameTestRequest {
     pub stop_on_failure: bool,
     pub test_position: Vec<i32>,
     pub tests_per_row: i32,
-    pub test_name: String
+    pub test_name: String,
 }
 
-pub fn new(max_test_per_batch: i32, repeat_count: i32, rotation: u8, stop_on_failure: bool, test_position: Vec<i32>, tests_per_row: i32, test_name: String) -> GameTestRequest {
-    GameTestRequest { max_test_per_batch, repeat_count, rotation, stop_on_failure, test_position, tests_per_row, test_name }
+pub fn new(
+    max_test_per_batch: i32,
+    repeat_count: i32,
+    rotation: u8,
+    stop_on_failure: bool,
+    test_position: Vec<i32>,
+    tests_per_row: i32,
+    test_name: String,
+) -> GameTestRequest {
+    GameTestRequest {
+        max_test_per_batch,
+        repeat_count,
+        rotation,
+        stop_on_failure,
+        test_position,
+        tests_per_row,
+        test_name,
+    }
 }
 
 impl Packet for GameTestRequest {
@@ -52,7 +68,15 @@ impl Packet for GameTestRequest {
         let tests_per_row = stream.get_var_i32();
         let test_name = PacketSerializer::get_string(stream);
 
-        GameTestRequest { max_test_per_batch, repeat_count, rotation, stop_on_failure, test_position, tests_per_row, test_name }
+        GameTestRequest {
+            max_test_per_batch,
+            repeat_count,
+            rotation,
+            stop_on_failure,
+            test_position,
+            tests_per_row,
+            test_name,
+        }
     }
 
     fn debug(&self) {

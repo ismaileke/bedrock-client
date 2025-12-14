@@ -1,21 +1,31 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::full_container_name::FullContainerName;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct InventoryContent {
     pub window_id: u32,
     pub items: Vec<ItemStackWrapper>,
     pub container_name: FullContainerName,
-    pub storage: ItemStackWrapper
+    pub storage: ItemStackWrapper,
 }
 
-pub fn new(window_id: u32, items: Vec<ItemStackWrapper>, container_name: FullContainerName, storage: ItemStackWrapper) -> InventoryContent {
-    InventoryContent { window_id, items, container_name, storage }
+pub fn new(
+    window_id: u32,
+    items: Vec<ItemStackWrapper>,
+    container_name: FullContainerName,
+    storage: ItemStackWrapper,
+) -> InventoryContent {
+    InventoryContent {
+        window_id,
+        items,
+        container_name,
+        storage,
+    }
 }
 
 impl Packet for InventoryContent {
@@ -52,7 +62,12 @@ impl Packet for InventoryContent {
         let container_name = FullContainerName::read(stream);
         let storage = PacketSerializer::get_item_stack_wrapper(stream);
 
-        InventoryContent { window_id, items, container_name, storage }
+        InventoryContent {
+            window_id,
+            items,
+            container_name,
+            storage,
+        }
     }
 
     fn debug(&self) {

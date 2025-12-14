@@ -1,16 +1,18 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SubClientLogin {
-    pub connection_request_data: String
+    pub connection_request_data: String,
 }
 
 pub fn new(connection_request_data: String) -> SubClientLogin {
-    SubClientLogin { connection_request_data }
+    SubClientLogin {
+        connection_request_data,
+    }
 }
 
 impl Packet for SubClientLogin {
@@ -34,7 +36,9 @@ impl Packet for SubClientLogin {
     fn decode(stream: &mut Stream) -> SubClientLogin {
         let connection_request_data = PacketSerializer::get_string(stream);
 
-        SubClientLogin { connection_request_data }
+        SubClientLogin {
+            connection_request_data,
+        }
     }
 
     fn debug(&self) {

@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetTitle {
@@ -13,11 +13,29 @@ pub struct SetTitle {
     pub fade_out_time: i32,
     pub xuid: String,
     pub platform_online_id: String,
-    pub filtered_title_text: String
+    pub filtered_title_text: String,
 }
 
-pub fn new(title_type: i32, text: String, fade_in_time: i32, stay_time: i32, fade_out_time: i32, xuid: String, platform_online_id: String, filtered_title_text: String) -> SetTitle {
-    SetTitle { title_type, text, fade_in_time, stay_time, fade_out_time, xuid, platform_online_id, filtered_title_text }
+pub fn new(
+    title_type: i32,
+    text: String,
+    fade_in_time: i32,
+    stay_time: i32,
+    fade_out_time: i32,
+    xuid: String,
+    platform_online_id: String,
+    filtered_title_text: String,
+) -> SetTitle {
+    SetTitle {
+        title_type,
+        text,
+        fade_in_time,
+        stay_time,
+        fade_out_time,
+        xuid,
+        platform_online_id,
+        filtered_title_text,
+    }
 }
 
 impl Packet for SetTitle {
@@ -55,9 +73,18 @@ impl Packet for SetTitle {
         let platform_online_id = PacketSerializer::get_string(stream);
         let filtered_title_text = PacketSerializer::get_string(stream);
 
-        SetTitle { title_type, text, fade_in_time, stay_time, fade_out_time, xuid, platform_online_id, filtered_title_text }
+        SetTitle {
+            title_type,
+            text,
+            fade_in_time,
+            stay_time,
+            fade_out_time,
+            xuid,
+            platform_online_id,
+            filtered_title_text,
+        }
     }
-    
+
     fn debug(&self) {
         println!("Title Type: {}", self.title_type);
         println!("Text: {}", self.text);

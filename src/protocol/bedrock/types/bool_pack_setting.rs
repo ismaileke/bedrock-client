@@ -1,10 +1,10 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::pack_setting_type::PackSettingType;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BoolPackSetting {
     pub name: String,
-    pub value: bool
+    pub value: bool,
 }
 
 impl BoolPackSetting {
@@ -17,11 +17,14 @@ impl BoolPackSetting {
     }
 
     pub fn new(name: String, value: bool) -> BoolPackSetting {
-        BoolPackSetting{ name, value }
+        BoolPackSetting { name, value }
     }
 
     pub fn read(stream: &mut Stream, name: String) -> BoolPackSetting {
-        BoolPackSetting{ name, value: stream.get_bool() }
+        BoolPackSetting {
+            name,
+            value: stream.get_bool(),
+        }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {

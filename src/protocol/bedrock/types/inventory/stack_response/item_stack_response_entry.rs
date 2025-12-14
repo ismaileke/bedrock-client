@@ -6,19 +6,27 @@ use crate::protocol::bedrock::types::inventory::stack_response::item_stack_respo
 pub struct ItemStackResponseEntry {
     result: u8,
     request_id: i32,
-    container_infos: Vec<ItemStackResponseContainerInfo>
+    container_infos: Vec<ItemStackResponseContainerInfo>,
 }
 
 impl ItemStackResponseEntry {
     pub const RESULT_OK: u8 = 0;
     pub const RESULT_ERROR: u8 = 1;
 
-    pub fn new(result: u8, request_id: i32, container_infos: Vec<ItemStackResponseContainerInfo>) -> ItemStackResponseEntry {
+    pub fn new(
+        result: u8,
+        request_id: i32,
+        container_infos: Vec<ItemStackResponseContainerInfo>,
+    ) -> ItemStackResponseEntry {
         if result != Self::RESULT_OK && container_infos.len() != 0 {
             panic!("Container infos must be empty if rejecting the request")
         }
 
-        ItemStackResponseEntry { result, request_id, container_infos }
+        ItemStackResponseEntry {
+            result,
+            request_id,
+            container_infos,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> ItemStackResponseEntry {
@@ -32,7 +40,11 @@ impl ItemStackResponseEntry {
             }
         }
 
-        ItemStackResponseEntry{ result, request_id, container_infos }
+        ItemStackResponseEntry {
+            result,
+            request_id,
+            container_infos,
+        }
     }
 
     pub fn write(&self, stream: &mut Stream) {

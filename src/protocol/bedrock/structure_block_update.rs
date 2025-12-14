@@ -1,20 +1,30 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::structure_editor_data::StructureEditorData;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct StructureBlockUpdate {
     pub block_position: Vec<i32>,
     pub structure_editor_data: StructureEditorData,
     pub is_powered: bool,
-    pub water_logged: bool
+    pub water_logged: bool,
 }
 
-pub fn new(block_position: Vec<i32>, structure_editor_data: StructureEditorData, is_powered: bool, water_logged: bool) -> StructureBlockUpdate {
-    StructureBlockUpdate { block_position, structure_editor_data, is_powered, water_logged }
+pub fn new(
+    block_position: Vec<i32>,
+    structure_editor_data: StructureEditorData,
+    is_powered: bool,
+    water_logged: bool,
+) -> StructureBlockUpdate {
+    StructureBlockUpdate {
+        block_position,
+        structure_editor_data,
+        is_powered,
+        water_logged,
+    }
 }
 
 impl Packet for StructureBlockUpdate {
@@ -44,7 +54,12 @@ impl Packet for StructureBlockUpdate {
         let is_powered = stream.get_bool();
         let water_logged = stream.get_bool();
 
-        StructureBlockUpdate { block_position, structure_editor_data, is_powered, water_logged }
+        StructureBlockUpdate {
+            block_position,
+            structure_editor_data,
+            is_powered,
+            water_logged,
+        }
     }
 
     fn debug(&self) {

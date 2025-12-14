@@ -1,7 +1,6 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
-use crate::protocol::raknet::game_packet::GamePacket;
 use crate::protocol::bedrock::packet::Packet;
+use crate::protocol::raknet::game_packet::GamePacket;
 use crate::utils::encryption::Encryption;
 use binary_utils::binary::Stream;
 use chrono::Utc;
@@ -9,16 +8,21 @@ use openssl::ecdsa::EcdsaSig;
 use openssl::pkey::{PKey, Private};
 use openssl::sign::Signer;
 use serde_json::{json, to_vec, Value};
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct Login {
     pub client_protocol: u32,
     pub auth_info_json: String,
-    pub client_data_jwt: String
+    pub client_data_jwt: String,
 }
 
 pub fn new(client_protocol: u32, auth_info_json: String, client_data_jwt: String) -> Login {
-    Login{ client_protocol, auth_info_json, client_data_jwt }
+    Login {
+        client_protocol,
+        auth_info_json,
+        client_data_jwt,
+    }
 }
 
 impl Packet for Login {
@@ -47,7 +51,9 @@ impl Packet for Login {
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
         compress_stream.put(Vec::from(stream.get_buffer()));
 
-        main_stream.put(GamePacket::compress(&Vec::from(compress_stream.get_buffer())));
+        main_stream.put(GamePacket::compress(&Vec::from(
+            compress_stream.get_buffer(),
+        )));
 
         Vec::from(main_stream.get_buffer())
     }
@@ -70,7 +76,11 @@ impl Packet for Login {
         let client_data_jwt_vec = conn_req_reader.get(client_data_jwt_length);
         let client_data_jwt = String::from_utf8(client_data_jwt_vec).unwrap();
 
-        Login { client_protocol, auth_info_json, client_data_jwt }
+        Login {
+            client_protocol,
+            auth_info_json,
+            client_data_jwt,
+        }
     }
 
     fn debug(&self) {
@@ -88,21 +98,43 @@ impl Packet for Login {
     }
 }
 
-pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, signed_token: String, target_address: String, target_port: u16, client_guid: i64, client_version: String) -> Vec<String> {
+pub fn convert_login_chain(
+    chain: &mut Vec<String>,
+    pkey: PKey<Private>,
+    signed_token: String,
+    target_address: String,
+    target_port: u16,
+    client_guid: i64,
+    client_version: String,
+) -> Vec<String> {
     let chain_one: Vec<&str> = chain[0].split('.').collect();
     let chain_two: Vec<&str> = chain[1].split('.').collect();
 
     let chain_encoded = Encryption::b64_url_decode(chain_one[0]).unwrap();
-    let chain_decoded: Value = serde_json::from_str(chain_encoded.as_str()).expect("Chain 1 can not decoded.");
+    let chain_decoded: Value =
+        serde_json::from_str(chain_encoded.as_str()).expect("Chain 1 can not decoded.");
 
     let chain_two_encoded = Encryption::b64_url_decode(chain_two[1]).unwrap();
-    let chain_two_decoded: Value = serde_json::from_str(chain_two_encoded.as_str()).expect("Chain 2 can not decoded.");
+    let chain_two_decoded: Value =
+        serde_json::from_str(chain_two_encoded.as_str()).expect("Chain 2 can not decoded.");
 
-    let identity_pub_key = chain_two_decoded.get("identityPublicKey").and_then(Value::as_str).unwrap().to_string();
+    let identity_pub_key = chain_two_decoded
+        .get("identityPublicKey")
+        .and_then(Value::as_str)
+        .unwrap()
+        .to_string();
     let extra_data = chain_two_decoded.get("extraData").unwrap();
-    let display_name = extra_data.get("displayName").and_then(Value::as_str).unwrap().to_string();
+    let display_name = extra_data
+        .get("displayName")
+        .and_then(Value::as_str)
+        .unwrap()
+        .to_string();
 
-    let x5u = chain_decoded.get("x5u").and_then(Value::as_str).unwrap().to_string();
+    let x5u = chain_decoded
+        .get("x5u")
+        .and_then(Value::as_str)
+        .unwrap()
+        .to_string();
 
     let header = json!({
         "alg": "ES384",
@@ -174,17 +206,22 @@ pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, signed_
     let payload_two_bytes = to_vec(&payload_two).expect("Payload Two don't convert the byte array");
     let encoded_payload_two = Encryption::b64_url_encode(&payload_two_bytes);
 
-
     let data_to_sign = format!("{}.{}", encoded_header, encoded_payload);
-    let mut signer = Signer::new(openssl::hash::MessageDigest::sha384(), &pkey).expect("Signer not created.");
-    signer.update(data_to_sign.as_bytes()).expect("Signer update error.");
+    let mut signer =
+        Signer::new(openssl::hash::MessageDigest::sha384(), &pkey).expect("Signer not created.");
+    signer
+        .update(data_to_sign.as_bytes())
+        .expect("Signer update error.");
     let signature = signer.sign_to_vec().expect("Signature creating error.");
     let ecdsa_sig = EcdsaSig::from_der(&signature).unwrap();
     let r = ecdsa_sig.r().to_vec();
     let s = ecdsa_sig.s().to_vec();
     let concatenated_signature = [r, s].concat();
     let encoded_signature = Encryption::b64_url_encode(&concatenated_signature);
-    let jwt = format!("{}.{}.{}", encoded_header, encoded_payload, encoded_signature);
+    let jwt = format!(
+        "{}.{}.{}",
+        encoded_header, encoded_payload, encoded_signature
+    );
     chain.insert(0, jwt);
 
     /* OLD CODE
@@ -200,8 +237,11 @@ pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, signed_
     });
 
     let data_to_sign_two = format!("{}.{}", encoded_header, encoded_payload_two);
-    let mut signer_two = Signer::new(openssl::hash::MessageDigest::sha384(), &pkey).expect("Signer not created.");
-    signer_two.update(data_to_sign_two.as_bytes()).expect("Signer update error.");
+    let mut signer_two =
+        Signer::new(openssl::hash::MessageDigest::sha384(), &pkey).expect("Signer not created.");
+    signer_two
+        .update(data_to_sign_two.as_bytes())
+        .expect("Signer update error.");
     let signature_two = signer_two.sign_to_vec().expect("Signature creating error.");
     let ecdsa_sig = EcdsaSig::from_der(&signature_two).unwrap();
     let r = ecdsa_sig.r().to_vec();
@@ -209,8 +249,10 @@ pub fn convert_login_chain(chain: &mut Vec<String>, pkey: PKey<Private>, signed_
     let concatenated_signature_two = [r, s].concat();
     let encoded_signature_two = Encryption::b64_url_encode(&concatenated_signature_two);
 
-    let skin_data = format!("{}.{}.{}", encoded_header, encoded_payload_two, encoded_signature_two);
-
+    let skin_data = format!(
+        "{}.{}.{}",
+        encoded_header, encoded_payload_two, encoded_signature_two
+    );
 
     vec![real_chain.to_string(), skin_data]
 }

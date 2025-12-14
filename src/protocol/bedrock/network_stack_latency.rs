@@ -1,24 +1,33 @@
-use std::any::Any;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct NetworkStackLatency {
     pub timestamp: u64,
-    pub need_response: bool
+    pub need_response: bool,
 }
 
 pub fn new(timestamp: u64, need_response: bool) -> NetworkStackLatency {
-    NetworkStackLatency{ timestamp, need_response }
+    NetworkStackLatency {
+        timestamp,
+        need_response,
+    }
 }
 
 pub fn request(timestamp: u64) -> NetworkStackLatency {
-    NetworkStackLatency{ timestamp, need_response: true }
+    NetworkStackLatency {
+        timestamp,
+        need_response: true,
+    }
 }
 
 pub fn response(timestamp: u64) -> NetworkStackLatency {
-    NetworkStackLatency{ timestamp, need_response: false }
+    NetworkStackLatency {
+        timestamp,
+        need_response: false,
+    }
 }
 
 impl Packet for NetworkStackLatency {
@@ -44,7 +53,10 @@ impl Packet for NetworkStackLatency {
         let timestamp = stream.get_u64_le();
         let need_response = stream.get_bool();
 
-        NetworkStackLatency { timestamp, need_response }
+        NetworkStackLatency {
+            timestamp,
+            need_response,
+        }
     }
 
     fn debug(&self) {

@@ -1,15 +1,15 @@
-use std::any::Any;
-use binary_utils::binary::Stream;
-use mojang_nbt::tag::tag::Tag;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 use crate::protocol::bedrock::types::item_type_entry::ItemTypeEntry;
+use binary_utils::binary::Stream;
+use mojang_nbt::tag::tag::Tag;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemRegistry {
-    pub entries: Vec<ItemTypeEntry>
+    pub entries: Vec<ItemTypeEntry>,
 }
 
 pub fn new(entries: Vec<ItemTypeEntry>) -> ItemRegistry {
@@ -50,7 +50,13 @@ impl Packet for ItemRegistry {
             let component_based = stream.get_bool();
             let version = stream.get_var_i32();
             let component_nbt = PacketSerializer::get_nbt_compound_root(stream);
-            entries.push(ItemTypeEntry { string_id, numeric_id, component_based, version, component_nbt: CacheableNBT::new(Tag::Compound(component_nbt)) });
+            entries.push(ItemTypeEntry {
+                string_id,
+                numeric_id,
+                component_based,
+                version,
+                component_nbt: CacheableNBT::new(Tag::Compound(component_nbt)),
+            });
         }
 
         ItemRegistry { entries }

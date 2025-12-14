@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BossEvent {
@@ -14,7 +14,7 @@ pub struct BossEvent {
     pub filtered_title: String,
     pub darken_screen: bool,
     pub color: u32,
-    pub overlay: u32
+    pub overlay: u32,
 }
 
 pub fn new(
@@ -26,9 +26,19 @@ pub fn new(
     filtered_title: String,
     darken_screen: bool,
     color: u32,
-    overlay: u32
+    overlay: u32,
 ) -> BossEvent {
-    BossEvent { boss_actor_unique_id, event_type, player_actor_unique_id, health_percent, title, filtered_title, darken_screen, color, overlay }
+    BossEvent {
+        boss_actor_unique_id,
+        event_type,
+        player_actor_unique_id,
+        health_percent,
+        title,
+        filtered_title,
+        darken_screen,
+        color,
+        overlay,
+    }
 }
 
 impl Packet for BossEvent {
@@ -43,7 +53,9 @@ impl Packet for BossEvent {
         PacketSerializer::put_actor_unique_id(&mut stream, self.boss_actor_unique_id);
         stream.put_var_u32(self.event_type);
         match self.event_type {
-            BossEvent::TYPE_REGISTER_PLAYER | BossEvent::TYPE_UNREGISTER_PLAYER | BossEvent::TYPE_QUERY => {
+            BossEvent::TYPE_REGISTER_PLAYER
+            | BossEvent::TYPE_UNREGISTER_PLAYER
+            | BossEvent::TYPE_QUERY => {
                 PacketSerializer::put_actor_unique_id(&mut stream, self.player_actor_unique_id);
             }
             BossEvent::TYPE_SHOW => {
@@ -93,7 +105,9 @@ impl Packet for BossEvent {
         let mut overlay = 0;
 
         match event_type {
-            BossEvent::TYPE_REGISTER_PLAYER | BossEvent::TYPE_UNREGISTER_PLAYER | BossEvent::TYPE_QUERY => {
+            BossEvent::TYPE_REGISTER_PLAYER
+            | BossEvent::TYPE_UNREGISTER_PLAYER
+            | BossEvent::TYPE_QUERY => {
                 player_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
             }
             BossEvent::TYPE_SHOW => {
@@ -103,7 +117,7 @@ impl Packet for BossEvent {
 
                 // fallthrough: PROPERTIES
                 let raw = stream.get_u16_le();
-                darken_screen = if raw == 0 { false } else { true};
+                darken_screen = if raw == 0 { false } else { true };
 
                 // fallthrough: TEXTURE
                 color = stream.get_var_u32();
@@ -111,7 +125,7 @@ impl Packet for BossEvent {
             }
             BossEvent::TYPE_PROPERTIES => {
                 let raw = stream.get_u16_le();
-                darken_screen = if raw == 0 { false } else { true};
+                darken_screen = if raw == 0 { false } else { true };
 
                 // fallthrough: TEXTURE
                 color = stream.get_var_u32();
@@ -131,7 +145,17 @@ impl Packet for BossEvent {
             _ => {}
         }
 
-        BossEvent { boss_actor_unique_id, event_type, player_actor_unique_id, health_percent, title, filtered_title, darken_screen, color, overlay }
+        BossEvent {
+            boss_actor_unique_id,
+            event_type,
+            player_actor_unique_id,
+            health_percent,
+            title,
+            filtered_title,
+            darken_screen,
+            color,
+            overlay,
+        }
     }
 
     fn debug(&self) {

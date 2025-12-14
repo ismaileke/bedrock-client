@@ -1,18 +1,21 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::score_entry::ScoreEntry;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetScore {
     pub action_type: u8,
-    pub entries: Vec<ScoreEntry>
+    pub entries: Vec<ScoreEntry>,
 }
 
 pub fn new(action_type: u8, entries: Vec<ScoreEntry>) -> SetScore {
-    SetScore { action_type, entries }
+    SetScore {
+        action_type,
+        entries,
+    }
 }
 
 impl Packet for SetScore {
@@ -34,11 +37,17 @@ impl Packet for SetScore {
                 stream.put_byte(entry.entity_type);
                 match entry.entity_type {
                     ScoreEntry::TYPE_PLAYER | ScoreEntry::TYPE_ENTITY => {
-                        PacketSerializer::put_actor_unique_id(&mut stream, entry.actor_unique_id.unwrap());
-                    },
+                        PacketSerializer::put_actor_unique_id(
+                            &mut stream,
+                            entry.actor_unique_id.unwrap(),
+                        );
+                    }
                     ScoreEntry::TYPE_FAKE_PLAYER => {
-                        PacketSerializer::put_string(&mut stream, entry.custom_name.clone().unwrap());
-                    },
+                        PacketSerializer::put_string(
+                            &mut stream,
+                            entry.custom_name.clone().unwrap(),
+                        );
+                    }
                     _ => {
                         panic!("Unknown entry type {}", entry.entity_type);
                     }
@@ -69,19 +78,29 @@ impl Packet for SetScore {
                 match entity_type {
                     ScoreEntry::TYPE_PLAYER | ScoreEntry::TYPE_ENTITY => {
                         actor_unique_id = Some(PacketSerializer::get_actor_unique_id(stream));
-                    },
+                    }
                     ScoreEntry::TYPE_FAKE_PLAYER => {
                         custom_name = Some(PacketSerializer::get_string(stream));
-                    },
+                    }
                     _ => {
                         panic!("Unknown entry type {}", entity_type);
                     }
                 }
             }
-            entries.push(ScoreEntry{ scoreboard_id, objective_name, score, entity_type, actor_unique_id, custom_name });
+            entries.push(ScoreEntry {
+                scoreboard_id,
+                objective_name,
+                score,
+                entity_type,
+                actor_unique_id,
+                custom_name,
+            });
         }
 
-        SetScore { action_type, entries }
+        SetScore {
+            action_type,
+            entries,
+        }
     }
 
     fn debug(&self) {

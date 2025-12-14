@@ -5,7 +5,7 @@ pub struct PotionTypeRecipe {
     pub ingredient_item_id: i32,
     pub ingredient_item_meta: i32,
     pub output_item_id: i32,
-    pub output_item_meta: i32
+    pub output_item_meta: i32,
 }
 
 impl PotionTypeRecipe {
@@ -28,7 +28,7 @@ impl PotionTypeRecipe {
     pub fn get_output_item_id(&self) -> i32 {
         self.output_item_id
     }
-    
+
     pub fn get_output_item_meta(&self) -> i32 {
         self.output_item_meta
     }

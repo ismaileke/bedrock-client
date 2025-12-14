@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SpawnParticleEffect {
@@ -10,11 +10,23 @@ pub struct SpawnParticleEffect {
     pub actor_unique_id: i64,
     pub position: Vec<f32>,
     pub particle_name: String,
-    pub molang_variables_json: Option<String>
+    pub molang_variables_json: Option<String>,
 }
 
-pub fn new(dimension_id: u8, actor_unique_id: i64, position: Vec<f32>, particle_name: String, molang_variables_json: Option<String>) -> SpawnParticleEffect {
-    SpawnParticleEffect { dimension_id, actor_unique_id, position, particle_name, molang_variables_json }
+pub fn new(
+    dimension_id: u8,
+    actor_unique_id: i64,
+    position: Vec<f32>,
+    particle_name: String,
+    molang_variables_json: Option<String>,
+) -> SpawnParticleEffect {
+    SpawnParticleEffect {
+        dimension_id,
+        actor_unique_id,
+        position,
+        particle_name,
+        molang_variables_json,
+    }
 }
 
 impl Packet for SpawnParticleEffect {
@@ -30,7 +42,9 @@ impl Packet for SpawnParticleEffect {
         PacketSerializer::put_actor_unique_id(&mut stream, self.actor_unique_id);
         PacketSerializer::put_vector3(&mut stream, self.position.clone());
         PacketSerializer::put_string(&mut stream, self.particle_name.clone());
-        PacketSerializer::write_optional(&mut stream, &self.molang_variables_json, |s, v| PacketSerializer::put_string(s, v.clone()));
+        PacketSerializer::write_optional(&mut stream, &self.molang_variables_json, |s, v| {
+            PacketSerializer::put_string(s, v.clone())
+        });
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -44,9 +58,16 @@ impl Packet for SpawnParticleEffect {
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let position = PacketSerializer::get_vector3(stream);
         let particle_name = PacketSerializer::get_string(stream);
-        let molang_variables_json = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
+        let molang_variables_json =
+            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
 
-        SpawnParticleEffect { dimension_id, actor_unique_id, position, particle_name, molang_variables_json }
+        SpawnParticleEffect {
+            dimension_id,
+            actor_unique_id,
+            position,
+            particle_name,
+            molang_variables_json,
+        }
     }
 
     fn debug(&self) {

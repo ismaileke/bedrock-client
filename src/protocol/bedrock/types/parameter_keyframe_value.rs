@@ -1,10 +1,10 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ParameterKeyframeValue {
     pub time: f32,
-    pub value: Vec<f32>
+    pub value: Vec<f32>,
 }
 
 impl ParameterKeyframeValue {
@@ -12,7 +12,7 @@ impl ParameterKeyframeValue {
         let time = stream.get_f32_le();
         let value = PacketSerializer::get_vector3(stream);
 
-        ParameterKeyframeValue{ time, value }
+        ParameterKeyframeValue { time, value }
     }
 
     pub fn write(&self, stream: &mut Stream) {

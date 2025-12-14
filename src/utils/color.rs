@@ -68,10 +68,7 @@ impl Color {
     }
 
     pub fn to_argb(&self) -> u32 {
-        ((self.a as u32) << 24)
-            | ((self.r as u32) << 16)
-            | ((self.g as u32) << 8)
-            | (self.b as u32)
+        ((self.a as u32) << 24) | ((self.r as u32) << 16) | ((self.g as u32) << 8) | (self.b as u32)
     }
 
     pub fn from_rgba(code: u32) -> Self {
@@ -84,10 +81,7 @@ impl Color {
     }
 
     pub fn to_rgba(&self) -> u32 {
-        ((self.r as u32) << 24)
-            | ((self.g as u32) << 16)
-            | ((self.b as u32) << 8)
-            | (self.a as u32)
+        ((self.r as u32) << 24) | ((self.g as u32) << 16) | ((self.b as u32) << 8) | (self.a as u32)
     }
 
     pub fn equals(&self, other: &Self) -> bool {

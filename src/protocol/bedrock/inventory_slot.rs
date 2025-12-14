@@ -1,10 +1,10 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::full_container_name::FullContainerName;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct InventorySlot {
@@ -12,11 +12,23 @@ pub struct InventorySlot {
     pub inventory_slot: u32,
     pub container_name: FullContainerName,
     pub storage: ItemStackWrapper,
-    pub item: ItemStackWrapper
+    pub item: ItemStackWrapper,
 }
 
-pub fn new(window_id: u32, inventory_slot: u32, container_name: FullContainerName, storage: ItemStackWrapper, item: ItemStackWrapper) -> InventorySlot {
-    InventorySlot { window_id, inventory_slot, container_name, storage, item }
+pub fn new(
+    window_id: u32,
+    inventory_slot: u32,
+    container_name: FullContainerName,
+    storage: ItemStackWrapper,
+    item: ItemStackWrapper,
+) -> InventorySlot {
+    InventorySlot {
+        window_id,
+        inventory_slot,
+        container_name,
+        storage,
+        item,
+    }
 }
 
 impl Packet for InventorySlot {
@@ -48,7 +60,13 @@ impl Packet for InventorySlot {
         let storage = PacketSerializer::get_item_stack_wrapper(stream);
         let item = PacketSerializer::get_item_stack_wrapper(stream);
 
-        InventorySlot { window_id, inventory_slot, container_name, storage, item }
+        InventorySlot {
+            window_id,
+            inventory_slot,
+            container_name,
+            storage,
+            item,
+        }
     }
 
     fn debug(&self) {

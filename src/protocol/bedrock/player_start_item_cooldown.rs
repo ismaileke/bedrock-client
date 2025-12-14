@@ -1,17 +1,20 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerStartItemCooldown {
     pub item_category: String,
-    pub cooldown_ticks: i32
+    pub cooldown_ticks: i32,
 }
 
 pub fn new(item_category: String, cooldown_ticks: i32) -> PlayerStartItemCooldown {
-    PlayerStartItemCooldown { item_category, cooldown_ticks }
+    PlayerStartItemCooldown {
+        item_category,
+        cooldown_ticks,
+    }
 }
 
 impl Packet for PlayerStartItemCooldown {
@@ -37,7 +40,10 @@ impl Packet for PlayerStartItemCooldown {
         let item_category = PacketSerializer::get_string(stream);
         let cooldown_ticks = stream.get_var_i32();
 
-        PlayerStartItemCooldown { item_category, cooldown_ticks }
+        PlayerStartItemCooldown {
+            item_category,
+            cooldown_ticks,
+        }
     }
 
     fn debug(&self) {

@@ -1,11 +1,11 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::pack_setting_type::PackSettingType;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct StringPackSetting {
     pub name: String,
-    pub value: String
+    pub value: String,
 }
 
 impl StringPackSetting {
@@ -18,11 +18,14 @@ impl StringPackSetting {
     }
 
     pub fn new(name: String, value: String) -> StringPackSetting {
-        StringPackSetting{ name, value }
+        StringPackSetting { name, value }
     }
 
     pub fn read(stream: &mut Stream, name: String) -> StringPackSetting {
-        StringPackSetting{ name, value: PacketSerializer::get_string(stream) }
+        StringPackSetting {
+            name,
+            value: PacketSerializer::get_string(stream),
+        }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {

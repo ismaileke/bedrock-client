@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct UpdateBlockSynced {
@@ -11,11 +11,25 @@ pub struct UpdateBlockSynced {
     pub flags: u32,
     pub layer: u32,
     pub actor_unique_id: u64,
-    pub update_type: u64
+    pub update_type: u64,
 }
 
-pub fn new(block_position: Vec<i32>, block_runtime_id: u32, flags: u32, layer: u32, actor_unique_id: u64, update_type: u64) -> UpdateBlockSynced {
-    UpdateBlockSynced { block_position, block_runtime_id, flags, layer, actor_unique_id, update_type }
+pub fn new(
+    block_position: Vec<i32>,
+    block_runtime_id: u32,
+    flags: u32,
+    layer: u32,
+    actor_unique_id: u64,
+    update_type: u64,
+) -> UpdateBlockSynced {
+    UpdateBlockSynced {
+        block_position,
+        block_runtime_id,
+        flags,
+        layer,
+        actor_unique_id,
+        update_type,
+    }
 }
 
 impl Packet for UpdateBlockSynced {
@@ -49,7 +63,14 @@ impl Packet for UpdateBlockSynced {
         let actor_unique_id = stream.get_var_u64();
         let update_type = stream.get_var_u64();
 
-        UpdateBlockSynced { block_position, block_runtime_id, flags, layer, actor_unique_id, update_type }
+        UpdateBlockSynced {
+            block_position,
+            block_runtime_id,
+            flags,
+            layer,
+            actor_unique_id,
+            update_type,
+        }
     }
 
     fn debug(&self) {

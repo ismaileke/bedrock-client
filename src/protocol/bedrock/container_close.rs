@@ -1,17 +1,21 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ContainerClose {
     pub window_id: u8,
     pub window_type: u8,
-    pub server: bool
+    pub server: bool,
 }
 
 pub fn new(window_id: u8, window_type: u8, server: bool) -> ContainerClose {
-    ContainerClose { window_id, window_type, server }
+    ContainerClose {
+        window_id,
+        window_type,
+        server,
+    }
 }
 
 impl Packet for ContainerClose {
@@ -39,7 +43,11 @@ impl Packet for ContainerClose {
         let window_type = stream.get_byte();
         let server = stream.get_bool();
 
-        ContainerClose { window_id, window_type, server }
+        ContainerClose {
+            window_id,
+            window_type,
+            server,
+        }
     }
 
     fn debug(&self) {

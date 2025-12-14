@@ -1,11 +1,11 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetDifficulty {
-    pub difficulty: u32
+    pub difficulty: u32,
 }
 
 pub fn new(difficulty: u32) -> SetDifficulty {

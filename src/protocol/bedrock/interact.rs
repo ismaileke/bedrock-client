@@ -1,20 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct Interact {
     pub action: u8,
     pub target_actor_runtime_id: u64,
-    pub x: Option<f32>,
-    pub y: Option<f32>,
-    pub z: Option<f32>
+    pub position: Option<Vec<f32>>,
 }
 
-pub fn new(action: u8, target_actor_runtime_id: u64, x: Option<f32>, y: Option<f32>, z: Option<f32>) -> Interact {
-    Interact { action, target_actor_runtime_id, x, y, z }
+pub fn new(action: u8, target_actor_runtime_id: u64, position: Option<Vec<f32>>) -> Interact {
+    Interact {
+        action,
+        target_actor_runtime_id,
+        position,
+    }
 }
 
 impl Packet for Interact {
@@ -28,11 +30,9 @@ impl Packet for Interact {
 
         stream.put_byte(self.action);
         PacketSerializer::put_actor_runtime_id(&mut stream, self.target_actor_runtime_id);
-        if self.action == Interact::ACTION_MOUSEOVER || self.action == Interact::ACTION_LEAVE_VEHICLE {
-            stream.put_f32_le(self.x.unwrap());
-            stream.put_f32_le(self.y.unwrap());
-            stream.put_f32_le(self.z.unwrap());
-        }
+        PacketSerializer::write_optional(&mut stream, &self.position, |s, v| {
+            PacketSerializer::put_vector3(s, v.clone())
+        });
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -44,22 +44,20 @@ impl Packet for Interact {
     fn decode(stream: &mut Stream) -> Interact {
         let action = stream.get_byte();
         let target_actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
-        let (mut x, mut y, mut z) = (None, None, None);
-        if action == Interact::ACTION_MOUSEOVER || action == Interact::ACTION_LEAVE_VEHICLE {
-            x = Some(stream.get_f32_le());
-            y = Some(stream.get_f32_le());
-            z = Some(stream.get_f32_le());
-        }
+        let position =
+            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
 
-        Interact { action, target_actor_runtime_id, x, y, z }
+        Interact {
+            action,
+            target_actor_runtime_id,
+            position,
+        }
     }
 
     fn debug(&self) {
         println!("Action: {}", self.action);
         println!("Target Actor Runtime ID: {}", self.target_actor_runtime_id);
-        println!("X: {}", self.x.unwrap());
-        println!("Y: {}", self.y.unwrap());
-        println!("Z: {}", self.z.unwrap());
+        println!("Position: {:?}", self.position);
     }
 
     fn as_any(&self) -> &dyn Any {

@@ -1,7 +1,7 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::types::inventory::network_inventory_action::NetworkInventoryAction;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct UseItemTransactionData {
@@ -15,7 +15,7 @@ pub struct UseItemTransactionData {
     player_position: Vec<f32>,
     click_position: Vec<f32>,
     block_runtime_id: u32,
-    client_interact_prediction: u32 //see types/inventory/predicted_result.rs
+    client_interact_prediction: u32, //see types/inventory/predicted_result.rs
 }
 
 impl UseItemTransactionData {
@@ -35,9 +35,21 @@ impl UseItemTransactionData {
         player_position: Vec<f32>,
         click_position: Vec<f32>,
         block_runtime_id: u32,
-        client_interact_prediction: u32
+        client_interact_prediction: u32,
     ) -> UseItemTransactionData {
-        UseItemTransactionData{ actions, action_type, trigger_type, block_position, face, hotbar_slot, item_in_hand, player_position, click_position, block_runtime_id, client_interact_prediction }
+        UseItemTransactionData {
+            actions,
+            action_type,
+            trigger_type,
+            block_position,
+            face,
+            hotbar_slot,
+            item_in_hand,
+            player_position,
+            click_position,
+            block_runtime_id,
+            client_interact_prediction,
+        }
     }
 
     pub fn get_actions(&self) -> &Vec<NetworkInventoryAction> {

@@ -1,11 +1,11 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetLastHurtBy {
-    pub entity_type_id: i32
+    pub entity_type_id: i32,
 }
 
 pub fn new(entity_type_id: i32) -> SetLastHurtBy {

@@ -1,18 +1,21 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::scoreboard_identity_entry::ScoreboardIdentityEntry;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetScoreboardIdentity {
     pub action_type: u8,
-    pub entries: Vec<ScoreboardIdentityEntry>
+    pub entries: Vec<ScoreboardIdentityEntry>,
 }
 
 pub fn new(action_type: u8, entries: Vec<ScoreboardIdentityEntry>) -> SetScoreboardIdentity {
-    SetScoreboardIdentity { action_type, entries }
+    SetScoreboardIdentity {
+        action_type,
+        entries,
+    }
 }
 
 impl Packet for SetScoreboardIdentity {
@@ -50,16 +53,21 @@ impl Packet for SetScoreboardIdentity {
             if action_type == SetScoreboardIdentity::TYPE_REGISTER_IDENTITY {
                 actor_unique_id = Some(PacketSerializer::get_actor_unique_id(stream));
             }
-            entries.push(ScoreboardIdentityEntry{ scoreboard_id, actor_unique_id });
+            entries.push(ScoreboardIdentityEntry {
+                scoreboard_id,
+                actor_unique_id,
+            });
         }
 
-        SetScoreboardIdentity { action_type, entries }
+        SetScoreboardIdentity {
+            action_type,
+            entries,
+        }
     }
 
     fn debug(&self) {
         println!("Action Type: {:?}", self.action_type);
         println!("Entries: {:?}", self.entries);
-
     }
 
     fn as_any(&self) -> &dyn Any {

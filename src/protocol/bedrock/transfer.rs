@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct Transfer {
     pub address: String,
     pub port: u16,
-    pub reload_world: bool
+    pub reload_world: bool,
 }
 
 pub fn new(address: String, port: u16, reload_world: bool) -> Transfer {
-    Transfer { address, port, reload_world }
+    Transfer {
+        address,
+        port,
+        reload_world,
+    }
 }
 
 impl Packet for Transfer {
@@ -40,7 +44,11 @@ impl Packet for Transfer {
         let port = stream.get_u16_le();
         let reload_world = stream.get_bool();
 
-        Transfer { address, port, reload_world }
+        Transfer {
+            address,
+            port,
+            reload_world,
+        }
     }
 
     fn debug(&self) {

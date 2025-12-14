@@ -1,16 +1,9 @@
-use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty;
-use std::collections::HashMap;
-use binary_utils::binary::Stream;
-use mojang_nbt::nbt_serializer::NBTSerializer;
-use mojang_nbt::tag::compound_tag::CompoundTag;
-use mojang_nbt::tag::tag::Tag;
-use mojang_nbt::tree_root::TreeRoot;
-use uuid::Uuid;
 use crate::protocol::bedrock::types::bool_game_rule::BoolGameRule;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 use crate::protocol::bedrock::types::command::command_origin_data::CommandOriginData;
 use crate::protocol::bedrock::types::entity::entity_link::EntityLink;
 use crate::protocol::bedrock::types::entity::entity_metadata_types::EntityMetadataTypes;
+use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty;
 use crate::protocol::bedrock::types::float_game_rule::FloatGameRule;
 use crate::protocol::bedrock::types::game_rule::GameRule;
 use crate::protocol::bedrock::types::game_rule_types::GameRuleTypes;
@@ -32,6 +25,13 @@ use crate::protocol::bedrock::types::skin::skin_data::SkinData;
 use crate::protocol::bedrock::types::skin::skin_image::SkinImage;
 use crate::protocol::bedrock::types::structure_editor_data::StructureEditorData;
 use crate::protocol::bedrock::types::structure_settings::StructureSettings;
+use binary_utils::binary::Stream;
+use mojang_nbt::nbt_serializer::NBTSerializer;
+use mojang_nbt::tag::compound_tag::CompoundTag;
+use mojang_nbt::tag::tag::Tag;
+use mojang_nbt::tree_root::TreeRoot;
+use std::collections::HashMap;
+use uuid::Uuid;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PacketSerializer {}
@@ -166,7 +166,14 @@ impl PacketSerializer {
         let immediate = stream.get_bool();
         let caused_by_rider = stream.get_bool();
         let vehicle_angular_velocity = stream.get_f32_le();
-        EntityLink::new(from_actor_unique_id, to_actor_unique_id, action_type, immediate, caused_by_rider, vehicle_angular_velocity)
+        EntityLink::new(
+            from_actor_unique_id,
+            to_actor_unique_id,
+            action_type,
+            immediate,
+            caused_by_rider,
+            vehicle_angular_velocity,
+        )
     }
 
     pub fn put_entity_link(stream: &mut Stream, data: EntityLink) {
@@ -187,7 +194,9 @@ impl PacketSerializer {
     }
 
     pub fn get_nbt_compound_root(stream: &mut Stream) -> CompoundTag {
-        let ct = PacketSerializer::get_nbt_root(stream).must_get_compound_tag().expect("get_nbt_compound_root() error");
+        let ct = PacketSerializer::get_nbt_root(stream)
+            .must_get_compound_tag()
+            .expect("get_nbt_compound_root() error");
         ct
     }
 
@@ -209,12 +218,20 @@ impl PacketSerializer {
             EntityMetadataTypes::SHORT => MetadataProperty::Short(stream.get_i16_le()),
             EntityMetadataTypes::INT => MetadataProperty::Int(stream.get_var_i32()),
             EntityMetadataTypes::FLOAT => MetadataProperty::Float(stream.get_f32_le()),
-            EntityMetadataTypes::STRING => MetadataProperty::String(PacketSerializer::get_string(stream)),
-            EntityMetadataTypes::COMPOUND_TAG => MetadataProperty::CompoundTag(CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)))),
-            EntityMetadataTypes::BLOCK_POS => MetadataProperty::BlockPos(PacketSerializer::get_signed_block_pos(stream)),
+            EntityMetadataTypes::STRING => {
+                MetadataProperty::String(PacketSerializer::get_string(stream))
+            }
+            EntityMetadataTypes::COMPOUND_TAG => MetadataProperty::CompoundTag(CacheableNBT::new(
+                Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)),
+            )),
+            EntityMetadataTypes::BLOCK_POS => {
+                MetadataProperty::BlockPos(PacketSerializer::get_signed_block_pos(stream))
+            }
             EntityMetadataTypes::LONG => MetadataProperty::Long(stream.get_var_i64()),
-            EntityMetadataTypes::VECTOR3F => MetadataProperty::Vector3f(PacketSerializer::get_vector3(stream)),
-            _ => panic!("Unknown metadata type id: {}", metadata_type)
+            EntityMetadataTypes::VECTOR3F => {
+                MetadataProperty::Vector3f(PacketSerializer::get_vector3(stream))
+            }
+            _ => panic!("Unknown metadata type id: {}", metadata_type),
         }
     }
 
@@ -301,7 +318,7 @@ impl PacketSerializer {
         vec![Item::Id(id), Item::Meta(meta), Item::Count(count)]
     }
 
-    fn put_item_stack_header(stream: &mut Stream, stack: &ItemStack) -> bool{
+    fn put_item_stack_header(stream: &mut Stream, stack: &ItemStack) -> bool {
         if stack.id == 0 {
             stream.put_var_i32(0);
             return false;
@@ -331,7 +348,12 @@ impl PacketSerializer {
                 return ItemStack::null();
             }
         }
-        Self::get_item_stack_footer(stream, stack_header[0].unwrap_id(), stack_header[1].unwrap_meta(), stack_header[2].unwrap_count())
+        Self::get_item_stack_footer(
+            stream,
+            stack_header[0].unwrap_id(),
+            stack_header[1].unwrap_meta(),
+            stack_header[2].unwrap_count(),
+        )
     }
 
     pub fn put_item_stack_without_stack_id(stream: &mut Stream, stack: &ItemStack) {
@@ -343,7 +365,10 @@ impl PacketSerializer {
     pub fn get_item_stack_wrapper(stream: &mut Stream) -> ItemStackWrapper {
         let stack_header = Self::get_item_stack_header(stream);
         if stack_header[0].unwrap_id() == 0 {
-            return ItemStackWrapper{ stack_id: 0, item_stack: ItemStack::null() };
+            return ItemStackWrapper {
+                stack_id: 0,
+                item_stack: ItemStack::null(),
+            };
         }
 
         let has_net_id = stream.get_bool();
@@ -353,9 +378,17 @@ impl PacketSerializer {
             0
         };
 
-        let item_stack = Self::get_item_stack_footer(stream, stack_header[0].unwrap_id(), stack_header[1].unwrap_meta(), stack_header[2].unwrap_count());
+        let item_stack = Self::get_item_stack_footer(
+            stream,
+            stack_header[0].unwrap_id(),
+            stack_header[1].unwrap_meta(),
+            stack_header[2].unwrap_count(),
+        );
 
-        ItemStackWrapper{ stack_id, item_stack }
+        ItemStackWrapper {
+            stack_id,
+            item_stack,
+        }
     }
 
     pub fn put_item_stack_wrapper(stream: &mut Stream, wrapper: ItemStackWrapper) {
@@ -373,18 +406,24 @@ impl PacketSerializer {
     pub fn get_recipe_ingredient(stream: &mut Stream) -> RecipeIngredient {
         let descriptor_type = stream.get_byte();
         let descriptor = match descriptor_type {
-            ItemDescriptorType::INT_ID_META => Some(ItemDescriptor::IntIDMeta(IntIdMetaItemDescriptor::read(stream))),
-            ItemDescriptorType::STRING_ID_META => Some(ItemDescriptor::StringIDMeta(StringIdMetaItemDescriptor::read(stream))),
+            ItemDescriptorType::INT_ID_META => Some(ItemDescriptor::IntIDMeta(
+                IntIdMetaItemDescriptor::read(stream),
+            )),
+            ItemDescriptorType::STRING_ID_META => Some(ItemDescriptor::StringIDMeta(
+                StringIdMetaItemDescriptor::read(stream),
+            )),
             ItemDescriptorType::TAG => Some(ItemDescriptor::Tag(TagItemDescriptor::read(stream))),
-            ItemDescriptorType::MOLANG => Some(ItemDescriptor::Molang(MolangItemDescriptor::read(stream))),
-            ItemDescriptorType::COMPLEX_ALIAS => Some(ItemDescriptor::ComplexAlias(ComplexAliasItemDescriptor::read(stream))),
-            _ => {
-                None
+            ItemDescriptorType::MOLANG => {
+                Some(ItemDescriptor::Molang(MolangItemDescriptor::read(stream)))
             }
+            ItemDescriptorType::COMPLEX_ALIAS => Some(ItemDescriptor::ComplexAlias(
+                ComplexAliasItemDescriptor::read(stream),
+            )),
+            _ => None,
         };
         let count = stream.get_var_i32();
 
-        RecipeIngredient{ descriptor, count }
+        RecipeIngredient { descriptor, count }
     }
 
     pub fn put_recipe_ingredient(stream: &mut Stream, ingredient: &mut RecipeIngredient) {
@@ -397,11 +436,22 @@ impl PacketSerializer {
         stream.put_var_i32(ingredient.count);
     }
 
-    fn read_game_rule(stream: &mut Stream, rule_type: u32, is_player_modifiable: bool, is_start_game: bool) -> GameRule {
+    fn read_game_rule(
+        stream: &mut Stream,
+        rule_type: u32,
+        is_player_modifiable: bool,
+        is_start_game: bool,
+    ) -> GameRule {
         match rule_type {
             GameRuleTypes::BOOL => GameRule::Bool(BoolGameRule::read(stream, is_player_modifiable)),
-            GameRuleTypes::INT => GameRule::Int(IntGameRule::read(stream, is_player_modifiable, is_start_game)),
-            GameRuleTypes::FLOAT => GameRule::Float(FloatGameRule::read(stream, is_player_modifiable)),
+            GameRuleTypes::INT => GameRule::Int(IntGameRule::read(
+                stream,
+                is_player_modifiable,
+                is_start_game,
+            )),
+            GameRuleTypes::FLOAT => {
+                GameRule::Float(FloatGameRule::read(stream, is_player_modifiable))
+            }
             _ => {
                 panic!("Unknown game rule type: {}", rule_type);
             }
@@ -415,12 +465,19 @@ impl PacketSerializer {
             let name = PacketSerializer::get_string(stream);
             let is_player_modifiable = stream.get_bool();
             let rule_type = stream.get_var_u32();
-            rules.insert(name, Self::read_game_rule(stream, rule_type, is_player_modifiable, is_start_game));
+            rules.insert(
+                name,
+                Self::read_game_rule(stream, rule_type, is_player_modifiable, is_start_game),
+            );
         }
         rules
     }
 
-    pub fn put_game_rules(stream: &mut Stream, rules: &mut HashMap<String, GameRule>, is_start_game: bool) {
+    pub fn put_game_rules(
+        stream: &mut Stream,
+        rules: &mut HashMap<String, GameRule>,
+        is_start_game: bool,
+    ) {
         stream.put_var_u32(rules.len() as u32);
         for (name, rule) in rules {
             PacketSerializer::put_string(stream, name.clone());
@@ -431,24 +488,24 @@ impl PacketSerializer {
     }
 
     pub fn get_command_origin_data(stream: &mut Stream) -> CommandOriginData {
-        let origin_type = stream.get_var_u32();
+        let origin_type = PacketSerializer::get_string(stream);
         let uuid = PacketSerializer::get_uuid(stream);
         let request_id = PacketSerializer::get_string(stream);
-        let mut player_actor_unique_id = 0;
-        if origin_type == CommandOriginData::ORIGIN_DEV_CONSOLE || origin_type == CommandOriginData::ORIGIN_TEST {
-            player_actor_unique_id = stream.get_var_i64();
-        }
+        let player_actor_unique_id = stream.get_i64_le();
 
-        CommandOriginData{ origin_type, uuid, request_id, player_actor_unique_id }
+        CommandOriginData {
+            origin_type,
+            uuid,
+            request_id,
+            player_actor_unique_id,
+        }
     }
 
     pub fn put_command_origin_data(stream: &mut Stream, data: &CommandOriginData) {
-        stream.put_var_u32(data.origin_type);
+        PacketSerializer::put_string(stream, data.origin_type.clone());
         PacketSerializer::put_uuid(stream, data.uuid.clone());
         PacketSerializer::put_string(stream, data.request_id.clone());
-        if data.origin_type == CommandOriginData::ORIGIN_DEV_CONSOLE || data.origin_type == CommandOriginData::ORIGIN_TEST {
-            stream.put_var_i64(data.player_actor_unique_id);
-        }
+        stream.put_i64_le(data.player_actor_unique_id);
     }
 
     pub fn get_skin(stream: &mut Stream) -> SkinData {
@@ -463,7 +520,12 @@ impl PacketSerializer {
             let animation_type = stream.get_u32_le();
             let animation_frames = stream.get_f32_le();
             let expression_type = stream.get_u32_le();
-            animations.push(SkinAnimation::new(skin_image, animation_type, animation_frames, expression_type));
+            animations.push(SkinAnimation::new(
+                skin_image,
+                animation_type,
+                animation_frames,
+                expression_type,
+            ));
         }
         let cape_image = Some(PacketSerializer::get_skin_image(stream));
         let geometry_data = PacketSerializer::get_string(stream);
@@ -481,7 +543,13 @@ impl PacketSerializer {
             let pack_id = PacketSerializer::get_string(stream);
             let is_default_piece = stream.get_bool();
             let product_id = PacketSerializer::get_string(stream);
-            persona_pieces.push(PersonaSkinPiece::new(piece_id, piece_type, pack_id, is_default_piece, product_id))
+            persona_pieces.push(PersonaSkinPiece::new(
+                piece_id,
+                piece_type,
+                pack_id,
+                is_default_piece,
+                product_id,
+            ))
         }
         let piece_tint_color_count = stream.get_u32_le();
         let mut piece_tint_colors = Vec::with_capacity(piece_tint_color_count as usize);
@@ -500,7 +568,7 @@ impl PacketSerializer {
         let is_primary_user = stream.get_bool();
         let is_override = stream.get_bool();
 
-        SkinData{
+        SkinData {
             skin_id,
             play_fab_id,
             resource_patch,
@@ -521,7 +589,7 @@ impl PacketSerializer {
             persona,
             persona_cape_on_classic,
             is_primary_user,
-            is_override
+            is_override,
         }
     }
 
@@ -602,7 +670,7 @@ impl PacketSerializer {
         let integrity_seed = stream.get_u32_le();
         let pivot = PacketSerializer::get_vector3(stream);
 
-        StructureSettings{
+        StructureSettings {
             palette_name,
             ignore_entities,
             ignore_blocks,
@@ -616,7 +684,7 @@ impl PacketSerializer {
             animation_seconds,
             integrity_value,
             integrity_seed,
-            pivot
+            pivot,
         }
     }
 
@@ -655,13 +723,19 @@ impl PacketSerializer {
             show_bounding_box,
             structure_block_type,
             structure_settings,
-            structure_redstone_save_mode
+            structure_redstone_save_mode,
         }
     }
 
-    pub fn put_structure_editor_data(stream: &mut Stream, structure_editor_data: &StructureEditorData) {
+    pub fn put_structure_editor_data(
+        stream: &mut Stream,
+        structure_editor_data: &StructureEditorData,
+    ) {
         PacketSerializer::put_string(stream, structure_editor_data.structure_name.clone());
-        PacketSerializer::put_string(stream, structure_editor_data.filtered_structure_name.clone());
+        PacketSerializer::put_string(
+            stream,
+            structure_editor_data.filtered_structure_name.clone(),
+        );
         PacketSerializer::put_string(stream, structure_editor_data.structure_data_field.clone());
         stream.put_bool(structure_editor_data.include_players);
         stream.put_bool(structure_editor_data.show_bounding_box);

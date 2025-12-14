@@ -4,7 +4,7 @@ use crate::protocol::bedrock::types::command::command_enum::CommandEnum;
 pub struct CommandEnumConstraint {
     command_enum: CommandEnum,
     value_offset: u32,
-    constraints: Vec<u8>
+    constraints: Vec<u8>,
 }
 
 impl CommandEnumConstraint {

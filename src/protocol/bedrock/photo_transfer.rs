@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PhotoTransfer {
@@ -12,11 +12,27 @@ pub struct PhotoTransfer {
     pub photo_type: u8,
     pub source_type: u8,
     pub owner_actor_unique_id: i64,
-    pub new_photo_name: String
+    pub new_photo_name: String,
 }
 
-pub fn new(photo_name: String, photo_data: String, book_id: String, photo_type: u8, source_type: u8, owner_actor_unique_id: i64, new_photo_name: String) -> PhotoTransfer {
-    PhotoTransfer { photo_name, photo_data, book_id, photo_type, source_type, owner_actor_unique_id, new_photo_name }
+pub fn new(
+    photo_name: String,
+    photo_data: String,
+    book_id: String,
+    photo_type: u8,
+    source_type: u8,
+    owner_actor_unique_id: i64,
+    new_photo_name: String,
+) -> PhotoTransfer {
+    PhotoTransfer {
+        photo_name,
+        photo_data,
+        book_id,
+        photo_type,
+        source_type,
+        owner_actor_unique_id,
+        new_photo_name,
+    }
 }
 
 impl Packet for PhotoTransfer {
@@ -52,7 +68,15 @@ impl Packet for PhotoTransfer {
         let owner_actor_unique_id = stream.get_i64_le();
         let new_photo_name = PacketSerializer::get_string(stream);
 
-        PhotoTransfer { photo_name, photo_data, book_id, photo_type, source_type, owner_actor_unique_id, new_photo_name }
+        PhotoTransfer {
+            photo_name,
+            photo_data,
+            book_id,
+            photo_type,
+            source_type,
+            owner_actor_unique_id,
+            new_photo_name,
+        }
     }
 
     fn debug(&self) {

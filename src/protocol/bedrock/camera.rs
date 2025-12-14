@@ -1,17 +1,20 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct Camera {
     pub camera_actor_unique_id: i64,
-    pub player_actor_unique_id: i64
+    pub player_actor_unique_id: i64,
 }
 
 pub fn new(camera_actor_unique_id: i64, player_actor_unique_id: i64) -> Camera {
-    Camera { camera_actor_unique_id, player_actor_unique_id }
+    Camera {
+        camera_actor_unique_id,
+        player_actor_unique_id,
+    }
 }
 
 impl Packet for Camera {
@@ -37,7 +40,10 @@ impl Packet for Camera {
         let camera_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let player_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
 
-        Camera { camera_actor_unique_id, player_actor_unique_id }
+        Camera {
+            camera_actor_unique_id,
+            player_actor_unique_id,
+        }
     }
 
     fn debug(&self) {

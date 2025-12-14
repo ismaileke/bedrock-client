@@ -1,27 +1,39 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::player_location_type::PlayerLocationType;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerLocation {
     pub location_type: u32, //see types/player_location_type.rs
     pub actor_unique_id: i64,
-    pub position: Option<Vec<f32>>
+    pub position: Option<Vec<f32>>,
 }
 
 fn new(location_type: u32, actor_unique_id: i64, position: Option<Vec<f32>>) -> PlayerLocation {
-    PlayerLocation { location_type, actor_unique_id, position }
+    PlayerLocation {
+        location_type,
+        actor_unique_id,
+        position,
+    }
 }
 
 pub fn create_coordinates(actor_unique_id: i64, position: Vec<f32>) -> PlayerLocation {
-    new(PlayerLocationType::PLAYER_LOCATION_COORDINATES, actor_unique_id, Some(position))
+    new(
+        PlayerLocationType::PLAYER_LOCATION_COORDINATES,
+        actor_unique_id,
+        Some(position),
+    )
 }
 
 pub fn create_hide(actor_unique_id: i64) -> PlayerLocation {
-    new(PlayerLocationType::PLAYER_LOCATION_HIDE, actor_unique_id, None)
+    new(
+        PlayerLocationType::PLAYER_LOCATION_HIDE,
+        actor_unique_id,
+        None,
+    )
 }
 
 impl Packet for PlayerLocation {
@@ -57,7 +69,11 @@ impl Packet for PlayerLocation {
             position = Some(PacketSerializer::get_vector3(stream));
         }
 
-        PlayerLocation { location_type, actor_unique_id, position }
+        PlayerLocation {
+            location_type,
+            actor_unique_id,
+            position,
+        }
     }
 
     fn debug(&self) {

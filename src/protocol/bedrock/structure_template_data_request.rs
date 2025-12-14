@@ -1,20 +1,30 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::structure_settings::StructureSettings;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct StructureTemplateDataRequest {
     pub structure_template_name: String,
     pub structure_block_position: Vec<i32>,
     pub structure_settings: StructureSettings,
-    pub request_type: u8
+    pub request_type: u8,
 }
 
-pub fn new(structure_template_name: String, structure_block_position: Vec<i32>, structure_settings: StructureSettings, request_type: u8) -> StructureTemplateDataRequest {
-    StructureTemplateDataRequest { structure_template_name, structure_block_position, structure_settings, request_type }
+pub fn new(
+    structure_template_name: String,
+    structure_block_position: Vec<i32>,
+    structure_settings: StructureSettings,
+    request_type: u8,
+) -> StructureTemplateDataRequest {
+    StructureTemplateDataRequest {
+        structure_template_name,
+        structure_block_position,
+        structure_settings,
+        request_type,
+    }
 }
 
 impl Packet for StructureTemplateDataRequest {
@@ -44,12 +54,20 @@ impl Packet for StructureTemplateDataRequest {
         let structure_settings = PacketSerializer::get_structure_settings(stream);
         let request_type = stream.get_byte();
 
-        StructureTemplateDataRequest { structure_template_name, structure_block_position, structure_settings, request_type }
+        StructureTemplateDataRequest {
+            structure_template_name,
+            structure_block_position,
+            structure_settings,
+            request_type,
+        }
     }
 
     fn debug(&self) {
         println!("Structure Template Name: {}", self.structure_template_name);
-        println!("Structure Block Position: {:?}", self.structure_block_position.clone());
+        println!(
+            "Structure Block Position: {:?}",
+            self.structure_block_position.clone()
+        );
         println!("Structure Settings: {:?}", self.structure_settings);
         println!("Request Type: {}", self.request_type);
     }

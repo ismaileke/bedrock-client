@@ -7,12 +7,26 @@ pub struct BiomeSurfaceMaterialData {
     pub sea_floor_block: u32,
     pub foundation_block: u32,
     pub sea_block: u32,
-    pub sea_floor_depth: i32
+    pub sea_floor_depth: i32,
 }
 
 impl BiomeSurfaceMaterialData {
-    pub fn new(top_block: u32, mid_block: u32, sea_floor_block: u32, foundation_block: u32, sea_block: u32, sea_floor_depth: i32) -> Self {
-        BiomeSurfaceMaterialData { top_block, mid_block, sea_floor_block, foundation_block, sea_block, sea_floor_depth }
+    pub fn new(
+        top_block: u32,
+        mid_block: u32,
+        sea_floor_block: u32,
+        foundation_block: u32,
+        sea_block: u32,
+        sea_floor_depth: i32,
+    ) -> Self {
+        BiomeSurfaceMaterialData {
+            top_block,
+            mid_block,
+            sea_floor_block,
+            foundation_block,
+            sea_block,
+            sea_floor_depth,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> BiomeSurfaceMaterialData {
@@ -23,7 +37,14 @@ impl BiomeSurfaceMaterialData {
         let sea_block = stream.get_u32_le();
         let sea_floor_depth = stream.get_i32_le();
 
-        BiomeSurfaceMaterialData::new(top_block, mid_block, sea_floor_block, foundation_block, sea_block, sea_floor_depth)
+        BiomeSurfaceMaterialData::new(
+            top_block,
+            mid_block,
+            sea_floor_block,
+            foundation_block,
+            sea_block,
+            sea_floor_depth,
+        )
     }
 
     pub fn write(&self, stream: &mut Stream) {

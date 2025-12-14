@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use binary_utils::binary::Stream;
+use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AbilitiesLayer {
@@ -7,11 +7,10 @@ pub struct AbilitiesLayer {
     bool_abilities: HashMap<u32, bool>,
     fly_speed: Option<f32>,
     vertical_fly_speed: Option<f32>,
-    walk_speed: Option<f32>
+    walk_speed: Option<f32>,
 }
 
 impl AbilitiesLayer {
-
     pub const LAYER_CACHE: u16 = 0;
     pub const LAYER_BASE: u16 = 1;
     pub const LAYER_SPECTATOR: u16 = 2;
@@ -42,12 +41,23 @@ impl AbilitiesLayer {
 
     pub const NUMBER_OF_ABILITIES: u32 = 20;
 
-    pub fn new(layer_id: u16, bool_abilities: HashMap<u32, bool>, fly_speed: Option<f32>, vertical_fly_speed: Option<f32>, walk_speed: Option<f32>) -> AbilitiesLayer {
-        AbilitiesLayer { layer_id, bool_abilities, fly_speed, vertical_fly_speed, walk_speed }
+    pub fn new(
+        layer_id: u16,
+        bool_abilities: HashMap<u32, bool>,
+        fly_speed: Option<f32>,
+        vertical_fly_speed: Option<f32>,
+        walk_speed: Option<f32>,
+    ) -> AbilitiesLayer {
+        AbilitiesLayer {
+            layer_id,
+            bool_abilities,
+            fly_speed,
+            vertical_fly_speed,
+            walk_speed,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> AbilitiesLayer {
-
         let layer_id = stream.get_u16_le();
         let set_abilities = stream.get_u32_le();
         let set_ability_values = stream.get_u32_le();
@@ -84,7 +94,13 @@ impl AbilitiesLayer {
             walk_speed = None;
         }
 
-        AbilitiesLayer{ layer_id, bool_abilities, fly_speed, vertical_fly_speed, walk_speed }
+        AbilitiesLayer {
+            layer_id,
+            bool_abilities,
+            fly_speed,
+            vertical_fly_speed,
+            walk_speed,
+        }
     }
 
     pub fn write(&self, stream: &mut Stream) {
@@ -108,8 +124,20 @@ impl AbilitiesLayer {
 
         stream.put_u32_le(set_abilities);
         stream.put_u32_le(set_ability_values);
-        stream.put_f32_le(if self.fly_speed.is_some() { self.fly_speed.unwrap() } else { 0.0 });
-        stream.put_f32_le(if self.vertical_fly_speed.is_some() { self.vertical_fly_speed.unwrap() } else { 0.0 });
-        stream.put_f32_le(if self.walk_speed.is_some() { self.walk_speed.unwrap() } else { 0.0 });
+        stream.put_f32_le(if self.fly_speed.is_some() {
+            self.fly_speed.unwrap()
+        } else {
+            0.0
+        });
+        stream.put_f32_le(if self.vertical_fly_speed.is_some() {
+            self.vertical_fly_speed.unwrap()
+        } else {
+            0.0
+        });
+        stream.put_f32_le(if self.walk_speed.is_some() {
+            self.walk_speed.unwrap()
+        } else {
+            0.0
+        });
     }
 }

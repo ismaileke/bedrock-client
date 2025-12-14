@@ -1,5 +1,5 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_coordinate_data::BiomeCoordinateData;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeScatterParamData {
@@ -10,7 +10,7 @@ pub struct BiomeScatterParamData {
     pub chance_numerator: i32,
     pub chance_denominator: i32,
     pub iterations_type: i32,
-    pub iterations: i16
+    pub iterations: i16,
 }
 
 impl BiomeScatterParamData {
@@ -22,7 +22,7 @@ impl BiomeScatterParamData {
         chance_numerator: i32,
         chance_denominator: i32,
         iterations_type: i32,
-        iterations: i16
+        iterations: i16,
     ) -> Self {
         BiomeScatterParamData {
             coordinates,
@@ -32,7 +32,7 @@ impl BiomeScatterParamData {
             chance_numerator,
             chance_denominator,
             iterations_type,
-            iterations
+            iterations,
         }
     }
 
@@ -50,7 +50,16 @@ impl BiomeScatterParamData {
         let iterations_type = stream.get_var_i32();
         let iterations = stream.get_i16_le();
 
-        BiomeScatterParamData::new(coordinates, eval_order, chance_percent_type, chance_percent, chance_numerator, chance_denominator, iterations_type, iterations)
+        BiomeScatterParamData::new(
+            coordinates,
+            eval_order,
+            chance_percent_type,
+            chance_percent,
+            chance_numerator,
+            chance_denominator,
+            iterations_type,
+            iterations,
+        )
     }
 
     pub fn write(&self, stream: &mut Stream) {

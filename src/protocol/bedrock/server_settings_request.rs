@@ -1,13 +1,13 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ServerSettingsRequest {}
 
 pub fn new() -> ServerSettingsRequest {
-    ServerSettingsRequest {  }
+    ServerSettingsRequest {}
 }
 
 impl Packet for ServerSettingsRequest {
@@ -33,8 +33,7 @@ impl Packet for ServerSettingsRequest {
         ServerSettingsRequest {}
     }
 
-    fn debug(&self) {
-    }
+    fn debug(&self) {}
 
     fn as_any(&self) -> &dyn Any {
         self

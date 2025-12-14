@@ -1,14 +1,14 @@
-use binary_utils::binary::Stream;
-use crate::utils::{address, color_format};
 use crate::utils::address::InternetAddress;
 use crate::utils::color_format::COLOR_WHITE;
+use crate::utils::{address, color_format};
+use binary_utils::binary::Stream;
 
 pub struct ConnReqAccepted {
     pub client_address: InternetAddress,
     pub system_index: u16,
     pub system_addresses: [InternetAddress; 10],
     pub ping_time: u64,
-    pub pong_time: u64
+    pub pong_time: u64,
 }
 
 impl ConnReqAccepted {
@@ -21,7 +21,8 @@ impl ConnReqAccepted {
         stream.set_offset(stream.get_offset() + offset);
         let system_index = stream.get_u16_be();
 
-        let mut system_addresses: [InternetAddress; 10] = core::array::from_fn(|_| address::new(4, "127.0.0.1".to_string(), 0));
+        let mut system_addresses: [InternetAddress; 10] =
+            core::array::from_fn(|_| address::new(4, "127.0.0.1".to_string(), 0));
 
         for index in 0..10 {
             let (system_address, offset) = address::get_address(stream.get_remaining()).unwrap();
@@ -32,15 +33,33 @@ impl ConnReqAccepted {
         let ping_time = stream.get_u64_be();
         let pong_time = stream.get_u64_be();
 
-        ConnReqAccepted { client_address, system_index, system_addresses, ping_time, pong_time }
+        ConnReqAccepted {
+            client_address,
+            system_index,
+            system_addresses,
+            ping_time,
+            pong_time,
+        }
     }
 
     pub fn debug(&self) {
-        println!("--- {}ConnectionRequestAccepted{} ---", color_format::COLOR_GOLD, COLOR_WHITE);
-        println!("Client Address: {}:{}", self.client_address.address, self.client_address.port);
+        println!(
+            "--- {}ConnectionRequestAccepted{} ---",
+            color_format::COLOR_GOLD,
+            COLOR_WHITE
+        );
+        println!(
+            "Client Address: {}:{}",
+            self.client_address.address, self.client_address.port
+        );
         println!("System Index: {}", self.system_index);
         for index in 0..10 {
-            println!("System Address {}: {}:{}", index + 1, self.system_addresses[index].address, self.system_addresses[index].port);
+            println!(
+                "System Address {}: {}:{}",
+                index + 1,
+                self.system_addresses[index].address,
+                self.system_addresses[index].port
+            );
         }
         println!("Ping Time: {}", self.ping_time);
         println!("Pong Time: {}", self.ping_time);

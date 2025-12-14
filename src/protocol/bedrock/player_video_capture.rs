@@ -1,18 +1,26 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerVideoCapture {
     pub is_recording: bool,
     pub frame_rate: Option<u32>,
-    pub file_prefix: Option<String>
+    pub file_prefix: Option<String>,
 }
 
-pub fn new(is_recording: bool, frame_rate: Option<u32>, file_prefix: Option<String>) -> PlayerVideoCapture {
-    PlayerVideoCapture { is_recording, frame_rate, file_prefix }
+pub fn new(
+    is_recording: bool,
+    frame_rate: Option<u32>,
+    file_prefix: Option<String>,
+) -> PlayerVideoCapture {
+    PlayerVideoCapture {
+        is_recording,
+        frame_rate,
+        file_prefix,
+    }
 }
 
 impl Packet for PlayerVideoCapture {
@@ -52,7 +60,11 @@ impl Packet for PlayerVideoCapture {
             file_prefix = Some(PacketSerializer::get_string(stream));
         }
 
-        PlayerVideoCapture { is_recording, frame_rate, file_prefix }
+        PlayerVideoCapture {
+            is_recording,
+            frame_rate,
+            file_prefix,
+        }
     }
 
     fn debug(&self) {

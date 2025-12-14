@@ -1,22 +1,32 @@
-use std::any::Any;
-use std::collections::HashMap;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty;
 use crate::protocol::bedrock::types::entity::property_sync_data::PropertySyncData;
+use binary_utils::binary::Stream;
+use std::any::Any;
+use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetActorData {
     pub actor_runtime_id: u64,
     pub metadata: HashMap<u32, MetadataProperty>,
     pub synced_properties: PropertySyncData,
-    pub tick: u64
+    pub tick: u64,
 }
 
-pub fn new(actor_runtime_id: u64, metadata: HashMap<u32, MetadataProperty>, synced_properties: PropertySyncData, tick: u64) -> SetActorData {
-    SetActorData { actor_runtime_id, metadata, synced_properties, tick }
+pub fn new(
+    actor_runtime_id: u64,
+    metadata: HashMap<u32, MetadataProperty>,
+    synced_properties: PropertySyncData,
+    tick: u64,
+) -> SetActorData {
+    SetActorData {
+        actor_runtime_id,
+        metadata,
+        synced_properties,
+        tick,
+    }
 }
 
 impl Packet for SetActorData {
@@ -46,7 +56,12 @@ impl Packet for SetActorData {
         let synced_properties = PropertySyncData::read(stream);
         let tick = stream.get_var_u64();
 
-        SetActorData { actor_runtime_id, metadata, synced_properties, tick }
+        SetActorData {
+            actor_runtime_id,
+            metadata,
+            synced_properties,
+            tick,
+        }
     }
 
     fn debug(&self) {

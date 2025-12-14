@@ -12,5 +12,5 @@ pub struct BiomeDefinitionEntry {
     pub map_water_color: u32,
     pub rain: bool,
     pub tags: Option<Vec<String>>,
-    pub chunk_gen_data: Option<BiomeDefinitionChunkGenData>
+    pub chunk_gen_data: Option<BiomeDefinitionChunkGenData>,
 }

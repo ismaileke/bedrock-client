@@ -5,10 +5,10 @@ use crate::protocol::bedrock::level_chunk::LevelChunk;
 use crate::protocol::bedrock::network_stack_latency::NetworkStackLatency;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::play_status::PlayStatus;
+use crate::protocol::bedrock::resource_pack_client_response::ResourcePackClientResponse;
 use crate::protocol::bedrock::resource_pack_stack::ResourcePackStack;
 use crate::protocol::bedrock::resource_packs_info::ResourcePacksInfo;
 use crate::protocol::bedrock::server_to_client_handshake::ServerToClientHandshake;
-use crate::protocol::bedrock::resource_pack_client_response::ResourcePackClientResponse;
 use crate::protocol::bedrock::start_game::StartGame;
 use crate::protocol::bedrock::*;
 use crate::protocol::raknet::acknowledge::Acknowledge;
@@ -30,7 +30,10 @@ use base64::Engine;
 use binary_utils::binary::Stream;
 use chrono::Utc;
 use flate2::read::GzDecoder;
+use linked_hash_map::LinkedHashMap;
 use minecraft_auth::bedrock;
+use mojang_nbt::nbt::NBT;
+use mojang_nbt::nbt_serializer::NBTSerializer;
 use mojang_nbt::tag::compound_tag::CompoundTag;
 use mojang_nbt::tag::tag::Tag;
 use mojang_nbt::tree_root::TreeRoot;
@@ -38,13 +41,10 @@ use openssl::base64::decode_block;
 use openssl::pkey::PKey;
 use serde_json::Value;
 use std::collections::HashMap;
-use linked_hash_map::LinkedHashMap;
 use std::io::{Cursor, Read, Result};
 use std::net::UdpSocket;
 use std::sync::Arc;
 use std::sync::Mutex;
-use mojang_nbt::nbt::NBT;
-use mojang_nbt::nbt_serializer::NBTSerializer;
 //use crate::handle_incoming_data;
 
 // conn_req update
@@ -91,7 +91,7 @@ where
     });
     bedrock.auth().await;
 
-    Option::from(Client{
+    Option::from(Client {
         socket: UdpSocket::bind("0.0.0.0:0").expect("Socket Bind Error"),
         target_address,
         target_port,
@@ -353,7 +353,6 @@ impl Client {
                                                         rp_uuids.push(resource_pack.uuid.clone());
                                                     }
 
-
                                                     // RESOURCE PACK CLIENT RESPONSE PACKET {HAVE ALL PACKS}
                                                     let rp_client_response = resource_pack_client_response::new(ResourcePackClientResponse::HAVE_ALL_PACKS, rp_uuids).encode();
 
@@ -380,9 +379,6 @@ impl Client {
                                                     let resource_pack_stack = packet.as_any().downcast_ref::<ResourcePackStack>().unwrap();
 
                                                     let mut pack_ids = vec![];
-                                                    for behavior_stack_entry in &resource_pack_stack.behavior_pack_stack {
-                                                        pack_ids.push(behavior_stack_entry.pack_id.clone());
-                                                    }
                                                     for resource_stack_entry in &resource_pack_stack.resource_pack_stack {
                                                         pack_ids.push(resource_stack_entry.pack_id.clone());
                                                     }
@@ -549,7 +545,6 @@ impl Client {
                                                     ////////////////////////////////////////////////////
                                                     ////////////////////////////////////////////////////
 
-
                                                     if start_game.block_network_ids_are_hashes {
                                                         // Adding vanilla blocks to Hashed Network IDs
                                                         for i in 0..vanilla_blocks.count() {
@@ -673,7 +668,6 @@ impl Client {
                                                             }
                                                         }
 
-
                                                         // Sorting blocks
                                                         name_hashes.sort_by_key(|tag| tag.get_long("name_hash").unwrap() as u64);
 
@@ -685,7 +679,6 @@ impl Client {
 
                                                        self.bedrock_handler.runtime_network_ids = name_hashes.clone();
                                                     }
-
 
                                                     ////////////////////////////////////////////////////
                                                     ////////////////////////////////////////////////////
@@ -749,7 +742,6 @@ impl Client {
                             }
                         }
                     }
-
                 }
                 Err(e) => {
                     eprintln!("Error receiving data: {}", e);

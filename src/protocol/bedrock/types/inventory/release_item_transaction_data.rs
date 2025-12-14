@@ -1,7 +1,7 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::types::inventory::network_inventory_action::NetworkInventoryAction;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ReleaseItemTransactionData {
@@ -9,7 +9,7 @@ pub struct ReleaseItemTransactionData {
     action_type: u32,
     hotbar_slot: i32,
     item_in_hand: ItemStackWrapper,
-    head_position: Vec<f32>
+    head_position: Vec<f32>,
 }
 
 impl ReleaseItemTransactionData {
@@ -21,9 +21,15 @@ impl ReleaseItemTransactionData {
         action_type: u32,
         hotbar_slot: i32,
         item_in_hand: ItemStackWrapper,
-        head_position: Vec<f32>
+        head_position: Vec<f32>,
     ) -> ReleaseItemTransactionData {
-        ReleaseItemTransactionData{ actions, action_type, hotbar_slot, item_in_hand, head_position }
+        ReleaseItemTransactionData {
+            actions,
+            action_type,
+            hotbar_slot,
+            item_in_hand,
+            head_position,
+        }
     }
 
     pub fn get_actions(&self) -> &Vec<NetworkInventoryAction> {

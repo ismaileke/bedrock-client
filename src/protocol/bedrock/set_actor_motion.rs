@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetActorMotion {
     pub actor_runtime_id: u64,
     pub motion: Vec<f32>,
-    pub tick: u64
+    pub tick: u64,
 }
 
 pub fn new(actor_runtime_id: u64, motion: Vec<f32>, tick: u64) -> SetActorMotion {
-    SetActorMotion { actor_runtime_id, motion, tick }
+    SetActorMotion {
+        actor_runtime_id,
+        motion,
+        tick,
+    }
 }
 
 impl Packet for SetActorMotion {
@@ -40,9 +44,13 @@ impl Packet for SetActorMotion {
         let motion = PacketSerializer::get_vector3(stream);
         let tick = stream.get_var_u64();
 
-        SetActorMotion { actor_runtime_id, motion, tick }
+        SetActorMotion {
+            actor_runtime_id,
+            motion,
+            tick,
+        }
     }
-    
+
     fn debug(&self) {
         println!("Actor Runtime ID: {}", self.actor_runtime_id);
         println!("Motion: {:?}", self.motion);

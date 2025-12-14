@@ -25,34 +25,92 @@ pub struct ItemStackRequestEntry {
     request_id: i32,
     actions: Vec<ItemStackRequestAction>,
     filter_strings: Vec<String>,
-    filter_string_cause: i32
+    filter_string_cause: i32,
 }
 
 impl ItemStackRequestEntry {
-    pub fn new(request_id: i32, actions: Vec<ItemStackRequestAction>, filter_strings: Vec<String>, filter_string_cause: i32) -> ItemStackRequestEntry {
-        ItemStackRequestEntry{ request_id, actions, filter_strings, filter_string_cause }
+    pub fn new(
+        request_id: i32,
+        actions: Vec<ItemStackRequestAction>,
+        filter_strings: Vec<String>,
+        filter_string_cause: i32,
+    ) -> ItemStackRequestEntry {
+        ItemStackRequestEntry {
+            request_id,
+            actions,
+            filter_strings,
+            filter_string_cause,
+        }
     }
 
     fn read_action(stream: &mut Stream, type_id: u8) -> ItemStackRequestAction {
         match type_id {
-            ItemStackRequestActionType::TAKE => { ItemStackRequestAction::Take(TakeStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::PLACE => { ItemStackRequestAction::Place(PlaceStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::SWAP => { ItemStackRequestAction::Swap(SwapStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::DROP => { ItemStackRequestAction::Drop(DropStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::DESTROY => { ItemStackRequestAction::Destroy(DestroyStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::CRAFTING_CONSUME_INPUT => { ItemStackRequestAction::CraftingConsumeInput(CraftingConsumeInputStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::LAB_TABLE_COMBINE => { ItemStackRequestAction::LabTableCombine(LabTableCombineInputStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::BEACON_PAYMENT => { ItemStackRequestAction::BeaconPayment(BeaconPaymentStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::MINE_BLOCK => { ItemStackRequestAction::MineBlock(MineBlockStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::CRAFTING_RECIPE => { ItemStackRequestAction::CraftRecipe(CraftRecipeStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::CRAFTING_RECIPE_AUTO => { ItemStackRequestAction::CraftRecipeAuto(CraftRecipeAutoStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::CREATIVE_CREATE => { ItemStackRequestAction::CreativeCreate(CreativeCreateStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::CRAFTING_RECIPE_OPTIONAL => { ItemStackRequestAction::CraftRecipeOptional(CraftRecipeOptionalStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::CRAFTING_GRINDSTONE => { ItemStackRequestAction::Grindstone(GrindstoneStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::CRAFTING_LOOM => { ItemStackRequestAction::Loom(LoomStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::CRAFTING_NON_IMPLEMENTED_DEPRECATED_ASK_TY_LAING => { ItemStackRequestAction::DeprecatedCraftingNonImplemented(DeprecatedCraftingNonImplementedStackRequestAction::read(stream)) }
-            ItemStackRequestActionType::CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING => { ItemStackRequestAction::DeprecatedCraftingResults(DeprecatedCraftingResultsStackRequestAction::read(stream)) }
-            _ => { panic!("Unhandled item stack request action type {}", type_id) },
+            ItemStackRequestActionType::TAKE => {
+                ItemStackRequestAction::Take(TakeStackRequestAction::read(stream))
+            }
+            ItemStackRequestActionType::PLACE => {
+                ItemStackRequestAction::Place(PlaceStackRequestAction::read(stream))
+            }
+            ItemStackRequestActionType::SWAP => {
+                ItemStackRequestAction::Swap(SwapStackRequestAction::read(stream))
+            }
+            ItemStackRequestActionType::DROP => {
+                ItemStackRequestAction::Drop(DropStackRequestAction::read(stream))
+            }
+            ItemStackRequestActionType::DESTROY => {
+                ItemStackRequestAction::Destroy(DestroyStackRequestAction::read(stream))
+            }
+            ItemStackRequestActionType::CRAFTING_CONSUME_INPUT => {
+                ItemStackRequestAction::CraftingConsumeInput(
+                    CraftingConsumeInputStackRequestAction::read(stream),
+                )
+            }
+            ItemStackRequestActionType::LAB_TABLE_COMBINE => {
+                ItemStackRequestAction::LabTableCombine(
+                    LabTableCombineInputStackRequestAction::read(stream),
+                )
+            }
+            ItemStackRequestActionType::BEACON_PAYMENT => {
+                ItemStackRequestAction::BeaconPayment(BeaconPaymentStackRequestAction::read(stream))
+            }
+            ItemStackRequestActionType::MINE_BLOCK => {
+                ItemStackRequestAction::MineBlock(MineBlockStackRequestAction::read(stream))
+            }
+            ItemStackRequestActionType::CRAFTING_RECIPE => {
+                ItemStackRequestAction::CraftRecipe(CraftRecipeStackRequestAction::read(stream))
+            }
+            ItemStackRequestActionType::CRAFTING_RECIPE_AUTO => {
+                ItemStackRequestAction::CraftRecipeAuto(CraftRecipeAutoStackRequestAction::read(
+                    stream,
+                ))
+            }
+            ItemStackRequestActionType::CREATIVE_CREATE => ItemStackRequestAction::CreativeCreate(
+                CreativeCreateStackRequestAction::read(stream),
+            ),
+            ItemStackRequestActionType::CRAFTING_RECIPE_OPTIONAL => {
+                ItemStackRequestAction::CraftRecipeOptional(
+                    CraftRecipeOptionalStackRequestAction::read(stream),
+                )
+            }
+            ItemStackRequestActionType::CRAFTING_GRINDSTONE => {
+                ItemStackRequestAction::Grindstone(GrindstoneStackRequestAction::read(stream))
+            }
+            ItemStackRequestActionType::CRAFTING_LOOM => {
+                ItemStackRequestAction::Loom(LoomStackRequestAction::read(stream))
+            }
+            ItemStackRequestActionType::CRAFTING_NON_IMPLEMENTED_DEPRECATED_ASK_TY_LAING => {
+                ItemStackRequestAction::DeprecatedCraftingNonImplemented(
+                    DeprecatedCraftingNonImplementedStackRequestAction::read(stream),
+                )
+            }
+            ItemStackRequestActionType::CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING => {
+                ItemStackRequestAction::DeprecatedCraftingResults(
+                    DeprecatedCraftingResultsStackRequestAction::read(stream),
+                )
+            }
+            _ => {
+                panic!("Unhandled item stack request action type {}", type_id)
+            }
         }
     }
 
@@ -71,7 +129,12 @@ impl ItemStackRequestEntry {
         }
         let filter_string_cause = stream.get_i32_le();
 
-        ItemStackRequestEntry{ request_id, actions, filter_strings, filter_string_cause }
+        ItemStackRequestEntry {
+            request_id,
+            actions,
+            filter_strings,
+            filter_string_cause,
+        }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {

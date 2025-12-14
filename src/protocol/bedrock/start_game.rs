@@ -1,7 +1,3 @@
-use std::any::Any;
-use binary_utils::binary::Stream;
-use mojang_nbt::nbt_serializer::NBTSerializer;
-use mojang_nbt::tag::tag::Tag;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
@@ -10,6 +6,10 @@ use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 use crate::protocol::bedrock::types::level_settings::LevelSettings;
 use crate::protocol::bedrock::types::network_permissions::NetworkPermissions;
 use crate::protocol::bedrock::types::player_movement_settings::PlayerMovementSettings;
+use binary_utils::binary::Stream;
+use mojang_nbt::nbt_serializer::NBTSerializer;
+use mojang_nbt::tag::tag::Tag;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct StartGame {
@@ -36,7 +36,6 @@ pub struct StartGame {
     pub world_template_id: String,
     pub enable_client_side_chunk_generation: bool,
     pub block_network_ids_are_hashes: bool,
-    pub enable_tick_death_systems: bool,
     pub network_permissions: NetworkPermissions,
 }
 
@@ -86,7 +85,11 @@ impl Packet for StartGame {
             let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
             stream.set_offset(offset);
 
-            let state = Tag::Compound(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error"));
+            let state = Tag::Compound(
+                nbt_root
+                    .must_get_compound_tag()
+                    .expect("StartGamePacket TreeRoot to CompoundTag conversion error"),
+            );
 
             block_palette.push(BlockPaletteEntry::new(block_name, CacheableNBT::new(state)));
         }
@@ -101,7 +104,11 @@ impl Packet for StartGame {
         let mut nbt_serializer = NBTSerializer::new_network();
         let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
         stream.set_offset(offset);
-        let player_actor_properties = CacheableNBT::new(Tag::Compound(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error")));
+        let player_actor_properties = CacheableNBT::new(Tag::Compound(
+            nbt_root
+                .must_get_compound_tag()
+                .expect("StartGamePacket TreeRoot to CompoundTag conversion error"),
+        ));
 
         let block_palette_checksum = stream.get_u64_le();
 
@@ -111,11 +118,9 @@ impl Packet for StartGame {
 
         let block_network_ids_are_hashes = stream.get_bool();
 
-        let enable_tick_death_systems = stream.get_bool();
-
         let network_permissions = NetworkPermissions::read(stream);
 
-        StartGame{
+        StartGame {
             actor_unique_id,
             actor_runtime_id,
             player_game_mode,
@@ -139,7 +144,6 @@ impl Packet for StartGame {
             world_template_id,
             enable_client_side_chunk_generation,
             block_network_ids_are_hashes,
-            enable_tick_death_systems,
             network_permissions,
         }
     }
@@ -154,19 +158,40 @@ impl Packet for StartGame {
         println!("Level Settings: {:?}", self.level_settings);
         println!("Level ID: {}", self.level_id);
         println!("World Name: {}", self.world_name);
-        println!("Premium World Template ID: {}", self.premium_world_template_id);
+        println!(
+            "Premium World Template ID: {}",
+            self.premium_world_template_id
+        );
         println!("Is Trial: {}", self.is_trial);
-        println!("Player Movement Settings: {:?}", self.player_movement_settings);
+        println!(
+            "Player Movement Settings: {:?}",
+            self.player_movement_settings
+        );
         println!("Current Tick: {}", self.current_tick);
         println!("Enchantment Seed: {}", self.enchantment_seed);
-        println!("Multiplayer Correlation ID: {}", self.multiplayer_correlation_id);
-        println!("Enable New Inventory System: {}", self.enable_new_inventory_system);
+        println!(
+            "Multiplayer Correlation ID: {}",
+            self.multiplayer_correlation_id
+        );
+        println!(
+            "Enable New Inventory System: {}",
+            self.enable_new_inventory_system
+        );
         println!("Server Software Version: {}", self.server_software_version);
-        println!("player_actor_properties: {:?}", self.player_actor_properties);
+        println!(
+            "player_actor_properties: {:?}",
+            self.player_actor_properties
+        );
         println!("Block Palette Checksum: {:?}", self.block_palette_checksum);
         println!("World Template ID: {:?}", self.world_template_id);
-        println!("Enable Client-side Chunk Generation: {}", self.enable_client_side_chunk_generation);
-        println!("Block Network IDs Are Hashes: {}", self.block_network_ids_are_hashes);
+        println!(
+            "Enable Client-side Chunk Generation: {}",
+            self.enable_client_side_chunk_generation
+        );
+        println!(
+            "Block Network IDs Are Hashes: {}",
+            self.block_network_ids_are_hashes
+        );
         println!("Network Permissions: {:?}", self.network_permissions);
     }
 

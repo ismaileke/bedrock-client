@@ -1,4 +1,3 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::inventory_transaction::InventoryTransaction;
 use crate::protocol::bedrock::types::inventory::mismatch_transaction_data::MismatchTransactionData;
 use crate::protocol::bedrock::types::inventory::network_inventory_action::NetworkInventoryAction;
@@ -6,6 +5,7 @@ use crate::protocol::bedrock::types::inventory::normal_transaction_data::NormalT
 use crate::protocol::bedrock::types::inventory::release_item_transaction_data::ReleaseItemTransactionData;
 use crate::protocol::bedrock::types::inventory::use_item_on_entity_transaction_data::UseItemOnEntityTransactionData;
 use crate::protocol::bedrock::types::inventory::use_item_transaction_data::UseItemTransactionData;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub enum TransactionData {
@@ -13,7 +13,7 @@ pub enum TransactionData {
     Mismatch(MismatchTransactionData),
     UseItem(UseItemTransactionData),
     ReleaseItem(ReleaseItemTransactionData),
-    UseItemOnEntity(UseItemOnEntityTransactionData)
+    UseItemOnEntity(UseItemOnEntityTransactionData),
 }
 
 impl TransactionData {
@@ -23,7 +23,7 @@ impl TransactionData {
             TransactionData::Mismatch(_) => InventoryTransaction::TYPE_MISMATCH,
             TransactionData::UseItem(_) => InventoryTransaction::TYPE_USE_ITEM,
             TransactionData::ReleaseItem(_) => InventoryTransaction::TYPE_RELEASE_ITEM,
-            TransactionData::UseItemOnEntity(_) => InventoryTransaction::TYPE_USE_ITEM_ON_ENTITY
+            TransactionData::UseItemOnEntity(_) => InventoryTransaction::TYPE_USE_ITEM_ON_ENTITY,
         }
     }
 
@@ -33,7 +33,7 @@ impl TransactionData {
             TransactionData::Mismatch(r) => r.get_actions(),
             TransactionData::UseItem(r) => r.get_actions(),
             TransactionData::ReleaseItem(r) => r.get_actions(),
-            TransactionData::UseItemOnEntity(r) => r.get_actions()
+            TransactionData::UseItemOnEntity(r) => r.get_actions(),
         }
     }
 
@@ -43,7 +43,7 @@ impl TransactionData {
             TransactionData::Mismatch(r) => r.get_actions_mut(),
             TransactionData::UseItem(r) => r.get_actions_mut(),
             TransactionData::ReleaseItem(r) => r.get_actions_mut(),
-            TransactionData::UseItemOnEntity(r) => r.get_actions_mut()
+            TransactionData::UseItemOnEntity(r) => r.get_actions_mut(),
         }
     }
 
@@ -53,7 +53,7 @@ impl TransactionData {
             TransactionData::Mismatch(r) => r.encode_data(stream),
             TransactionData::UseItem(r) => r.encode_data(stream),
             TransactionData::ReleaseItem(r) => r.encode_data(stream),
-            TransactionData::UseItemOnEntity(r) => r.encode_data(stream)
+            TransactionData::UseItemOnEntity(r) => r.encode_data(stream),
         }
     }
 
@@ -63,7 +63,7 @@ impl TransactionData {
             TransactionData::Mismatch(r) => r.decode_data(stream),
             TransactionData::UseItem(r) => r.decode_data(stream),
             TransactionData::ReleaseItem(r) => r.decode_data(stream),
-            TransactionData::UseItemOnEntity(r) => r.decode_data(stream)
+            TransactionData::UseItemOnEntity(r) => r.decode_data(stream),
         }
     }
 

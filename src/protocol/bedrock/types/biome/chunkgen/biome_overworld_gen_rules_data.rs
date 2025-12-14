@@ -1,7 +1,7 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_conditional_transformation_data::BiomeConditionalTransformationData;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_weighted_data::BiomeWeightedData;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_weighted_temperature_data::BiomeWeightedTemperatureData;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeOverworldGenRulesData {
@@ -11,7 +11,7 @@ pub struct BiomeOverworldGenRulesData {
     pub shore_transformations: Vec<BiomeWeightedData>,
     pub pre_hills_edges: Vec<BiomeConditionalTransformationData>,
     pub post_shore_edges: Vec<BiomeConditionalTransformationData>,
-    pub climates: Vec<BiomeWeightedTemperatureData>
+    pub climates: Vec<BiomeWeightedTemperatureData>,
 }
 
 impl BiomeOverworldGenRulesData {
@@ -22,16 +22,16 @@ impl BiomeOverworldGenRulesData {
         shore_transformations: Vec<BiomeWeightedData>,
         pre_hills_edges: Vec<BiomeConditionalTransformationData>,
         post_shore_edges: Vec<BiomeConditionalTransformationData>,
-        climates: Vec<BiomeWeightedTemperatureData>
+        climates: Vec<BiomeWeightedTemperatureData>,
     ) -> Self {
-        BiomeOverworldGenRulesData{
+        BiomeOverworldGenRulesData {
             hill_transformations,
             mutate_transformations,
             river_transformations,
             shore_transformations,
             pre_hills_edges,
             post_shore_edges,
-            climates
+            climates,
         }
     }
 
@@ -72,7 +72,15 @@ impl BiomeOverworldGenRulesData {
             climates.push(BiomeWeightedTemperatureData::read(stream));
         }
 
-        BiomeOverworldGenRulesData::new(hill_transformations, mutate_transformations, river_transformations, shore_transformations, pre_hills_edges, post_shore_edges, climates)
+        BiomeOverworldGenRulesData::new(
+            hill_transformations,
+            mutate_transformations,
+            river_transformations,
+            shore_transformations,
+            pre_hills_edges,
+            post_shore_edges,
+            climates,
+        )
     }
 
     pub fn write(&self, stream: &mut Stream) {

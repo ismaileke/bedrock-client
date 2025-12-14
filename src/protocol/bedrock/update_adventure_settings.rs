@@ -1,7 +1,7 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct UpdateAdventureSettings {
@@ -9,11 +9,23 @@ pub struct UpdateAdventureSettings {
     pub no_attacking_players: bool,
     pub world_immutable: bool,
     pub show_name_tags: bool,
-    pub auto_jump: bool
+    pub auto_jump: bool,
 }
 
-pub fn new(no_attacking_mobs: bool, no_attacking_players: bool, world_immutable: bool, show_name_tags: bool, auto_jump: bool) -> UpdateAdventureSettings {
-    UpdateAdventureSettings { no_attacking_mobs, no_attacking_players, world_immutable, show_name_tags, auto_jump }
+pub fn new(
+    no_attacking_mobs: bool,
+    no_attacking_players: bool,
+    world_immutable: bool,
+    show_name_tags: bool,
+    auto_jump: bool,
+) -> UpdateAdventureSettings {
+    UpdateAdventureSettings {
+        no_attacking_mobs,
+        no_attacking_players,
+        world_immutable,
+        show_name_tags,
+        auto_jump,
+    }
 }
 
 impl Packet for UpdateAdventureSettings {
@@ -45,7 +57,13 @@ impl Packet for UpdateAdventureSettings {
         let show_name_tags = stream.get_bool();
         let auto_jump = stream.get_bool();
 
-        UpdateAdventureSettings { no_attacking_mobs, no_attacking_players, world_immutable, show_name_tags, auto_jump }
+        UpdateAdventureSettings {
+            no_attacking_mobs,
+            no_attacking_players,
+            world_immutable,
+            show_name_tags,
+            auto_jump,
+        }
     }
 
     fn debug(&self) {

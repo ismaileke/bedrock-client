@@ -1,13 +1,13 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CommandOutput {}
 
 pub fn new() -> CommandOutput {
-    CommandOutput { }
+    CommandOutput {}
 }
 
 impl Packet for CommandOutput {
@@ -31,7 +31,7 @@ impl Packet for CommandOutput {
     fn decode(_stream: &mut Stream) -> CommandOutput {
         // TODO
 
-        CommandOutput { }
+        CommandOutput {}
     }
 
     fn debug(&self) {

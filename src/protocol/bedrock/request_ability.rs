@@ -1,22 +1,25 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct RequestAbility {
     pub ability_id: i32,
-    pub ability_value: AbilityValue
+    pub ability_value: AbilityValue,
 }
 
 #[derive(serde::Serialize, Debug)]
 pub enum AbilityValue {
     Bool(bool),
-    Float(f32)
+    Float(f32),
 }
 
 pub fn new(ability_id: i32, ability_value: AbilityValue) -> RequestAbility {
-    RequestAbility { ability_id, ability_value }
+    RequestAbility {
+        ability_id,
+        ability_value,
+    }
 }
 
 impl Packet for RequestAbility {
@@ -34,7 +37,7 @@ impl Packet for RequestAbility {
                 stream.put_byte(RequestAbility::VALUE_TYPE_BOOL);
                 stream.put_bool(*b);
                 stream.put_f32_le(0.0);
-            },
+            }
             AbilityValue::Float(f) => {
                 stream.put_byte(RequestAbility::VALUE_TYPE_FLOAT);
                 stream.put_bool(false);
@@ -60,7 +63,10 @@ impl Packet for RequestAbility {
             AbilityValue::Float(float_value)
         };
 
-        RequestAbility { ability_id, ability_value }
+        RequestAbility {
+            ability_id,
+            ability_value,
+        }
     }
 
     fn debug(&self) {

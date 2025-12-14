@@ -12,7 +12,7 @@ const FNV1_PRIME_64: u64 = 0x00000100000001b3;
 pub enum PropertyValue {
     Int(i32),
     Str(String),
-    Byte(i8)
+    Byte(i8),
 }
 
 pub fn fnv1a_32(data: &[u8]) -> u32 {
@@ -44,7 +44,7 @@ pub fn cartesian_product_enum(properties: &PropertyMap) -> Vec<StateCombination>
         index: usize,
         properties: &PropertyMap,
         current: &mut StateCombination,
-        results: &mut Vec<StateCombination>
+        results: &mut Vec<StateCombination>,
     ) {
         if index == keys.len() {
             results.push(current.clone());

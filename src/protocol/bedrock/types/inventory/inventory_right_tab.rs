@@ -1,4 +1,4 @@
-pub struct InventoryRightTab{}
+pub struct InventoryRightTab {}
 
 impl InventoryRightTab {
     pub const NONE: i32 = 0;

@@ -1,16 +1,20 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct GrindstoneStackRequestAction {
     recipe_id: u32,
     repair_cost: i32, //WHY
-    repetitions: u8
+    repetitions: u8,
 }
 
 impl GrindstoneStackRequestAction {
     pub fn new(recipe_id: u32, repair_cost: i32, repetitions: u8) -> GrindstoneStackRequestAction {
-        GrindstoneStackRequestAction{ recipe_id, repair_cost, repetitions }
+        GrindstoneStackRequestAction {
+            recipe_id,
+            repair_cost,
+            repetitions,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> GrindstoneStackRequestAction {
@@ -18,7 +22,11 @@ impl GrindstoneStackRequestAction {
         let repair_cost = stream.get_var_i32();
         let repetitions = stream.get_byte();
 
-        GrindstoneStackRequestAction{ recipe_id, repair_cost, repetitions }
+        GrindstoneStackRequestAction {
+            recipe_id,
+            repair_cost,
+            repetitions,
+        }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {

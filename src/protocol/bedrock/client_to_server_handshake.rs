@@ -1,13 +1,13 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::packet::Packet;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientToServerHandshake {}
 
 pub fn new() -> ClientToServerHandshake {
-    ClientToServerHandshake{}
+    ClientToServerHandshake {}
 }
 
 impl Packet for ClientToServerHandshake {
@@ -27,11 +27,10 @@ impl Packet for ClientToServerHandshake {
     }
 
     fn decode(_stream: &mut Stream) -> ClientToServerHandshake {
-        ClientToServerHandshake{}
+        ClientToServerHandshake {}
     }
 
-    fn debug(&self) {
-    }
+    fn debug(&self) {}
 
     fn as_any(&self) -> &dyn Any {
         self

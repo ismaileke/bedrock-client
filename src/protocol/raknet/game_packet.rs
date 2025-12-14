@@ -5,13 +5,15 @@ use miniz_oxide::inflate::decompress_to_vec;
 
 pub struct GamePacket {
     pub encryption: Option<Encryption>,
-    pub compress_enabled: bool
+    pub compress_enabled: bool,
 }
 
 impl GamePacket {
-
     pub fn new(encryption: Option<Encryption>, compress_enabled: bool) -> GamePacket {
-        GamePacket{ encryption, compress_enabled }
+        GamePacket {
+            encryption,
+            compress_enabled,
+        }
     }
 
     pub fn encode(&mut self, payload: &Vec<u8>) -> Vec<u8> {
@@ -24,7 +26,9 @@ impl GamePacket {
 
         let mut encrypted = compressed.clone();
         if let Some(ref mut encryption) = self.encryption {
-            encrypted = encryption.encrypt(&compressed).expect("Game Packet Encrypt Error");
+            encrypted = encryption
+                .encrypt(&compressed)
+                .expect("Game Packet Encrypt Error");
         }
 
         main_stream.put(encrypted);
@@ -41,7 +45,9 @@ impl GamePacket {
 
     pub fn decrypt(&mut self, payload: &Vec<u8>) -> Vec<u8> {
         if let Some(ref mut encryption) = self.encryption {
-            return encryption.decrypt(payload).expect("Decrypt Error GamePacket");
+            return encryption
+                .decrypt(payload)
+                .expect("Decrypt Error GamePacket");
         }
         payload.clone()
     }
@@ -68,7 +74,8 @@ impl GamePacket {
     }
 
     pub fn decompress(payload: &Vec<u8>) -> Vec<u8> {
-        let decompressed_data = decompress_to_vec(payload.as_slice()).expect("DecompressToVec Error");
+        let decompressed_data =
+            decompress_to_vec(payload.as_slice()).expect("DecompressToVec Error");
         decompressed_data
     }
 }

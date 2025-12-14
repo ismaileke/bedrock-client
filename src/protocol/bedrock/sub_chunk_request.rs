@@ -1,19 +1,27 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::sub_chunk_position_offset::SubChunkPositionOffset;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SubChunkRequest {
     pub dimension: i32,
     pub base_position: Vec<i32>,
-    pub entries: Vec<SubChunkPositionOffset>
+    pub entries: Vec<SubChunkPositionOffset>,
 }
 
-pub fn new(dimension: i32, base_position: Vec<i32>, entries: Vec<SubChunkPositionOffset>) -> SubChunkRequest {
-    SubChunkRequest{ dimension, base_position, entries }
+pub fn new(
+    dimension: i32,
+    base_position: Vec<i32>,
+    entries: Vec<SubChunkPositionOffset>,
+) -> SubChunkRequest {
+    SubChunkRequest {
+        dimension,
+        base_position,
+        entries,
+    }
 }
 
 impl Packet for SubChunkRequest {

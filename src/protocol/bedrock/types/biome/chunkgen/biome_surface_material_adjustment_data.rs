@@ -1,14 +1,14 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_element_data::BiomeElementData;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeSurfaceMaterialAdjustmentData {
-    pub adjustments: Vec<BiomeElementData>
+    pub adjustments: Vec<BiomeElementData>,
 }
 
 impl BiomeSurfaceMaterialAdjustmentData {
-    pub fn new(adjustments: Vec<BiomeElementData>,) -> Self {
-        BiomeSurfaceMaterialAdjustmentData{ adjustments }
+    pub fn new(adjustments: Vec<BiomeElementData>) -> Self {
+        BiomeSurfaceMaterialAdjustmentData { adjustments }
     }
 
     pub fn read(stream: &mut Stream) -> BiomeSurfaceMaterialAdjustmentData {

@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct NPCDialogue {
@@ -11,11 +11,25 @@ pub struct NPCDialogue {
     pub dialogue: String,
     pub scene_name: String,
     pub npc_name: String,
-    pub action_json: String
+    pub action_json: String,
 }
 
-pub fn new(npc_actor_unique_id: i64, action_type: i32, dialogue: String, scene_name: String, npc_name: String, action_json: String) -> NPCDialogue {
-    NPCDialogue {npc_actor_unique_id, action_type, dialogue, scene_name, npc_name, action_json }
+pub fn new(
+    npc_actor_unique_id: i64,
+    action_type: i32,
+    dialogue: String,
+    scene_name: String,
+    npc_name: String,
+    action_json: String,
+) -> NPCDialogue {
+    NPCDialogue {
+        npc_actor_unique_id,
+        action_type,
+        dialogue,
+        scene_name,
+        npc_name,
+        action_json,
+    }
 }
 
 impl Packet for NPCDialogue {
@@ -49,7 +63,14 @@ impl Packet for NPCDialogue {
         let npc_name = PacketSerializer::get_string(stream);
         let action_json = PacketSerializer::get_string(stream);
 
-        NPCDialogue { npc_actor_unique_id, action_type, dialogue, scene_name, npc_name, action_json }
+        NPCDialogue {
+            npc_actor_unique_id,
+            action_type,
+            dialogue,
+            scene_name,
+            npc_name,
+            action_json,
+        }
     }
 
     fn debug(&self) {

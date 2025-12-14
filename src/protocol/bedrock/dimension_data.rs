@@ -1,16 +1,15 @@
-use std::any::Any;
-use std::collections::HashMap;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::dimension_data_entry::DimensionDataEntry;
 use crate::protocol::bedrock::types::dimension_name_ids::DimensionNameIds;
+use binary_utils::binary::Stream;
+use std::any::Any;
+use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
 pub struct DimensionData {
-    pub definitions: HashMap<String, DimensionDataEntry>
-
+    pub definitions: HashMap<String, DimensionDataEntry>,
 }
 
 pub fn new(definitions: HashMap<String, DimensionDataEntry>) -> DimensionData {
@@ -49,7 +48,10 @@ impl Packet for DimensionData {
             if definitions.contains_key(&dimension_name_id) {
                 panic!("Repeated dimension data for key \"{}\"", dimension_name_id);
             }
-            if dimension_name_id != DimensionNameIds::OVERWORLD.to_string() && dimension_name_id != DimensionNameIds::NETHER.to_string() && dimension_name_id != DimensionNameIds::THE_END.to_string() {
+            if dimension_name_id != DimensionNameIds::OVERWORLD.to_string()
+                && dimension_name_id != DimensionNameIds::NETHER.to_string()
+                && dimension_name_id != DimensionNameIds::THE_END.to_string()
+            {
                 panic!("Invalid dimension name ID \"{}\"", dimension_name_id)
             }
 

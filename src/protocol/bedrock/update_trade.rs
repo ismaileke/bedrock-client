@@ -1,10 +1,10 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
-use mojang_nbt::tag::tag::Tag;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
+use binary_utils::binary::Stream;
+use mojang_nbt::tag::tag::Tag;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct UpdateTrade {
@@ -17,7 +17,7 @@ pub struct UpdateTrade {
     pub display_name: String,
     pub is_v2_trading: bool,
     pub is_economy_trading: bool,
-    pub offers: CacheableNBT
+    pub offers: CacheableNBT,
 }
 
 pub fn new(
@@ -30,9 +30,20 @@ pub fn new(
     display_name: String,
     is_v2_trading: bool,
     is_economy_trading: bool,
-    offers: CacheableNBT
+    offers: CacheableNBT,
 ) -> UpdateTrade {
-    UpdateTrade { window_id, window_type, window_slot_count, trade_tier, trader_actor_unique_id, player_actor_unique_id, display_name, is_v2_trading, is_economy_trading, offers }
+    UpdateTrade {
+        window_id,
+        window_type,
+        window_slot_count,
+        trade_tier,
+        trader_actor_unique_id,
+        player_actor_unique_id,
+        display_name,
+        is_v2_trading,
+        is_economy_trading,
+        offers,
+    }
 }
 
 impl Packet for UpdateTrade {
@@ -72,9 +83,22 @@ impl Packet for UpdateTrade {
         let display_name = PacketSerializer::get_string(stream);
         let is_v2_trading = stream.get_bool();
         let is_economy_trading = stream.get_bool();
-        let offers = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)));
+        let offers = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(
+            stream,
+        )));
 
-        UpdateTrade { window_id, window_type, window_slot_count, trade_tier, trader_actor_unique_id, player_actor_unique_id, display_name, is_v2_trading, is_economy_trading, offers }
+        UpdateTrade {
+            window_id,
+            window_type,
+            window_slot_count,
+            trade_tier,
+            trader_actor_unique_id,
+            player_actor_unique_id,
+            display_name,
+            is_v2_trading,
+            is_economy_trading,
+            offers,
+        }
     }
 
     fn debug(&self) {

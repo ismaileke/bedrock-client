@@ -8,7 +8,7 @@ pub struct BiomeCoordinateData {
     pub max_value: i16,
     pub grid_offset: u32,
     pub grid_step_size: u32,
-    pub distribution: i32
+    pub distribution: i32,
 }
 
 impl BiomeCoordinateData {
@@ -19,16 +19,16 @@ impl BiomeCoordinateData {
         max_value: i16,
         grid_offset: u32,
         grid_step_size: u32,
-        distribution: i32
+        distribution: i32,
     ) -> Self {
-        BiomeCoordinateData{
+        BiomeCoordinateData {
             min_value_type,
             min_value,
             max_value_type,
             max_value,
             grid_offset,
             grid_step_size,
-            distribution
+            distribution,
         }
     }
 
@@ -41,7 +41,15 @@ impl BiomeCoordinateData {
         let grid_step_size = stream.get_u32_le();
         let distribution = stream.get_var_i32();
 
-        BiomeCoordinateData::new(min_value_type, min_value, max_value_type, max_value, grid_offset, grid_step_size, distribution)
+        BiomeCoordinateData::new(
+            min_value_type,
+            min_value,
+            max_value_type,
+            max_value,
+            grid_offset,
+            grid_step_size,
+            distribution,
+        )
     }
 
     pub fn write(&self, stream: &mut Stream) {

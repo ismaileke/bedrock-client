@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct Respawn {
     pub position: Vec<f32>,
     pub respawn_state: u8,
-    pub actor_runtime_id: u64
+    pub actor_runtime_id: u64,
 }
 
 pub fn new(position: Vec<f32>, respawn_state: u8, actor_runtime_id: u64) -> Respawn {
-    Respawn { position, respawn_state, actor_runtime_id }
+    Respawn {
+        position,
+        respawn_state,
+        actor_runtime_id,
+    }
 }
 
 impl Packet for Respawn {
@@ -40,7 +44,11 @@ impl Packet for Respawn {
         let respawn_state = stream.get_byte();
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
 
-        Respawn { position, respawn_state, actor_runtime_id }
+        Respawn {
+            position,
+            respawn_state,
+            actor_runtime_id,
+        }
     }
 
     fn debug(&self) {

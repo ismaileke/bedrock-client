@@ -1,17 +1,20 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ShowCredits {
     pub player_actor_runtime_id: u64,
-    pub status: i32
+    pub status: i32,
 }
 
 pub fn new(player_actor_runtime_id: u64, status: i32) -> ShowCredits {
-    ShowCredits { player_actor_runtime_id, status }
+    ShowCredits {
+        player_actor_runtime_id,
+        status,
+    }
 }
 
 impl Packet for ShowCredits {
@@ -37,7 +40,10 @@ impl Packet for ShowCredits {
         let player_actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let status = stream.get_var_i32();
 
-        ShowCredits { player_actor_runtime_id, status }
+        ShowCredits {
+            player_actor_runtime_id,
+            status,
+        }
     }
 
     fn debug(&self) {

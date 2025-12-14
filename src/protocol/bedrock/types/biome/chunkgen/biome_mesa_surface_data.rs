@@ -5,12 +5,22 @@ pub struct BiomeMesaSurfaceData {
     pub clay_material: u32,
     pub hard_clay_material: u32,
     pub bryce_pillars: bool,
-    pub forest: bool
+    pub forest: bool,
 }
 
 impl BiomeMesaSurfaceData {
-    pub fn new(clay_material: u32, hard_clay_material: u32, bryce_pillars: bool, forest: bool) -> Self {
-        BiomeMesaSurfaceData{ clay_material, hard_clay_material, bryce_pillars, forest }
+    pub fn new(
+        clay_material: u32,
+        hard_clay_material: u32,
+        bryce_pillars: bool,
+        forest: bool,
+    ) -> Self {
+        BiomeMesaSurfaceData {
+            clay_material,
+            hard_clay_material,
+            bryce_pillars,
+            forest,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> BiomeMesaSurfaceData {

@@ -1,19 +1,29 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct UpdateBlock {
     pub block_position: Vec<i32>,
     pub block_runtime_id: u32,
     pub flags: u32,
-    pub data_layer_id: u32
+    pub data_layer_id: u32,
 }
 
-pub fn new(block_position: Vec<i32>, block_runtime_id: u32, flags: u32, data_layer_id: u32) -> UpdateBlock {
-    UpdateBlock { block_position, block_runtime_id, flags, data_layer_id }
+pub fn new(
+    block_position: Vec<i32>,
+    block_runtime_id: u32,
+    flags: u32,
+    data_layer_id: u32,
+) -> UpdateBlock {
+    UpdateBlock {
+        block_position,
+        block_runtime_id,
+        flags,
+        data_layer_id,
+    }
 }
 
 impl Packet for UpdateBlock {
@@ -43,7 +53,12 @@ impl Packet for UpdateBlock {
         let flags = stream.get_var_u32();
         let data_layer_id = stream.get_var_u32();
 
-        UpdateBlock { block_position, block_runtime_id, flags, data_layer_id }
+        UpdateBlock {
+            block_position,
+            block_runtime_id,
+            flags,
+            data_layer_id,
+        }
     }
 
     fn debug(&self) {

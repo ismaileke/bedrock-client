@@ -3,12 +3,12 @@ use binary_utils::binary::Stream;
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct Enchant {
     id: u8,
-    level: u8
+    level: u8,
 }
 
 impl Enchant {
     pub fn new(id: u8, level: u8) -> Enchant {
-        Enchant{ id, level }
+        Enchant { id, level }
     }
 
     pub fn get_id(&self) -> u8 {
@@ -23,7 +23,7 @@ impl Enchant {
         let id = stream.get_byte();
         let level = stream.get_byte();
 
-        Enchant{ id, level }
+        Enchant { id, level }
     }
 
     pub fn write(&self, stream: &mut Stream) {

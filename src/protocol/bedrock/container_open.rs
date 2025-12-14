@@ -1,19 +1,29 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ContainerOpen {
     pub window_id: u8,
     pub window_type: u8,
     pub block_position: Vec<i32>,
-    pub actor_unique_id: i64
+    pub actor_unique_id: i64,
 }
 
-pub fn new(window_id: u8, window_type: u8, block_position: Vec<i32>, actor_unique_id: i64,) -> ContainerOpen {
-    ContainerOpen { window_id, window_type, block_position, actor_unique_id }
+pub fn new(
+    window_id: u8,
+    window_type: u8,
+    block_position: Vec<i32>,
+    actor_unique_id: i64,
+) -> ContainerOpen {
+    ContainerOpen {
+        window_id,
+        window_type,
+        block_position,
+        actor_unique_id,
+    }
 }
 
 impl Packet for ContainerOpen {
@@ -43,7 +53,12 @@ impl Packet for ContainerOpen {
         let block_position = PacketSerializer::get_block_pos(stream);
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
 
-        ContainerOpen { window_id, window_type, block_position, actor_unique_id }
+        ContainerOpen {
+            window_id,
+            window_type,
+            block_position,
+            actor_unique_id,
+        }
     }
 
     fn debug(&self) {

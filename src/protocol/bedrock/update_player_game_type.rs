@@ -1,18 +1,22 @@
-use std::any::Any;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct UpdatePlayerGameType {
     pub game_mode: i32,
     pub player_actor_unique_id: i64,
-    pub tick: u64
+    pub tick: u64,
 }
 
 pub fn new(game_mode: i32, player_actor_unique_id: i64, tick: u64) -> UpdatePlayerGameType {
-    UpdatePlayerGameType{ game_mode, player_actor_unique_id, tick }
+    UpdatePlayerGameType {
+        game_mode,
+        player_actor_unique_id,
+        tick,
+    }
 }
 
 impl Packet for UpdatePlayerGameType {
@@ -40,7 +44,11 @@ impl Packet for UpdatePlayerGameType {
         let player_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let tick = stream.get_var_u64();
 
-        UpdatePlayerGameType { game_mode, player_actor_unique_id, tick }
+        UpdatePlayerGameType {
+            game_mode,
+            player_actor_unique_id,
+            tick,
+        }
     }
 
     fn debug(&self) {

@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct MovePlayer {
@@ -17,11 +17,37 @@ pub struct MovePlayer {
     pub riding_actor_runtime_id: u64,
     pub teleport_cause: i32,
     pub teleport_item: i32,
-    pub tick: u64
+    pub tick: u64,
 }
 
-pub fn new(actor_runtime_id: u64, flags: u8, position: Vec<f32>, pitch: f32, yaw: f32, head_yaw: f32, mode: u8, on_ground: bool, riding_actor_runtime_id: u64, teleport_cause: i32, teleport_item: i32, tick: u64) -> MovePlayer {
-    MovePlayer { actor_runtime_id, flags, position, pitch, yaw, head_yaw, mode, on_ground, riding_actor_runtime_id, teleport_cause, teleport_item, tick }
+pub fn new(
+    actor_runtime_id: u64,
+    flags: u8,
+    position: Vec<f32>,
+    pitch: f32,
+    yaw: f32,
+    head_yaw: f32,
+    mode: u8,
+    on_ground: bool,
+    riding_actor_runtime_id: u64,
+    teleport_cause: i32,
+    teleport_item: i32,
+    tick: u64,
+) -> MovePlayer {
+    MovePlayer {
+        actor_runtime_id,
+        flags,
+        position,
+        pitch,
+        yaw,
+        head_yaw,
+        mode,
+        on_ground,
+        riding_actor_runtime_id,
+        teleport_cause,
+        teleport_item,
+        tick,
+    }
 }
 
 impl Packet for MovePlayer {
@@ -72,7 +98,20 @@ impl Packet for MovePlayer {
         }
         let tick = stream.get_var_u64();
 
-        MovePlayer { actor_runtime_id, flags, position, pitch, yaw, head_yaw, mode, on_ground, riding_actor_runtime_id, teleport_cause, teleport_item, tick }
+        MovePlayer {
+            actor_runtime_id,
+            flags,
+            position,
+            pitch,
+            yaw,
+            head_yaw,
+            mode,
+            on_ground,
+            riding_actor_runtime_id,
+            teleport_cause,
+            teleport_item,
+            tick,
+        }
     }
 
     fn debug(&self) {

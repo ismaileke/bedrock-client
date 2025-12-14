@@ -1,13 +1,13 @@
 #![recursion_limit = "16384"]
 pub mod client;
-pub mod protocol;
-pub mod utils;
 pub mod handler;
 pub mod macros;
+pub mod protocol;
+pub mod utils;
 
 const RAKNET_PROTOCOL_VERSION: u8 = 11;
-const BEDROCK_PROTOCOL_VERSION: u32 = 860;
-const VANILLA_BLOCK_PALETTE: &[u8] = include_bytes!("../resources/block_palette_859.nbt");
+const BEDROCK_PROTOCOL_VERSION: u32 = 898;
+const VANILLA_BLOCK_PALETTE: &[u8] = include_bytes!("../resources/block_palette_897.nbt");
 
 /*
 use std::ffi::CStr;

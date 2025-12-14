@@ -1,16 +1,18 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CurrentStructureFeature {
-    pub current_structure_feature: String
+    pub current_structure_feature: String,
 }
 
 pub fn new(current_structure_feature: String) -> CurrentStructureFeature {
-    CurrentStructureFeature { current_structure_feature }
+    CurrentStructureFeature {
+        current_structure_feature,
+    }
 }
 
 impl Packet for CurrentStructureFeature {
@@ -34,11 +36,16 @@ impl Packet for CurrentStructureFeature {
     fn decode(stream: &mut Stream) -> CurrentStructureFeature {
         let current_structure_feature = PacketSerializer::get_string(stream);
 
-        CurrentStructureFeature { current_structure_feature }
+        CurrentStructureFeature {
+            current_structure_feature,
+        }
     }
 
     fn debug(&self) {
-        println!("Current Structure Feature: {}", self.current_structure_feature);
+        println!(
+            "Current Structure Feature: {}",
+            self.current_structure_feature
+        );
     }
 
     fn as_any(&self) -> &dyn Any {

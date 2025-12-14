@@ -1,15 +1,23 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_weighted_data::BiomeWeightedData;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeConditionalTransformationData {
     pub weighted_biomes: Vec<BiomeWeightedData>,
     pub condition_json: i16,
-    pub min_passing_neighbors: u32
+    pub min_passing_neighbors: u32,
 }
 impl BiomeConditionalTransformationData {
-    pub fn new(weighted_biomes: Vec<BiomeWeightedData>, condition_json: i16, min_passing_neighbors: u32) -> Self {
-        BiomeConditionalTransformationData{ weighted_biomes, condition_json, min_passing_neighbors }
+    pub fn new(
+        weighted_biomes: Vec<BiomeWeightedData>,
+        condition_json: i16,
+        min_passing_neighbors: u32,
+    ) -> Self {
+        BiomeConditionalTransformationData {
+            weighted_biomes,
+            condition_json,
+            min_passing_neighbors,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> BiomeConditionalTransformationData {
@@ -21,7 +29,11 @@ impl BiomeConditionalTransformationData {
         let condition_json = stream.get_i16_le();
         let min_passing_neighbors = stream.get_u32_le();
 
-        BiomeConditionalTransformationData::new(weighted_biomes, condition_json, min_passing_neighbors)
+        BiomeConditionalTransformationData::new(
+            weighted_biomes,
+            condition_json,
+            min_passing_neighbors,
+        )
     }
 
     pub fn write(&self, stream: &mut Stream) {

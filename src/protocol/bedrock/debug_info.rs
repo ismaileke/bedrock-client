@@ -1,17 +1,20 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct DebugInfo {
     pub actor_unique_id: i64,
-    pub data: String
+    pub data: String,
 }
 
 pub fn new(actor_unique_id: i64, data: String) -> DebugInfo {
-    DebugInfo { actor_unique_id, data }
+    DebugInfo {
+        actor_unique_id,
+        data,
+    }
 }
 
 impl Packet for DebugInfo {
@@ -37,7 +40,10 @@ impl Packet for DebugInfo {
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let data = PacketSerializer::get_string(stream);
 
-        DebugInfo { actor_unique_id, data }
+        DebugInfo {
+            actor_unique_id,
+            data,
+        }
     }
 
     fn debug(&self) {

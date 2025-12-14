@@ -3,12 +3,18 @@ use binary_utils::binary::Stream;
 #[derive(serde::Serialize, Debug)]
 pub struct InventoryTransactionChangedSlotsHack {
     container_id: u8,
-    changed_slot_indexes: Vec<u8>
+    changed_slot_indexes: Vec<u8>,
 }
 
 impl InventoryTransactionChangedSlotsHack {
-    pub fn new(container_id: u8, changed_slot_indexes: Vec<u8>) -> InventoryTransactionChangedSlotsHack {
-        InventoryTransactionChangedSlotsHack{ container_id, changed_slot_indexes }
+    pub fn new(
+        container_id: u8,
+        changed_slot_indexes: Vec<u8>,
+    ) -> InventoryTransactionChangedSlotsHack {
+        InventoryTransactionChangedSlotsHack {
+            container_id,
+            changed_slot_indexes,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> InventoryTransactionChangedSlotsHack {
@@ -19,7 +25,10 @@ impl InventoryTransactionChangedSlotsHack {
             changed_slot_indexes.push(stream.get_byte());
         }
 
-        InventoryTransactionChangedSlotsHack{ container_id, changed_slot_indexes  }
+        InventoryTransactionChangedSlotsHack {
+            container_id,
+            changed_slot_indexes,
+        }
     }
 
     pub fn write(&self, stream: &mut Stream) {
@@ -28,6 +37,5 @@ impl InventoryTransactionChangedSlotsHack {
         for i in self.changed_slot_indexes.iter() {
             stream.put_byte(*i);
         }
-
     }
 }

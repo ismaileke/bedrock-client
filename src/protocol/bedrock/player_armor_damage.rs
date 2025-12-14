@@ -1,16 +1,18 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::armor_slot_and_damage_pair::ArmorSlotAndDamagePair;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerArmorDamage {
-    pub armor_slot_and_damage_pairs: Vec<ArmorSlotAndDamagePair>
+    pub armor_slot_and_damage_pairs: Vec<ArmorSlotAndDamagePair>,
 }
 
 pub fn new(armor_slot_and_damage_pairs: Vec<ArmorSlotAndDamagePair>) -> PlayerArmorDamage {
-    PlayerArmorDamage { armor_slot_and_damage_pairs }
+    PlayerArmorDamage {
+        armor_slot_and_damage_pairs,
+    }
 }
 
 impl Packet for PlayerArmorDamage {
@@ -41,11 +43,16 @@ impl Packet for PlayerArmorDamage {
             armor_slot_and_damage_pairs.push(ArmorSlotAndDamagePair::read(stream));
         }
 
-        PlayerArmorDamage { armor_slot_and_damage_pairs }
+        PlayerArmorDamage {
+            armor_slot_and_damage_pairs,
+        }
     }
 
     fn debug(&self) {
-        println!("Armor Slot and Damage Pairs: {:?}", self.armor_slot_and_damage_pairs);
+        println!(
+            "Armor Slot and Damage Pairs: {:?}",
+            self.armor_slot_and_damage_pairs
+        );
     }
 
     fn as_any(&self) -> &dyn Any {

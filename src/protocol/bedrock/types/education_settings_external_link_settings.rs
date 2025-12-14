@@ -1,10 +1,10 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct EducationSettingsExternalLinkSettings {
     pub url: String,
-    pub display_name: String
+    pub display_name: String,
 }
 
 impl EducationSettingsExternalLinkSettings {
@@ -12,7 +12,7 @@ impl EducationSettingsExternalLinkSettings {
         let url = PacketSerializer::get_string(stream);
         let display_name = PacketSerializer::get_string(stream);
 
-        EducationSettingsExternalLinkSettings{ url, display_name }
+        EducationSettingsExternalLinkSettings { url, display_name }
     }
 
     pub fn write(&self, stream: &mut Stream) {

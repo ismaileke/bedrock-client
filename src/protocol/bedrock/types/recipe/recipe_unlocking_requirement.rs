@@ -1,15 +1,17 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::recipe::recipe_ingredient::RecipeIngredient;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct RecipeUnlockingRequirement {
-    unlocking_ingredients: Option<Vec<RecipeIngredient>>
+    unlocking_ingredients: Option<Vec<RecipeIngredient>>,
 }
 
 impl RecipeUnlockingRequirement {
     pub fn new(unlocking_ingredients: Option<Vec<RecipeIngredient>>) -> RecipeUnlockingRequirement {
-        RecipeUnlockingRequirement{ unlocking_ingredients }
+        RecipeUnlockingRequirement {
+            unlocking_ingredients,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> RecipeUnlockingRequirement {
@@ -26,7 +28,9 @@ impl RecipeUnlockingRequirement {
             unlocking_ingredients = Some(unlocking_ingredients2);
         }
 
-        RecipeUnlockingRequirement{ unlocking_ingredients }
+        RecipeUnlockingRequirement {
+            unlocking_ingredients,
+        }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {

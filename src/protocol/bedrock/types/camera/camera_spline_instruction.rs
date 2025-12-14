@@ -1,6 +1,6 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_rotation_option::CameraRotationOption;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraSplineInstruction {
@@ -8,12 +8,24 @@ pub struct CameraSplineInstruction {
     pub ease_type: u8, // see types/camera/camera_set_instruction_ease_type.rs
     pub curve: Vec<Vec<f32>>,
     pub progress_key_frames: Vec<Vec<f32>>,
-    pub rotation_options: Vec<CameraRotationOption>
+    pub rotation_options: Vec<CameraRotationOption>,
 }
 
 impl CameraSplineInstruction {
-    pub fn new(total_time: f32, ease_type: u8, curve: Vec<Vec<f32>>, progress_key_frames: Vec<Vec<f32>>, rotation_options: Vec<CameraRotationOption>) -> CameraSplineInstruction {
-        CameraSplineInstruction{ total_time, ease_type, curve, progress_key_frames, rotation_options }
+    pub fn new(
+        total_time: f32,
+        ease_type: u8,
+        curve: Vec<Vec<f32>>,
+        progress_key_frames: Vec<Vec<f32>>,
+        rotation_options: Vec<CameraRotationOption>,
+    ) -> CameraSplineInstruction {
+        CameraSplineInstruction {
+            total_time,
+            ease_type,
+            curve,
+            progress_key_frames,
+            rotation_options,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> CameraSplineInstruction {
@@ -38,7 +50,13 @@ impl CameraSplineInstruction {
             rotation_options.push(CameraRotationOption::read(stream));
         }
 
-        CameraSplineInstruction{ total_time, ease_type, curve, progress_key_frames, rotation_options }
+        CameraSplineInstruction {
+            total_time,
+            ease_type,
+            curve,
+            progress_key_frames,
+            rotation_options,
+        }
     }
 
     pub fn write(&self, stream: &mut Stream) {

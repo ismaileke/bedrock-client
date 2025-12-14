@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AnimateEntity {
@@ -12,11 +12,27 @@ pub struct AnimateEntity {
     pub stop_expression_version: i32,
     pub controller: String,
     pub blend_out_time: f32,
-    pub actor_runtime_ids: Vec<u64>
+    pub actor_runtime_ids: Vec<u64>,
 }
 
-pub fn new(animation: String, next_state: String, stop_expression: String, stop_expression_version: i32, controller: String, blend_out_time: f32, actor_runtime_ids: Vec<u64>) -> AnimateEntity {
-    AnimateEntity { animation, next_state, stop_expression, stop_expression_version, controller, blend_out_time, actor_runtime_ids }
+pub fn new(
+    animation: String,
+    next_state: String,
+    stop_expression: String,
+    stop_expression_version: i32,
+    controller: String,
+    blend_out_time: f32,
+    actor_runtime_ids: Vec<u64>,
+) -> AnimateEntity {
+    AnimateEntity {
+        animation,
+        next_state,
+        stop_expression,
+        stop_expression_version,
+        controller,
+        blend_out_time,
+        actor_runtime_ids,
+    }
 }
 
 impl Packet for AnimateEntity {
@@ -59,7 +75,15 @@ impl Packet for AnimateEntity {
             actor_runtime_ids.push(PacketSerializer::get_actor_runtime_id(stream));
         }
 
-        AnimateEntity { animation, next_state, stop_expression, stop_expression_version, controller, blend_out_time, actor_runtime_ids }
+        AnimateEntity {
+            animation,
+            next_state,
+            stop_expression,
+            stop_expression_version,
+            controller,
+            blend_out_time,
+            actor_runtime_ids,
+        }
     }
 
     fn debug(&self) {

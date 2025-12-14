@@ -1,8 +1,8 @@
-use std::any::Any;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ResourcePacksInfo {
@@ -12,7 +12,7 @@ pub struct ResourcePacksInfo {
     pub world_template_id: String,
     pub world_template_version: String,
     pub force_disable_vibrant_visuals: bool,
-    pub resource_packs: Vec<ResourcePack>
+    pub resource_packs: Vec<ResourcePack>,
 }
 
 #[derive(serde::Serialize, Debug)]
@@ -26,7 +26,7 @@ pub struct ResourcePack {
     pub has_scripts: bool,
     pub is_addon_pack: bool,
     pub is_rtx_capable: bool,
-    pub cdn_url: String
+    pub cdn_url: String,
 }
 
 impl Packet for ResourcePacksInfo {
@@ -60,10 +60,29 @@ impl Packet for ResourcePacksInfo {
             let is_rtx_capable = stream.get_bool();
             let cdn_url = PacketSerializer::get_string(stream);
 
-            resource_packs.push(ResourcePack{ uuid, version, size_bytes, encryption_key, sub_pack_name, content_id, has_scripts, is_addon_pack, is_rtx_capable, cdn_url });
+            resource_packs.push(ResourcePack {
+                uuid,
+                version,
+                size_bytes,
+                encryption_key,
+                sub_pack_name,
+                content_id,
+                has_scripts,
+                is_addon_pack,
+                is_rtx_capable,
+                cdn_url,
+            });
         }
 
-        ResourcePacksInfo { must_accept, has_addons, has_scripts, world_template_id, world_template_version, force_disable_vibrant_visuals, resource_packs }
+        ResourcePacksInfo {
+            must_accept,
+            has_addons,
+            has_scripts,
+            world_template_id,
+            world_template_version,
+            force_disable_vibrant_visuals,
+            resource_packs,
+        }
     }
 
     fn debug(&self) {
@@ -72,7 +91,10 @@ impl Packet for ResourcePacksInfo {
         println!("Has Scripts: {}", self.has_scripts);
         println!("World Template ID: {}", self.world_template_id);
         println!("World Template Version: {}", self.world_template_version);
-        println!("Force Disable Vibrant Visuals: {}", self.force_disable_vibrant_visuals);
+        println!(
+            "Force Disable Vibrant Visuals: {}",
+            self.force_disable_vibrant_visuals
+        );
         println!("Resource Pack Count: {}", self.resource_packs.len());
         for (i, resource_pack) in self.resource_packs.iter().enumerate() {
             println!("- Resource Pack {} -", i + 1);

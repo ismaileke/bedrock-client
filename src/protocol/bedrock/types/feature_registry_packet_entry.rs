@@ -1,10 +1,10 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct FeatureRegistryPacketEntry {
     feature_name: String,
-    feature_json: String
+    feature_json: String,
 }
 
 impl FeatureRegistryPacketEntry {
@@ -12,7 +12,10 @@ impl FeatureRegistryPacketEntry {
         let feature_name = PacketSerializer::get_string(stream);
         let feature_json = PacketSerializer::get_string(stream);
 
-        FeatureRegistryPacketEntry{ feature_name, feature_json }
+        FeatureRegistryPacketEntry {
+            feature_name,
+            feature_json,
+        }
     }
 
     pub fn write(&self, stream: &mut Stream) {

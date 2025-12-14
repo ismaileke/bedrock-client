@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct UpdateSoftEnum {
     pub enum_name: String,
     pub values: Vec<String>,
-    pub action_type: u8
+    pub action_type: u8,
 }
 
 pub fn new(enum_name: String, values: Vec<String>, action_type: u8) -> UpdateSoftEnum {
-    UpdateSoftEnum { enum_name, values, action_type }
+    UpdateSoftEnum {
+        enum_name,
+        values,
+        action_type,
+    }
 }
 
 impl Packet for UpdateSoftEnum {
@@ -47,7 +51,11 @@ impl Packet for UpdateSoftEnum {
         }
         let action_type = stream.get_byte();
 
-        UpdateSoftEnum { enum_name, values, action_type }
+        UpdateSoftEnum {
+            enum_name,
+            values,
+            action_type,
+        }
     }
 
     fn debug(&self) {

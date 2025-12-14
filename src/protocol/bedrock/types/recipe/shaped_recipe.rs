@@ -1,9 +1,9 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::crafting_data::CraftingData;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
 use crate::protocol::bedrock::types::recipe::recipe_ingredient::RecipeIngredient;
 use crate::protocol::bedrock::types::recipe::recipe_unlocking_requirement::RecipeUnlockingRequirement;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ShapedRecipe {
@@ -16,22 +16,44 @@ pub struct ShapedRecipe {
     priority: i32,
     symmetric: bool,
     unlocking_requirement: RecipeUnlockingRequirement,
-    recipe_net_id: u32
+    recipe_net_id: u32,
 }
 
 impl ShapedRecipe {
-    pub fn new(type_id: i32, recipe_id: String, inputs: Vec<Vec<RecipeIngredient>>, outputs: Vec<ItemStack>, uuid: String, block_name: String, priority: i32, symmetric: bool, unlocking_requirement: RecipeUnlockingRequirement, recipe_net_id: u32) -> ShapedRecipe {
+    pub fn new(
+        type_id: i32,
+        recipe_id: String,
+        inputs: Vec<Vec<RecipeIngredient>>,
+        outputs: Vec<ItemStack>,
+        uuid: String,
+        block_name: String,
+        priority: i32,
+        symmetric: bool,
+        unlocking_requirement: RecipeUnlockingRequirement,
+        recipe_net_id: u32,
+    ) -> ShapedRecipe {
         let rows = inputs.len();
         if rows < 1 || rows > 3 {
             panic!("Expected 1, 2 or 3 input rows");
         }
-        ShapedRecipe{ type_id, recipe_id, inputs, outputs, uuid, block_name, priority, symmetric, unlocking_requirement, recipe_net_id }
+        ShapedRecipe {
+            type_id,
+            recipe_id,
+            inputs,
+            outputs,
+            uuid,
+            block_name,
+            priority,
+            symmetric,
+            unlocking_requirement,
+            recipe_net_id,
+        }
     }
 
     pub fn get_type_ids() -> Vec<i32> {
         Vec::from([
             CraftingData::ENTRY_SHAPED,
-            CraftingData::ENTRY_SHAPED_CHEMISTRY
+            CraftingData::ENTRY_SHAPED_CHEMISTRY,
         ])
     }
 
@@ -64,7 +86,6 @@ impl ShapedRecipe {
         let count = stream.get_var_u32();
         for _ in 0..count {
             outputs.push(PacketSerializer::get_item_stack_without_stack_id(stream));
-
         }
         let uuid = PacketSerializer::get_uuid(stream);
         let block_name = PacketSerializer::get_string(stream);
@@ -73,7 +94,18 @@ impl ShapedRecipe {
         let unlocking_requirement = RecipeUnlockingRequirement::read(stream);
         let recipe_net_id = PacketSerializer::read_recipe_net_id(stream);
 
-        ShapedRecipe{ type_id, recipe_id, inputs, outputs, uuid, block_name, priority, symmetric, unlocking_requirement, recipe_net_id }
+        ShapedRecipe {
+            type_id,
+            recipe_id,
+            inputs,
+            outputs,
+            uuid,
+            block_name,
+            priority,
+            symmetric,
+            unlocking_requirement,
+            recipe_net_id,
+        }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {

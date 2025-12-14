@@ -1,16 +1,19 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientCacheBlobStatus {
     pub miss_hashes: Vec<u64>,
-    pub hit_hashes: Vec<u64>
+    pub hit_hashes: Vec<u64>,
 }
 
 pub fn new(miss_hashes: Vec<u64>, hit_hashes: Vec<u64>) -> ClientCacheBlobStatus {
-    ClientCacheBlobStatus { miss_hashes, hit_hashes }
+    ClientCacheBlobStatus {
+        miss_hashes,
+        hit_hashes,
+    }
 }
 
 impl Packet for ClientCacheBlobStatus {
@@ -50,7 +53,10 @@ impl Packet for ClientCacheBlobStatus {
             hit_hashes.push(stream.get_u64_le());
         }
 
-        ClientCacheBlobStatus { miss_hashes, hit_hashes }
+        ClientCacheBlobStatus {
+            miss_hashes,
+            hit_hashes,
+        }
     }
 
     fn debug(&self) {

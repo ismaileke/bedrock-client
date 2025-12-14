@@ -1,9 +1,9 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct MobEquipment {
@@ -11,11 +11,23 @@ pub struct MobEquipment {
     pub item: ItemStackWrapper,
     pub inventory_slot: u8,
     pub hotbar_slot: u8,
-    pub window_id: u8
+    pub window_id: u8,
 }
 
-pub fn new(actor_runtime_id: u64, item: ItemStackWrapper, inventory_slot: u8, hotbar_slot: u8, window_id: u8) -> MobEquipment {
-    MobEquipment { actor_runtime_id, item, inventory_slot, hotbar_slot, window_id }
+pub fn new(
+    actor_runtime_id: u64,
+    item: ItemStackWrapper,
+    inventory_slot: u8,
+    hotbar_slot: u8,
+    window_id: u8,
+) -> MobEquipment {
+    MobEquipment {
+        actor_runtime_id,
+        item,
+        inventory_slot,
+        hotbar_slot,
+        window_id,
+    }
 }
 
 impl Packet for MobEquipment {
@@ -47,7 +59,13 @@ impl Packet for MobEquipment {
         let hotbar_slot = stream.get_byte();
         let window_id = stream.get_byte();
 
-        MobEquipment { actor_runtime_id, item, inventory_slot, hotbar_slot, window_id }
+        MobEquipment {
+            actor_runtime_id,
+            item,
+            inventory_slot,
+            hotbar_slot,
+            window_id,
+        }
     }
 
     fn debug(&self) {

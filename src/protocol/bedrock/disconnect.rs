@@ -1,15 +1,15 @@
-use std::any::Any;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct Disconnect {
     pub reason: i32,
     pub skip_message: bool,
     pub message: Option<String>,
-    pub filtered_message: Option<String>
+    pub filtered_message: Option<String>,
 }
 
 impl Packet for Disconnect {
@@ -46,14 +46,22 @@ impl Packet for Disconnect {
             filtered_message = Option::from(PacketSerializer::get_string(stream));
         }
 
-        Disconnect { reason, skip_message, message, filtered_message }
+        Disconnect {
+            reason,
+            skip_message,
+            message,
+            filtered_message,
+        }
     }
 
     fn debug(&self) {
         println!("Reason: {}", self.reason);
         if !self.skip_message {
             println!("Message: {}", self.message.clone().unwrap());
-            println!("Filtered Message: {}", self.filtered_message.clone().unwrap());
+            println!(
+                "Filtered Message: {}",
+                self.filtered_message.clone().unwrap()
+            );
         }
     }
 

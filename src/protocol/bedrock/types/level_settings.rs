@@ -1,10 +1,10 @@
-use std::collections::HashMap;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::education_uri_resource::EducationUriResource;
 use crate::protocol::bedrock::types::experiments::Experiments;
 use crate::protocol::bedrock::types::game_rule::GameRule;
 use crate::protocol::bedrock::types::spawn_settings::SpawnSettings;
+use binary_utils::binary::Stream;
+use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
 pub struct LevelSettings {
@@ -59,7 +59,7 @@ pub struct LevelSettings {
     pub server_identifier: String,
     pub world_identifier: String,
     pub scenario_identifier: String,
-    pub owner_identifier: String
+    pub owner_identifier: String,
 }
 
 impl LevelSettings {
@@ -116,8 +116,8 @@ impl LevelSettings {
         let world_identifier = PacketSerializer::get_string(stream);
         let scenario_identifier = PacketSerializer::get_string(stream);
         let owner_identifier = PacketSerializer::get_string(stream);
-        
-        LevelSettings{
+
+        LevelSettings {
             seed,
             spawn_settings,
             generator,
@@ -169,7 +169,7 @@ impl LevelSettings {
             server_identifier,
             world_identifier,
             scenario_identifier,
-            owner_identifier
+            owner_identifier,
         }
     }
 }

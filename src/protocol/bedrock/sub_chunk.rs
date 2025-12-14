@@ -1,17 +1,17 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::sub_chunk_entry_with_cache::SubChunkEntryWithCache;
 use crate::protocol::bedrock::types::sub_chunk_entry_with_cache_list::SubChunkEntryWithCacheList;
 use crate::protocol::bedrock::types::sub_chunk_entry_without_cache::SubChunkEntryWithoutCache;
 use crate::protocol::bedrock::types::sub_chunk_entry_without_cache_list::SubChunkEntryWithoutCacheList;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SubChunk {
     pub dimension: i32,
     pub base_sub_chunk_position: Vec<i32>,
-    pub entries: SubChunkEntries
+    pub entries: SubChunkEntries,
 }
 
 #[derive(serde::Serialize, Debug)]
@@ -20,8 +20,16 @@ pub enum SubChunkEntries {
     ListWithoutCache(SubChunkEntryWithoutCacheList),
 }
 
-pub fn new(dimension: i32, base_sub_chunk_position: Vec<i32>, entries: SubChunkEntries) -> SubChunk {
-    SubChunk { dimension, base_sub_chunk_position, entries }
+pub fn new(
+    dimension: i32,
+    base_sub_chunk_position: Vec<i32>,
+    entries: SubChunkEntries,
+) -> SubChunk {
+    SubChunk {
+        dimension,
+        base_sub_chunk_position,
+        entries,
+    }
 }
 
 impl Packet for SubChunk {
@@ -45,7 +53,7 @@ impl Packet for SubChunk {
                 for entry in list.get_entries() {
                     entry.write(&mut stream);
                 }
-            },
+            }
             SubChunkEntries::ListWithoutCache(list) => {
                 stream.put_u32_le(list.get_entries().len() as u32);
                 for entry in list.get_entries() {
@@ -53,10 +61,10 @@ impl Packet for SubChunk {
                 }
             }
         }; // check later
-        /*stream.put_l_int(self.entries.len() as u32);
-        for entry in self.entries {
-            entry.write(&mut stream);
-        }*/
+           /*stream.put_l_int(self.entries.len() as u32);
+           for entry in self.entries {
+               entry.write(&mut stream);
+           }*/
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -88,12 +96,19 @@ impl Packet for SubChunk {
             SubChunkEntries::ListWithoutCache(SubChunkEntryWithoutCacheList::new(sub_entries))
         };
 
-        SubChunk { dimension, base_sub_chunk_position, entries }
+        SubChunk {
+            dimension,
+            base_sub_chunk_position,
+            entries,
+        }
     }
 
     fn debug(&self) {
         println!("Dimension: {:?}", self.dimension);
-        println!("Base sub chunk position: {:?}", self.base_sub_chunk_position);
+        println!(
+            "Base sub chunk position: {:?}",
+            self.base_sub_chunk_position
+        );
         println!("Entries: {:?}", self.entries);
     }
 

@@ -5,11 +5,11 @@ pub struct DestroyStackRequestAction {}
 
 impl DestroyStackRequestAction {
     pub fn new() -> DestroyStackRequestAction {
-        DestroyStackRequestAction{}
+        DestroyStackRequestAction {}
     }
 
     pub fn read(_stream: &mut Stream) -> DestroyStackRequestAction {
-        DestroyStackRequestAction{}
+        DestroyStackRequestAction {}
     }
 
     pub fn write(&mut self, _stream: &mut Stream) {}

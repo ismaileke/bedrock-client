@@ -3,12 +3,12 @@ use binary_utils::binary::Stream;
 #[derive(serde::Serialize, Debug)]
 pub struct IntIdMetaItemDescriptor {
     id: i16,
-    meta: i16
+    meta: i16,
 }
 
 impl IntIdMetaItemDescriptor {
     pub fn new(id: i16, meta: i16) -> IntIdMetaItemDescriptor {
-        IntIdMetaItemDescriptor{ id, meta }
+        IntIdMetaItemDescriptor { id, meta }
     }
 
     pub fn read(stream: &mut Stream) -> IntIdMetaItemDescriptor {
@@ -18,7 +18,7 @@ impl IntIdMetaItemDescriptor {
             meta = stream.get_i16_le();
         }
 
-        IntIdMetaItemDescriptor{ id, meta }
+        IntIdMetaItemDescriptor { id, meta }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {

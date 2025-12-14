@@ -1,14 +1,14 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::inventory::creative_group_entry::CreativeGroupEntry;
 use crate::protocol::bedrock::types::inventory::creative_item_entry::CreativeItemEntry;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CreativeContent {
     pub groups: Vec<CreativeGroupEntry>,
-    pub items: Vec<CreativeItemEntry>
+    pub items: Vec<CreativeItemEntry>,
 }
 
 pub fn new(groups: Vec<CreativeGroupEntry>, items: Vec<CreativeItemEntry>) -> CreativeContent {

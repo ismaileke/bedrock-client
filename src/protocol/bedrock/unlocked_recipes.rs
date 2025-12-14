@@ -1,17 +1,20 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct UnlockedRecipes {
     pub unlock_type: u32,
-    pub recipes: Vec<String>
+    pub recipes: Vec<String>,
 }
 
 pub fn new(unlock_type: u32, recipes: Vec<String>) -> UnlockedRecipes {
-    UnlockedRecipes { unlock_type, recipes }
+    UnlockedRecipes {
+        unlock_type,
+        recipes,
+    }
 }
 
 impl Packet for UnlockedRecipes {
@@ -45,7 +48,10 @@ impl Packet for UnlockedRecipes {
             recipes.push(recipe);
         }
 
-        UnlockedRecipes { unlock_type, recipes }
+        UnlockedRecipes {
+            unlock_type,
+            recipes,
+        }
     }
 
     fn debug(&self) {

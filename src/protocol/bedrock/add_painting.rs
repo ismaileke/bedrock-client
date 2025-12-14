@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AddPainting {
@@ -10,11 +10,23 @@ pub struct AddPainting {
     pub actor_runtime_id: u64,
     pub position: Vec<f32>,
     pub direction: i32,
-    pub title: String
+    pub title: String,
 }
 
-pub fn new(actor_unique_id: i64, actor_runtime_id: u64, position: Vec<f32>, direction: i32, title: String) -> AddPainting {
-    AddPainting { actor_unique_id, actor_runtime_id, position, direction, title }
+pub fn new(
+    actor_unique_id: i64,
+    actor_runtime_id: u64,
+    position: Vec<f32>,
+    direction: i32,
+    title: String,
+) -> AddPainting {
+    AddPainting {
+        actor_unique_id,
+        actor_runtime_id,
+        position,
+        direction,
+        title,
+    }
 }
 
 impl Packet for AddPainting {
@@ -46,7 +58,13 @@ impl Packet for AddPainting {
         let direction = stream.get_var_i32();
         let title = PacketSerializer::get_string(stream);
 
-        AddPainting { actor_unique_id, actor_runtime_id, position, direction, title }
+        AddPainting {
+            actor_unique_id,
+            actor_runtime_id,
+            position,
+            direction,
+            title,
+        }
     }
 
     fn debug(&self) {

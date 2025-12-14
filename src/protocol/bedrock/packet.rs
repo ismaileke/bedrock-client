@@ -1,5 +1,5 @@
-use std::any::Any;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 pub trait Packet: Any {
     fn id(&self) -> u16;

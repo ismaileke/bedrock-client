@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::types::recipe::item_descriptor::ItemDescriptor;
 
 #[derive(serde::Serialize, Debug)]
-pub struct RecipeIngredient{
+pub struct RecipeIngredient {
     pub descriptor: Option<ItemDescriptor>,
-    pub count: i32
+    pub count: i32,
 }

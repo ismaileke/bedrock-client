@@ -1,15 +1,17 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct TickingAreasLoadStatus {
-    pub waiting_for_preload: bool
+    pub waiting_for_preload: bool,
 }
 
 pub fn new(waiting_for_preload: bool) -> TickingAreasLoadStatus {
-    TickingAreasLoadStatus { waiting_for_preload }
+    TickingAreasLoadStatus {
+        waiting_for_preload,
+    }
 }
 
 impl Packet for TickingAreasLoadStatus {
@@ -33,7 +35,9 @@ impl Packet for TickingAreasLoadStatus {
     fn decode(stream: &mut Stream) -> TickingAreasLoadStatus {
         let waiting_for_preload = stream.get_bool();
 
-        TickingAreasLoadStatus { waiting_for_preload }
+        TickingAreasLoadStatus {
+            waiting_for_preload,
+        }
     }
 
     fn debug(&self) {

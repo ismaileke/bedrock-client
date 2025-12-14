@@ -1,17 +1,21 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ContainerSetData {
     pub window_id: u8,
     pub property: i32,
-    pub value: i32
+    pub value: i32,
 }
 
 pub fn new(window_id: u8, property: i32, value: i32) -> ContainerSetData {
-    ContainerSetData { window_id, property, value }
+    ContainerSetData {
+        window_id,
+        property,
+        value,
+    }
 }
 
 impl Packet for ContainerSetData {
@@ -39,7 +43,11 @@ impl Packet for ContainerSetData {
         let property = stream.get_var_i32();
         let value = stream.get_var_i32();
 
-        ContainerSetData { window_id, property, value }
+        ContainerSetData {
+            window_id,
+            property,
+            value,
+        }
     }
 
     fn debug(&self) {

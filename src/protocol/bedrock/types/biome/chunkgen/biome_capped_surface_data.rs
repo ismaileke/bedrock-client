@@ -1,5 +1,5 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeCappedSurfaceData {
@@ -7,12 +7,24 @@ pub struct BiomeCappedSurfaceData {
     pub ceiling_blocks: Vec<u32>,
     pub sea_block: Option<u32>,
     pub foundation_block: Option<u32>,
-    pub beacon_block: Option<u32>
+    pub beacon_block: Option<u32>,
 }
 
 impl BiomeCappedSurfaceData {
-    pub fn new(floor_blocks: Vec<u32>, ceiling_blocks: Vec<u32>, sea_block: Option<u32>, foundation_block: Option<u32>, beacon_block: Option<u32>) -> Self {
-        BiomeCappedSurfaceData{ floor_blocks, ceiling_blocks, sea_block, foundation_block, beacon_block }
+    pub fn new(
+        floor_blocks: Vec<u32>,
+        ceiling_blocks: Vec<u32>,
+        sea_block: Option<u32>,
+        foundation_block: Option<u32>,
+        beacon_block: Option<u32>,
+    ) -> Self {
+        BiomeCappedSurfaceData {
+            floor_blocks,
+            ceiling_blocks,
+            sea_block,
+            foundation_block,
+            beacon_block,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> BiomeCappedSurfaceData {
@@ -31,7 +43,13 @@ impl BiomeCappedSurfaceData {
         let foundation_block = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
         let beacon_block = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
 
-        BiomeCappedSurfaceData{ floor_blocks, ceiling_blocks, sea_block, foundation_block, beacon_block }
+        BiomeCappedSurfaceData {
+            floor_blocks,
+            ceiling_blocks,
+            sea_block,
+            foundation_block,
+            beacon_block,
+        }
     }
 
     pub fn write(&self, stream: &mut Stream) {

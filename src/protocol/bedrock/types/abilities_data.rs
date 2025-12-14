@@ -1,17 +1,27 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::abilities_layer::AbilitiesLayer;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AbilitiesData {
     target_actor_unique_id: i64,
     player_permission: u8,
     command_permission: u8,
-    ability_layers: Vec<AbilitiesLayer>
+    ability_layers: Vec<AbilitiesLayer>,
 }
 
 impl AbilitiesData {
-    pub fn new(target_actor_unique_id: i64, player_permission: u8, command_permission: u8, ability_layers: Vec<AbilitiesLayer>) -> AbilitiesData {
-        AbilitiesData{ target_actor_unique_id, player_permission, command_permission, ability_layers }
+    pub fn new(
+        target_actor_unique_id: i64,
+        player_permission: u8,
+        command_permission: u8,
+        ability_layers: Vec<AbilitiesLayer>,
+    ) -> AbilitiesData {
+        AbilitiesData {
+            target_actor_unique_id,
+            player_permission,
+            command_permission,
+            ability_layers,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> AbilitiesData {
@@ -25,7 +35,12 @@ impl AbilitiesData {
             ability_layers.push(AbilitiesLayer::read(stream));
         }
 
-        AbilitiesData{ target_actor_unique_id, player_permission, command_permission, ability_layers }
+        AbilitiesData {
+            target_actor_unique_id,
+            player_permission,
+            command_permission,
+            ability_layers,
+        }
     }
 
     pub fn write(&self, stream: &mut Stream) {

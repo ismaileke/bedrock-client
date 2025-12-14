@@ -6,5 +6,5 @@ pub struct ItemTypeEntry {
     pub numeric_id: i16,
     pub component_based: bool,
     pub version: i32,
-    pub component_nbt: CacheableNBT
+    pub component_nbt: CacheableNBT,
 }

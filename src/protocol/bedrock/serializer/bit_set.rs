@@ -83,7 +83,10 @@ impl BitSet {
             i += Self::SHIFT;
         }
 
-        Self::new(length, result[..Self::get_expected_parts_count(length)].to_vec())
+        Self::new(
+            length,
+            result[..Self::get_expected_parts_count(length)].to_vec(),
+        )
     }
 
     pub fn write(&self, stream: &mut Stream) {

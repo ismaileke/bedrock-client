@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CorrectPlayerMovePrediction {
@@ -13,11 +13,29 @@ pub struct CorrectPlayerMovePrediction {
     pub vehicle_rotation_y: f32,
     pub vehicle_angular_velocity: Option<f32>,
     pub on_ground: bool,
-    pub tick: u64
+    pub tick: u64,
 }
 
-pub fn new(prediction_type: u8, position: Vec<f32>, delta: Vec<f32>, vehicle_rotation_x: f32, vehicle_rotation_y: f32, vehicle_angular_velocity: Option<f32>, on_ground: bool, tick: u64) -> CorrectPlayerMovePrediction {
-    CorrectPlayerMovePrediction { prediction_type, position, delta, vehicle_rotation_x, vehicle_rotation_y, vehicle_angular_velocity, on_ground, tick }
+pub fn new(
+    prediction_type: u8,
+    position: Vec<f32>,
+    delta: Vec<f32>,
+    vehicle_rotation_x: f32,
+    vehicle_rotation_y: f32,
+    vehicle_angular_velocity: Option<f32>,
+    on_ground: bool,
+    tick: u64,
+) -> CorrectPlayerMovePrediction {
+    CorrectPlayerMovePrediction {
+        prediction_type,
+        position,
+        delta,
+        vehicle_rotation_x,
+        vehicle_rotation_y,
+        vehicle_angular_velocity,
+        on_ground,
+        tick,
+    }
 }
 
 impl Packet for CorrectPlayerMovePrediction {
@@ -34,7 +52,9 @@ impl Packet for CorrectPlayerMovePrediction {
         PacketSerializer::put_vector3(&mut stream, self.delta.clone());
         stream.put_f32_le(self.vehicle_rotation_x);
         stream.put_f32_le(self.vehicle_rotation_y);
-        PacketSerializer::write_optional(&mut stream, &self.vehicle_angular_velocity, |s, v| s.put_f32_le(*v));
+        PacketSerializer::write_optional(&mut stream, &self.vehicle_angular_velocity, |s, v| {
+            s.put_f32_le(*v)
+        });
         stream.put_bool(self.on_ground);
         stream.put_var_u64(self.tick);
 
@@ -55,7 +75,16 @@ impl Packet for CorrectPlayerMovePrediction {
         let on_ground = stream.get_bool();
         let tick = stream.get_var_u64();
 
-        CorrectPlayerMovePrediction { prediction_type, position, delta, vehicle_rotation_x, vehicle_rotation_y, vehicle_angular_velocity, on_ground, tick }
+        CorrectPlayerMovePrediction {
+            prediction_type,
+            position,
+            delta,
+            vehicle_rotation_x,
+            vehicle_rotation_y,
+            vehicle_angular_velocity,
+            on_ground,
+            tick,
+        }
     }
 
     fn debug(&self) {
@@ -64,7 +93,10 @@ impl Packet for CorrectPlayerMovePrediction {
         println!("Delta: {:?}", self.delta);
         println!("Vehicle Rotation X: {}", self.vehicle_rotation_x);
         println!("Vehicle Rotation Y: {}", self.vehicle_rotation_y);
-        println!("Vehicle Angular Velocity: {:?}", self.vehicle_angular_velocity);
+        println!(
+            "Vehicle Angular Velocity: {:?}",
+            self.vehicle_angular_velocity
+        );
         println!("On Ground: {}", self.on_ground);
         println!("Tick: {}", self.tick);
     }

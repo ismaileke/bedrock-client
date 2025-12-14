@@ -1,7 +1,7 @@
-use std::any::Any;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct LevelChunk {
@@ -12,13 +12,13 @@ pub struct LevelChunk {
     pub sub_chunk_count: u32,
     pub cache_enabled: bool,
     pub used_blob_hashes: Option<Vec<u64>>,
-    pub extra_payload: Vec<u8>
+    pub extra_payload: Vec<u8>,
 }
 
 impl LevelChunk {
     /**
-    * Client will request all sub chunks as needed up to the top of the world
-    */
+     * Client will request all sub chunks as needed up to the top of the world
+     */
     pub const SUB_CHUNK_REQUEST_MODE_LIMITLESS: u32 = u32::MAX;
     /**
      * Client will request sub chunks as needed up to the height written in the packet, and assume that anything above
@@ -86,7 +86,11 @@ impl Packet for LevelChunk {
         if cache_enabled {
             let count = stream.get_var_u32();
             if count > LevelChunk::MAX_BLOB_HASHES {
-                panic!("Expected at most {} blob hashes, got {}", LevelChunk::MAX_BLOB_HASHES, count);
+                panic!(
+                    "Expected at most {} blob hashes, got {}",
+                    LevelChunk::MAX_BLOB_HASHES,
+                    count
+                );
             } else {
                 let mut blob_hashes = vec![];
                 for _ in 0..count {
@@ -135,7 +139,16 @@ impl Packet for LevelChunk {
         let length = stream.get_var_u32();
         let extra_payload = stream.get(length);*/
 
-        LevelChunk { chunk_x, chunk_z, dimension_id, highest_sub_chunk, sub_chunk_count, cache_enabled, used_blob_hashes, extra_payload }
+        LevelChunk {
+            chunk_x,
+            chunk_z,
+            dimension_id,
+            highest_sub_chunk,
+            sub_chunk_count,
+            cache_enabled,
+            used_blob_hashes,
+            extra_payload,
+        }
     }
 
     fn debug(&self) {

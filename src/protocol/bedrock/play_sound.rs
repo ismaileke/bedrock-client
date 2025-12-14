@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlaySound {
@@ -11,11 +11,18 @@ pub struct PlaySound {
     pub y: f32,
     pub z: f32,
     pub volume: f32,
-    pub pitch: f32
+    pub pitch: f32,
 }
 
 pub fn new(sound_name: String, x: f32, y: f32, z: f32, volume: f32, pitch: f32) -> PlaySound {
-    PlaySound { sound_name, x, y, z, volume, pitch }
+    PlaySound {
+        sound_name,
+        x,
+        y,
+        z,
+        volume,
+        pitch,
+    }
 }
 
 impl Packet for PlaySound {
@@ -28,7 +35,14 @@ impl Packet for PlaySound {
         stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_string(&mut stream, self.sound_name.clone());
-        PacketSerializer::put_block_pos(&mut stream, vec![(self.x * 8.0) as i32, (self.y * 8.0) as i32, (self.z * 8.0) as i32]);
+        PacketSerializer::put_block_pos(
+            &mut stream,
+            vec![
+                (self.x * 8.0) as i32,
+                (self.y * 8.0) as i32,
+                (self.z * 8.0) as i32,
+            ],
+        );
         stream.put_f32_le(self.volume);
         stream.put_f32_le(self.pitch);
 
@@ -48,7 +62,14 @@ impl Packet for PlaySound {
         let y = (block_pos[1] as f32) / 8.0;
         let z = (block_pos[2] as f32) / 8.0;
 
-        PlaySound { sound_name, x, y, z, volume, pitch }
+        PlaySound {
+            sound_name,
+            x,
+            y,
+            z,
+            volume,
+            pitch,
+        }
     }
 
     fn debug(&self) {

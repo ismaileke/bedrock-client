@@ -5,7 +5,7 @@ pub struct ScoreEntry {
     pub score: i32,
     pub entity_type: u8,
     pub actor_unique_id: Option<i64>,
-    pub custom_name: Option<String>
+    pub custom_name: Option<String>,
 }
 
 impl ScoreEntry {

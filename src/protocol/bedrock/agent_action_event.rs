@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AgentActionEvent {
     pub request_id: String,
     pub action: u32, //see types/agent_action_type.rs
-    pub response_json: String
+    pub response_json: String,
 }
 
 pub fn new(request_id: String, action: u32, response_json: String) -> AgentActionEvent {
-    AgentActionEvent { request_id, action, response_json }
+    AgentActionEvent {
+        request_id,
+        action,
+        response_json,
+    }
 }
 
 impl Packet for AgentActionEvent {
@@ -40,7 +44,11 @@ impl Packet for AgentActionEvent {
         let action = stream.get_u32_le();
         let response_json = PacketSerializer::get_string(stream);
 
-        AgentActionEvent { request_id, action, response_json }
+        AgentActionEvent {
+            request_id,
+            action,
+            response_json,
+        }
     }
 
     fn debug(&self) {

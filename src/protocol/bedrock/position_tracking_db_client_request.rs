@@ -1,16 +1,19 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PositionTrackingDBClientRequest {
     pub action: u8,
-    pub tracking_id: i32
+    pub tracking_id: i32,
 }
 
 pub fn new(action: u8, tracking_id: i32) -> PositionTrackingDBClientRequest {
-    PositionTrackingDBClientRequest { action, tracking_id }
+    PositionTrackingDBClientRequest {
+        action,
+        tracking_id,
+    }
 }
 
 impl PositionTrackingDBClientRequest {
@@ -40,7 +43,10 @@ impl Packet for PositionTrackingDBClientRequest {
         let action = stream.get_byte();
         let tracking_id = stream.get_var_i32();
 
-        PositionTrackingDBClientRequest { action, tracking_id }
+        PositionTrackingDBClientRequest {
+            action,
+            tracking_id,
+        }
     }
 
     fn debug(&self) {

@@ -1,12 +1,12 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PurchaseReceipt {
-    pub entries: Vec<String>
+    pub entries: Vec<String>,
 }
 
 pub fn new(entries: Vec<String>) -> PurchaseReceipt {
@@ -43,7 +43,7 @@ impl Packet for PurchaseReceipt {
 
         PurchaseReceipt { entries }
     }
-    
+
     fn debug(&self) {
         println!("Entries: {:?}", self.entries);
     }

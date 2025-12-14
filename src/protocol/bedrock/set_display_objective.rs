@@ -10,11 +10,23 @@ pub struct SetDisplayObjective {
     pub objective_name: String,
     pub display_name: String,
     pub criteria_name: String,
-    pub sort_order: i32
+    pub sort_order: i32,
 }
 
-pub fn new(display_slot: String, objective_name: String, display_name: String, criteria_name: String, sort_order: i32) -> SetDisplayObjective {
-    SetDisplayObjective { display_slot, objective_name, display_name, criteria_name, sort_order }
+pub fn new(
+    display_slot: String,
+    objective_name: String,
+    display_name: String,
+    criteria_name: String,
+    sort_order: i32,
+) -> SetDisplayObjective {
+    SetDisplayObjective {
+        display_slot,
+        objective_name,
+        display_name,
+        criteria_name,
+        sort_order,
+    }
 }
 
 impl Packet for SetDisplayObjective {
@@ -46,7 +58,13 @@ impl Packet for SetDisplayObjective {
         let criteria_name = PacketSerializer::get_string(stream);
         let sort_order = stream.get_var_i32();
 
-        SetDisplayObjective { display_slot, objective_name, display_name, criteria_name, sort_order }
+        SetDisplayObjective {
+            display_slot,
+            objective_name,
+            display_name,
+            criteria_name,
+            sort_order,
+        }
     }
 
     fn debug(&self) {
@@ -73,5 +91,4 @@ impl SetDisplayObjective {
 
     pub const SORT_ORDER_ASCENDING: i32 = 0;
     pub const SORT_ORDER_DESCENDING: i32 = 1;
-
 }

@@ -1,15 +1,21 @@
-use std::collections::HashMap;
 use binary_utils::binary::Stream;
+use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PropertySyncData {
     int_properties: HashMap<u32, i32>,
-    float_properties: HashMap<u32, f32>
+    float_properties: HashMap<u32, f32>,
 }
 
 impl PropertySyncData {
-    pub fn new(int_properties: HashMap<u32, i32>, float_properties: HashMap<u32, f32>) -> PropertySyncData {
-        PropertySyncData{ int_properties, float_properties }
+    pub fn new(
+        int_properties: HashMap<u32, i32>,
+        float_properties: HashMap<u32, f32>,
+    ) -> PropertySyncData {
+        PropertySyncData {
+            int_properties,
+            float_properties,
+        }
     }
 
     pub fn read(stream: &mut Stream) -> PropertySyncData {
@@ -29,7 +35,10 @@ impl PropertySyncData {
             float_properties.insert(key, value);
         }
 
-        PropertySyncData{ int_properties, float_properties }
+        PropertySyncData {
+            int_properties,
+            float_properties,
+        }
     }
 
     pub fn write(&self, stream: &mut Stream) {

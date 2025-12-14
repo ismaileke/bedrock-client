@@ -1,5 +1,5 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_surface_material_data::BiomeSurfaceMaterialData;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeElementData {
@@ -10,7 +10,7 @@ pub struct BiomeElementData {
     pub height_min: i16,
     pub height_max_type: i32,
     pub height_max: i16,
-    pub surface_material: BiomeSurfaceMaterialData
+    pub surface_material: BiomeSurfaceMaterialData,
 }
 
 impl BiomeElementData {
@@ -22,9 +22,9 @@ impl BiomeElementData {
         height_min: i16,
         height_max_type: i32,
         height_max: i16,
-        surface_material: BiomeSurfaceMaterialData
+        surface_material: BiomeSurfaceMaterialData,
     ) -> Self {
-        BiomeElementData{
+        BiomeElementData {
             noise_frequency_scale,
             noise_lower_bound,
             noise_upper_bound,
@@ -32,7 +32,7 @@ impl BiomeElementData {
             height_min,
             height_max_type,
             height_max,
-            surface_material
+            surface_material,
         }
     }
 
@@ -46,7 +46,16 @@ impl BiomeElementData {
         let height_max = stream.get_i16_le();
         let surface_material = BiomeSurfaceMaterialData::read(stream);
 
-        BiomeElementData::new(noise_frequency_scale, noise_lower_bound, noise_upper_bound, height_min_type, height_min, height_max_type, height_max, surface_material)
+        BiomeElementData::new(
+            noise_frequency_scale,
+            noise_lower_bound,
+            noise_upper_bound,
+            height_min_type,
+            height_min,
+            height_max_type,
+            height_max,
+            surface_material,
+        )
     }
 
     pub fn write(&self, stream: &mut Stream) {

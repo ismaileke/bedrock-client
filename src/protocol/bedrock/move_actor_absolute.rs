@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct MoveActorAbsolute {
@@ -11,11 +11,25 @@ pub struct MoveActorAbsolute {
     pub position: Vec<f32>,
     pub pitch: f32,
     pub yaw: f32,
-    pub head_yaw: f32 // always zero for non-mobs
+    pub head_yaw: f32, // always zero for non-mobs
 }
 
-pub fn new(actor_runtime_id: u64, flags: u8, position: Vec<f32>, pitch: f32, yaw: f32, head_yaw: f32) -> MoveActorAbsolute {
-    MoveActorAbsolute { actor_runtime_id, flags, position, pitch, yaw, head_yaw }
+pub fn new(
+    actor_runtime_id: u64,
+    flags: u8,
+    position: Vec<f32>,
+    pitch: f32,
+    yaw: f32,
+    head_yaw: f32,
+) -> MoveActorAbsolute {
+    MoveActorAbsolute {
+        actor_runtime_id,
+        flags,
+        position,
+        pitch,
+        yaw,
+        head_yaw,
+    }
 }
 
 impl Packet for MoveActorAbsolute {
@@ -49,7 +63,14 @@ impl Packet for MoveActorAbsolute {
         let yaw = PacketSerializer::get_rotation_byte(stream);
         let head_yaw = PacketSerializer::get_rotation_byte(stream);
 
-        MoveActorAbsolute { actor_runtime_id, flags, position, pitch, yaw, head_yaw }
+        MoveActorAbsolute {
+            actor_runtime_id,
+            flags,
+            position,
+            pitch,
+            yaw,
+            head_yaw,
+        }
     }
 
     fn debug(&self) {

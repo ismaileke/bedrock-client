@@ -1,11 +1,11 @@
-use std::collections::HashMap;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
 pub struct Experiments {
     pub experiments: HashMap<String, bool>,
-    pub has_previously_used_experiments: bool
+    pub has_previously_used_experiments: bool,
 }
 
 impl Experiments {
@@ -19,6 +19,9 @@ impl Experiments {
         }
         let has_previously_used_experiments = stream.get_bool();
 
-        Experiments{ experiments, has_previously_used_experiments }
+        Experiments {
+            experiments,
+            has_previously_used_experiments,
+        }
     }
 }

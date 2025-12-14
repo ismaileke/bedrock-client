@@ -1,14 +1,14 @@
-use std::any::Any;
-use std::collections::HashMap;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::entity_link::EntityLink;
 use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty;
 use crate::protocol::bedrock::types::entity::property_sync_data::PropertySyncData;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::update_abilities::UpdateAbilities;
+use binary_utils::binary::Stream;
+use std::any::Any;
+use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AddPlayer {
@@ -28,7 +28,7 @@ pub struct AddPlayer {
     pub abilities_packet: UpdateAbilities,
     pub links: Vec<EntityLink>,
     pub device_id: String,
-    pub build_platform: i32
+    pub build_platform: i32,
 }
 
 pub fn new(
@@ -48,9 +48,27 @@ pub fn new(
     abilities_packet: UpdateAbilities,
     links: Vec<EntityLink>,
     device_id: String,
-    build_platform: i32
+    build_platform: i32,
 ) -> AddPlayer {
-    AddPlayer { uuid, username, actor_runtime_id, platform_chat_id, position, motion, pitch, yaw, head_yaw, item, game_mode, metadata, synced_properties, abilities_packet, links, device_id, build_platform }
+    AddPlayer {
+        uuid,
+        username,
+        actor_runtime_id,
+        platform_chat_id,
+        position,
+        motion,
+        pitch,
+        yaw,
+        head_yaw,
+        item,
+        game_mode,
+        metadata,
+        synced_properties,
+        abilities_packet,
+        links,
+        device_id,
+        build_platform,
+    }
 }
 
 impl Packet for AddPlayer {
@@ -130,7 +148,7 @@ impl Packet for AddPlayer {
             abilities_packet,
             links,
             device_id,
-            build_platform
+            build_platform,
         }
     }
 

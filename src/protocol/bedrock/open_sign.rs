@@ -1,17 +1,20 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct OpenSign {
     pub block_position: Vec<i32>,
-    pub front: bool
+    pub front: bool,
 }
 
 pub fn new(block_position: Vec<i32>, front: bool) -> OpenSign {
-    OpenSign { block_position, front }
+    OpenSign {
+        block_position,
+        front,
+    }
 }
 
 impl Packet for OpenSign {
@@ -37,12 +40,15 @@ impl Packet for OpenSign {
         let block_position = PacketSerializer::get_block_pos(stream);
         let front = stream.get_bool();
 
-        OpenSign { block_position, front }
+        OpenSign {
+            block_position,
+            front,
+        }
     }
 
     fn debug(&self) {
         println!("Block Position: {:?}", self.block_position);
-        println!("Front: {}", self.front);   
+        println!("Front: {}", self.front);
     }
 
     fn as_any(&self) -> &dyn Any {

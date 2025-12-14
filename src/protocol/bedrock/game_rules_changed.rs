@@ -1,14 +1,14 @@
-use std::any::Any;
-use std::collections::HashMap;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::game_rule::GameRule;
+use binary_utils::binary::Stream;
+use std::any::Any;
+use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
 pub struct GameRulesChanged {
-    pub game_rules: HashMap<String, GameRule>
+    pub game_rules: HashMap<String, GameRule>,
 }
 
 pub fn new(game_rules: HashMap<String, GameRule>) -> GameRulesChanged {

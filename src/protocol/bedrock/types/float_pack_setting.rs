@@ -1,10 +1,10 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::pack_setting_type::PackSettingType;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct FloatPackSetting {
     pub name: String,
-    pub value: f32
+    pub value: f32,
 }
 
 impl FloatPackSetting {
@@ -17,11 +17,14 @@ impl FloatPackSetting {
     }
 
     pub fn new(name: String, value: f32) -> FloatPackSetting {
-        FloatPackSetting{ name, value }
+        FloatPackSetting { name, value }
     }
 
     pub fn read(stream: &mut Stream, name: String) -> FloatPackSetting {
-        FloatPackSetting{ name, value: stream.get_f32_le() }
+        FloatPackSetting {
+            name,
+            value: stream.get_f32_le(),
+        }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {

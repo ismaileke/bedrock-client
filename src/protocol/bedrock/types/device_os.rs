@@ -1,4 +1,4 @@
-pub struct DeviceOS{}
+pub struct DeviceOS {}
 
 impl DeviceOS {
     pub const UNKNOWN: i32 = -1;
@@ -17,4 +17,3 @@ impl DeviceOS {
     pub const XBOX: i32 = 13;
     pub const WINDOWS_PHONE: i32 = 14;
 }
-

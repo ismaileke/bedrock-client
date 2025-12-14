@@ -1,6 +1,6 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_preset_aim_assist::CameraPresetAimAssist;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraPreset {
@@ -56,7 +56,7 @@ impl CameraPreset {
         aim_assist: Option<CameraPresetAimAssist>,
         control_scheme: Option<u8>,
     ) -> CameraPreset {
-        CameraPreset{
+        CameraPreset {
             name,
             parent,
             x_position,
@@ -78,7 +78,7 @@ impl CameraPreset {
             audio_listener_type,
             player_effects,
             aim_assist,
-            control_scheme
+            control_scheme,
         }
     }
 
@@ -92,21 +92,26 @@ impl CameraPreset {
         let yaw = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let rotation_seed = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let snap_to_target = PacketSerializer::read_optional(stream, |s| s.get_bool());
-        let horizontal_rotation_limit = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
-        let vertical_rotation_limit = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
+        let horizontal_rotation_limit =
+            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
+        let vertical_rotation_limit =
+            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
         let continue_targeting = PacketSerializer::read_optional(stream, |s| s.get_bool());
         let block_listening_radius = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
-        let view_offset = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
-        let entity_offset = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
+        let view_offset =
+            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
+        let entity_offset =
+            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
         let radius = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let yaw_limit_min = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let yaw_limit_max = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let audio_listener_type = PacketSerializer::read_optional(stream, |s| s.get_byte());
         let player_effects = PacketSerializer::read_optional(stream, |s| s.get_bool());
-        let aim_assist = PacketSerializer::read_optional(stream, |s| CameraPresetAimAssist::read(s));
+        let aim_assist =
+            PacketSerializer::read_optional(stream, |s| CameraPresetAimAssist::read(s));
         let control_scheme = PacketSerializer::read_optional(stream, |s| s.get_byte());
 
-        CameraPreset{
+        CameraPreset {
             name,
             parent,
             x_position,
@@ -128,7 +133,7 @@ impl CameraPreset {
             audio_listener_type,
             player_effects,
             aim_assist,
-            control_scheme
+            control_scheme,
         }
     }
 
@@ -142,12 +147,22 @@ impl CameraPreset {
         PacketSerializer::write_optional(stream, &self.yaw, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.rotation_seed, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.snap_to_target, |s, v| s.put_bool(*v));
-        PacketSerializer::write_optional(stream, &self.horizontal_rotation_limit, |s, v| PacketSerializer::put_vector2(s, v.clone()));
-        PacketSerializer::write_optional(stream, &self.vertical_rotation_limit, |s, v| PacketSerializer::put_vector2(s, v.clone()));
+        PacketSerializer::write_optional(stream, &self.horizontal_rotation_limit, |s, v| {
+            PacketSerializer::put_vector2(s, v.clone())
+        });
+        PacketSerializer::write_optional(stream, &self.vertical_rotation_limit, |s, v| {
+            PacketSerializer::put_vector2(s, v.clone())
+        });
         PacketSerializer::write_optional(stream, &self.continue_targeting, |s, v| s.put_bool(*v));
-        PacketSerializer::write_optional(stream, &self.block_listening_radius, |s, v| s.put_f32_le(*v));
-        PacketSerializer::write_optional(stream, &self.view_offset, |s, v| PacketSerializer::put_vector2(s, v.clone()));
-        PacketSerializer::write_optional(stream, &self.entity_offset, |s, v| PacketSerializer::put_vector3(s, v.clone()));
+        PacketSerializer::write_optional(stream, &self.block_listening_radius, |s, v| {
+            s.put_f32_le(*v)
+        });
+        PacketSerializer::write_optional(stream, &self.view_offset, |s, v| {
+            PacketSerializer::put_vector2(s, v.clone())
+        });
+        PacketSerializer::write_optional(stream, &self.entity_offset, |s, v| {
+            PacketSerializer::put_vector3(s, v.clone())
+        });
         PacketSerializer::write_optional(stream, &self.radius, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.yaw_limit_min, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.yaw_limit_max, |s, v| s.put_f32_le(*v));

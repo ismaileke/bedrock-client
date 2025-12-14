@@ -3,7 +3,7 @@ use binary_utils::binary::Stream;
 #[derive(serde::Serialize, Debug)]
 pub struct ArmorSlotAndDamagePair {
     slot: u8, // see types/armor_slot.rs
-    damage: u16
+    damage: u16,
 }
 
 impl ArmorSlotAndDamagePair {

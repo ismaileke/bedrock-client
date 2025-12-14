@@ -1,18 +1,22 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientCameraAimAssist {
     pub preset_id: String,
     pub action_type: u8, //see types/camera/camera_aim_assist_action_type.rs
-    pub allow_aim_assist: bool
+    pub allow_aim_assist: bool,
 }
 
 pub fn new(preset_id: String, action_type: u8, allow_aim_assist: bool) -> ClientCameraAimAssist {
-    ClientCameraAimAssist { preset_id, action_type, allow_aim_assist }
+    ClientCameraAimAssist {
+        preset_id,
+        action_type,
+        allow_aim_assist,
+    }
 }
 
 impl Packet for ClientCameraAimAssist {
@@ -40,7 +44,11 @@ impl Packet for ClientCameraAimAssist {
         let action_type = stream.get_byte();
         let allow_aim_assist = stream.get_bool();
 
-        ClientCameraAimAssist { preset_id, action_type, allow_aim_assist }
+        ClientCameraAimAssist {
+            preset_id,
+            action_type,
+            allow_aim_assist,
+        }
     }
 
     fn debug(&self) {

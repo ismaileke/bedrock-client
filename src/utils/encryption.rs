@@ -17,14 +17,15 @@ pub struct Encryption {
     decrypt_cipher: Aes256Ctr,
     decrypt_counter: u64,
     encrypt_cipher: Aes256Ctr,
-    encrypt_counter: u64
+    encrypt_counter: u64,
 }
 
 impl Encryption {
-
     pub fn new(encryption_key: Vec<u8>, iv: Vec<u8>) -> Result<Self, Box<dyn Error>> {
-        let decrypt_cipher = Aes256Ctr::new_from_slices(&encryption_key, &iv).expect("Decrypt Cipher Creating Error");
-        let encrypt_cipher = Aes256Ctr::new_from_slices(&encryption_key, &iv).expect("Encrypt Cipher Creating Error");
+        let decrypt_cipher = Aes256Ctr::new_from_slices(&encryption_key, &iv)
+            .expect("Decrypt Cipher Creating Error");
+        let encrypt_cipher = Aes256Ctr::new_from_slices(&encryption_key, &iv)
+            .expect("Encrypt Cipher Creating Error");
 
         Ok(Encryption {
             key: encryption_key,
@@ -67,11 +68,9 @@ impl Encryption {
         if actual_checksum != expected_checksum {
             return Err(format!(
                 "Encrypted packet {} has invalid checksum (expected {:?}, got {:?})",
-                packet_counter,
-                expected_checksum,
-                actual_checksum
+                packet_counter, expected_checksum, actual_checksum
             )
-                .into());
+            .into());
         }
 
         Ok(payload)
@@ -101,14 +100,16 @@ impl Encryption {
     }
 
     pub fn b64_url_decode(base64_url: &str) -> Result<String, Box<dyn Error>> {
-        const BASE64_URL: engine::GeneralPurpose = engine::GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);
+        const BASE64_URL: engine::GeneralPurpose =
+            engine::GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);
 
         let b64_url = BASE64_URL.decode(base64_url).unwrap();
         Ok(String::from_utf8(b64_url)?)
     }
 
     pub fn b64_url_encode(input: &Vec<u8>) -> String {
-        const BASE64_URL: engine::GeneralPurpose = engine::GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);
+        const BASE64_URL: engine::GeneralPurpose =
+            engine::GeneralPurpose::new(&alphabet::URL_SAFE, general_purpose::NO_PAD);
 
         let b64_url = BASE64_URL.encode(input);
         b64_url
@@ -129,13 +130,13 @@ pub fn generate_key(secret: &BigNum, salt: Vec<u8>) -> Vec<u8> {
     hash(MessageDigest::sha256(), &combined).unwrap().to_vec()
 }
 
-pub fn generate_shared_secret(local_private: PKey<Private>, remote_public: PKey<Public>) -> BigNum{
+pub fn generate_shared_secret(local_private: PKey<Private>, remote_public: PKey<Public>) -> BigNum {
     let mut deriver = Deriver::new(&local_private).unwrap();
     deriver.set_peer(&remote_public).unwrap();
     let secret = deriver.derive_to_vec().unwrap();
     /*
-	$hexSecret = openssl_pkey_derive($remotePub, $localPriv, 48);
-	return gmp_init(bin2hex($hexSecret), 16);
+    $hexSecret = openssl_pkey_derive($remotePub, $localPriv, 48);
+    return gmp_init(bin2hex($hexSecret), 16);
     */
 
     BigNum::from_hex_str(&hex::encode(secret)).unwrap()

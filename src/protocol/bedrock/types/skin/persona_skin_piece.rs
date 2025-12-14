@@ -4,7 +4,7 @@ pub struct PersonaSkinPiece {
     piece_type: String,
     pack_id: String,
     is_default_piece: bool,
-    product_id: String
+    product_id: String,
 }
 
 impl PersonaSkinPiece {
@@ -18,9 +18,21 @@ impl PersonaSkinPiece {
     pub const PIECE_TYPE_PERSONA_SKELETON: &'static str = "persona_skeleton";
     pub const PIECE_TYPE_PERSONA_SKIN: &'static str = "persona_skin";
     pub const PIECE_TYPE_PERSONA_TOP: &'static str = "persona_top";
-    
-    pub fn new(piece_id: String, piece_type: String, pack_id: String, is_default_piece: bool, product_id: String) -> PersonaSkinPiece {
-        PersonaSkinPiece { piece_id, piece_type, pack_id, is_default_piece, product_id }
+
+    pub fn new(
+        piece_id: String,
+        piece_type: String,
+        pack_id: String,
+        is_default_piece: bool,
+        product_id: String,
+    ) -> PersonaSkinPiece {
+        PersonaSkinPiece {
+            piece_id,
+            piece_type,
+            pack_id,
+            is_default_piece,
+            product_id,
+        }
     }
 
     pub fn piece_id(&self) -> String {

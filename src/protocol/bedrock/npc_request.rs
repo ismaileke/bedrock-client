@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct NPCRequest {
@@ -10,11 +10,23 @@ pub struct NPCRequest {
     pub request_type: u8,
     pub command_string: String,
     pub action_index: u8,
-    pub scene_name: String
+    pub scene_name: String,
 }
 
-pub fn new(actor_runtime_id: u64, request_type: u8, command_string: String, action_index: u8, scene_name: String) -> NPCRequest {
-    NPCRequest { actor_runtime_id, request_type, command_string, action_index, scene_name }
+pub fn new(
+    actor_runtime_id: u64,
+    request_type: u8,
+    command_string: String,
+    action_index: u8,
+    scene_name: String,
+) -> NPCRequest {
+    NPCRequest {
+        actor_runtime_id,
+        request_type,
+        command_string,
+        action_index,
+        scene_name,
+    }
 }
 
 impl Packet for NPCRequest {
@@ -25,7 +37,6 @@ impl Packet for NPCRequest {
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
         stream.put_var_u32(self.id() as u32);
-
 
         PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
         stream.put_byte(self.request_type);
@@ -47,7 +58,13 @@ impl Packet for NPCRequest {
         let action_index = stream.get_byte();
         let scene_name = PacketSerializer::get_string(stream);
 
-        NPCRequest { actor_runtime_id, request_type, command_string, action_index, scene_name }
+        NPCRequest {
+            actor_runtime_id,
+            request_type,
+            command_string,
+            action_index,
+            scene_name,
+        }
     }
 
     fn debug(&self) {

@@ -1,14 +1,16 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::inventory::network_inventory_action::NetworkInventoryAction;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct MismatchTransactionData {
-    actions: Vec<NetworkInventoryAction>
+    actions: Vec<NetworkInventoryAction>,
 }
 
 impl MismatchTransactionData {
     pub fn new() -> MismatchTransactionData {
-        MismatchTransactionData{ actions: Vec::new() }
+        MismatchTransactionData {
+            actions: Vec::new(),
+        }
     }
 
     pub fn get_actions(&self) -> &Vec<NetworkInventoryAction> {

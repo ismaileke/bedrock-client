@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct Emote {
@@ -11,11 +11,25 @@ pub struct Emote {
     pub emote_length_ticks: u32,
     pub xbox_user_id: String,
     pub platform_chat_id: String,
-    pub flags: u8
+    pub flags: u8,
 }
 
-pub fn new(actor_runtime_id: u64, emote_id: String, emote_length_ticks: u32, xbox_user_id: String, platform_chat_id: String, flags: u8) -> Emote {
-    Emote { actor_runtime_id, emote_id, emote_length_ticks, xbox_user_id, platform_chat_id, flags }
+pub fn new(
+    actor_runtime_id: u64,
+    emote_id: String,
+    emote_length_ticks: u32,
+    xbox_user_id: String,
+    platform_chat_id: String,
+    flags: u8,
+) -> Emote {
+    Emote {
+        actor_runtime_id,
+        emote_id,
+        emote_length_ticks,
+        xbox_user_id,
+        platform_chat_id,
+        flags,
+    }
 }
 
 impl Packet for Emote {
@@ -49,7 +63,14 @@ impl Packet for Emote {
         let platform_chat_id = PacketSerializer::get_string(stream);
         let flags = stream.get_byte();
 
-        Emote { actor_runtime_id, emote_id, emote_length_ticks, xbox_user_id, platform_chat_id, flags }
+        Emote {
+            actor_runtime_id,
+            emote_id,
+            emote_length_ticks,
+            xbox_user_id,
+            platform_chat_id,
+            flags,
+        }
     }
 
     fn debug(&self) {

@@ -1,17 +1,20 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct DeathInfo {
     pub message_translation_key: String,
-    pub message_parameters: Vec<String>
+    pub message_parameters: Vec<String>,
 }
 
 pub fn new(message_translation_key: String, message_parameters: Vec<String>) -> DeathInfo {
-    DeathInfo { message_translation_key, message_parameters }
+    DeathInfo {
+        message_translation_key,
+        message_parameters,
+    }
 }
 
 impl Packet for DeathInfo {
@@ -45,7 +48,10 @@ impl Packet for DeathInfo {
             message_parameters.push(message_parameter);
         }
 
-        DeathInfo { message_translation_key, message_parameters }
+        DeathInfo {
+            message_translation_key,
+            message_parameters,
+        }
     }
 
     fn debug(&self) {

@@ -1,20 +1,30 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::skin::skin_data::SkinData;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerSkin {
     pub uuid: String,
     pub skin: SkinData,
     pub new_skin_name: String,
-    pub old_skin_name: String
+    pub old_skin_name: String,
 }
 
-pub fn new(uuid: String, skin: SkinData, new_skin_name: String, old_skin_name: String) -> PlayerSkin {
-    PlayerSkin { uuid, skin, new_skin_name, old_skin_name }
+pub fn new(
+    uuid: String,
+    skin: SkinData,
+    new_skin_name: String,
+    old_skin_name: String,
+) -> PlayerSkin {
+    PlayerSkin {
+        uuid,
+        skin,
+        new_skin_name,
+        old_skin_name,
+    }
 }
 
 impl Packet for PlayerSkin {
@@ -46,7 +56,12 @@ impl Packet for PlayerSkin {
         let old_skin_name = PacketSerializer::get_string(stream);
         skin.is_verified = stream.get_bool();
 
-        PlayerSkin { uuid, skin, new_skin_name, old_skin_name }
+        PlayerSkin {
+            uuid,
+            skin,
+            new_skin_name,
+            old_skin_name,
+        }
     }
 
     fn debug(&self) {

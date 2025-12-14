@@ -1,17 +1,21 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerHotbar {
     pub selected_hotbar_slot: u32,
     pub window_id: u8, //see types/container_ids
-    pub select_hotbar_slot: bool
+    pub select_hotbar_slot: bool,
 }
 
 pub fn new(selected_hotbar_slot: u32, window_id: u8, select_hotbar_slot: bool) -> PlayerHotbar {
-    PlayerHotbar { selected_hotbar_slot, window_id, select_hotbar_slot }
+    PlayerHotbar {
+        selected_hotbar_slot,
+        window_id,
+        select_hotbar_slot,
+    }
 }
 
 impl Packet for PlayerHotbar {
@@ -39,7 +43,11 @@ impl Packet for PlayerHotbar {
         let window_id = stream.get_byte();
         let select_hotbar_slot = stream.get_bool();
 
-        PlayerHotbar { selected_hotbar_slot, window_id, select_hotbar_slot }
+        PlayerHotbar {
+            selected_hotbar_slot,
+            window_id,
+            select_hotbar_slot,
+        }
     }
 
     fn debug(&self) {

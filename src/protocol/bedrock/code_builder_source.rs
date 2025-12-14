@@ -1,17 +1,21 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CodeBuilderSource {
     pub operation: u8,
     pub category: u8,
-    pub code_status: u8
+    pub code_status: u8,
 }
 
 pub fn new(operation: u8, category: u8, code_status: u8) -> CodeBuilderSource {
-    CodeBuilderSource { operation, category, code_status }
+    CodeBuilderSource {
+        operation,
+        category,
+        code_status,
+    }
 }
 
 impl Packet for CodeBuilderSource {
@@ -39,7 +43,11 @@ impl Packet for CodeBuilderSource {
         let category = stream.get_byte();
         let code_status = stream.get_byte();
 
-        CodeBuilderSource { operation, category, code_status }
+        CodeBuilderSource {
+            operation,
+            category,
+            code_status,
+        }
     }
 
     fn debug(&self) {

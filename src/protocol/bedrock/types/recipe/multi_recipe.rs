@@ -1,12 +1,12 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::crafting_data::CraftingData;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct MultiRecipe {
     type_id: i32,
     recipe_id: String,
-    recipe_net_id: u32
+    recipe_net_id: u32,
 }
 
 impl MultiRecipe {
@@ -22,15 +22,17 @@ impl MultiRecipe {
     pub const TYPE_BANNER_ADD_PATTERN: &'static str = "D81AAEAF-E172-4440-9225-868DF030D27B";
     pub const TYPE_FIREWORKS: &'static str = "00000000-0000-0000-0000-000000000002";
     pub const TYPE_MAP_LOCKING_CARTOGRAPHY: &'static str = "602234E4-CAC1-4353-8BB7-B1EBFF70024B";
-    
+
     pub fn new(type_id: i32, recipe_id: String, recipe_net_id: u32) -> MultiRecipe {
-        MultiRecipe{ type_id, recipe_id, recipe_net_id }
+        MultiRecipe {
+            type_id,
+            recipe_id,
+            recipe_net_id,
+        }
     }
 
     pub fn get_type_ids() -> Vec<i32> {
-        Vec::from([
-            CraftingData::ENTRY_MULTI
-        ])
+        Vec::from([CraftingData::ENTRY_MULTI])
     }
 
     pub fn get_selected_type_id(&self) -> i32 {
@@ -41,7 +43,11 @@ impl MultiRecipe {
         let recipe_id = PacketSerializer::get_uuid(stream);
         let recipe_net_id = PacketSerializer::read_recipe_net_id(stream);
 
-        MultiRecipe{ type_id, recipe_id, recipe_net_id }
+        MultiRecipe {
+            type_id,
+            recipe_id,
+            recipe_net_id,
+        }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {

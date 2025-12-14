@@ -32,6 +32,7 @@ use crate::protocol::bedrock::change_mob_property::ChangeMobProperty;
 use crate::protocol::bedrock::chunk_radius_updated::ChunkRadiusUpdated;
 use crate::protocol::bedrock::client_bound_close_form::ClientBoundCloseForm;
 use crate::protocol::bedrock::client_bound_control_scheme_set::ClientBoundControlSchemeSet;
+use crate::protocol::bedrock::client_bound_data_store::ClientBoundDataStore;
 use crate::protocol::bedrock::client_bound_debug_renderer::ClientBoundDebugRenderer;
 use crate::protocol::bedrock::client_bound_map_item_data::ClientBoundMapItemData;
 use crate::protocol::bedrock::client_cache_blob_status::ClientCacheBlobStatus;
@@ -55,7 +56,6 @@ use crate::protocol::bedrock::crafting_data::CraftingData;
 use crate::protocol::bedrock::create_photo::CreatePhoto;
 use crate::protocol::bedrock::creative_content::CreativeContent;
 use crate::protocol::bedrock::current_structure_feature::CurrentStructureFeature;
-use crate::protocol::bedrock::data_store_sync::DataStoreSync;
 use crate::protocol::bedrock::death_info::DeathInfo;
 use crate::protocol::bedrock::debug_drawer::DebugDrawer;
 use crate::protocol::bedrock::debug_info::DebugInfo;
@@ -147,6 +147,7 @@ use crate::protocol::bedrock::resource_pack_stack::ResourcePackStack;
 use crate::protocol::bedrock::resource_packs_info::ResourcePacksInfo;
 use crate::protocol::bedrock::respawn::Respawn;
 use crate::protocol::bedrock::script_message::ScriptMessage;
+use crate::protocol::bedrock::server_bound_data_store::ServerBoundDataStore;
 use crate::protocol::bedrock::server_bound_diagnostics::ServerBoundDiagnostics;
 use crate::protocol::bedrock::server_bound_loading_screen::ServerBoundLoadingScreen;
 use crate::protocol::bedrock::server_bound_pack_setting_change::ServerBoundPackSettingChange;
@@ -423,9 +424,10 @@ pub enum BedrockPacketType {
     IDClientBoundControlSchemeSet,
     IDDebugDrawer,
     IDServerBoundPackSettingChange,
-    IDDataStoreSync,
+    IDClientBoundDataStore,
     IDGraphicsOverrideParameter,
-    IDUnknown
+    IDServerBoundDataStore,
+    IDUnknown,
 }
 
 impl BedrockPacketType {
@@ -639,8 +641,9 @@ impl BedrockPacketType {
             0x147 => BedrockPacketType::IDClientBoundControlSchemeSet,
             0x148 => BedrockPacketType::IDDebugDrawer,
             0x149 => BedrockPacketType::IDServerBoundPackSettingChange,
-            0x14a => BedrockPacketType::IDDataStoreSync,
+            0x14a => BedrockPacketType::IDClientBoundDataStore,
             0x14b => BedrockPacketType::IDGraphicsOverrideParameter,
+            0x14c => BedrockPacketType::IDServerBoundDataStore,
             _ => BedrockPacketType::IDUnknown,
         }
     }
@@ -854,9 +857,10 @@ impl BedrockPacketType {
             BedrockPacketType::IDClientBoundControlSchemeSet => 0x147,
             BedrockPacketType::IDDebugDrawer => 0x148,
             BedrockPacketType::IDServerBoundPackSettingChange => 0x149,
-            BedrockPacketType::IDDataStoreSync => 0x14a,
+            BedrockPacketType::IDClientBoundDataStore => 0x14a,
             BedrockPacketType::IDGraphicsOverrideParameter => 0x14b,
-            _ => 0
+            BedrockPacketType::IDServerBoundDataStore => 0x14c,
+            _ => 0,
         }
     }
     pub(crate) fn get_packet_name(id: u16) -> &'static str {
@@ -1069,9 +1073,10 @@ impl BedrockPacketType {
             0x147 => "Client Bound Control Scheme Set",
             0x148 => "Server Script Debug Drawer",
             0x149 => "Server Bound Pack Setting Change",
-            0x14a => "Data Store Sync",
+            0x14a => "Client Bound Data Store",
             0x14b => "Graphics Override Parameter",
-            _ => "Unknown Packet"
+            0x14c => "Server Bound Data Store",
+            _ => "Unknown Packet",
         }
     }
 
@@ -1285,8 +1290,9 @@ impl BedrockPacketType {
             0x147 => Box::new(ClientBoundControlSchemeSet::decode(stream)),
             0x148 => Box::new(DebugDrawer::decode(stream)),
             0x149 => Box::new(ServerBoundPackSettingChange::decode(stream)),
-            0x14a => Box::new(DataStoreSync::decode(stream)),
+            0x14a => Box::new(ClientBoundDataStore::decode(stream)),
             0x14b => Box::new(GraphicsOverrideParameter::decode(stream)),
+            0x14c => Box::new(ServerBoundDataStore::decode(stream)),
             _ => Box::new(Unknown::decode(stream)),
         }
     }

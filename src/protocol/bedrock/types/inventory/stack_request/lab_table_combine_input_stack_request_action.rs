@@ -5,11 +5,11 @@ pub struct LabTableCombineInputStackRequestAction {}
 
 impl LabTableCombineInputStackRequestAction {
     pub fn new() -> LabTableCombineInputStackRequestAction {
-        LabTableCombineInputStackRequestAction{}
+        LabTableCombineInputStackRequestAction {}
     }
 
     pub fn read(_stream: &mut Stream) -> LabTableCombineInputStackRequestAction {
-        LabTableCombineInputStackRequestAction{}
+        LabTableCombineInputStackRequestAction {}
     }
 
     pub fn write(&mut self, _stream: &mut Stream) {}

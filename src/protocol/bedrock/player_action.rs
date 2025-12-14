@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerAction {
@@ -10,11 +10,23 @@ pub struct PlayerAction {
     pub action: i32, //see types/player_action_types.rs
     pub block_position: Vec<i32>,
     pub result_position: Vec<i32>,
-    pub face: i32
+    pub face: i32,
 }
 
-pub fn new(actor_runtime_id: u64, action: i32, block_position: Vec<i32>, result_position: Vec<i32>, face: i32) -> PlayerAction {
-    PlayerAction { actor_runtime_id, action, block_position, result_position, face }
+pub fn new(
+    actor_runtime_id: u64,
+    action: i32,
+    block_position: Vec<i32>,
+    result_position: Vec<i32>,
+    face: i32,
+) -> PlayerAction {
+    PlayerAction {
+        actor_runtime_id,
+        action,
+        block_position,
+        result_position,
+        face,
+    }
 }
 
 impl Packet for PlayerAction {
@@ -46,7 +58,13 @@ impl Packet for PlayerAction {
         let result_position = PacketSerializer::get_block_pos(stream);
         let face = stream.get_var_i32();
 
-        PlayerAction { actor_runtime_id, action, block_position, result_position, face }
+        PlayerAction {
+            actor_runtime_id,
+            action,
+            block_position,
+            result_position,
+            face,
+        }
     }
 
     fn debug(&self) {

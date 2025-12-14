@@ -1,17 +1,17 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ResourcePackClientResponse {
     pub status: u8,
-    pub pack_ids: Vec<String>
+    pub pack_ids: Vec<String>,
 }
 
 pub fn new(status: u8, pack_ids: Vec<String>) -> ResourcePackClientResponse {
-    ResourcePackClientResponse{ status, pack_ids }
+    ResourcePackClientResponse { status, pack_ids }
 }
 
 impl Packet for ResourcePackClientResponse {

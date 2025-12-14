@@ -1,8 +1,8 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct MobEffect {
@@ -12,11 +12,30 @@ pub struct MobEffect {
     pub amplifier: i32,
     pub particles: bool,
     pub duration: i32,
-    pub tick: u64
+    pub tick: u64,
+    pub ambient: bool,
 }
 
-pub fn new(actor_runtime_id: u64, event_id: u8, effect_id: i32, amplifier: i32, particles: bool, duration: i32, tick: u64) -> MobEffect {
-    MobEffect { actor_runtime_id, event_id, effect_id, amplifier, particles, duration, tick }
+pub fn new(
+    actor_runtime_id: u64,
+    event_id: u8,
+    effect_id: i32,
+    amplifier: i32,
+    particles: bool,
+    duration: i32,
+    tick: u64,
+    ambient: bool,
+) -> MobEffect {
+    MobEffect {
+        actor_runtime_id,
+        event_id,
+        effect_id,
+        amplifier,
+        particles,
+        duration,
+        tick,
+        ambient,
+    }
 }
 
 impl Packet for MobEffect {
@@ -35,6 +54,7 @@ impl Packet for MobEffect {
         stream.put_bool(self.particles);
         stream.put_var_i32(self.duration);
         stream.put_var_u64(self.tick);
+        stream.put_bool(self.ambient);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -51,10 +71,20 @@ impl Packet for MobEffect {
         let particles = stream.get_bool();
         let duration = stream.get_var_i32();
         let tick = stream.get_var_u64();
+        let ambient = stream.get_bool();
 
-        MobEffect { actor_runtime_id, event_id, effect_id, amplifier, particles, duration, tick }
+        MobEffect {
+            actor_runtime_id,
+            event_id,
+            effect_id,
+            amplifier,
+            particles,
+            duration,
+            tick,
+            ambient,
+        }
     }
-    
+
     fn debug(&self) {
         println!("Actor Runtime ID: {}", self.actor_runtime_id);
         println!("Event ID: {}", self.event_id);
@@ -78,4 +108,43 @@ impl MobEffect {
     pub const EVENT_ADD: u8 = 1;
     pub const EVENT_MODIFY: u8 = 2;
     pub const EVENT_REMOVE: u8 = 3;
+
+    pub fn add(
+        actor_runtime_id: u64,
+        replace: bool,
+        effect_id: i32,
+        amplifier: i32,
+        particles: bool,
+        duration: i32,
+        tick: u64,
+        ambient: bool,
+    ) -> MobEffect {
+        new(
+            actor_runtime_id,
+            if replace {
+                Self::EVENT_MODIFY
+            } else {
+                Self::EVENT_ADD
+            },
+            effect_id,
+            amplifier,
+            particles,
+            duration,
+            tick,
+            ambient,
+        )
+    }
+
+    pub fn remove(actor_runtime_id: u64, effect_id: i32, tick: u64) -> MobEffect {
+        new(
+            actor_runtime_id,
+            Self::EVENT_REMOVE,
+            effect_id,
+            0,
+            false,
+            0,
+            tick,
+            false,
+        )
+    }
 }

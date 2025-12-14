@@ -1,7 +1,7 @@
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_definition_chunk_gen_data::BiomeDefinitionChunkGenData;
 use crate::utils::color::Color;
+use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeDefinitionData {
@@ -15,7 +15,7 @@ pub struct BiomeDefinitionData {
     map_water_color: Color,
     rain: bool,
     tag_indexes: Option<Vec<u16>>,
-    chunk_gen_data: Option<BiomeDefinitionChunkGenData>
+    chunk_gen_data: Option<BiomeDefinitionChunkGenData>,
 }
 
 impl BiomeDefinitionData {
@@ -30,9 +30,9 @@ impl BiomeDefinitionData {
         map_water_color: Color,
         rain: bool,
         tag_indexes: Option<Vec<u16>>,
-        chunk_gen_data: Option<BiomeDefinitionChunkGenData>
+        chunk_gen_data: Option<BiomeDefinitionChunkGenData>,
     ) -> BiomeDefinitionData {
-        BiomeDefinitionData{
+        BiomeDefinitionData {
             name_index,
             id,
             temperature,
@@ -43,7 +43,7 @@ impl BiomeDefinitionData {
             map_water_color,
             rain,
             tag_indexes,
-            chunk_gen_data
+            chunk_gen_data,
         }
     }
 
@@ -65,9 +65,10 @@ impl BiomeDefinitionData {
             }
             sub_tag_indexes
         });
-        let chunk_gen_data = PacketSerializer::read_optional(stream, |s| BiomeDefinitionChunkGenData::read(s));
+        let chunk_gen_data =
+            PacketSerializer::read_optional(stream, |s| BiomeDefinitionChunkGenData::read(s));
 
-        BiomeDefinitionData{
+        BiomeDefinitionData {
             name_index,
             id,
             temperature,
@@ -78,7 +79,7 @@ impl BiomeDefinitionData {
             map_water_color,
             rain,
             tag_indexes,
-            chunk_gen_data
+            chunk_gen_data,
         }
     }
 

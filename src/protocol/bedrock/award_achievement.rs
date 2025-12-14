@@ -1,11 +1,11 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AwardAchievement {
-    pub achievement_id: i32
+    pub achievement_id: i32,
 }
 
 pub fn new(achievement_id: i32) -> AwardAchievement {

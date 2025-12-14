@@ -1,10 +1,10 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::bit_set::BitSet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::entity_metadata_flags::EntityMetadataFlags;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientMovementPredictionSync {
@@ -19,7 +19,7 @@ pub struct ClientMovementPredictionSync {
     pub health: f32,
     pub hunger: f32,
     pub actor_unique_id: i64,
-    pub actor_flying_state: bool
+    pub actor_flying_state: bool,
 }
 
 pub fn new(
@@ -34,7 +34,7 @@ pub fn new(
     health: f32,
     hunger: f32,
     actor_unique_id: i64,
-    actor_flying_state: bool
+    actor_flying_state: bool,
 ) -> ClientMovementPredictionSync {
     ClientMovementPredictionSync {
         flags,
@@ -48,7 +48,7 @@ pub fn new(
         health,
         hunger,
         actor_unique_id,
-        actor_flying_state
+        actor_flying_state,
     }
 }
 
@@ -99,7 +99,20 @@ impl Packet for ClientMovementPredictionSync {
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let actor_flying_state = stream.get_bool();
 
-        ClientMovementPredictionSync { flags, scale, width, height, movement_speed, underwater_movement_speed, lava_movement_speed, jump_strength, health, hunger, actor_unique_id, actor_flying_state }
+        ClientMovementPredictionSync {
+            flags,
+            scale,
+            width,
+            height,
+            movement_speed,
+            underwater_movement_speed,
+            lava_movement_speed,
+            jump_strength,
+            health,
+            hunger,
+            actor_unique_id,
+            actor_flying_state,
+        }
     }
 
     fn debug(&self) {
@@ -108,7 +121,10 @@ impl Packet for ClientMovementPredictionSync {
         println!("Width: {}", self.width);
         println!("Height: {}", self.height);
         println!("Movement Speed: {}", self.movement_speed);
-        println!("Underwater Movement Speed: {}", self.underwater_movement_speed);
+        println!(
+            "Underwater Movement Speed: {}",
+            self.underwater_movement_speed
+        );
         println!("Lava Movement Speed: {}", self.lava_movement_speed);
         println!("Jump Strength: {}", self.jump_strength);
         println!("Health: {}", self.health);

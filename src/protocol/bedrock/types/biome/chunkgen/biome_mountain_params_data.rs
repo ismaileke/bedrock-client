@@ -7,7 +7,7 @@ pub struct BiomeMountainParamsData {
     pub south_slopes: bool,
     pub west_slopes: bool,
     pub east_slopes: bool,
-    pub top_slide_enabled: bool
+    pub top_slide_enabled: bool,
 }
 
 impl BiomeMountainParamsData {
@@ -17,15 +17,15 @@ impl BiomeMountainParamsData {
         south_slopes: bool,
         west_slopes: bool,
         east_slopes: bool,
-        top_slide_enabled: bool
+        top_slide_enabled: bool,
     ) -> Self {
-        BiomeMountainParamsData{
+        BiomeMountainParamsData {
             steep_block,
             north_slopes,
             south_slopes,
             west_slopes,
             east_slopes,
-            top_slide_enabled
+            top_slide_enabled,
         }
     }
 
@@ -37,7 +37,14 @@ impl BiomeMountainParamsData {
         let east_slopes = stream.get_bool();
         let top_slide_enabled = stream.get_bool();
 
-        BiomeMountainParamsData::new(steep_block, north_slopes, south_slopes, west_slopes, east_slopes, top_slide_enabled)
+        BiomeMountainParamsData::new(
+            steep_block,
+            north_slopes,
+            south_slopes,
+            west_slopes,
+            east_slopes,
+            top_slide_enabled,
+        )
     }
 
     pub fn write(&self, stream: &mut Stream) {

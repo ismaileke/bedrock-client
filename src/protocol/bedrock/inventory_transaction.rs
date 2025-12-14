@@ -1,7 +1,5 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::inventory_transaction_changed_slots_hack::InventoryTransactionChangedSlotsHack;
 use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
@@ -12,16 +10,26 @@ use crate::protocol::bedrock::types::inventory::release_item_transaction_data::R
 use crate::protocol::bedrock::types::inventory::transaction_data::TransactionData;
 use crate::protocol::bedrock::types::inventory::use_item_on_entity_transaction_data::UseItemOnEntityTransactionData;
 use crate::protocol::bedrock::types::inventory::use_item_transaction_data::UseItemTransactionData;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct InventoryTransaction {
     pub request_id: i32,
     pub request_changed_slots: Vec<InventoryTransactionChangedSlotsHack>,
-    pub tr_data: TransactionData
+    pub tr_data: TransactionData,
 }
 
-pub fn new(request_id: i32, request_changed_slots: Vec<InventoryTransactionChangedSlotsHack>, tr_data: TransactionData) -> InventoryTransaction {
-    InventoryTransaction { request_id, request_changed_slots, tr_data }
+pub fn new(
+    request_id: i32,
+    request_changed_slots: Vec<InventoryTransactionChangedSlotsHack>,
+    tr_data: TransactionData,
+) -> InventoryTransaction {
+    InventoryTransaction {
+        request_id,
+        request_changed_slots,
+        tr_data,
+    }
 }
 
 impl Packet for InventoryTransaction {
@@ -64,15 +72,57 @@ impl Packet for InventoryTransaction {
         let mut tr_data = match tr_type {
             Self::TYPE_NORMAL => TransactionData::Normal(NormalTransactionData::new(vec![])),
             Self::TYPE_MISMATCH => TransactionData::Mismatch(MismatchTransactionData::new()),
-            Self::TYPE_USE_ITEM => TransactionData::UseItem(UseItemTransactionData::new(vec![], 0, 0, vec![], 0, 0, ItemStackWrapper{ stack_id: 0, item_stack: ItemStack::null() }, vec![], vec![], 0, 0)),
-            Self::TYPE_USE_ITEM_ON_ENTITY => TransactionData::UseItemOnEntity(UseItemOnEntityTransactionData::new(vec![], 0, 0, 0, ItemStackWrapper{ stack_id: 0, item_stack: ItemStack::null() }, vec![], vec![])),
-            Self::TYPE_RELEASE_ITEM => TransactionData::ReleaseItem(ReleaseItemTransactionData::new(vec![], 0, 0, ItemStackWrapper{ stack_id: 0, item_stack: ItemStack::null() }, vec![])),
-            _ => TransactionData::Normal(NormalTransactionData::new(vec![]))
-
+            Self::TYPE_USE_ITEM => TransactionData::UseItem(UseItemTransactionData::new(
+                vec![],
+                0,
+                0,
+                vec![],
+                0,
+                0,
+                ItemStackWrapper {
+                    stack_id: 0,
+                    item_stack: ItemStack::null(),
+                },
+                vec![],
+                vec![],
+                0,
+                0,
+            )),
+            Self::TYPE_USE_ITEM_ON_ENTITY => {
+                TransactionData::UseItemOnEntity(UseItemOnEntityTransactionData::new(
+                    vec![],
+                    0,
+                    0,
+                    0,
+                    ItemStackWrapper {
+                        stack_id: 0,
+                        item_stack: ItemStack::null(),
+                    },
+                    vec![],
+                    vec![],
+                ))
+            }
+            Self::TYPE_RELEASE_ITEM => {
+                TransactionData::ReleaseItem(ReleaseItemTransactionData::new(
+                    vec![],
+                    0,
+                    0,
+                    ItemStackWrapper {
+                        stack_id: 0,
+                        item_stack: ItemStack::null(),
+                    },
+                    vec![],
+                ))
+            }
+            _ => TransactionData::Normal(NormalTransactionData::new(vec![])),
         };
         tr_data.decode(stream);
 
-        InventoryTransaction { request_id, request_changed_slots, tr_data }
+        InventoryTransaction {
+            request_id,
+            request_changed_slots,
+            tr_data,
+        }
     }
 
     fn debug(&self) {

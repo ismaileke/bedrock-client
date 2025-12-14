@@ -1,7 +1,7 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ServerBoundDiagnostics {
@@ -13,7 +13,7 @@ pub struct ServerBoundDiagnostics {
     pub avg_render_time_ms: f32,
     pub avg_end_frame_time_ms: f32,
     pub avg_remainder_time_percent: f32,
-    pub avg_unaccounted_time_percent: f32
+    pub avg_unaccounted_time_percent: f32,
 }
 
 pub fn new(
@@ -25,7 +25,7 @@ pub fn new(
     avg_render_time_ms: f32,
     avg_end_frame_time_ms: f32,
     avg_remainder_time_percent: f32,
-    avg_unaccounted_time_percent: f32
+    avg_unaccounted_time_percent: f32,
 ) -> ServerBoundDiagnostics {
     ServerBoundDiagnostics {
         avg_fps,
@@ -36,7 +36,7 @@ pub fn new(
         avg_render_time_ms,
         avg_end_frame_time_ms,
         avg_remainder_time_percent,
-        avg_unaccounted_time_percent
+        avg_unaccounted_time_percent,
     }
 }
 
@@ -86,20 +86,32 @@ impl Packet for ServerBoundDiagnostics {
             avg_render_time_ms,
             avg_end_frame_time_ms,
             avg_remainder_time_percent,
-            avg_unaccounted_time_percent
+            avg_unaccounted_time_percent,
         }
     }
 
     fn debug(&self) {
         println!("Avg FPS: {}", self.avg_fps);
-        println!("Avg Server Sim Tick Time MS: {}", self.avg_server_sim_tick_time_ms);
-        println!("Avg Client Sim Tick Time MS: {}", self.avg_client_sim_tick_time_ms);
+        println!(
+            "Avg Server Sim Tick Time MS: {}",
+            self.avg_server_sim_tick_time_ms
+        );
+        println!(
+            "Avg Client Sim Tick Time MS: {}",
+            self.avg_client_sim_tick_time_ms
+        );
         println!("Avg Begin Frame Time MS: {}", self.avg_begin_frame_time_ms);
         println!("Avg Input Time MS: {}", self.avg_input_time_ms);
         println!("Avg Render Time MS: {}", self.avg_render_time_ms);
         println!("Avg End Frame Time MS: {}", self.avg_end_frame_time_ms);
-        println!("Avg Remainder Time Percent: {}", self.avg_remainder_time_percent);
-        println!("Avg Unaccounted Time Percent: {}", self.avg_unaccounted_time_percent);
+        println!(
+            "Avg Remainder Time Percent: {}",
+            self.avg_remainder_time_percent
+        );
+        println!(
+            "Avg Unaccounted Time Percent: {}",
+            self.avg_unaccounted_time_percent
+        );
     }
 
     fn as_any(&self) -> &dyn Any {

@@ -1,17 +1,20 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ShowStoreOffer {
     pub offer_id: String,
-    pub redirect_type: u8
+    pub redirect_type: u8,
 }
 
 pub fn new(offer_id: String, redirect_type: u8) -> ShowStoreOffer {
-    ShowStoreOffer { offer_id, redirect_type }
+    ShowStoreOffer {
+        offer_id,
+        redirect_type,
+    }
 }
 
 impl Packet for ShowStoreOffer {
@@ -37,9 +40,12 @@ impl Packet for ShowStoreOffer {
         let offer_id = PacketSerializer::get_uuid(stream);
         let redirect_type = stream.get_byte();
 
-        ShowStoreOffer { offer_id, redirect_type }
+        ShowStoreOffer {
+            offer_id,
+            redirect_type,
+        }
     }
-    
+
     fn debug(&self) {
         println!("Offer ID: {}", self.offer_id);
         println!("Redirect Type: {}", self.redirect_type);

@@ -5,11 +5,11 @@ pub struct TakeStackRequestAction {}
 
 impl TakeStackRequestAction {
     pub fn new() -> TakeStackRequestAction {
-        TakeStackRequestAction{}
+        TakeStackRequestAction {}
     }
 
     pub fn read(_stream: &mut Stream) -> TakeStackRequestAction {
-        TakeStackRequestAction{}
+        TakeStackRequestAction {}
     }
 
     pub fn write(&mut self, _stream: &mut Stream) {}

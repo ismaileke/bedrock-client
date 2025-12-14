@@ -1,19 +1,27 @@
-use std::any::Any;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::update_sub_chunk_blocks_entry::UpdateSubChunkBlocksEntry;
+use binary_utils::binary::Stream;
+use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct UpdateSubChunkBlocks {
     pub base_block_position: Vec<i32>,
     pub layer_0_updates: Vec<UpdateSubChunkBlocksEntry>,
-    pub layer_1_updates: Vec<UpdateSubChunkBlocksEntry>
+    pub layer_1_updates: Vec<UpdateSubChunkBlocksEntry>,
 }
 
-pub fn new(base_block_position: Vec<i32>, layer_0_updates: Vec<UpdateSubChunkBlocksEntry>, layer_1_updates: Vec<UpdateSubChunkBlocksEntry>) -> UpdateSubChunkBlocks {
-    UpdateSubChunkBlocks { base_block_position, layer_0_updates, layer_1_updates }
+pub fn new(
+    base_block_position: Vec<i32>,
+    layer_0_updates: Vec<UpdateSubChunkBlocksEntry>,
+    layer_1_updates: Vec<UpdateSubChunkBlocksEntry>,
+) -> UpdateSubChunkBlocks {
+    UpdateSubChunkBlocks {
+        base_block_position,
+        layer_0_updates,
+        layer_1_updates,
+    }
 }
 
 impl Packet for UpdateSubChunkBlocks {
@@ -55,7 +63,11 @@ impl Packet for UpdateSubChunkBlocks {
             layer_1_updates.push(UpdateSubChunkBlocksEntry::read(stream));
         }
 
-        UpdateSubChunkBlocks { base_block_position, layer_0_updates, layer_1_updates }
+        UpdateSubChunkBlocks {
+            base_block_position,
+            layer_0_updates,
+            layer_1_updates,
+        }
     }
 
     fn debug(&self) {
