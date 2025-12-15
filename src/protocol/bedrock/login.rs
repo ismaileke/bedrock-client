@@ -4,11 +4,9 @@ use crate::protocol::raknet::game_packet::GamePacket;
 use crate::utils::encryption::Encryption;
 use binary_utils::binary::Stream;
 use chrono::Utc;
-use openssl::ecdsa::EcdsaSig;
-use openssl::pkey::{PKey, Private};
-use openssl::sign::Signer;
 use serde_json::{json, to_vec, Value};
 use std::any::Any;
+use p384::ecdsa::{signature::Signer, Signature, SigningKey};
 
 #[derive(serde::Serialize, Debug)]
 pub struct Login {
@@ -100,7 +98,7 @@ impl Packet for Login {
 
 pub fn convert_login_chain(
     chain: &mut Vec<String>,
-    pkey: PKey<Private>,
+    signing_key: &SigningKey,
     signed_token: String,
     target_address: String,
     target_port: u16,
@@ -111,30 +109,17 @@ pub fn convert_login_chain(
     let chain_two: Vec<&str> = chain[1].split('.').collect();
 
     let chain_encoded = Encryption::b64_url_decode(chain_one[0]).unwrap();
-    let chain_decoded: Value =
-        serde_json::from_str(chain_encoded.as_str()).expect("Chain 1 can not decoded.");
+    let chain_decoded: Value = serde_json::from_str(chain_encoded.as_str()).expect("Chain 1 cannot be decoded.");
 
     let chain_two_encoded = Encryption::b64_url_decode(chain_two[1]).unwrap();
-    let chain_two_decoded: Value =
-        serde_json::from_str(chain_two_encoded.as_str()).expect("Chain 2 can not decoded.");
+    let chain_two_decoded: Value = serde_json::from_str(chain_two_encoded.as_str()).expect("Chain 2 cannot be decoded.");
 
-    let identity_pub_key = chain_two_decoded
-        .get("identityPublicKey")
-        .and_then(Value::as_str)
-        .unwrap()
-        .to_string();
+    let identity_pub_key = chain_two_decoded.get("identityPublicKey").and_then(Value::as_str).unwrap().to_string();
+
     let extra_data = chain_two_decoded.get("extraData").unwrap();
-    let display_name = extra_data
-        .get("displayName")
-        .and_then(Value::as_str)
-        .unwrap()
-        .to_string();
+    let display_name = extra_data.get("displayName").and_then(Value::as_str).unwrap().to_string();
 
-    let x5u = chain_decoded
-        .get("x5u")
-        .and_then(Value::as_str)
-        .unwrap()
-        .to_string();
+    let x5u = chain_decoded.get("x5u").and_then(Value::as_str).unwrap().to_string();
 
     let header = json!({
         "alg": "ES384",
@@ -165,7 +150,7 @@ pub fn convert_login_chain(
         "DefaultInputMode": 1,
         "DeviceId": "ebc40067-bfdb-3ad0-af9d-65248592acf1",
         "DeviceModel": "System Product Name ASUS",
-        "DeviceOS": 1, //:D
+        "DeviceOS": 1,
         "GameVersion": client_version,
         "GraphicsMode": 0, // SIMPLE = 0 FANCY = 1 ADVANCED = 2 RAY_TRACED = 3;
         "GuiScale": -1,
@@ -197,57 +182,39 @@ pub fn convert_login_chain(
         "UIProfile": 0,
     });
 
-    let header_bytes = to_vec(&header).expect("Header don't convert the byte array");
+    let header_bytes = to_vec(&header).expect("Header conversion error");
     let encoded_header = Encryption::b64_url_encode(&header_bytes);
 
-    let payload_bytes = to_vec(&payload).expect("Payload don't convert the byte array");
+    let payload_bytes = to_vec(&payload).expect("Payload conversion error");
     let encoded_payload = Encryption::b64_url_encode(&payload_bytes);
 
-    let payload_two_bytes = to_vec(&payload_two).expect("Payload Two don't convert the byte array");
+    let payload_two_bytes = to_vec(&payload_two).expect("Payload Two conversion error");
     let encoded_payload_two = Encryption::b64_url_encode(&payload_two_bytes);
 
+    // First Sign (JWT Chain) - using p384
     let data_to_sign = format!("{}.{}", encoded_header, encoded_payload);
-    let mut signer =
-        Signer::new(openssl::hash::MessageDigest::sha384(), &pkey).expect("Signer not created.");
-    signer
-        .update(data_to_sign.as_bytes())
-        .expect("Signer update error.");
-    let signature = signer.sign_to_vec().expect("Signature creating error.");
-    let ecdsa_sig = EcdsaSig::from_der(&signature).unwrap();
-    let r = ecdsa_sig.r().to_vec();
-    let s = ecdsa_sig.s().to_vec();
-    let concatenated_signature = [r, s].concat();
-    let encoded_signature = Encryption::b64_url_encode(&concatenated_signature);
-    let jwt = format!(
-        "{}.{}.{}",
-        encoded_header, encoded_payload, encoded_signature
-    );
+
+    // The p384 Signer trait signs directly
+    let signature: Signature = signing_key.sign(data_to_sign.as_bytes());
+
+    // The to_bytes() function in the p384 library already returns “Fixed Width” (96 bytes: 48 R + 48 S).
+    // There is no need to perform DER decoding or padding as in OpenSSL.
+    let encoded_signature = Encryption::b64_url_encode(&signature.to_bytes().to_vec());
+
+    let jwt = format!("{}.{}.{}", encoded_header, encoded_payload, encoded_signature);
     chain.insert(0, jwt);
 
-    /* OLD CODE
-    let mut real_chain = json!({
-        "chain": chain
-    });
-    */
-
     let real_chain = json!({
-        "AuthenticationType": 0, // FULL LOGIN
+        "AuthenticationType": 0,
         "Certificate": json!({"chain": chain}).to_string(),
         "Token": signed_token
     });
 
+    // 8. Second Sign (Client Data) - using p384
     let data_to_sign_two = format!("{}.{}", encoded_header, encoded_payload_two);
-    let mut signer_two =
-        Signer::new(openssl::hash::MessageDigest::sha384(), &pkey).expect("Signer not created.");
-    signer_two
-        .update(data_to_sign_two.as_bytes())
-        .expect("Signer update error.");
-    let signature_two = signer_two.sign_to_vec().expect("Signature creating error.");
-    let ecdsa_sig = EcdsaSig::from_der(&signature_two).unwrap();
-    let r = ecdsa_sig.r().to_vec();
-    let s = ecdsa_sig.s().to_vec();
-    let concatenated_signature_two = [r, s].concat();
-    let encoded_signature_two = Encryption::b64_url_encode(&concatenated_signature_two);
+
+    let signature_two: Signature = signing_key.sign(data_to_sign_two.as_bytes());
+    let encoded_signature_two = Encryption::b64_url_encode(&signature_two.to_bytes().to_vec());
 
     let skin_data = format!(
         "{}.{}.{}",

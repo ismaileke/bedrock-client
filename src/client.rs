@@ -37,8 +37,6 @@ use mojang_nbt::nbt_serializer::NBTSerializer;
 use mojang_nbt::tag::compound_tag::CompoundTag;
 use mojang_nbt::tag::tag::Tag;
 use mojang_nbt::tree_root::TreeRoot;
-use openssl::base64::decode_block;
-use openssl::pkey::PKey;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::io::{Cursor, Read, Result};
@@ -295,8 +293,7 @@ impl Client {
                                                     self.bedrock_handler.compression_enabled = true;
 
                                                     // LOGIN PACKET
-                                                    let pkey = PKey::from_ec_key(self.bedrock_handler.ec_key.clone()).expect("PKey Error");
-                                                    let login_data_detail = login::convert_login_chain(&mut self.bedrock_handler.chain, pkey, self.bedrock_handler.signed_token.clone(), self.target_address.clone(), self.target_port, self.raknet_handler.client_guid, self.client_version.clone());
+                                                    let login_data_detail = login::convert_login_chain(&mut self.bedrock_handler.chain, &self.bedrock_handler.signing_key, self.bedrock_handler.signed_token.clone(), self.target_address.clone(), self.target_port, self.raknet_handler.client_guid, self.client_version.clone());
                                                     let login = login::new(BEDROCK_PROTOCOL_VERSION, login_data_detail[0].clone(), login_data_detail[1].clone()).encode();
 
                                                     let datagrams = Datagram::split_packet(login, &mut self.raknet_handler.frame_number_cache);
@@ -319,15 +316,15 @@ impl Client {
                                                     let jwt_payload_value: Value = serde_json::from_str(jwt_payload.as_str()).expect("JWT Payload can not decoded.");
 
                                                     let x5u = jwt_header_value.get("x5u").and_then(Value::as_str).unwrap().to_string();
-                                                    let server_private = encryption::parse_der_public_key(decode_block(x5u.as_str()).unwrap().as_slice());
+                                                    let x5u_bytes = general_purpose::STANDARD.decode(x5u).expect("x5u decode error");
+                                                    let server_private = encryption::parse_der_public_key(x5u_bytes.as_slice());
 
                                                     // decode_block removed
                                                     //let salt = decode_block(jwt_payload_value.get("salt").and_then(Value::as_str).unwrap()).expect("Salt value can not be decoded.");
                                                     let padded = encryption::fix_base64_padding(jwt_payload_value.get("salt").and_then(Value::as_str).unwrap());
                                                     let salt = general_purpose::STANDARD.decode(padded).expect("Salt value can not be decoded.");
 
-                                                    let local_pkey = PKey::from_ec_key(self.bedrock_handler.ec_key.clone()).expect("Local PKey Error");
-                                                    let shared_secret = encryption::generate_shared_secret(local_pkey, server_private);
+                                                    let shared_secret = encryption::generate_shared_secret(&self.bedrock_handler.signing_key, &server_private);
                                                     let encryption_key = encryption::generate_key(&shared_secret, salt);
                                                     let encryption = Encryption::fake_gcm(encryption_key).expect("Encryption Fake GCM Error");
 

@@ -68,34 +68,17 @@ impl RakNetPacketHandler {
         match packet_type {
             PacketType::OpenConnReply1 => {
                 let open_conn_reply1 = OpenConnReply1::decode(Vec::from(stream.get_buffer()));
-                if debug {
-                    open_conn_reply1.debug();
-                }
+                if debug { open_conn_reply1.debug(); }
 
-                response_data = OpenConnReq2::new(
-                    MAGIC,
-                    address::new(4, target_address.to_string(), target_port),
-                    open_conn_reply1.cookie,
-                    false,
-                    open_conn_reply1.mtu,
-                    self.client_guid as u64,
-                )
-                .encode();
+                response_data = OpenConnReq2::new(MAGIC, address::new(4, target_address.to_string(), target_port), open_conn_reply1.cookie, false, open_conn_reply1.mtu, self.client_guid as u64).encode();
 
                 //client.socket.send(&req2).expect("Open Connection Request 2 Packet could not be sent");
             }
             PacketType::OpenConnReply2 => {
                 let open_conn_reply2 = OpenConnReply2::decode(Vec::from(stream.get_buffer()));
-                if debug {
-                    open_conn_reply2.debug();
-                }
+                if debug { open_conn_reply2.debug(); }
 
-                let body = ConnReq::new(
-                    self.client_guid as u64,
-                    Utc::now().timestamp() as u64,
-                    false,
-                )
-                .encode();
+                let body = ConnReq::new(self.client_guid as u64, Utc::now().timestamp() as u64, false).encode();
 
                 let frame = Datagram::create_frame(body, RELIABLE, &self.frame_number_cache, None);
                 response_data = Datagram::create(vec![frame], &self.frame_number_cache).to_binary();
@@ -110,48 +93,21 @@ impl RakNetPacketHandler {
                 }
 
                 // New Incoming Connection
-                let addresses: [InternetAddress; 20] =
-                    core::array::from_fn(|_| address::new(4, "0.0.0.0".to_string(), 0));
-                let new_incoming_conn = NewIncomingConn::new(
-                    address::new(4, target_address.to_string(), target_port),
-                    addresses,
-                    Utc::now().timestamp() as u64,
-                    (Utc::now().timestamp() + 1) as u64,
-                )
-                .encode();
-                let frame = Datagram::create_frame(
-                    new_incoming_conn,
-                    RELIABLE_ORDERED,
-                    &self.frame_number_cache,
-                    None,
-                );
+                let addresses: [InternetAddress; 20] = core::array::from_fn(|_| address::new(4, "0.0.0.0".to_string(), 0));
+                let new_incoming_conn = NewIncomingConn::new(address::new(4, target_address.to_string(), target_port), addresses, Utc::now().timestamp() as u64, (Utc::now().timestamp() + 1) as u64).encode();
+                let frame = Datagram::create_frame(new_incoming_conn, RELIABLE_ORDERED, &self.frame_number_cache, None);
                 self.frame_number_cache.reliable_frame_index += 1;
                 self.frame_number_cache.ordered_frame_index += 1;
 
                 // Connected Ping
                 let connected_ping = ConnectedPing::create(Utc::now().timestamp() as u64).encode();
-                let frame_two = Datagram::create_frame(
-                    connected_ping,
-                    UNRELIABLE,
-                    &self.frame_number_cache,
-                    None,
-                );
+                let frame_two = Datagram::create_frame(connected_ping, UNRELIABLE, &self.frame_number_cache, None);
 
                 // Request Network Settings Packet
-                let request_network_settings =
-                    req_network_settings::new(BEDROCK_PROTOCOL_VERSION).encode();
-                let frame_three = Datagram::create_frame(
-                    request_network_settings,
-                    RELIABLE_ORDERED,
-                    &self.frame_number_cache,
-                    None,
-                );
+                let request_network_settings = req_network_settings::new(BEDROCK_PROTOCOL_VERSION).encode();
+                let frame_three = Datagram::create_frame(request_network_settings, RELIABLE_ORDERED, &self.frame_number_cache, None);
 
-                response_data = Datagram::create(
-                    vec![frame, frame_two, frame_three],
-                    &self.frame_number_cache,
-                )
-                .to_binary();
+                response_data = Datagram::create(vec![frame, frame_two, frame_three], &self.frame_number_cache).to_binary();
                 self.frame_number_cache.sequence_number += 1;
                 self.frame_number_cache.reliable_frame_index += 1;
                 self.frame_number_cache.ordered_frame_index += 1;
@@ -159,19 +115,12 @@ impl RakNetPacketHandler {
                 //should_stop = true;
             }
             PacketType::IncompatibleProtocol => {
-                let incompatible_protocol =
-                    incompatible_protocol::decode(Vec::from(stream.get_buffer()));
-                println!(
-                    "{}Incompatible Protocol Version, Server Protocol Version: {}{}",
-                    COLOR_RED, incompatible_protocol.server_protocol, COLOR_WHITE
-                );
+                let incompatible_protocol = incompatible_protocol::decode(Vec::from(stream.get_buffer()));
+                println!("{}Incompatible Protocol Version, Server Protocol Version: {}{}", COLOR_RED, incompatible_protocol.server_protocol, COLOR_WHITE);
                 *should_stop = true;
             }
             PacketType::DisconnectionNotification => {
-                println!(
-                    "{}Disconnection Notification Packet Received From Server.{}",
-                    COLOR_RED, COLOR_WHITE
-                );
+                println!("{}Disconnection Notification Packet Received From Server.{}", COLOR_RED, COLOR_WHITE);
                 *should_stop = true;
             }
             _ => {}

@@ -1,12 +1,11 @@
 use minecraft_auth::bedrock::Bedrock;
 use mojang_nbt::tag::compound_tag::CompoundTag;
-use openssl::ec::EcKey;
-use openssl::pkey::Private;
 use std::collections::HashMap;
+use p384::ecdsa::SigningKey;
 
 pub struct BedrockPacketHandler {
     pub chain: Vec<String>,
-    pub ec_key: EcKey<Private>,
+    pub signing_key: SigningKey,
     pub signed_token: String,
     pub compression_enabled: bool,
     pub encryption_enabled: bool,
@@ -18,7 +17,7 @@ pub struct BedrockPacketHandler {
 impl BedrockPacketHandler {
     pub fn new(bedrock: Bedrock) -> BedrockPacketHandler {
         let chain = bedrock.get_chain_data();
-        let ec_key = bedrock.get_ec_key().unwrap();
+        let signing_key = bedrock.get_signing_key_384().unwrap();
         let signed_token = bedrock.get_signed_token().unwrap();
         let compression_enabled = false;
         let encryption_enabled = false;
@@ -28,7 +27,7 @@ impl BedrockPacketHandler {
 
         BedrockPacketHandler {
             chain,
-            ec_key,
+            signing_key,
             signed_token,
             compression_enabled,
             encryption_enabled,
