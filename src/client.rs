@@ -1,7 +1,6 @@
 use crate::handler::bedrock_packet_handler::BedrockPacketHandler;
 use crate::handler::raknet_packet_handler::RakNetPacketHandler;
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
-use crate::protocol::bedrock::level_chunk::LevelChunk;
 use crate::protocol::bedrock::network_stack_latency::NetworkStackLatency;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::play_status::PlayStatus;
@@ -20,7 +19,7 @@ use crate::protocol::raknet::game_packet::GamePacket;
 use crate::protocol::raknet::open_conn_req1::OpenConnReq1;
 use crate::protocol::raknet::packet_ids::{PacketType, MAGIC};
 use crate::utils::block::PropertyValue;
-use crate::utils::chunk::{get_dimension_chunk_bounds, network_decode, Chunk};
+use crate::utils::chunk::Chunk;
 use crate::utils::color_format::*;
 use crate::utils::encryption::Encryption;
 use crate::utils::{block, encryption};
@@ -67,7 +66,6 @@ pub struct Client {
     pub debug: bool,
     pub packet_callback: Option<Box<dyn Fn(&str, &Box<dyn Packet>) + Send>>,
     pub auth_callback: Arc<Mutex<Option<Box<dyn Fn(&str, &str) + Send>>>>,
-    pub block_callback: Option<Box<dyn Fn(Vec<i32>, &CompoundTag) + Send>>,
     pub raknet_handler: RakNetPacketHandler,
     pub bedrock_handler: BedrockPacketHandler
 }
@@ -102,7 +100,6 @@ where
         debug,
         packet_callback: None,
         auth_callback,
-        block_callback: None,
         raknet_handler: RakNetPacketHandler::new(),
         bedrock_handler: BedrockPacketHandler::new(bedrock)
     })
@@ -631,7 +628,7 @@ impl Client {
                                                     self.send_packet(&req_chunk_radius);
                                                 },
                                                 BedrockPacketType::IDLevelChunk => {
-                                                    let level_chunk = packet.as_any().downcast_ref::<LevelChunk>().unwrap();
+                                                    /*let level_chunk = packet.as_any().downcast_ref::<LevelChunk>().unwrap();
 
                                                     if level_chunk.sub_chunk_count != 4294967294 {
                                                         let chunk = network_decode(self.bedrock_handler.air_network_id.clone(), level_chunk.extra_payload.clone(), level_chunk.sub_chunk_count, get_dimension_chunk_bounds(0));
@@ -640,7 +637,7 @@ impl Client {
                                                         } else {
                                                             panic!("{}", chunk.err().unwrap());
                                                         }
-                                                    }
+                                                    }*/
                                                 },
                                                 BedrockPacketType::IDNetworkStackLatency => {
                                                     let network_stack_latency = packet.as_any().downcast_ref::<NetworkStackLatency>().unwrap();
@@ -700,14 +697,6 @@ impl Client {
         *self.auth_callback.lock().unwrap() = Some(Box::new(callback));
     }
 
-    // Block callback setter function
-    pub fn set_block_callback<F>(&mut self, callback: F)
-    where
-        F: Fn(Vec<i32>, &CompoundTag) + Send + 'static,
-    {
-        self.block_callback = Some(Box::new(callback));
-    }
-
     pub fn print_all_blocks(&self, chunk_x: i32, chunk_z: i32, chunk: Chunk) {
         for (sub_chunk_index, sub_chunk) in chunk.sub.iter().enumerate() {
             for (layer_index, storage) in sub_chunk.storages.iter().enumerate() {
@@ -728,11 +717,7 @@ impl Client {
 
                                 let name = block_info.get_string("name").unwrap();
                                 if name != "minecraft:air" {
-                                    // Call the block callback if set
-                                    if let Some(callback) = &self.block_callback {
-                                        let coordinates = vec![real_x, real_y as i32, real_z];
-                                        callback(coordinates, block_info);
-                                    }
+                                    //println!("({},{},{}) Block Name: {}", real_x, real_y, real_z, name);
                                 }
                             }
                         }

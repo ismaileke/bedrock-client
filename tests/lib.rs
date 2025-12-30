@@ -3,8 +3,10 @@
 mod tests {
     extern crate bedrock_client;
 
+    use chrono::{Local, Timelike};
     use bedrock_client::protocol::bedrock::text::Text;
     use bedrock_client::{client, downcast_bedrock_packet};
+    use bedrock_client::utils::color_format;
 
     #[tokio::test]
     async fn test() {
@@ -21,18 +23,24 @@ mod tests {
         .unwrap();
 
         client.set_packet_callback(|packet_name, packet| {
-            println!("New packet received: {} Packet", packet_name);
+            let now = Local::now();
+            let timestamp = format!(
+                "{}<{}{:02}:{:02}:{:02}:{:03}{}>",
+                color_format::COLOR_GRAY,
+                color_format::COLOR_MINECOIN_GOLD,
+                now.hour(),
+                now.minute(),
+                now.second(),
+                now.timestamp_subsec_millis(),
+                color_format::COLOR_GRAY,
+            );
+            println!("{} {}{} Packet {}", timestamp, color_format::FORMAT_BOLD, packet_name, color_format::FORMAT_RESET);
             println!("Packet as JSON: {}", packet.as_json());
+
             downcast_bedrock_packet!(packet, Text, |txt: &Text| {
                 println!("Text Packet Message: {:?}", txt.message);
                 println!("Text Parameters: {:?}", txt.parameters);
-            })
-        });
-
-        client.set_block_callback(|block_coord, block_data| {
-            println!("-----------------------------");
-            println!("Block coord: {:?}", block_coord);
-            println!("Block name: {}", block_data.get_string("name").unwrap());
+            });
         });
 
         client.connect().unwrap();

@@ -2,7 +2,7 @@ use base64::engine::general_purpose;
 use base64::Engine;
 use serde_json::json;
 
-#[derive(serde::Serialize, Debug, Clone, Default)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct ItemStack {
     pub id: i32,
     pub meta: u32,
