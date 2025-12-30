@@ -31,46 +31,6 @@ pub struct AddPlayer {
     pub build_platform: i32,
 }
 
-pub fn new(
-    uuid: String,
-    username: String,
-    actor_runtime_id: u64,
-    platform_chat_id: String,
-    position: Vec<f32>,
-    motion: Vec<f32>,
-    pitch: f32,
-    yaw: f32,
-    head_yaw: f32,
-    item: ItemStackWrapper,
-    game_mode: i32,
-    metadata: HashMap<u32, MetadataProperty>,
-    synced_properties: PropertySyncData,
-    abilities_packet: UpdateAbilities,
-    links: Vec<EntityLink>,
-    device_id: String,
-    build_platform: i32,
-) -> AddPlayer {
-    AddPlayer {
-        uuid,
-        username,
-        actor_runtime_id,
-        platform_chat_id,
-        position,
-        motion,
-        pitch,
-        yaw,
-        head_yaw,
-        item,
-        game_mode,
-        metadata,
-        synced_properties,
-        abilities_packet,
-        links,
-        device_id,
-        build_platform,
-    }
-}
-
 impl Packet for AddPlayer {
     fn id(&self) -> u16 {
         BedrockPacketType::IDAddPlayer.get_byte()
@@ -152,31 +112,9 @@ impl Packet for AddPlayer {
         }
     }
 
-    fn debug(&self) {
-        println!("UUID: {}", self.uuid);
-        println!("Username: {}", self.username);
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Platform Chat ID: {}", self.platform_chat_id);
-        println!("Position: {:?}", self.position);
-        println!("Motion: {:?}", self.motion);
-        println!("Pitch: {}", self.pitch);
-        println!("Yaw: {}", self.yaw);
-        println!("Head Yaw: {}", self.head_yaw);
-        println!("Item: {:?}", self.item);
-        println!("Game Mode: {}", self.game_mode);
-        println!("Metadata: {:?}", self.metadata);
-        println!("Synced Properties: {:?}", self.synced_properties);
-        self.abilities_packet.debug();
-        println!("Links: {:?}", self.links);
-        println!("Device ID: {}", self.device_id);
-        println!("Build Platform: {}", self.build_platform);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

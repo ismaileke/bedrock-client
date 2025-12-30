@@ -12,15 +12,6 @@ pub struct ResourcePackChunkData {
     pub data: String,
 }
 
-pub fn new(pack_id: String, chunk_index: u32, offset: u64, data: String) -> ResourcePackChunkData {
-    ResourcePackChunkData {
-        pack_id,
-        chunk_index,
-        offset,
-        data,
-    }
-}
-
 impl Packet for ResourcePackChunkData {
     fn id(&self) -> u16 {
         BedrockPacketType::IDResourcePackChunkData.get_byte()
@@ -48,26 +39,12 @@ impl Packet for ResourcePackChunkData {
         let offset = stream.get_u64_le();
         let data = PacketSerializer::get_string(stream);
 
-        ResourcePackChunkData {
-            pack_id,
-            chunk_index,
-            offset,
-            data,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Pack ID: {}", self.pack_id);
-        println!("Chunk Index: {}", self.chunk_index);
-        println!("Offset: {}", self.offset);
-        println!("Data: {}", self.data);
+        ResourcePackChunkData { pack_id, chunk_index, offset, data }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

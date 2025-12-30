@@ -9,10 +9,6 @@ pub struct PlayerEnchantOptions {
     pub options: Vec<EnchantOption>,
 }
 
-pub fn new(options: Vec<EnchantOption>) -> PlayerEnchantOptions {
-    PlayerEnchantOptions { options }
-}
-
 impl Packet for PlayerEnchantOptions {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPlayerEnchantOptions.get_byte()
@@ -44,15 +40,9 @@ impl Packet for PlayerEnchantOptions {
         PlayerEnchantOptions { options }
     }
 
-    fn debug(&self) {
-        println!("Player Enchant Options: {:?}", self.options);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

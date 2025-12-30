@@ -15,13 +15,6 @@ pub enum AbilityValue {
     Float(f32),
 }
 
-pub fn new(ability_id: i32, ability_value: AbilityValue) -> RequestAbility {
-    RequestAbility {
-        ability_id,
-        ability_value,
-    }
-}
-
 impl Packet for RequestAbility {
     fn id(&self) -> u16 {
         BedrockPacketType::IDRequestAbility.get_byte()
@@ -63,24 +56,14 @@ impl Packet for RequestAbility {
             AbilityValue::Float(float_value)
         };
 
-        RequestAbility {
-            ability_id,
-            ability_value,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Ability ID: {}", self.ability_id);
-        println!("Ability Value: {:?}", self.ability_value);
+        RequestAbility { ability_id, ability_value }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl RequestAbility {

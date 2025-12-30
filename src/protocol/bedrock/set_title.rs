@@ -16,28 +16,6 @@ pub struct SetTitle {
     pub filtered_title_text: String,
 }
 
-pub fn new(
-    title_type: i32,
-    text: String,
-    fade_in_time: i32,
-    stay_time: i32,
-    fade_out_time: i32,
-    xuid: String,
-    platform_online_id: String,
-    filtered_title_text: String,
-) -> SetTitle {
-    SetTitle {
-        title_type,
-        text,
-        fade_in_time,
-        stay_time,
-        fade_out_time,
-        xuid,
-        platform_online_id,
-        filtered_title_text,
-    }
-}
-
 impl Packet for SetTitle {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetTitle.get_byte()
@@ -85,24 +63,11 @@ impl Packet for SetTitle {
         }
     }
 
-    fn debug(&self) {
-        println!("Title Type: {}", self.title_type);
-        println!("Text: {}", self.text);
-        println!("Fade In Time: {}", self.fade_in_time);
-        println!("Stay Time: {}", self.stay_time);
-        println!("Fade Out Time: {}", self.fade_out_time);
-        println!("XUID: {}", self.xuid);
-        println!("Platform Online ID: {}", self.platform_online_id);
-        println!("Filtered Title Text: {}", self.filtered_title_text);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl SetTitle {

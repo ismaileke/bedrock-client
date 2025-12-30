@@ -14,24 +14,6 @@ pub struct NPCDialogue {
     pub action_json: String,
 }
 
-pub fn new(
-    npc_actor_unique_id: i64,
-    action_type: i32,
-    dialogue: String,
-    scene_name: String,
-    npc_name: String,
-    action_json: String,
-) -> NPCDialogue {
-    NPCDialogue {
-        npc_actor_unique_id,
-        action_type,
-        dialogue,
-        scene_name,
-        npc_name,
-        action_json,
-    }
-}
-
 impl Packet for NPCDialogue {
     fn id(&self) -> u16 {
         BedrockPacketType::IDNpcDialogue.get_byte()
@@ -73,22 +55,11 @@ impl Packet for NPCDialogue {
         }
     }
 
-    fn debug(&self) {
-        println!("NPC Actor Unique ID: {}", self.npc_actor_unique_id);
-        println!("Action Type: {}", self.action_type);
-        println!("Dialogue: {}", self.dialogue);
-        println!("Scene Name: {}", self.scene_name);
-        println!("NPC Name: {}", self.npc_name);
-        println!("Action JSON: {}", self.action_json);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl NPCDialogue {

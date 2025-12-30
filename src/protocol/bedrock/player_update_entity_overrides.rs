@@ -14,74 +14,60 @@ pub struct PlayerUpdateEntityOverrides {
     pub float_override_value: Option<f32>,
 }
 
-fn new(
-    actor_runtime_id: u64,
-    property_index: u32,
-    update_type: u8,
-    int_override_value: Option<i32>,
-    float_override_value: Option<f32>,
-) -> PlayerUpdateEntityOverrides {
-    PlayerUpdateEntityOverrides {
-        actor_runtime_id,
-        property_index,
-        update_type,
-        int_override_value,
-        float_override_value,
+impl PlayerUpdateEntityOverrides {
+    pub fn create_int_override(
+        actor_runtime_id: u64,
+        property_index: u32,
+        value: i32,
+    ) -> PlayerUpdateEntityOverrides {
+        PlayerUpdateEntityOverrides {
+            actor_runtime_id,
+            property_index,
+            update_type: OverrideUpdateType::SET_INT_OVERRIDE,
+            int_override_value: Some(value),
+            float_override_value: None,
+        }
     }
-}
 
-pub fn create_int_override(
-    actor_runtime_id: u64,
-    property_index: u32,
-    value: i32,
-) -> PlayerUpdateEntityOverrides {
-    new(
-        actor_runtime_id,
-        property_index,
-        OverrideUpdateType::SET_INT_OVERRIDE,
-        Some(value),
-        None,
-    )
-}
+    pub fn create_float_override(
+        actor_runtime_id: u64,
+        property_index: u32,
+        value: f32,
+    ) -> PlayerUpdateEntityOverrides {
+        PlayerUpdateEntityOverrides {
+            actor_runtime_id,
+            property_index,
+            update_type: OverrideUpdateType::SET_FLOAT_OVERRIDE,
+            int_override_value: None,
+            float_override_value: Some(value),
+        }
+    }
 
-pub fn create_float_override(
-    actor_runtime_id: u64,
-    property_index: u32,
-    value: f32,
-) -> PlayerUpdateEntityOverrides {
-    new(
-        actor_runtime_id,
-        property_index,
-        OverrideUpdateType::SET_FLOAT_OVERRIDE,
-        None,
-        Some(value),
-    )
-}
+    pub fn create_clear_overrides(
+        actor_runtime_id: u64,
+        property_index: u32,
+    ) -> PlayerUpdateEntityOverrides {
+        PlayerUpdateEntityOverrides {
+            actor_runtime_id,
+            property_index,
+            update_type: OverrideUpdateType::CLEAR_OVERRIDES,
+            int_override_value: None,
+            float_override_value: None,
+        }
+    }
 
-pub fn create_clear_overrides(
-    actor_runtime_id: u64,
-    property_index: u32,
-) -> PlayerUpdateEntityOverrides {
-    new(
-        actor_runtime_id,
-        property_index,
-        OverrideUpdateType::CLEAR_OVERRIDES,
-        None,
-        None,
-    )
-}
-
-pub fn create_remove_overrides(
-    actor_runtime_id: u64,
-    property_index: u32,
-) -> PlayerUpdateEntityOverrides {
-    new(
-        actor_runtime_id,
-        property_index,
-        OverrideUpdateType::REMOVE_OVERRIDE,
-        None,
-        None,
-    )
+    pub fn create_remove_overrides(
+        actor_runtime_id: u64,
+        property_index: u32,
+    ) -> PlayerUpdateEntityOverrides {
+        PlayerUpdateEntityOverrides {
+            actor_runtime_id,
+            property_index,
+            update_type: OverrideUpdateType::REMOVE_OVERRIDE,
+            int_override_value: None,
+            float_override_value: None,
+        }
+    }
 }
 
 impl Packet for PlayerUpdateEntityOverrides {
@@ -138,13 +124,9 @@ impl Packet for PlayerUpdateEntityOverrides {
         }
     }
 
-    fn debug(&self) {}
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

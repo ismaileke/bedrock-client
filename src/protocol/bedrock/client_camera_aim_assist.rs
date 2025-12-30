@@ -11,14 +11,6 @@ pub struct ClientCameraAimAssist {
     pub allow_aim_assist: bool,
 }
 
-pub fn new(preset_id: String, action_type: u8, allow_aim_assist: bool) -> ClientCameraAimAssist {
-    ClientCameraAimAssist {
-        preset_id,
-        action_type,
-        allow_aim_assist,
-    }
-}
-
 impl Packet for ClientCameraAimAssist {
     fn id(&self) -> u16 {
         BedrockPacketType::IDClientCameraAimAssist.get_byte()
@@ -44,24 +36,12 @@ impl Packet for ClientCameraAimAssist {
         let action_type = stream.get_byte();
         let allow_aim_assist = stream.get_bool();
 
-        ClientCameraAimAssist {
-            preset_id,
-            action_type,
-            allow_aim_assist,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Preset ID: {}", self.preset_id);
-        println!("Action Type: {}", self.action_type);
-        println!("Allow Aim Assist: {}", self.allow_aim_assist);
+        ClientCameraAimAssist { preset_id, action_type, allow_aim_assist }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

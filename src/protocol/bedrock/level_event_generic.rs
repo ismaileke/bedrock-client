@@ -12,13 +12,6 @@ pub struct LevelEventGeneric {
     pub event_data: Tag,
 }
 
-pub fn new(event_id: i32, event_data: Tag) -> LevelEventGeneric {
-    LevelEventGeneric {
-        event_id,
-        event_data,
-    }
-}
-
 impl Packet for LevelEventGeneric {
     fn id(&self) -> u16 {
         BedrockPacketType::IDLevelEventGeneric.get_byte()
@@ -44,30 +37,15 @@ impl Packet for LevelEventGeneric {
         let event_id = stream.get_var_i32();
         let mut offset = stream.get_offset();
         let mut nbt_serializer = NBTSerializer::new_network();
-        let event_data = nbt_serializer.read_headless(
-            Vec::from(stream.get_buffer()),
-            &mut offset,
-            NBT::TAG_COMPOUND,
-            0,
-        );
+        let event_data = nbt_serializer.read_headless(Vec::from(stream.get_buffer()), &mut offset, NBT::TAG_COMPOUND, 0);
         stream.set_offset(offset);
 
-        LevelEventGeneric {
-            event_id,
-            event_data,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Event ID: {}", self.event_id);
-        println!("Event Data: {:?}", self.event_data.get_value());
+        LevelEventGeneric { event_id, event_data }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

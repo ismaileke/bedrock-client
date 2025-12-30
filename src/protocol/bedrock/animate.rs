@@ -12,13 +12,11 @@ pub struct Animate {
     pub swing_source: Option<String>,
 }
 
-pub fn new(action: u8, actor_runtime_id: u64, data: f32, swing_source: Option<String>) -> Animate {
-    Animate {
-        action,
-        actor_runtime_id,
-        data,
-        swing_source,
-    }
+impl Animate {
+    pub const ACTION_SWING_ARM: u8 = 1;
+    pub const ACTION_STOP_SLEEP: u8 = 3;
+    pub const ACTION_CRITICAL_HIT: u8 = 4;
+    pub const ACTION_MAGICAL_CRITICAL_HIT: u8 = 5;
 }
 
 impl Packet for Animate {
@@ -48,36 +46,14 @@ impl Packet for Animate {
         let action = stream.get_byte();
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let data = stream.get_f32_le();
-        let swing_source =
-            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
+        let swing_source = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
 
-        Animate {
-            action,
-            actor_runtime_id,
-            data,
-            swing_source,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Action: {}", self.action);
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Data: {}", self.data);
-        println!("Swing source: {:?}", self.swing_source);
+        Animate { action, actor_runtime_id, data, swing_source }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
-}
-
-impl Animate {
-    pub const ACTION_SWING_ARM: u8 = 1;
-    pub const ACTION_STOP_SLEEP: u8 = 3;
-    pub const ACTION_CRITICAL_HIT: u8 = 4;
-    pub const ACTION_MAGICAL_CRITICAL_HIT: u8 = 5;
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

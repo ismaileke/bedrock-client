@@ -9,24 +9,19 @@ pub struct NetworkStackLatency {
     pub need_response: bool,
 }
 
-pub fn new(timestamp: u64, need_response: bool) -> NetworkStackLatency {
-    NetworkStackLatency {
-        timestamp,
-        need_response,
+impl NetworkStackLatency {
+    pub fn request(timestamp: u64) -> NetworkStackLatency {
+        NetworkStackLatency {
+            timestamp,
+            need_response: true,
+        }
     }
-}
 
-pub fn request(timestamp: u64) -> NetworkStackLatency {
-    NetworkStackLatency {
-        timestamp,
-        need_response: true,
-    }
-}
-
-pub fn response(timestamp: u64) -> NetworkStackLatency {
-    NetworkStackLatency {
-        timestamp,
-        need_response: false,
+    pub fn response(timestamp: u64) -> NetworkStackLatency {
+        NetworkStackLatency {
+            timestamp,
+            need_response: false,
+        }
     }
 }
 
@@ -59,16 +54,9 @@ impl Packet for NetworkStackLatency {
         }
     }
 
-    fn debug(&self) {
-        println!("Timestamp: {}", self.timestamp);
-        println!("Need Response: {}", self.need_response);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

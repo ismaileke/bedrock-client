@@ -18,26 +18,6 @@ pub struct AddItemActor {
     pub is_from_fishing: bool,
 }
 
-pub fn new(
-    actor_unique_id: i64,
-    actor_runtime_id: u64,
-    item: ItemStackWrapper,
-    position: Vec<f32>,
-    motion: Vec<f32>,
-    metadata: HashMap<u32, MetadataProperty>,
-    is_from_fishing: bool,
-) -> AddItemActor {
-    AddItemActor {
-        actor_unique_id,
-        actor_runtime_id,
-        item,
-        position,
-        motion,
-        metadata,
-        is_from_fishing,
-    }
-}
-
 impl Packet for AddItemActor {
     fn id(&self) -> u16 {
         BedrockPacketType::IDAddItemActor.get_byte()
@@ -82,21 +62,9 @@ impl Packet for AddItemActor {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Unique ID: {}", self.actor_unique_id);
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Item: {:?}", self.item);
-        println!("Position: {:?}", self.position);
-        println!("Motion: {:?}", self.motion);
-        println!("Metadata: {:?}", self.metadata);
-        println!("Is from fishing: {}", self.is_from_fishing);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

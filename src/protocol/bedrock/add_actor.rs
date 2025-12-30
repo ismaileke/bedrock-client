@@ -26,38 +26,6 @@ pub struct AddActor {
     pub links: Vec<EntityLink>,
 }
 
-pub fn new(
-    actor_unique_id: i64,
-    actor_runtime_id: u64,
-    entity_type: String,
-    position: Vec<f32>,
-    motion: Option<Vec<f32>>,
-    pitch: f32,
-    yaw: f32,
-    head_yaw: f32,
-    body_yaw: f32,
-    attributes: Vec<Attribute>,
-    metadata: HashMap<u32, MetadataProperty>,
-    synced_properties: PropertySyncData,
-    links: Vec<EntityLink>,
-) -> AddActor {
-    AddActor {
-        actor_unique_id,
-        actor_runtime_id,
-        entity_type,
-        position,
-        motion,
-        pitch,
-        yaw,
-        head_yaw,
-        body_yaw,
-        attributes,
-        metadata,
-        synced_properties,
-        links,
-    }
-}
-
 impl Packet for AddActor {
     fn id(&self) -> u16 {
         BedrockPacketType::IDAddActor.get_byte()
@@ -114,14 +82,7 @@ impl Packet for AddActor {
             let min = stream.get_f32_le();
             let current = stream.get_f32_le();
             let max = stream.get_f32_le();
-            attributes.push(Attribute {
-                id,
-                min,
-                max,
-                current,
-                default: current,
-                modifiers: vec![],
-            });
+            attributes.push(Attribute { id, min, max, current, default: current, modifiers: vec![] });
         }
         let metadata = PacketSerializer::get_entity_metadata(stream);
         let synced_properties = PropertySyncData::read(stream);
@@ -148,27 +109,9 @@ impl Packet for AddActor {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Unique ID: {}", self.actor_unique_id);
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Entity Type: {}", self.entity_type);
-        println!("Position: {:?}", self.position);
-        println!("Motion: {:?}", self.motion);
-        println!("Pitch: {}", self.pitch);
-        println!("Yaw: {}", self.yaw);
-        println!("Head Yaw: {}", self.head_yaw);
-        println!("Body Yaw: {}", self.body_yaw);
-        println!("Attributes: {:?}", self.attributes);
-        println!("Metadata: {:?}", self.metadata);
-        println!("Synced Properties: {:?}", self.synced_properties);
-        println!("Links: {:?}", self.links);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

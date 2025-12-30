@@ -16,28 +16,6 @@ pub struct MoveActorDelta {
     pub head_yaw: f32,
 }
 
-pub fn new(
-    actor_runtime_id: u64,
-    flags: u16,
-    x_pos: f32,
-    y_pos: f32,
-    z_pos: f32,
-    pitch: f32,
-    yaw: f32,
-    head_yaw: f32,
-) -> MoveActorDelta {
-    MoveActorDelta {
-        actor_runtime_id,
-        flags,
-        x_pos,
-        y_pos,
-        z_pos,
-        pitch,
-        yaw,
-        head_yaw,
-    }
-}
-
 impl Packet for MoveActorDelta {
     fn id(&self) -> u16 {
         BedrockPacketType::IDMoveActorDelta.get_byte()
@@ -53,19 +31,9 @@ impl Packet for MoveActorDelta {
         MoveActorDelta::maybe_write_coord(self.flags, Self::FLAG_HAS_X, self.x_pos, &mut stream);
         MoveActorDelta::maybe_write_coord(self.flags, Self::FLAG_HAS_Y, self.y_pos, &mut stream);
         MoveActorDelta::maybe_write_coord(self.flags, Self::FLAG_HAS_Z, self.z_pos, &mut stream);
-        MoveActorDelta::maybe_write_rotation(
-            self.flags,
-            Self::FLAG_HAS_PITCH,
-            self.pitch,
-            &mut stream,
-        );
+        MoveActorDelta::maybe_write_rotation(self.flags, Self::FLAG_HAS_PITCH, self.pitch, &mut stream);
         MoveActorDelta::maybe_write_rotation(self.flags, Self::FLAG_HAS_YAW, self.yaw, &mut stream);
-        MoveActorDelta::maybe_write_rotation(
-            self.flags,
-            Self::FLAG_HAS_HEAD_YAW,
-            self.head_yaw,
-            &mut stream,
-        );
+        MoveActorDelta::maybe_write_rotation(self.flags, Self::FLAG_HAS_HEAD_YAW, self.head_yaw, &mut stream);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -96,24 +64,11 @@ impl Packet for MoveActorDelta {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Flags: {}", self.flags);
-        println!("X Position: {}", self.x_pos);
-        println!("Y Position: {}", self.y_pos);
-        println!("Z Position: {}", self.z_pos);
-        println!("Pitch: {}", self.pitch);
-        println!("Yaw: {}", self.yaw);
-        println!("Head Yaw: {}", self.head_yaw);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl MoveActorDelta {

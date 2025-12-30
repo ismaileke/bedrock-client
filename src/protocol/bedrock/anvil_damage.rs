@@ -10,13 +10,6 @@ pub struct AnvilDamage {
     pub block_pos: Vec<i32>,
 }
 
-pub fn new(damage_amount: u8, block_pos: Vec<i32>) -> AnvilDamage {
-    AnvilDamage {
-        damage_amount,
-        block_pos,
-    }
-}
-
 impl Packet for AnvilDamage {
     fn id(&self) -> u16 {
         BedrockPacketType::IDAnvilDamage.get_byte()
@@ -40,22 +33,12 @@ impl Packet for AnvilDamage {
         let damage_amount = stream.get_byte();
         let block_pos = PacketSerializer::get_block_pos(stream);
 
-        AnvilDamage {
-            damage_amount,
-            block_pos,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Damage Amount: {}", self.damage_amount);
-        println!("Block Pos: {:?}", self.block_pos);
+        AnvilDamage { damage_amount, block_pos }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

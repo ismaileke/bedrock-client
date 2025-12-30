@@ -12,14 +12,6 @@ pub struct UpdateAttributes {
     pub tick: u64,
 }
 
-pub fn new(actor_runtime_id: u64, entries: Vec<UpdateAttribute>, tick: u64) -> UpdateAttributes {
-    UpdateAttributes {
-        actor_runtime_id,
-        entries,
-        tick,
-    }
-}
-
 impl Packet for UpdateAttributes {
     fn id(&self) -> u16 {
         BedrockPacketType::IDUpdateAttributes.get_byte()
@@ -59,19 +51,9 @@ impl Packet for UpdateAttributes {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        for entry in self.entries.iter() {
-            println!("{:?}", entry);
-        }
-        println!("Tick: {}", self.tick);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

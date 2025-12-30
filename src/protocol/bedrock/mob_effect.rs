@@ -16,28 +16,6 @@ pub struct MobEffect {
     pub ambient: bool,
 }
 
-pub fn new(
-    actor_runtime_id: u64,
-    event_id: u8,
-    effect_id: i32,
-    amplifier: i32,
-    particles: bool,
-    duration: i32,
-    tick: u64,
-    ambient: bool,
-) -> MobEffect {
-    MobEffect {
-        actor_runtime_id,
-        event_id,
-        effect_id,
-        amplifier,
-        particles,
-        duration,
-        tick,
-        ambient,
-    }
-}
-
 impl Packet for MobEffect {
     fn id(&self) -> u16 {
         BedrockPacketType::IDMobEffect.get_byte()
@@ -85,23 +63,11 @@ impl Packet for MobEffect {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Event ID: {}", self.event_id);
-        println!("Effect ID: {}", self.effect_id);
-        println!("Amplifier: {}", self.amplifier);
-        println!("Particles: {}", self.particles);
-        println!("Duration: {}", self.duration);
-        println!("Tick: {}", self.tick);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl MobEffect {
@@ -119,12 +85,12 @@ impl MobEffect {
         tick: u64,
         ambient: bool,
     ) -> MobEffect {
-        new(
+        MobEffect {
             actor_runtime_id,
-            if replace {
-                Self::EVENT_MODIFY
+            event_id: if replace {
+            Self::EVENT_MODIFY
             } else {
-                Self::EVENT_ADD
+            Self::EVENT_ADD
             },
             effect_id,
             amplifier,
@@ -132,19 +98,19 @@ impl MobEffect {
             duration,
             tick,
             ambient,
-        )
+        }
     }
 
     pub fn remove(actor_runtime_id: u64, effect_id: i32, tick: u64) -> MobEffect {
-        new(
+        MobEffect {
             actor_runtime_id,
-            Self::EVENT_REMOVE,
+            event_id: Self::EVENT_REMOVE,
             effect_id,
-            0,
-            false,
-            0,
+            amplifier: 0,
+            particles: false,
+            duration: 0,
             tick,
-            false,
-        )
+            ambient: false,
+        }
     }
 }

@@ -10,10 +10,6 @@ pub struct UpdateClientInputLocks {
     pub position: Vec<f32>,
 }
 
-pub fn new(flags: u32, position: Vec<f32>) -> UpdateClientInputLocks {
-    UpdateClientInputLocks { flags, position }
-}
-
 impl Packet for UpdateClientInputLocks {
     fn id(&self) -> u16 {
         BedrockPacketType::IDUpdateClientInputLocks.get_byte()
@@ -40,16 +36,9 @@ impl Packet for UpdateClientInputLocks {
         UpdateClientInputLocks { flags, position }
     }
 
-    fn debug(&self) {
-        println!("Flags: {}", self.flags);
-        println!("Position: {:?}", self.position);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

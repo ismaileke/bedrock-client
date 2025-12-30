@@ -6,10 +6,6 @@ use std::any::Any;
 #[derive(serde::Serialize, Debug)]
 pub struct MapInfoRequest {}
 
-pub fn new() -> MapInfoRequest {
-    MapInfoRequest {}
-}
-
 impl Packet for MapInfoRequest {
     fn id(&self) -> u16 {
         BedrockPacketType::IDMapInfoRequest.get_byte()
@@ -35,15 +31,9 @@ impl Packet for MapInfoRequest {
         MapInfoRequest {}
     }
 
-    fn debug(&self) {
-        // TODO
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

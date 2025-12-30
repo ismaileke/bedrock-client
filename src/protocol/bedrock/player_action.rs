@@ -13,22 +13,6 @@ pub struct PlayerAction {
     pub face: i32,
 }
 
-pub fn new(
-    actor_runtime_id: u64,
-    action: i32,
-    block_position: Vec<i32>,
-    result_position: Vec<i32>,
-    face: i32,
-) -> PlayerAction {
-    PlayerAction {
-        actor_runtime_id,
-        action,
-        block_position,
-        result_position,
-        face,
-    }
-}
-
 impl Packet for PlayerAction {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPlayerAction.get_byte()
@@ -67,19 +51,9 @@ impl Packet for PlayerAction {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Action: {}", self.action);
-        println!("Block Position: {:?}", self.block_position);
-        println!("Result Position: {:?}", self.result_position);
-        println!("Face: {}", self.face);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

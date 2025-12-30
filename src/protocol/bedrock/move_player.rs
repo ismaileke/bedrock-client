@@ -20,36 +20,6 @@ pub struct MovePlayer {
     pub tick: u64,
 }
 
-pub fn new(
-    actor_runtime_id: u64,
-    flags: u8,
-    position: Vec<f32>,
-    pitch: f32,
-    yaw: f32,
-    head_yaw: f32,
-    mode: u8,
-    on_ground: bool,
-    riding_actor_runtime_id: u64,
-    teleport_cause: i32,
-    teleport_item: i32,
-    tick: u64,
-) -> MovePlayer {
-    MovePlayer {
-        actor_runtime_id,
-        flags,
-        position,
-        pitch,
-        yaw,
-        head_yaw,
-        mode,
-        on_ground,
-        riding_actor_runtime_id,
-        teleport_cause,
-        teleport_item,
-        tick,
-    }
-}
-
 impl Packet for MovePlayer {
     fn id(&self) -> u16 {
         BedrockPacketType::IDMovePlayer.get_byte()
@@ -114,28 +84,11 @@ impl Packet for MovePlayer {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Flags: {}", self.flags);
-        println!("Position: {:?}", self.position);
-        println!("Pitch: {}", self.pitch);
-        println!("Yaw: {}", self.yaw);
-        println!("Head Yaw: {}", self.head_yaw);
-        println!("Mode: {}", self.mode);
-        println!("On Ground: {}", self.on_ground);
-        println!("Riding Actor Runtime ID: {}", self.riding_actor_runtime_id);
-        println!("Teleport Cause: {}", self.teleport_cause);
-        println!("Teleport Item: {}", self.teleport_item);
-        println!("Tick: {}", self.tick);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl MovePlayer {

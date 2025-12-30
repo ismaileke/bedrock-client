@@ -13,18 +13,6 @@ pub struct StructureTemplateDataResponse {
     pub response_type: u8,
 }
 
-pub fn new(
-    structure_template_name: String,
-    nbt: Option<CacheableNBT>,
-    response_type: u8,
-) -> StructureTemplateDataResponse {
-    StructureTemplateDataResponse {
-        structure_template_name,
-        nbt,
-        response_type,
-    }
-}
-
 impl Packet for StructureTemplateDataResponse {
     fn id(&self) -> u16 {
         BedrockPacketType::IDStructureTemplateDataResponse.get_byte()
@@ -53,9 +41,7 @@ impl Packet for StructureTemplateDataResponse {
         let has_nbt = stream.get_bool();
         let mut nbt: Option<CacheableNBT> = None;
         if has_nbt {
-            nbt = Some(CacheableNBT::new(Tag::Compound(
-                PacketSerializer::get_nbt_compound_root(stream),
-            )));
+            nbt = Some(CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream))));
         }
         let response_type = stream.get_byte();
 
@@ -66,22 +52,11 @@ impl Packet for StructureTemplateDataResponse {
         }
     }
 
-    fn debug(&self) {
-        println!(
-            "Structure Template Name: {:?}",
-            self.structure_template_name
-        );
-        println!("NBT : {:?}", self.nbt);
-        println!("Response Type: {:?}", self.response_type);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl StructureTemplateDataResponse {

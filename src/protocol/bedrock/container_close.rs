@@ -10,14 +10,6 @@ pub struct ContainerClose {
     pub server: bool,
 }
 
-pub fn new(window_id: u8, window_type: u8, server: bool) -> ContainerClose {
-    ContainerClose {
-        window_id,
-        window_type,
-        server,
-    }
-}
-
 impl Packet for ContainerClose {
     fn id(&self) -> u16 {
         BedrockPacketType::IDContainerClose.get_byte()
@@ -43,24 +35,12 @@ impl Packet for ContainerClose {
         let window_type = stream.get_byte();
         let server = stream.get_bool();
 
-        ContainerClose {
-            window_id,
-            window_type,
-            server,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Window ID: {}", self.window_id);
-        println!("Window Type: {}", self.window_type);
-        println!("Server: {}", self.server);
+        ContainerClose { window_id, window_type, server }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

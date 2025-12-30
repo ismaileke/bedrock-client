@@ -11,14 +11,6 @@ pub struct LecternUpdate {
     pub block_position: Vec<i32>,
 }
 
-pub fn new(page: u8, total_pages: u8, block_position: Vec<i32>) -> LecternUpdate {
-    LecternUpdate {
-        page,
-        total_pages,
-        block_position,
-    }
-}
-
 impl Packet for LecternUpdate {
     fn id(&self) -> u16 {
         BedrockPacketType::IDLecternUpdate.get_byte()
@@ -44,24 +36,12 @@ impl Packet for LecternUpdate {
         let total_pages = stream.get_byte();
         let block_position = PacketSerializer::get_block_pos(stream);
 
-        LecternUpdate {
-            page,
-            total_pages,
-            block_position,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Page: {}", self.page);
-        println!("Total Pages: {}", self.total_pages);
-        println!("Block Position: {:?}", self.block_position);
+        LecternUpdate { page, total_pages, block_position }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

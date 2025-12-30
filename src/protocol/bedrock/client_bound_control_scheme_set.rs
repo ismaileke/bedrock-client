@@ -8,10 +8,6 @@ pub struct ClientBoundControlSchemeSet {
     pub scheme: u8, //see types/control_scheme.rs
 }
 
-pub fn new(scheme: u8) -> ClientBoundControlSchemeSet {
-    ClientBoundControlSchemeSet { scheme }
-}
-
 impl Packet for ClientBoundControlSchemeSet {
     fn id(&self) -> u16 {
         BedrockPacketType::IDClientBoundControlSchemeSet.get_byte()
@@ -36,15 +32,9 @@ impl Packet for ClientBoundControlSchemeSet {
         ClientBoundControlSchemeSet { scheme }
     }
 
-    fn debug(&self) {
-        println!("Scheme: {}", self.scheme);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

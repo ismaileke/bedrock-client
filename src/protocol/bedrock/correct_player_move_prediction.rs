@@ -16,26 +16,9 @@ pub struct CorrectPlayerMovePrediction {
     pub tick: u64,
 }
 
-pub fn new(
-    prediction_type: u8,
-    position: Vec<f32>,
-    delta: Vec<f32>,
-    vehicle_rotation_x: f32,
-    vehicle_rotation_y: f32,
-    vehicle_angular_velocity: Option<f32>,
-    on_ground: bool,
-    tick: u64,
-) -> CorrectPlayerMovePrediction {
-    CorrectPlayerMovePrediction {
-        prediction_type,
-        position,
-        delta,
-        vehicle_rotation_x,
-        vehicle_rotation_y,
-        vehicle_angular_velocity,
-        on_ground,
-        tick,
-    }
+impl CorrectPlayerMovePrediction {
+    pub const PREDICTION_TYPE_PLAYER: u8 = 0;
+    pub const PREDICTION_TYPE_VEHICLE: u8 = 1;
 }
 
 impl Packet for CorrectPlayerMovePrediction {
@@ -87,30 +70,9 @@ impl Packet for CorrectPlayerMovePrediction {
         }
     }
 
-    fn debug(&self) {
-        println!("Prediction Type: {}", self.prediction_type);
-        println!("Position: {:?}", self.position);
-        println!("Delta: {:?}", self.delta);
-        println!("Vehicle Rotation X: {}", self.vehicle_rotation_x);
-        println!("Vehicle Rotation Y: {}", self.vehicle_rotation_y);
-        println!(
-            "Vehicle Angular Velocity: {:?}",
-            self.vehicle_angular_velocity
-        );
-        println!("On Ground: {}", self.on_ground);
-        println!("Tick: {}", self.tick);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
-}
-
-impl CorrectPlayerMovePrediction {
-    pub const PREDICTION_TYPE_PLAYER: u8 = 0;
-    pub const PREDICTION_TYPE_VEHICLE: u8 = 1;
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

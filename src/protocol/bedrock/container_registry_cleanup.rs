@@ -9,10 +9,6 @@ pub struct ContainerRegistryCleanup {
     pub removed_containers: Vec<FullContainerName>,
 }
 
-pub fn new(removed_containers: Vec<FullContainerName>) -> ContainerRegistryCleanup {
-    ContainerRegistryCleanup { removed_containers }
-}
-
 impl Packet for ContainerRegistryCleanup {
     fn id(&self) -> u16 {
         BedrockPacketType::IDContainerRegistryCleanup.get_byte()
@@ -44,15 +40,9 @@ impl Packet for ContainerRegistryCleanup {
         ContainerRegistryCleanup { removed_containers }
     }
 
-    fn debug(&self) {
-        println!("Removed Containers: {:?}", self.removed_containers);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

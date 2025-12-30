@@ -15,26 +15,6 @@ pub struct AnimateEntity {
     pub actor_runtime_ids: Vec<u64>,
 }
 
-pub fn new(
-    animation: String,
-    next_state: String,
-    stop_expression: String,
-    stop_expression_version: i32,
-    controller: String,
-    blend_out_time: f32,
-    actor_runtime_ids: Vec<u64>,
-) -> AnimateEntity {
-    AnimateEntity {
-        animation,
-        next_state,
-        stop_expression,
-        stop_expression_version,
-        controller,
-        blend_out_time,
-        actor_runtime_ids,
-    }
-}
-
 impl Packet for AnimateEntity {
     fn id(&self) -> u16 {
         BedrockPacketType::IDAnimateEntity.get_byte()
@@ -86,21 +66,9 @@ impl Packet for AnimateEntity {
         }
     }
 
-    fn debug(&self) {
-        println!("Animation: {}", self.animation);
-        println!("Next State: {}", self.next_state);
-        println!("Stop Expression: {}", self.stop_expression);
-        println!("Stop Expression Version: {}", self.stop_expression_version);
-        println!("Controller: {}", self.controller);
-        println!("Blend Out Time: {}", self.blend_out_time);
-        println!("Actor Runtime IDs: {:?}", self.actor_runtime_ids);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

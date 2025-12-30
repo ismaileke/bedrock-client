@@ -8,10 +8,6 @@ pub struct ClientCacheStatus {
     pub enabled: bool,
 }
 
-pub fn new(enabled: bool) -> ClientCacheStatus {
-    ClientCacheStatus { enabled }
-}
-
 impl Packet for ClientCacheStatus {
     fn id(&self) -> u16 {
         BedrockPacketType::IDClientCacheStatus.get_byte()
@@ -35,15 +31,9 @@ impl Packet for ClientCacheStatus {
         ClientCacheStatus { enabled }
     }
 
-    fn debug(&self) {
-        println!("Enabled: {}", self.enabled);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

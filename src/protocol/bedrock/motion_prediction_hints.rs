@@ -11,14 +11,6 @@ pub struct MotionPredictionHints {
     pub on_ground: bool,
 }
 
-pub fn new(actor_runtime_id: u64, motion: Vec<f32>, on_ground: bool) -> MotionPredictionHints {
-    MotionPredictionHints {
-        actor_runtime_id,
-        motion,
-        on_ground,
-    }
-}
-
 impl Packet for MotionPredictionHints {
     fn id(&self) -> u16 {
         BedrockPacketType::IDMotionPredictionHints.get_byte()
@@ -44,24 +36,12 @@ impl Packet for MotionPredictionHints {
         let motion = PacketSerializer::get_vector3(stream);
         let on_ground = stream.get_bool();
 
-        MotionPredictionHints {
-            actor_runtime_id,
-            motion,
-            on_ground,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Motion: {:?}", self.motion);
-        println!("On Ground: {}", self.on_ground);
+        MotionPredictionHints { actor_runtime_id, motion, on_ground }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

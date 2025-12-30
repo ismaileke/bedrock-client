@@ -148,58 +148,9 @@ impl Packet for StartGame {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Unique ID: {}", self.actor_unique_id);
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Player Game Mode: {}", self.player_game_mode);
-        println!("Player Position: {:?}", self.player_position);
-        println!("Yaw: {}", self.yaw);
-        println!("Pitch: {}", self.pitch);
-        println!("Level Settings: {:?}", self.level_settings);
-        println!("Level ID: {}", self.level_id);
-        println!("World Name: {}", self.world_name);
-        println!(
-            "Premium World Template ID: {}",
-            self.premium_world_template_id
-        );
-        println!("Is Trial: {}", self.is_trial);
-        println!(
-            "Player Movement Settings: {:?}",
-            self.player_movement_settings
-        );
-        println!("Current Tick: {}", self.current_tick);
-        println!("Enchantment Seed: {}", self.enchantment_seed);
-        println!(
-            "Multiplayer Correlation ID: {}",
-            self.multiplayer_correlation_id
-        );
-        println!(
-            "Enable New Inventory System: {}",
-            self.enable_new_inventory_system
-        );
-        println!("Server Software Version: {}", self.server_software_version);
-        println!(
-            "player_actor_properties: {:?}",
-            self.player_actor_properties
-        );
-        println!("Block Palette Checksum: {:?}", self.block_palette_checksum);
-        println!("World Template ID: {:?}", self.world_template_id);
-        println!(
-            "Enable Client-side Chunk Generation: {}",
-            self.enable_client_side_chunk_generation
-        );
-        println!(
-            "Block Network IDs Are Hashes: {}",
-            self.block_network_ids_are_hashes
-        );
-        println!("Network Permissions: {:?}", self.network_permissions);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

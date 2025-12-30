@@ -8,10 +8,6 @@ pub struct SetTime {
     pub time: i32,
 }
 
-pub fn new(time: i32) -> SetTime {
-    SetTime { time }
-}
-
 impl Packet for SetTime {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetTime.get_byte()
@@ -36,15 +32,9 @@ impl Packet for SetTime {
         SetTime { time }
     }
 
-    fn debug(&self) {
-        println!("Time: {}", self.time);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

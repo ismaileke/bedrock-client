@@ -13,22 +13,6 @@ pub struct NPCRequest {
     pub scene_name: String,
 }
 
-pub fn new(
-    actor_runtime_id: u64,
-    request_type: u8,
-    command_string: String,
-    action_index: u8,
-    scene_name: String,
-) -> NPCRequest {
-    NPCRequest {
-        actor_runtime_id,
-        request_type,
-        command_string,
-        action_index,
-        scene_name,
-    }
-}
-
 impl Packet for NPCRequest {
     fn id(&self) -> u16 {
         BedrockPacketType::IDNPCRequest.get_byte()
@@ -67,19 +51,9 @@ impl Packet for NPCRequest {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Request Type: {}", self.request_type);
-        println!("Command String: {}", self.command_string);
-        println!("Action Index: {}", self.action_index);
-        println!("Scene Name: {}", self.scene_name);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

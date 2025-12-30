@@ -10,14 +10,6 @@ pub struct HurtArmor {
     pub armor_slot_flags: u64,
 }
 
-pub fn new(cause: i32, health: i32, armor_slot_flags: u64) -> HurtArmor {
-    HurtArmor {
-        cause,
-        health,
-        armor_slot_flags,
-    }
-}
-
 impl Packet for HurtArmor {
     fn id(&self) -> u16 {
         BedrockPacketType::IDHurtArmor.get_byte()
@@ -43,24 +35,12 @@ impl Packet for HurtArmor {
         let health = stream.get_var_i32();
         let armor_slot_flags = stream.get_var_u64();
 
-        HurtArmor {
-            cause,
-            health,
-            armor_slot_flags,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Cause: {}", self.cause);
-        println!("Health: {}", self.health);
-        println!("Armor Slot Flags: {}", self.armor_slot_flags);
+        HurtArmor { cause, health, armor_slot_flags }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

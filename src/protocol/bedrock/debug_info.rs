@@ -10,13 +10,6 @@ pub struct DebugInfo {
     pub data: String,
 }
 
-pub fn new(actor_unique_id: i64, data: String) -> DebugInfo {
-    DebugInfo {
-        actor_unique_id,
-        data,
-    }
-}
-
 impl Packet for DebugInfo {
     fn id(&self) -> u16 {
         BedrockPacketType::IDDebugInfo.get_byte()
@@ -40,22 +33,12 @@ impl Packet for DebugInfo {
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let data = PacketSerializer::get_string(stream);
 
-        DebugInfo {
-            actor_unique_id,
-            data,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Actor Unique ID: {}", self.actor_unique_id);
-        println!("Data: {}", self.data);
+        DebugInfo { actor_unique_id, data }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

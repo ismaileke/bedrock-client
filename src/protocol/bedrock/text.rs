@@ -16,28 +16,6 @@ pub struct Text {
     pub filtered_message: Option<String>,
 }
 
-pub fn new(
-    text_type: u8,
-    needs_translation: bool,
-    source_name: Option<String>,
-    message: String,
-    parameters: Option<Vec<String>>,
-    xbox_uid: String,
-    platform_chat_id: String,
-    filtered_message: Option<String>,
-) -> Text {
-    Text {
-        text_type,
-        needs_translation,
-        source_name,
-        message,
-        parameters,
-        xbox_uid,
-        platform_chat_id,
-        filtered_message,
-    }
-}
-
 impl Packet for Text {
     fn id(&self) -> u16 {
         BedrockPacketType::IDText.get_byte()
@@ -179,23 +157,11 @@ impl Packet for Text {
         }
     }
 
-    fn debug(&self) {
-        if let Some(source_name) = self.source_name.clone() {
-            println!("Source Name: {}", source_name);
-        }
-        println!("Message: {}", self.message);
-        if let Some(parameters) = self.parameters.clone() {
-            println!("Parameters: {}", parameters.join(" "));
-        }
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl Text {

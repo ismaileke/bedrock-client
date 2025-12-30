@@ -9,10 +9,6 @@ pub struct ItemStackRequest {
     pub requests: Vec<ItemStackRequestEntry>,
 }
 
-pub fn new(requests: Vec<ItemStackRequestEntry>) -> ItemStackRequest {
-    ItemStackRequest { requests }
-}
-
 impl Packet for ItemStackRequest {
     fn id(&self) -> u16 {
         BedrockPacketType::IDItemStackRequest.get_byte()
@@ -44,15 +40,9 @@ impl Packet for ItemStackRequest {
         ItemStackRequest { requests }
     }
 
-    fn debug(&self) {
-        println!("Requests: {:?}", self.requests);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

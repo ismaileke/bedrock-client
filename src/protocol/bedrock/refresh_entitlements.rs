@@ -6,10 +6,6 @@ use std::any::Any;
 #[derive(serde::Serialize, Debug)]
 pub struct RefreshEntitlements {}
 
-pub fn new() -> RefreshEntitlements {
-    RefreshEntitlements {}
-}
-
 impl Packet for RefreshEntitlements {
     fn id(&self) -> u16 {
         BedrockPacketType::IDRefreshEntitlements.get_byte()
@@ -33,13 +29,9 @@ impl Packet for RefreshEntitlements {
         RefreshEntitlements {}
     }
 
-    fn debug(&self) {}
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

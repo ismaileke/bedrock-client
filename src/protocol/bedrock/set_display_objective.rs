@@ -13,22 +13,6 @@ pub struct SetDisplayObjective {
     pub sort_order: i32,
 }
 
-pub fn new(
-    display_slot: String,
-    objective_name: String,
-    display_name: String,
-    criteria_name: String,
-    sort_order: i32,
-) -> SetDisplayObjective {
-    SetDisplayObjective {
-        display_slot,
-        objective_name,
-        display_name,
-        criteria_name,
-        sort_order,
-    }
-}
-
 impl Packet for SetDisplayObjective {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetDisplayObjective.get_byte()
@@ -67,21 +51,11 @@ impl Packet for SetDisplayObjective {
         }
     }
 
-    fn debug(&self) {
-        println!("Display Slot: {}", self.display_slot);
-        println!("Objective Name: {}", self.objective_name);
-        println!("Display Name: {}", self.display_name);
-        println!("Criteria Name: {}", self.criteria_name);
-        println!("Sort Order: {}", self.sort_order);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl SetDisplayObjective {

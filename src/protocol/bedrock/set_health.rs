@@ -8,10 +8,6 @@ pub struct SetHealth {
     pub health: i32,
 }
 
-pub fn new(health: i32) -> SetHealth {
-    SetHealth { health }
-}
-
 impl Packet for SetHealth {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetHealth.get_byte()
@@ -36,15 +32,9 @@ impl Packet for SetHealth {
         SetHealth { health }
     }
 
-    fn debug(&self) {
-        println!("Health: {}", self.health);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

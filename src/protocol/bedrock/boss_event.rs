@@ -17,28 +17,25 @@ pub struct BossEvent {
     pub overlay: u32,
 }
 
-pub fn new(
-    boss_actor_unique_id: i64,
-    event_type: u32,
-    player_actor_unique_id: i64,
-    health_percent: f32,
-    title: String,
-    filtered_title: String,
-    darken_screen: bool,
-    color: u32,
-    overlay: u32,
-) -> BossEvent {
-    BossEvent {
-        boss_actor_unique_id,
-        event_type,
-        player_actor_unique_id,
-        health_percent,
-        title,
-        filtered_title,
-        darken_screen,
-        color,
-        overlay,
-    }
+impl BossEvent {
+    /** S2C: Shows the boss-bar to the player. */
+    pub const TYPE_SHOW: u32 = 0;
+    /** C2S: Registers a player to a boss fight. */
+    pub const TYPE_REGISTER_PLAYER: u32 = 1;
+    /** S2C: Removes the boss-bar from the client. */
+    pub const TYPE_HIDE: u32 = 2;
+    /** C2S: Unregisters a player from a boss fight. */
+    pub const TYPE_UNREGISTER_PLAYER: u32 = 3;
+    /** S2C: Sets the bar percentage. */
+    pub const TYPE_HEALTH_PERCENT: u32 = 4;
+    /** S2C: Sets the title of the bar. */
+    pub const TYPE_TITLE: u32 = 5;
+    /** S2C: Updates misc properties of the bar and environment. */
+    pub const TYPE_PROPERTIES: u32 = 6;
+    /** S2C: Updates boss-bar color and overlay texture. */
+    pub const TYPE_TEXTURE: u32 = 7;
+    /** C2S: Client asking the server to resend all boss data. */
+    pub const TYPE_QUERY: u32 = 8;
 }
 
 impl Packet for BossEvent {
@@ -158,44 +155,9 @@ impl Packet for BossEvent {
         }
     }
 
-    fn debug(&self) {
-        println!("Boss Actor Unique ID: {}", self.boss_actor_unique_id);
-        println!("Event Type: {}", self.event_type);
-        println!("Player Actor Unique ID: {}", self.player_actor_unique_id);
-        println!("Health Percent: {}", self.health_percent);
-        println!("Title: {}", self.title);
-        println!("Filtered Title: {}", self.filtered_title);
-        println!("Darken Screen: {}", self.darken_screen);
-        println!("Color: {}", self.color);
-        println!("Overlay: {}", self.overlay);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
-}
-
-impl BossEvent {
-    /** S2C: Shows the boss-bar to the player. */
-    pub const TYPE_SHOW: u32 = 0;
-    /** C2S: Registers a player to a boss fight. */
-    pub const TYPE_REGISTER_PLAYER: u32 = 1;
-    /** S2C: Removes the boss-bar from the client. */
-    pub const TYPE_HIDE: u32 = 2;
-    /** C2S: Unregisters a player from a boss fight. */
-    pub const TYPE_UNREGISTER_PLAYER: u32 = 3;
-    /** S2C: Sets the bar percentage. */
-    pub const TYPE_HEALTH_PERCENT: u32 = 4;
-    /** S2C: Sets the title of the bar. */
-    pub const TYPE_TITLE: u32 = 5;
-    /** S2C: Updates misc properties of the bar and environment. */
-    pub const TYPE_PROPERTIES: u32 = 6;
-    /** S2C: Updates boss-bar color and overlay texture. */
-    pub const TYPE_TEXTURE: u32 = 7;
-    /** C2S: Client asking the server to resend all boss data. */
-    pub const TYPE_QUERY: u32 = 8;
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

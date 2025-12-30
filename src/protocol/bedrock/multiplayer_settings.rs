@@ -8,10 +8,6 @@ pub struct MultiplayerSettings {
     pub action: i32,
 }
 
-pub fn new(action: i32) -> MultiplayerSettings {
-    MultiplayerSettings { action }
-}
-
 impl Packet for MultiplayerSettings {
     fn id(&self) -> u16 {
         BedrockPacketType::IDMultiplayerSettings.get_byte()
@@ -36,17 +32,11 @@ impl Packet for MultiplayerSettings {
         MultiplayerSettings { action }
     }
 
-    fn debug(&self) {
-        println!("Action: {}", self.action);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl MultiplayerSettings {

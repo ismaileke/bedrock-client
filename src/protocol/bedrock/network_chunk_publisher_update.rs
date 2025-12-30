@@ -45,10 +45,7 @@ impl Packet for NetworkChunkPublisherUpdate {
         let radius = stream.get_var_u32();
         let count = stream.get_u32_le();
         if count > MAX_SAVED_CHUNKS {
-            error!(
-                "Expected at most {} saved chunks, got {}",
-                MAX_SAVED_CHUNKS, count
-            )
+            error!("Expected at most {} saved chunks, got {}",MAX_SAVED_CHUNKS, count)
         }
 
         let mut saved_chunks = vec![];
@@ -65,17 +62,9 @@ impl Packet for NetworkChunkPublisherUpdate {
         }
     }
 
-    fn debug(&self) {
-        println!("Block Position: {:?}", self.block_pos);
-        println!("Radius: {}", self.radius);
-        println!("Saved Chunks: {:?}", self.saved_chunks);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

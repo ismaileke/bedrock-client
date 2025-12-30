@@ -9,10 +9,6 @@ pub struct RequestChunkRadius {
     pub max_radius: u8,
 }
 
-pub fn new(radius: i32, max_radius: u8) -> RequestChunkRadius {
-    RequestChunkRadius { radius, max_radius }
-}
-
 impl Packet for RequestChunkRadius {
     fn id(&self) -> u16 {
         BedrockPacketType::IDRequestChunkRadius.get_byte()
@@ -39,16 +35,9 @@ impl Packet for RequestChunkRadius {
         RequestChunkRadius { radius, max_radius }
     }
 
-    fn debug(&self) {
-        println!("Radius: {}", self.radius);
-        println!("Maximum Radius: {}", self.max_radius);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -12,16 +12,14 @@ pub struct PlayerList {
     pub entries: Vec<PlayerListEntry>,
 }
 
-fn new(list_type: u8, entries: Vec<PlayerListEntry>) -> PlayerList {
-    PlayerList { list_type, entries }
-}
+impl PlayerList {
+    pub fn add(entries: Vec<PlayerListEntry>) -> PlayerList {
+        PlayerList{ list_type: PlayerList::TYPE_ADD, entries }
+    }
 
-pub fn add(entries: Vec<PlayerListEntry>) -> PlayerList {
-    new(PlayerList::TYPE_ADD, entries)
-}
-
-pub fn remove(entries: Vec<PlayerListEntry>) -> PlayerList {
-    new(PlayerList::TYPE_REMOVE, entries)
+    pub fn remove(entries: Vec<PlayerListEntry>) -> PlayerList {
+        PlayerList{ list_type: PlayerList::TYPE_REMOVE, entries }
+    }
 }
 
 impl Packet for PlayerList {
@@ -47,12 +45,7 @@ impl Packet for PlayerList {
                 stream.put_bool(entry.is_teacher);
                 stream.put_bool(entry.is_host);
                 stream.put_bool(entry.is_sub_client);
-                stream.put_u32_le(
-                    entry
-                        .color
-                        .unwrap_or(Color::new(255, 255, 255, 255))
-                        .to_argb(),
-                );
+                stream.put_u32_le(entry.color.unwrap_or(Color::new(255, 255, 255, 255)).to_argb());
             } else {
                 PacketSerializer::put_uuid(&mut stream, entry.uuid.clone());
             }
@@ -98,18 +91,11 @@ impl Packet for PlayerList {
         PlayerList { list_type, entries }
     }
 
-    fn debug(&self) {
-        println!("List Type: {}", self.list_type);
-        println!("Entries: {:?}", self.entries);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl PlayerList {

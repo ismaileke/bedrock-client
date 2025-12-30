@@ -13,20 +13,6 @@ pub struct CommandRequest {
     pub version: String,
 }
 
-pub fn new(
-    command: String,
-    origin_data: CommandOriginData,
-    is_internal: bool,
-    version: String,
-) -> CommandRequest {
-    CommandRequest {
-        command,
-        origin_data,
-        is_internal,
-        version,
-    }
-}
-
 impl Packet for CommandRequest {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCommandRequest.get_byte()
@@ -54,26 +40,12 @@ impl Packet for CommandRequest {
         let is_internal = stream.get_bool();
         let version = PacketSerializer::get_string(stream);
 
-        CommandRequest {
-            command,
-            origin_data,
-            is_internal,
-            version,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Command: {}", self.command);
-        println!("Origin Data: {:?}", self.origin_data);
-        println!("Is Internal: {}", self.is_internal);
-        println!("Version: {}", self.version);
+        CommandRequest { command, origin_data, is_internal, version }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -11,10 +11,6 @@ pub struct GameRulesChanged {
     pub game_rules: HashMap<String, GameRule>,
 }
 
-pub fn new(game_rules: HashMap<String, GameRule>) -> GameRulesChanged {
-    GameRulesChanged { game_rules }
-}
-
 impl Packet for GameRulesChanged {
     fn id(&self) -> u16 {
         BedrockPacketType::IDGameRulesChanged.get_byte()
@@ -39,15 +35,9 @@ impl Packet for GameRulesChanged {
         GameRulesChanged { game_rules }
     }
 
-    fn debug(&self) {
-        println!("Game Rules: {:?}", self.game_rules);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -9,10 +9,6 @@ pub struct AddBehaviorTree {
     pub behavior_tree_json: String,
 }
 
-pub fn new(behavior_tree_json: String) -> AddBehaviorTree {
-    AddBehaviorTree { behavior_tree_json }
-}
-
 impl Packet for AddBehaviorTree {
     fn id(&self) -> u16 {
         BedrockPacketType::IDAddBehaviorTree.get_byte()
@@ -37,15 +33,9 @@ impl Packet for AddBehaviorTree {
         AddBehaviorTree { behavior_tree_json }
     }
 
-    fn debug(&self) {
-        println!("Behavior Tree JSON: {}", self.behavior_tree_json);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

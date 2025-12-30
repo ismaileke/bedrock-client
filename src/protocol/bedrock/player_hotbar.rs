@@ -10,14 +10,6 @@ pub struct PlayerHotbar {
     pub select_hotbar_slot: bool,
 }
 
-pub fn new(selected_hotbar_slot: u32, window_id: u8, select_hotbar_slot: bool) -> PlayerHotbar {
-    PlayerHotbar {
-        selected_hotbar_slot,
-        window_id,
-        select_hotbar_slot,
-    }
-}
-
 impl Packet for PlayerHotbar {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPlayerHotbar.get_byte()
@@ -50,17 +42,9 @@ impl Packet for PlayerHotbar {
         }
     }
 
-    fn debug(&self) {
-        println!("Selected Hotbar Slot: {}", self.selected_hotbar_slot);
-        println!("Window ID: {}", self.window_id);
-        println!("Select Hotbar Slot: {}", self.select_hotbar_slot);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

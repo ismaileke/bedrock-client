@@ -11,12 +11,11 @@ pub struct Interact {
     pub position: Option<Vec<f32>>,
 }
 
-pub fn new(action: u8, target_actor_runtime_id: u64, position: Option<Vec<f32>>) -> Interact {
-    Interact {
-        action,
-        target_actor_runtime_id,
-        position,
-    }
+impl Interact {
+    pub const ACTION_LEAVE_VEHICLE: u8 = 3;
+    pub const ACTION_MOUSEOVER: u8 = 4;
+    pub const ACTION_OPEN_NPC: u8 = 5;
+    pub const ACTION_OPEN_INVENTORY: u8 = 6;
 }
 
 impl Packet for Interact {
@@ -47,31 +46,12 @@ impl Packet for Interact {
         let position =
             PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
 
-        Interact {
-            action,
-            target_actor_runtime_id,
-            position,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Action: {}", self.action);
-        println!("Target Actor Runtime ID: {}", self.target_actor_runtime_id);
-        println!("Position: {:?}", self.position);
+        Interact { action, target_actor_runtime_id, position }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
-}
-
-impl Interact {
-    pub const ACTION_LEAVE_VEHICLE: u8 = 3;
-    pub const ACTION_MOUSEOVER: u8 = 4;
-    pub const ACTION_OPEN_NPC: u8 = 5;
-    pub const ACTION_OPEN_INVENTORY: u8 = 6;
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

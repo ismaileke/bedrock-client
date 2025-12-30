@@ -11,13 +11,6 @@ pub struct SetScore {
     pub entries: Vec<ScoreEntry>,
 }
 
-pub fn new(action_type: u8, entries: Vec<ScoreEntry>) -> SetScore {
-    SetScore {
-        action_type,
-        entries,
-    }
-}
-
 impl Packet for SetScore {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetScore.get_byte()
@@ -97,24 +90,14 @@ impl Packet for SetScore {
             });
         }
 
-        SetScore {
-            action_type,
-            entries,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Action type: {}", self.action_type);
-        println!("Entries: {:?}", &self.entries);
+        SetScore { action_type, entries }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl SetScore {

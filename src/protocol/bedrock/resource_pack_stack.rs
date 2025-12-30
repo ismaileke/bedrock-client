@@ -44,24 +44,9 @@ impl Packet for ResourcePackStack {
         }
     }
 
-    fn debug(&self) {
-        for entry in &self.resource_pack_stack {
-            println!("Resource Pack Stack - {:?}", entry);
-        }
-        println!("Must Accept: {}", self.must_accept);
-        println!("Base Game Version: {}", self.base_game_version);
-        println!("Experiments: {:?}", self.experiments);
-        println!(
-            "Use Vanilla Editor Packs: {}",
-            self.use_vanilla_editor_packs
-        );
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

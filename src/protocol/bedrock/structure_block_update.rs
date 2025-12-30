@@ -13,20 +13,6 @@ pub struct StructureBlockUpdate {
     pub water_logged: bool,
 }
 
-pub fn new(
-    block_position: Vec<i32>,
-    structure_editor_data: StructureEditorData,
-    is_powered: bool,
-    water_logged: bool,
-) -> StructureBlockUpdate {
-    StructureBlockUpdate {
-        block_position,
-        structure_editor_data,
-        is_powered,
-        water_logged,
-    }
-}
-
 impl Packet for StructureBlockUpdate {
     fn id(&self) -> u16 {
         BedrockPacketType::IDStructureBlockUpdate.get_byte()
@@ -54,26 +40,12 @@ impl Packet for StructureBlockUpdate {
         let is_powered = stream.get_bool();
         let water_logged = stream.get_bool();
 
-        StructureBlockUpdate {
-            block_position,
-            structure_editor_data,
-            is_powered,
-            water_logged,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Block Position: {:?}", self.block_position.clone());
-        println!("Structure Editor Data: {:?}", self.structure_editor_data);
-        println!("Is Powered: {}", self.is_powered);
-        println!("Water Logged: {}", self.water_logged);
+        StructureBlockUpdate { block_position, structure_editor_data, is_powered, water_logged }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

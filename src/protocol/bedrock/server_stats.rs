@@ -9,13 +9,6 @@ pub struct ServerStats {
     pub network_time: f32,
 }
 
-pub fn new(server_time: f32, network_time: f32) -> ServerStats {
-    ServerStats {
-        server_time,
-        network_time,
-    }
-}
-
 impl Packet for ServerStats {
     fn id(&self) -> u16 {
         BedrockPacketType::IDServerStats.get_byte()
@@ -39,22 +32,12 @@ impl Packet for ServerStats {
         let server_time = stream.get_f32_le();
         let network_time = stream.get_f32_le();
 
-        ServerStats {
-            server_time,
-            network_time,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Server Time: {}", self.server_time);
-        println!("Network Time: {}", self.network_time);
+        ServerStats { server_time, network_time }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

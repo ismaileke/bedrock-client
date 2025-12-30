@@ -23,22 +23,6 @@ pub struct CraftingData {
     pub clean_recipes: bool,
 }
 
-pub fn new(
-    recipes: Vec<Recipe>,
-    potion_type_recipes: Vec<PotionTypeRecipe>,
-    potion_container_recipes: Vec<PotionContainerChangeRecipe>,
-    material_reducer_recipes: Vec<MaterialReducerRecipe>,
-    clean_recipes: bool,
-) -> CraftingData {
-    CraftingData {
-        recipes,
-        potion_type_recipes,
-        potion_container_recipes,
-        material_reducer_recipes,
-        clean_recipes,
-    }
-}
-
 impl Packet for CraftingData {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCraftingData.get_byte()
@@ -88,34 +72,21 @@ impl Packet for CraftingData {
 
     fn decode(stream: &mut Stream) -> CraftingData {
         let recipe_count = stream.get_var_u32();
-        let mut previous_type = 100; // 100 = none (I made it up)
+        let mut previous_type = 100; // 100 = none (I made it up) FIX THAT LATER
         let mut recipes = Vec::new();
         for _ in 0..recipe_count {
             let recipe_type = stream.get_var_i32();
             recipes.push(match recipe_type {
                 Self::ENTRY_SHAPELESS
                 | Self::ENTRY_USER_DATA_SHAPELESS
-                | Self::ENTRY_SHAPELESS_CHEMISTRY => {
-                    Recipe::Shapeless(ShapelessRecipe::read(recipe_type, stream))
-                }
-                Self::ENTRY_SHAPED | Self::ENTRY_SHAPED_CHEMISTRY => {
-                    Recipe::Shaped(ShapedRecipe::read(recipe_type, stream))
-                }
-                Self::ENTRY_FURNACE | Self::ENTRY_FURNACE_DATA => {
-                    Recipe::Furnace(FurnaceRecipe::read(recipe_type, stream))
-                }
+                | Self::ENTRY_SHAPELESS_CHEMISTRY => Recipe::Shapeless(ShapelessRecipe::read(recipe_type, stream)),
+                Self::ENTRY_SHAPED | Self::ENTRY_SHAPED_CHEMISTRY => Recipe::Shaped(ShapedRecipe::read(recipe_type, stream)),
+                Self::ENTRY_FURNACE | Self::ENTRY_FURNACE_DATA => Recipe::Furnace(FurnaceRecipe::read(recipe_type, stream)),
                 Self::ENTRY_MULTI => Recipe::Multi(MultiRecipe::read(recipe_type, stream)),
-                Self::ENTRY_SMITHING_TRANSFORM => {
-                    Recipe::SmitingTransform(SmithingTransformRecipe::read(recipe_type, stream))
-                }
-                Self::ENTRY_SMITHING_TRIM => {
-                    Recipe::SmithingTrim(SmithingTrimRecipe::read(recipe_type, stream))
-                }
+                Self::ENTRY_SMITHING_TRANSFORM => Recipe::SmitingTransform(SmithingTransformRecipe::read(recipe_type, stream)),
+                Self::ENTRY_SMITHING_TRIM => Recipe::SmithingTrim(SmithingTrimRecipe::read(recipe_type, stream)),
                 _ => {
-                    panic!(
-                        "Unhandled recipe type {} (previous was {})",
-                        recipe_type, previous_type
-                    );
+                    panic!("Unhandled recipe type {} (previous was {})", recipe_type, previous_type);
                 }
             });
             previous_type = recipe_type;
@@ -182,27 +153,11 @@ impl Packet for CraftingData {
         }
     }
 
-    fn debug(&self) {
-        println!("Recipes: {:?}", self.recipes);
-        println!("Potion Type Recipes: {:?}", self.potion_type_recipes);
-        println!(
-            "Potion Container Change Recipe: {:?}",
-            self.potion_container_recipes
-        );
-        println!(
-            "Material Reducer Recipes: {:?}",
-            self.material_reducer_recipes
-        );
-        println!("Clean Recipes: {}", self.clean_recipes);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl CraftingData {

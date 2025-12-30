@@ -1,6 +1,5 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use crate::protocol::raknet::game_packet::GamePacket;
 use crate::utils::encryption::Encryption;
 use binary_utils::binary::Stream;
 use chrono::Utc;
@@ -13,14 +12,6 @@ pub struct Login {
     pub client_protocol: u32,
     pub auth_info_json: String,
     pub client_data_jwt: String,
-}
-
-pub fn new(client_protocol: u32, auth_info_json: String, client_data_jwt: String) -> Login {
-    Login {
-        client_protocol,
-        auth_info_json,
-        client_data_jwt,
-    }
 }
 
 impl Packet for Login {
@@ -43,17 +34,11 @@ impl Packet for Login {
         stream.put_var_u32(jwt_stream.get_buffer().len() as u32);
         stream.put(Vec::from(jwt_stream.get_buffer()));
 
-        let mut main_stream = Stream::new(vec![0xfe], 0);
-
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
         compress_stream.put(Vec::from(stream.get_buffer()));
 
-        main_stream.put(GamePacket::compress(&Vec::from(
-            compress_stream.get_buffer(),
-        )));
-
-        Vec::from(main_stream.get_buffer())
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(stream: &mut Stream) -> Login {
@@ -81,19 +66,11 @@ impl Packet for Login {
         }
     }
 
-    fn debug(&self) {
-        println!("Client Protocol: {}", self.client_protocol);
-        println!("Auth Info JSON: {}", self.auth_info_json);
-        println!("Client Data JWT: {}", self.client_data_jwt);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 pub fn convert_login_chain(

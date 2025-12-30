@@ -9,12 +9,6 @@ pub struct CurrentStructureFeature {
     pub current_structure_feature: String,
 }
 
-pub fn new(current_structure_feature: String) -> CurrentStructureFeature {
-    CurrentStructureFeature {
-        current_structure_feature,
-    }
-}
-
 impl Packet for CurrentStructureFeature {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCurrentStructureFeature.get_byte()
@@ -36,23 +30,12 @@ impl Packet for CurrentStructureFeature {
     fn decode(stream: &mut Stream) -> CurrentStructureFeature {
         let current_structure_feature = PacketSerializer::get_string(stream);
 
-        CurrentStructureFeature {
-            current_structure_feature,
-        }
-    }
-
-    fn debug(&self) {
-        println!(
-            "Current Structure Feature: {}",
-            self.current_structure_feature
-        );
+        CurrentStructureFeature { current_structure_feature }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

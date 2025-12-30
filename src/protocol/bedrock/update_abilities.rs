@@ -9,10 +9,6 @@ pub struct UpdateAbilities {
     pub data: AbilitiesData,
 }
 
-pub fn new(data: AbilitiesData) -> UpdateAbilities {
-    UpdateAbilities { data }
-}
-
 impl Packet for UpdateAbilities {
     fn id(&self) -> u16 {
         BedrockPacketType::IDUpdateAbilities.get_byte()
@@ -37,15 +33,9 @@ impl Packet for UpdateAbilities {
         UpdateAbilities { data }
     }
 
-    fn debug(&self) {
-        println!("Ability Data: {:?}", self.data);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

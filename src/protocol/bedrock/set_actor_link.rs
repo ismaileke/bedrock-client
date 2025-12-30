@@ -10,10 +10,6 @@ pub struct SetActorLink {
     pub link: EntityLink,
 }
 
-pub fn new(link: EntityLink) -> SetActorLink {
-    SetActorLink { link }
-}
-
 impl Packet for SetActorLink {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetActorLink.get_byte()
@@ -38,15 +34,9 @@ impl Packet for SetActorLink {
         SetActorLink { link }
     }
 
-    fn debug(&self) {
-        println!("Link: {:?}", self.link);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

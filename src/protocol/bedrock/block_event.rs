@@ -11,14 +11,6 @@ pub struct BlockEvent {
     pub event_data: i32,
 }
 
-pub fn new(block_position: Vec<i32>, event_type: i32, event_data: i32) -> BlockEvent {
-    BlockEvent {
-        block_position,
-        event_type,
-        event_data,
-    }
-}
-
 impl Packet for BlockEvent {
     fn id(&self) -> u16 {
         BedrockPacketType::IDBlockEvent.get_byte()
@@ -44,24 +36,12 @@ impl Packet for BlockEvent {
         let event_type = stream.get_var_i32();
         let event_data = stream.get_var_i32();
 
-        BlockEvent {
-            block_position,
-            event_type,
-            event_data,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Block Position: {:?}", self.block_position);
-        println!("Event Type: {}", self.event_type);
-        println!("Event Data: {}", self.event_data);
+        BlockEvent { block_position, event_type, event_data }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

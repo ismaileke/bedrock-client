@@ -12,10 +12,6 @@ pub struct ItemRegistry {
     pub entries: Vec<ItemTypeEntry>,
 }
 
-pub fn new(entries: Vec<ItemTypeEntry>) -> ItemRegistry {
-    ItemRegistry { entries }
-}
-
 impl Packet for ItemRegistry {
     fn id(&self) -> u16 {
         BedrockPacketType::IDItemRegistry.get_byte()
@@ -62,15 +58,9 @@ impl Packet for ItemRegistry {
         ItemRegistry { entries }
     }
 
-    fn debug(&self) {
-        println!("Entries: {:?}", self.entries);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

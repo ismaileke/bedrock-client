@@ -13,10 +13,6 @@ pub struct ClientBoundDataStore {
     pub values: Vec<DataStore>,
 }
 
-pub fn new(values: Vec<DataStore>) -> ClientBoundDataStore {
-    ClientBoundDataStore { values }
-}
-
 impl Packet for ClientBoundDataStore {
     fn id(&self) -> u16 {
         BedrockPacketType::IDClientBoundDataStore.get_byte()
@@ -57,15 +53,9 @@ impl Packet for ClientBoundDataStore {
         ClientBoundDataStore { values }
     }
 
-    fn debug(&self) {
-        println!("Values: {:?}", self.values);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

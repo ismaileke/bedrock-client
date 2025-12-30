@@ -17,28 +17,12 @@ pub struct BookEdit {
     pub xuid: String,
 }
 
-pub fn new(
-    event_type: u8,
-    inventory_slot: u8,
-    page_number: u8,
-    secondary_page_number: u8,
-    text: String,
-    photo_name: String,
-    title: String,
-    author: String,
-    xuid: String,
-) -> BookEdit {
-    BookEdit {
-        event_type,
-        inventory_slot,
-        page_number,
-        secondary_page_number,
-        text,
-        photo_name,
-        title,
-        author,
-        xuid,
-    }
+impl BookEdit {
+    pub const TYPE_REPLACE_PAGE: u8 = 0;
+    pub const TYPE_ADD_PAGE: u8 = 1;
+    pub const TYPE_DELETE_PAGE: u8 = 2;
+    pub const TYPE_SWAP_PAGES: u8 = 3;
+    pub const TYPE_SIGN_BOOK: u8 = 4;
 }
 
 impl Packet for BookEdit {
@@ -130,31 +114,9 @@ impl Packet for BookEdit {
         }
     }
 
-    fn debug(&self) {
-        println!("Event Type: {}", self.event_type);
-        println!("Inventory Slot: {}", self.inventory_slot);
-        println!("Page Number: {}", self.page_number);
-        println!("Secondary Page Number: {}", self.secondary_page_number);
-        println!("Text: {}", self.text);
-        println!("Photo Name: {}", self.photo_name);
-        println!("Title: {}", self.title);
-        println!("Author: {}", self.author);
-        println!("XUID: {}", self.xuid);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
-}
-
-impl BookEdit {
-    pub const TYPE_REPLACE_PAGE: u8 = 0;
-    pub const TYPE_ADD_PAGE: u8 = 1;
-    pub const TYPE_DELETE_PAGE: u8 = 2;
-    pub const TYPE_SWAP_PAGES: u8 = 3;
-    pub const TYPE_SIGN_BOOK: u8 = 4;
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

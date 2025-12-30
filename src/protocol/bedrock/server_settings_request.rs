@@ -6,10 +6,6 @@ use std::any::Any;
 #[derive(serde::Serialize, Debug)]
 pub struct ServerSettingsRequest {}
 
-pub fn new() -> ServerSettingsRequest {
-    ServerSettingsRequest {}
-}
-
 impl Packet for ServerSettingsRequest {
     fn id(&self) -> u16 {
         BedrockPacketType::IDServerSettingsRequest.get_byte()
@@ -33,13 +29,9 @@ impl Packet for ServerSettingsRequest {
         ServerSettingsRequest {}
     }
 
-    fn debug(&self) {}
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

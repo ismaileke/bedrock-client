@@ -9,12 +9,6 @@ pub struct PlayerArmorDamage {
     pub armor_slot_and_damage_pairs: Vec<ArmorSlotAndDamagePair>,
 }
 
-pub fn new(armor_slot_and_damage_pairs: Vec<ArmorSlotAndDamagePair>) -> PlayerArmorDamage {
-    PlayerArmorDamage {
-        armor_slot_and_damage_pairs,
-    }
-}
-
 impl Packet for PlayerArmorDamage {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPlayerArmorDamage.get_byte()
@@ -48,18 +42,9 @@ impl Packet for PlayerArmorDamage {
         }
     }
 
-    fn debug(&self) {
-        println!(
-            "Armor Slot and Damage Pairs: {:?}",
-            self.armor_slot_and_damage_pairs
-        );
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

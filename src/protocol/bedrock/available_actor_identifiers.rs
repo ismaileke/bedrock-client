@@ -11,10 +11,6 @@ pub struct AvailableActorIdentifiers {
     pub identifiers: CacheableNBT,
 }
 
-pub fn new(identifiers: CacheableNBT) -> AvailableActorIdentifiers {
-    AvailableActorIdentifiers { identifiers }
-}
-
 impl Packet for AvailableActorIdentifiers {
     fn id(&self) -> u16 {
         BedrockPacketType::IDAvailableActorIdentifiers.get_byte()
@@ -34,22 +30,14 @@ impl Packet for AvailableActorIdentifiers {
     }
 
     fn decode(stream: &mut Stream) -> AvailableActorIdentifiers {
-        let identifiers = CacheableNBT::new(Tag::Compound(
-            PacketSerializer::get_nbt_compound_root(stream),
-        ));
+        let identifiers = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)));
 
         AvailableActorIdentifiers { identifiers }
-    }
-
-    fn debug(&self) {
-        println!("Identifiers(NBT): {:?}", self.identifiers);
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

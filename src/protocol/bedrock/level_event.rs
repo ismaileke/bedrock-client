@@ -11,14 +11,6 @@ pub struct LevelEvent {
     pub event_data: i32,
 }
 
-pub fn new(event_id: i32, position: Vec<f32>, event_data: i32) -> LevelEvent {
-    LevelEvent {
-        event_id,
-        position,
-        event_data,
-    }
-}
-
 impl Packet for LevelEvent {
     fn id(&self) -> u16 {
         BedrockPacketType::IDLevelEvent.get_byte()
@@ -51,17 +43,9 @@ impl Packet for LevelEvent {
         }
     }
 
-    fn debug(&self) {
-        println!("Event ID: {}", self.event_id);
-        println!("Position: {:?}", self.position);
-        println!("Event Data: {}", self.event_data);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

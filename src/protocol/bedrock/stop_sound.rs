@@ -11,14 +11,6 @@ pub struct StopSound {
     pub stop_legacy_music: bool,
 }
 
-pub fn new(sound_name: String, stop_all: bool, stop_legacy_music: bool) -> StopSound {
-    StopSound {
-        sound_name,
-        stop_all,
-        stop_legacy_music,
-    }
-}
-
 impl Packet for StopSound {
     fn id(&self) -> u16 {
         BedrockPacketType::IDStopSound.get_byte()
@@ -51,17 +43,9 @@ impl Packet for StopSound {
         }
     }
 
-    fn debug(&self) {
-        println!("Sound Name: {}", self.sound_name);
-        println!("Stop All: {}", self.stop_all);
-        println!("Stop Legacy Music: {}", self.stop_legacy_music);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

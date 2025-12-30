@@ -8,10 +8,6 @@ pub struct SetCommandsEnabled {
     pub enabled: bool,
 }
 
-pub fn new(enabled: bool) -> SetCommandsEnabled {
-    SetCommandsEnabled { enabled }
-}
-
 impl Packet for SetCommandsEnabled {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetCommandsEnabled.get_byte()
@@ -36,15 +32,9 @@ impl Packet for SetCommandsEnabled {
         SetCommandsEnabled { enabled }
     }
 
-    fn debug(&self) {
-        println!("Enabled: {}", self.enabled);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

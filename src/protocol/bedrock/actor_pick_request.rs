@@ -11,14 +11,6 @@ pub struct ActorPickRequest {
     pub hotbar_slot: u8,
 }
 
-pub fn new(actor_unique_id: i64, add_user_data: bool, hotbar_slot: u8) -> ActorPickRequest {
-    ActorPickRequest {
-        actor_unique_id,
-        add_user_data,
-        hotbar_slot,
-    }
-}
-
 impl Packet for ActorPickRequest {
     fn id(&self) -> u16 {
         BedrockPacketType::IDActorPickRequest.get_byte()
@@ -51,17 +43,9 @@ impl Packet for ActorPickRequest {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Unique ID: {}", self.actor_unique_id);
-        println!("Add User Data: {}", self.add_user_data);
-        println!("Hotbar Slot: {}", self.hotbar_slot);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

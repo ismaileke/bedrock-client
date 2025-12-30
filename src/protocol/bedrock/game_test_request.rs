@@ -15,24 +15,11 @@ pub struct GameTestRequest {
     pub test_name: String,
 }
 
-pub fn new(
-    max_test_per_batch: i32,
-    repeat_count: i32,
-    rotation: u8,
-    stop_on_failure: bool,
-    test_position: Vec<i32>,
-    tests_per_row: i32,
-    test_name: String,
-) -> GameTestRequest {
-    GameTestRequest {
-        max_test_per_batch,
-        repeat_count,
-        rotation,
-        stop_on_failure,
-        test_position,
-        tests_per_row,
-        test_name,
-    }
+impl GameTestRequest {
+    pub const ROTATION_0: u8 = 0;
+    pub const ROTATION_90: u8 = 1;
+    pub const ROTATION_180: u8 = 2;
+    pub const ROTATION_270: u8 = 3;
 }
 
 impl Packet for GameTestRequest {
@@ -79,28 +66,9 @@ impl Packet for GameTestRequest {
         }
     }
 
-    fn debug(&self) {
-        println!("Max Test Per Batch: {}", self.max_test_per_batch);
-        println!("Repeat Count: {}", self.repeat_count);
-        println!("Rotation: {}", self.rotation);
-        println!("Stop On Failure: {}", self.stop_on_failure);
-        println!("Test Position: {:?}", self.test_position);
-        println!("Tests Per Row: {}", self.tests_per_row);
-        println!("Test Name: {}", self.test_name);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
-}
-
-impl GameTestRequest {
-    pub const ROTATION_0: u8 = 0;
-    pub const ROTATION_90: u8 = 1;
-    pub const ROTATION_180: u8 = 2;
-    pub const ROTATION_270: u8 = 3;
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

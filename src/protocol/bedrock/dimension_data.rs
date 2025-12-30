@@ -12,10 +12,6 @@ pub struct DimensionData {
     pub definitions: HashMap<String, DimensionDataEntry>,
 }
 
-pub fn new(definitions: HashMap<String, DimensionDataEntry>) -> DimensionData {
-    DimensionData { definitions }
-}
-
 impl Packet for DimensionData {
     fn id(&self) -> u16 {
         BedrockPacketType::IDDimensionData.get_byte()
@@ -61,15 +57,9 @@ impl Packet for DimensionData {
         DimensionData { definitions }
     }
 
-    fn debug(&self) {
-        println!("Definitions: {:?}", self.definitions);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

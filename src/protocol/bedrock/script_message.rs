@@ -10,10 +10,6 @@ pub struct ScriptMessage {
     pub value: String,
 }
 
-pub fn new(message_id: String, value: String) -> ScriptMessage {
-    ScriptMessage { message_id, value }
-}
-
 impl Packet for ScriptMessage {
     fn id(&self) -> u16 {
         BedrockPacketType::IDScriptMessage.get_byte()
@@ -40,16 +36,9 @@ impl Packet for ScriptMessage {
         ScriptMessage { message_id, value }
     }
 
-    fn debug(&self) {
-        println!("Message ID: {}", self.message_id);
-        println!("Value: {}", self.value);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

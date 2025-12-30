@@ -10,14 +10,6 @@ pub struct ContainerSetData {
     pub value: i32,
 }
 
-pub fn new(window_id: u8, property: i32, value: i32) -> ContainerSetData {
-    ContainerSetData {
-        window_id,
-        property,
-        value,
-    }
-}
-
 impl Packet for ContainerSetData {
     fn id(&self) -> u16 {
         BedrockPacketType::IDContainerSetData.get_byte()
@@ -43,26 +35,14 @@ impl Packet for ContainerSetData {
         let property = stream.get_var_i32();
         let value = stream.get_var_i32();
 
-        ContainerSetData {
-            window_id,
-            property,
-            value,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Window ID: {}", self.window_id);
-        println!("Property: {}", self.property);
-        println!("Value: {}", self.value);
+        ContainerSetData { window_id, property, value }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl ContainerSetData {

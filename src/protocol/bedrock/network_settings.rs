@@ -44,41 +44,9 @@ impl Packet for NetworkSettings {
         }
     }
 
-    fn debug(&self) {
-        println!(
-            "Compression Threshold: {}",
-            if self.compression_threshold == 1 {
-                "COMPRESS_EVERYTHING"
-            } else {
-                "COMPRESS_NOTHING"
-            }
-        );
-        println!(
-            "Compression Algorithm: {}",
-            if self.compression_algorithm == 0 {
-                "ZLIB"
-            } else if self.compression_algorithm == 1 {
-                "SNAPPY"
-            } else {
-                "NONE"
-            }
-        );
-        println!(
-            "Enable Client Throttling: {}",
-            self.enable_client_throttling
-        );
-        println!(
-            "Client Throttle Threshold: {}",
-            self.client_throttle_threshold
-        );
-        println!("Client Throttle Scalar: {}", self.client_throttle_scalar);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

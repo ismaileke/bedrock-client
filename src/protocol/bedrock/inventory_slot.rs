@@ -15,22 +15,6 @@ pub struct InventorySlot {
     pub item: ItemStackWrapper,
 }
 
-pub fn new(
-    window_id: u32,
-    inventory_slot: u32,
-    container_name: FullContainerName,
-    storage: ItemStackWrapper,
-    item: ItemStackWrapper,
-) -> InventorySlot {
-    InventorySlot {
-        window_id,
-        inventory_slot,
-        container_name,
-        storage,
-        item,
-    }
-}
-
 impl Packet for InventorySlot {
     fn id(&self) -> u16 {
         BedrockPacketType::IDInventorySlot.get_byte()
@@ -69,19 +53,9 @@ impl Packet for InventorySlot {
         }
     }
 
-    fn debug(&self) {
-        println!("Window ID: {}", self.window_id);
-        println!("Inventory Slot: {}", self.inventory_slot);
-        println!("Container Name: {:?}", self.container_name);
-        println!("Storage: {:?}", self.storage);
-        println!("Item: {:?}", self.item);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

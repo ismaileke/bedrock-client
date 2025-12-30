@@ -8,10 +8,6 @@ pub struct SetLastHurtBy {
     pub entity_type_id: i32,
 }
 
-pub fn new(entity_type_id: i32) -> SetLastHurtBy {
-    SetLastHurtBy { entity_type_id }
-}
-
 impl Packet for SetLastHurtBy {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetLastHurtBy.get_byte()
@@ -36,15 +32,9 @@ impl Packet for SetLastHurtBy {
         SetLastHurtBy { entity_type_id }
     }
 
-    fn debug(&self) {
-        println!("Entity Type ID: {}", self.entity_type_id);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

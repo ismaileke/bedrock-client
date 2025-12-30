@@ -14,22 +14,6 @@ pub struct MobEquipment {
     pub window_id: u8,
 }
 
-pub fn new(
-    actor_runtime_id: u64,
-    item: ItemStackWrapper,
-    inventory_slot: u8,
-    hotbar_slot: u8,
-    window_id: u8,
-) -> MobEquipment {
-    MobEquipment {
-        actor_runtime_id,
-        item,
-        inventory_slot,
-        hotbar_slot,
-        window_id,
-    }
-}
-
 impl Packet for MobEquipment {
     fn id(&self) -> u16 {
         BedrockPacketType::IDMobEquipment.get_byte()
@@ -68,19 +52,9 @@ impl Packet for MobEquipment {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Item: {:?}", self.item);
-        println!("Inventory Slot: {}", self.inventory_slot);
-        println!("Hotbar Slot: {}", self.hotbar_slot);
-        println!("Window ID: {}", self.window_id);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

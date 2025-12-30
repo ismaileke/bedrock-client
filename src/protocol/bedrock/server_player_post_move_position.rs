@@ -9,10 +9,6 @@ pub struct ServerPlayerPostMovePosition {
     pub position: Vec<f32>,
 }
 
-pub fn new(position: Vec<f32>) -> ServerPlayerPostMovePosition {
-    ServerPlayerPostMovePosition { position }
-}
-
 impl Packet for ServerPlayerPostMovePosition {
     fn id(&self) -> u16 {
         BedrockPacketType::IDServerPlayerPostMovePosition.get_byte()
@@ -37,15 +33,9 @@ impl Packet for ServerPlayerPostMovePosition {
         ServerPlayerPostMovePosition { position }
     }
 
-    fn debug(&self) {
-        println!("Position: {:?}", self.position);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

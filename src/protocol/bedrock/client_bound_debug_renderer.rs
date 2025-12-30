@@ -11,14 +11,9 @@ pub struct ClientBoundDebugRenderer {
     pub debug_marker_data: Option<DebugMarkerData>,
 }
 
-pub fn new(
-    debug_type: String,
-    debug_marker_data: Option<DebugMarkerData>,
-) -> ClientBoundDebugRenderer {
-    ClientBoundDebugRenderer {
-        debug_type,
-        debug_marker_data,
-    }
+impl ClientBoundDebugRenderer {
+    pub const TYPE_CLEAR: &'static str = "cleardebugmarkers";
+    pub const TYPE_ADD_CUBE: &'static str = "cleardebugmarkers";
 }
 
 impl Packet for ClientBoundDebugRenderer {
@@ -45,27 +40,12 @@ impl Packet for ClientBoundDebugRenderer {
         let debug_marker_data =
             PacketSerializer::read_optional(stream, |s| DebugMarkerData::read(s));
 
-        ClientBoundDebugRenderer {
-            debug_type,
-            debug_marker_data,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Debug Type: {}", self.debug_type);
-        println!("Debug Marker Data: {:?}", self.debug_marker_data);
+        ClientBoundDebugRenderer { debug_type, debug_marker_data }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
-}
-
-impl ClientBoundDebugRenderer {
-    pub const TYPE_CLEAR: &'static str = "cleardebugmarkers";
-    pub const TYPE_ADD_CUBE: &'static str = "cleardebugmarkers";
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

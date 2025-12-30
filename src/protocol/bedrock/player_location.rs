@@ -11,29 +11,22 @@ pub struct PlayerLocation {
     pub actor_unique_id: i64,
     pub position: Option<Vec<f32>>,
 }
-
-fn new(location_type: u32, actor_unique_id: i64, position: Option<Vec<f32>>) -> PlayerLocation {
-    PlayerLocation {
-        location_type,
-        actor_unique_id,
-        position,
+impl PlayerLocation {
+    pub fn create_coordinates(actor_unique_id: i64, position: Vec<f32>) -> PlayerLocation {
+        PlayerLocation {
+            location_type: PlayerLocationType::PLAYER_LOCATION_COORDINATES,
+            actor_unique_id,
+            position: Some(position),
+        }
     }
-}
 
-pub fn create_coordinates(actor_unique_id: i64, position: Vec<f32>) -> PlayerLocation {
-    new(
-        PlayerLocationType::PLAYER_LOCATION_COORDINATES,
-        actor_unique_id,
-        Some(position),
-    )
-}
-
-pub fn create_hide(actor_unique_id: i64) -> PlayerLocation {
-    new(
-        PlayerLocationType::PLAYER_LOCATION_HIDE,
-        actor_unique_id,
-        None,
-    )
+    pub fn create_hide(actor_unique_id: i64) -> PlayerLocation {
+        PlayerLocation {
+            location_type: PlayerLocationType::PLAYER_LOCATION_HIDE,
+            actor_unique_id,
+            position: None,
+        }
+    }
 }
 
 impl Packet for PlayerLocation {
@@ -69,24 +62,12 @@ impl Packet for PlayerLocation {
             position = Some(PacketSerializer::get_vector3(stream));
         }
 
-        PlayerLocation {
-            location_type,
-            actor_unique_id,
-            position,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Location Type: {}", self.location_type);
-        println!("Actor Unique ID: {}", self.actor_unique_id);
-        println!("Position: {:?}", self.position);
+        PlayerLocation { location_type, actor_unique_id, position }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

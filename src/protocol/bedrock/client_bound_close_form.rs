@@ -6,10 +6,6 @@ use std::any::Any;
 #[derive(serde::Serialize, Debug)]
 pub struct ClientBoundCloseForm {}
 
-pub fn new() -> ClientBoundCloseForm {
-    ClientBoundCloseForm {}
-}
-
 impl Packet for ClientBoundCloseForm {
     fn id(&self) -> u16 {
         BedrockPacketType::IDClientBoundCloseForm.get_byte()
@@ -33,13 +29,9 @@ impl Packet for ClientBoundCloseForm {
         ClientBoundCloseForm {}
     }
 
-    fn debug(&self) {}
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -12,20 +12,6 @@ pub struct PacketViolationWarning {
     pub message: String,
 }
 
-pub fn new(
-    violation_type: i32,
-    severity: i32,
-    packet_id: i32,
-    message: String,
-) -> PacketViolationWarning {
-    PacketViolationWarning {
-        violation_type,
-        severity,
-        packet_id,
-        message,
-    }
-}
-
 impl Packet for PacketViolationWarning {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPacketViolationWarning.get_byte()
@@ -61,20 +47,11 @@ impl Packet for PacketViolationWarning {
         }
     }
 
-    fn debug(&self) {
-        println!("Violation Type: {}", self.violation_type);
-        println!("Severity: {}", self.severity);
-        println!("Packet ID: {}", self.packet_id);
-        println!("Message: {}", self.message);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl PacketViolationWarning {

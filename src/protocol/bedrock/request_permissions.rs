@@ -10,18 +10,6 @@ pub struct RequestPermissions {
     pub custom_flags: u16,
 }
 
-pub fn new(
-    target_actor_unique_id: i64,
-    player_permission: i32,
-    custom_flags: u16,
-) -> RequestPermissions {
-    RequestPermissions {
-        target_actor_unique_id,
-        player_permission,
-        custom_flags,
-    }
-}
-
 impl Packet for RequestPermissions {
     fn id(&self) -> u16 {
         BedrockPacketType::IDRequestPermissions.get_byte()
@@ -54,19 +42,11 @@ impl Packet for RequestPermissions {
         }
     }
 
-    fn debug(&self) {
-        println!("Target Actor Unique ID: {}", self.target_actor_unique_id);
-        println!("Player Permission: {}", self.player_permission);
-        println!("Custom Flags: {}", self.custom_flags);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl RequestPermissions {

@@ -9,10 +9,6 @@ pub struct PurchaseReceipt {
     pub entries: Vec<String>,
 }
 
-pub fn new(entries: Vec<String>) -> PurchaseReceipt {
-    PurchaseReceipt { entries }
-}
-
 impl Packet for PurchaseReceipt {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPurchaseReceipt.get_byte()
@@ -44,15 +40,9 @@ impl Packet for PurchaseReceipt {
         PurchaseReceipt { entries }
     }
 
-    fn debug(&self) {
-        println!("Entries: {:?}", self.entries);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

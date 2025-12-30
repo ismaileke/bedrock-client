@@ -12,15 +12,6 @@ pub struct MovementEffect {
     pub tick: u64,
 }
 
-pub fn new(actor_runtime_id: u64, effect_type: u32, duration: u32, tick: u64) -> MovementEffect {
-    MovementEffect {
-        actor_runtime_id,
-        effect_type,
-        duration,
-        tick,
-    }
-}
-
 impl Packet for MovementEffect {
     fn id(&self) -> u16 {
         BedrockPacketType::IDMovementEffect.get_byte()
@@ -48,26 +39,12 @@ impl Packet for MovementEffect {
         let duration = stream.get_var_u32();
         let tick = stream.get_var_u64();
 
-        MovementEffect {
-            actor_runtime_id,
-            effect_type,
-            duration,
-            tick,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Effect Type: {}", self.effect_type);
-        println!("Duration: {}", self.duration);
-        println!("Tick: {}", self.tick);
+        MovementEffect { actor_runtime_id, effect_type, duration, tick }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

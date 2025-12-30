@@ -20,32 +20,6 @@ pub struct EducationSettings {
     pub link_settings: Option<EducationSettingsExternalLinkSettings>,
 }
 
-pub fn new(
-    code_builder_default_uri: String,
-    code_builder_title: String,
-    can_resize_code_builder: bool,
-    disable_legacy_title_bar: bool,
-    post_process_filter: String,
-    screenshot_border_resource_path: String,
-    agent_capabilities: Option<EducationSettingsAgentCapabilities>,
-    code_builder_override_uri: Option<String>,
-    has_quiz: bool,
-    link_settings: Option<EducationSettingsExternalLinkSettings>,
-) -> EducationSettings {
-    EducationSettings {
-        code_builder_default_uri,
-        code_builder_title,
-        can_resize_code_builder,
-        disable_legacy_title_bar,
-        post_process_filter,
-        screenshot_border_resource_path,
-        agent_capabilities,
-        code_builder_override_uri,
-        has_quiz,
-        link_settings,
-    }
-}
-
 impl Packet for EducationSettings {
     fn id(&self) -> u16 {
         BedrockPacketType::IDEducationSettings.get_byte()
@@ -82,15 +56,10 @@ impl Packet for EducationSettings {
         let disable_legacy_title_bar = stream.get_bool();
         let post_process_filter = PacketSerializer::get_string(stream);
         let screenshot_border_resource_path = PacketSerializer::get_string(stream);
-        let agent_capabilities = PacketSerializer::read_optional(stream, |s| {
-            EducationSettingsAgentCapabilities::read(s)
-        });
-        let code_builder_override_uri =
-            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
+        let agent_capabilities = PacketSerializer::read_optional(stream, |s| EducationSettingsAgentCapabilities::read(s));
+        let code_builder_override_uri = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
         let has_quiz = stream.get_bool();
-        let link_settings = PacketSerializer::read_optional(stream, |s| {
-            EducationSettingsExternalLinkSettings::read(s)
-        });
+        let link_settings = PacketSerializer::read_optional(stream, |s| EducationSettingsExternalLinkSettings::read(s));
 
         EducationSettings {
             code_builder_default_uri,
@@ -106,36 +75,9 @@ impl Packet for EducationSettings {
         }
     }
 
-    fn debug(&self) {
-        println!(
-            "Code Builder Default URI: {}",
-            self.code_builder_default_uri
-        );
-        println!("Code Builder Title: {}", self.code_builder_title);
-        println!("Can Resize Code Builder: {}", self.can_resize_code_builder);
-        println!(
-            "Disable Legacy Title Bar: {}",
-            self.disable_legacy_title_bar
-        );
-        println!("Post Process Filter: {}", self.post_process_filter);
-        println!(
-            "Screenshot Border Resource Path: {}",
-            self.screenshot_border_resource_path
-        );
-        println!("Agent Capabilities: {:?}", self.agent_capabilities);
-        println!(
-            "Code Builder Override URI: {:?}",
-            self.code_builder_override_uri
-        );
-        println!("Has Quiz: {}", self.has_quiz);
-        println!("Link Settings: {:?}", self.link_settings);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -22,30 +22,6 @@ pub struct CameraInstruction {
     pub detach_from_entity: Option<bool>,
 }
 
-pub fn new(
-    set: Option<CameraSetInstruction>,
-    clear: Option<bool>,
-    fade: Option<CameraFadeInstruction>,
-    target: Option<CameraTargetInstruction>,
-    remove_target: Option<bool>,
-    field_of_view: Option<CameraFovInstruction>,
-    spline: Option<CameraSplineInstruction>,
-    attach_to_entity: Option<i64>,
-    detach_from_entity: Option<bool>,
-) -> CameraInstruction {
-    CameraInstruction {
-        set,
-        clear,
-        fade,
-        target,
-        remove_target,
-        field_of_view,
-        spline,
-        attach_to_entity,
-        detach_from_entity,
-    }
-}
-
 impl Packet for CameraInstruction {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCameraInstruction.get_byte()
@@ -62,12 +38,8 @@ impl Packet for CameraInstruction {
         PacketSerializer::write_optional(&mut stream, &self.remove_target, |s, v| s.put_bool(*v));
         PacketSerializer::write_optional(&mut stream, &self.field_of_view, |s, v| v.write(s));
         PacketSerializer::write_optional(&mut stream, &self.spline, |s, v| v.write(s));
-        PacketSerializer::write_optional(&mut stream, &self.attach_to_entity, |s, v| {
-            s.put_i64_le(*v)
-        });
-        PacketSerializer::write_optional(&mut stream, &self.detach_from_entity, |s, v| {
-            s.put_bool(*v)
-        });
+        PacketSerializer::write_optional(&mut stream, &self.attach_to_entity, |s, v| s.put_i64_le(*v));
+        PacketSerializer::write_optional(&mut stream, &self.detach_from_entity, |s, v| s.put_bool(*v));
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -82,8 +54,7 @@ impl Packet for CameraInstruction {
         let fade = PacketSerializer::read_optional(stream, |s| CameraFadeInstruction::read(s));
         let target = PacketSerializer::read_optional(stream, |s| CameraTargetInstruction::read(s));
         let remove_target = PacketSerializer::read_optional(stream, |s| s.get_bool());
-        let field_of_view =
-            PacketSerializer::read_optional(stream, |s| CameraFovInstruction::read(s));
+        let field_of_view = PacketSerializer::read_optional(stream, |s| CameraFovInstruction::read(s));
         let spline = PacketSerializer::read_optional(stream, |s| CameraSplineInstruction::read(s));
         let attach_to_entity = PacketSerializer::read_optional(stream, |s| s.get_i64_le());
         let detach_from_entity = PacketSerializer::read_optional(stream, |s| s.get_bool());
@@ -101,23 +72,9 @@ impl Packet for CameraInstruction {
         }
     }
 
-    fn debug(&self) {
-        println!("Set: {:?}", self.set);
-        println!("Clear: {:?}", self.clear);
-        println!("Fade: {:?}", self.fade);
-        println!("Target: {:?}", self.target);
-        println!("Remove Target: {:?}", self.remove_target);
-        println!("Field of view: {:?}", self.field_of_view);
-        println!("Spline: {:?}", self.spline);
-        println!("Attach to entity: {:?}", self.attach_to_entity);
-        println!("Detach from entity: {:?}", self.detach_from_entity);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

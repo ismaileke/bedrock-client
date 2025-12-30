@@ -9,10 +9,6 @@ pub struct ShowProfile {
     pub xuid: String,
 }
 
-pub fn new(xuid: String) -> ShowProfile {
-    ShowProfile { xuid }
-}
-
 impl Packet for ShowProfile {
     fn id(&self) -> u16 {
         BedrockPacketType::IDShowProfile.get_byte()
@@ -37,15 +33,9 @@ impl Packet for ShowProfile {
         ShowProfile { xuid }
     }
 
-    fn debug(&self) {
-        println!("XUID: {}", self.xuid);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

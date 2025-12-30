@@ -11,8 +11,11 @@ pub struct CreativeContent {
     pub items: Vec<CreativeItemEntry>,
 }
 
-pub fn new(groups: Vec<CreativeGroupEntry>, items: Vec<CreativeItemEntry>) -> CreativeContent {
-    CreativeContent { groups, items }
+impl CreativeContent {
+    pub const CATEGORY_CONSTRUCTION: u8 = 1;
+    pub const CATEGORY_NATURE: u8 = 2;
+    pub const CATEGORY_EQUIPMENT: u8 = 3;
+    pub const CATEGORY_ITEMS: u8 = 4;
 }
 
 impl Packet for CreativeContent {
@@ -55,23 +58,9 @@ impl Packet for CreativeContent {
         CreativeContent { groups, items }
     }
 
-    fn debug(&self) {
-        println!("Groups: {:?}", self.groups);
-        println!("Items: {:?}", self.items);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
-}
-
-impl CreativeContent {
-    pub const CATEGORY_CONSTRUCTION: u8 = 1;
-    pub const CATEGORY_NATURE: u8 = 2;
-    pub const CATEGORY_EQUIPMENT: u8 = 3;
-    pub const CATEGORY_ITEMS: u8 = 4;
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

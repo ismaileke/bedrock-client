@@ -10,13 +10,6 @@ pub struct ShowStoreOffer {
     pub redirect_type: u8,
 }
 
-pub fn new(offer_id: String, redirect_type: u8) -> ShowStoreOffer {
-    ShowStoreOffer {
-        offer_id,
-        redirect_type,
-    }
-}
-
 impl Packet for ShowStoreOffer {
     fn id(&self) -> u16 {
         BedrockPacketType::IDShowStoreOffer.get_byte()
@@ -40,24 +33,14 @@ impl Packet for ShowStoreOffer {
         let offer_id = PacketSerializer::get_uuid(stream);
         let redirect_type = stream.get_byte();
 
-        ShowStoreOffer {
-            offer_id,
-            redirect_type,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Offer ID: {}", self.offer_id);
-        println!("Redirect Type: {}", self.redirect_type);
+        ShowStoreOffer { offer_id, redirect_type }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl ShowStoreOffer {

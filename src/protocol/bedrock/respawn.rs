@@ -11,14 +11,6 @@ pub struct Respawn {
     pub actor_runtime_id: u64,
 }
 
-pub fn new(position: Vec<f32>, respawn_state: u8, actor_runtime_id: u64) -> Respawn {
-    Respawn {
-        position,
-        respawn_state,
-        actor_runtime_id,
-    }
-}
-
 impl Packet for Respawn {
     fn id(&self) -> u16 {
         BedrockPacketType::IDRespawn.get_byte()
@@ -44,26 +36,14 @@ impl Packet for Respawn {
         let respawn_state = stream.get_byte();
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
 
-        Respawn {
-            position,
-            respawn_state,
-            actor_runtime_id,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Position: {:?}", self.position);
-        println!("Respawn State: {}", self.respawn_state);
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
+        Respawn { position, respawn_state, actor_runtime_id }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl Respawn {

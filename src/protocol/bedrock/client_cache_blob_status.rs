@@ -9,13 +9,6 @@ pub struct ClientCacheBlobStatus {
     pub hit_hashes: Vec<u64>,
 }
 
-pub fn new(miss_hashes: Vec<u64>, hit_hashes: Vec<u64>) -> ClientCacheBlobStatus {
-    ClientCacheBlobStatus {
-        miss_hashes,
-        hit_hashes,
-    }
-}
-
 impl Packet for ClientCacheBlobStatus {
     fn id(&self) -> u16 {
         BedrockPacketType::IDClientCacheBlobStatus.get_byte()
@@ -53,22 +46,12 @@ impl Packet for ClientCacheBlobStatus {
             hit_hashes.push(stream.get_u64_le());
         }
 
-        ClientCacheBlobStatus {
-            miss_hashes,
-            hit_hashes,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Miss Hashes: {:?}", self.miss_hashes);
-        println!("Hit Hashes: {:?}", self.hit_hashes);
+        ClientCacheBlobStatus { miss_hashes, hit_hashes }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -10,13 +10,6 @@ pub struct DeathInfo {
     pub message_parameters: Vec<String>,
 }
 
-pub fn new(message_translation_key: String, message_parameters: Vec<String>) -> DeathInfo {
-    DeathInfo {
-        message_translation_key,
-        message_parameters,
-    }
-}
-
 impl Packet for DeathInfo {
     fn id(&self) -> u16 {
         BedrockPacketType::IDDeathInfo.get_byte()
@@ -48,22 +41,12 @@ impl Packet for DeathInfo {
             message_parameters.push(message_parameter);
         }
 
-        DeathInfo {
-            message_translation_key,
-            message_parameters,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Message Translation Key: {}", self.message_translation_key);
-        println!("Message Parameters: {:?}", self.message_parameters);
+        DeathInfo { message_translation_key, message_parameters }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

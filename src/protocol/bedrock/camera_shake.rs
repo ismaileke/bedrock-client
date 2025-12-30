@@ -11,13 +11,12 @@ pub struct CameraShake {
     pub shake_action: u8,
 }
 
-pub fn new(intensity: f32, duration: f32, shake_type: u8, shake_action: u8) -> CameraShake {
-    CameraShake {
-        intensity,
-        duration,
-        shake_type,
-        shake_action,
-    }
+impl CameraShake {
+    pub const TYPE_POSITIONAL: u8 = 0;
+    pub const TYPE_ROTATIONAL: u8 = 1;
+
+    pub const ACTION_ADD: u8 = 0;
+    pub const ACTION_STOP: u8 = 1;
 }
 
 impl Packet for CameraShake {
@@ -47,34 +46,12 @@ impl Packet for CameraShake {
         let shake_type = stream.get_byte();
         let shake_action = stream.get_byte();
 
-        CameraShake {
-            intensity,
-            duration,
-            shake_type,
-            shake_action,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Intensity: {}", self.intensity);
-        println!("Duration: {}", self.duration);
-        println!("Shake Type: {}", self.shake_type);
-        println!("Shake Action: {}", self.shake_action);
+        CameraShake { intensity, duration, shake_type, shake_action }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
-}
-
-impl CameraShake {
-    pub const TYPE_POSITIONAL: u8 = 0;
-    pub const TYPE_ROTATIONAL: u8 = 1;
-
-    pub const ACTION_ADD: u8 = 0;
-    pub const ACTION_STOP: u8 = 1;
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

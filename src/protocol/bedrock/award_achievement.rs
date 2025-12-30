@@ -8,10 +8,6 @@ pub struct AwardAchievement {
     pub achievement_id: i32,
 }
 
-pub fn new(achievement_id: i32) -> AwardAchievement {
-    AwardAchievement { achievement_id }
-}
-
 impl Packet for AwardAchievement {
     fn id(&self) -> u16 {
         BedrockPacketType::IDAwardAchievement.get_byte()
@@ -36,15 +32,9 @@ impl Packet for AwardAchievement {
         AwardAchievement { achievement_id }
     }
 
-    fn debug(&self) {
-        println!("Achievement ID: {}", self.achievement_id);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

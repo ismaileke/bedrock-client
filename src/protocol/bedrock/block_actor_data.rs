@@ -12,13 +12,6 @@ pub struct BlockActorData {
     pub nbt: CacheableNBT,
 }
 
-pub fn new(block_position: Vec<i32>, nbt: CacheableNBT) -> BlockActorData {
-    BlockActorData {
-        block_position,
-        nbt,
-    }
-}
-
 impl Packet for BlockActorData {
     fn id(&self) -> u16 {
         BedrockPacketType::IDBlockActorData.get_byte()
@@ -40,26 +33,14 @@ impl Packet for BlockActorData {
 
     fn decode(stream: &mut Stream) -> BlockActorData {
         let block_position = PacketSerializer::get_block_pos(stream);
-        let nbt = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(
-            stream,
-        )));
+        let nbt = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)));
 
-        BlockActorData {
-            block_position,
-            nbt,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Block Position: {:?}", self.block_position);
-        println!("NBT: {:?}", self.nbt);
+        BlockActorData { block_position, nbt }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

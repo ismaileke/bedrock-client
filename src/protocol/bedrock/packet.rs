@@ -7,7 +7,6 @@ pub trait Packet: Any {
     fn decode(stream: &mut Stream) -> Self
     where
         Self: Sized;
-    fn debug(&self);
     fn as_any(&self) -> &dyn Any;
     fn as_json(&self) -> String;
 }

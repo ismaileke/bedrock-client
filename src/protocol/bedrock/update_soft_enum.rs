@@ -11,14 +11,6 @@ pub struct UpdateSoftEnum {
     pub action_type: u8,
 }
 
-pub fn new(enum_name: String, values: Vec<String>, action_type: u8) -> UpdateSoftEnum {
-    UpdateSoftEnum {
-        enum_name,
-        values,
-        action_type,
-    }
-}
-
 impl Packet for UpdateSoftEnum {
     fn id(&self) -> u16 {
         BedrockPacketType::IDUpdateSoftEnum.get_byte()
@@ -51,26 +43,14 @@ impl Packet for UpdateSoftEnum {
         }
         let action_type = stream.get_byte();
 
-        UpdateSoftEnum {
-            enum_name,
-            values,
-            action_type,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Enum Name: {}", self.enum_name);
-        println!("Values: {:?}", self.values);
-        println!("Action Type: {}", self.action_type);
+        UpdateSoftEnum { enum_name, values, action_type }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl UpdateSoftEnum {

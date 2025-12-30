@@ -1,4 +1,4 @@
-#[derive(serde::Serialize, Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(serde::Serialize, Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct Color {
     a: u8,
     r: u8,

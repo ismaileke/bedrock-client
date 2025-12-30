@@ -9,13 +9,6 @@ pub struct RemoveVolumeEntity {
     pub dimension: i32,
 }
 
-pub fn new(entity_net_id: u32, dimension: i32) -> RemoveVolumeEntity {
-    RemoveVolumeEntity {
-        entity_net_id,
-        dimension,
-    }
-}
-
 impl Packet for RemoveVolumeEntity {
     fn id(&self) -> u16 {
         BedrockPacketType::IDRemoveVolumeEntity.get_byte()
@@ -39,22 +32,12 @@ impl Packet for RemoveVolumeEntity {
         let entity_net_id = stream.get_var_u32();
         let dimension = stream.get_var_i32();
 
-        RemoveVolumeEntity {
-            entity_net_id,
-            dimension,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Entity Net ID: {}", self.entity_net_id);
-        println!("Dimension: {}", self.dimension);
+        RemoveVolumeEntity { entity_net_id, dimension }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

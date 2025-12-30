@@ -14,20 +14,6 @@ pub struct InventoryContent {
     pub storage: ItemStackWrapper,
 }
 
-pub fn new(
-    window_id: u32,
-    items: Vec<ItemStackWrapper>,
-    container_name: FullContainerName,
-    storage: ItemStackWrapper,
-) -> InventoryContent {
-    InventoryContent {
-        window_id,
-        items,
-        container_name,
-        storage,
-    }
-}
-
 impl Packet for InventoryContent {
     fn id(&self) -> u16 {
         BedrockPacketType::IDInventoryContent.get_byte()
@@ -62,26 +48,12 @@ impl Packet for InventoryContent {
         let container_name = FullContainerName::read(stream);
         let storage = PacketSerializer::get_item_stack_wrapper(stream);
 
-        InventoryContent {
-            window_id,
-            items,
-            container_name,
-            storage,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Window ID: {}", self.window_id);
-        println!("Items: {:?}", self.items);
-        println!("Container Name: {:?}", self.container_name);
-        println!("Storage: {:?}", self.storage);
+        InventoryContent { window_id, items, container_name, storage }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

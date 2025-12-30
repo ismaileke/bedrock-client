@@ -9,27 +9,9 @@ pub struct CameraAimAssist {
     pub preset_id: String,
     pub view_angle: Vec<f32>,
     pub distance: f32,
-    pub target_mode: u8, //see types/camera/camera_aim_assist_target_mode
-    pub action_type: u8, //see types/camera/camera_aim_assist_action_type
+    pub target_mode: u8, /// see types/camera/camera_aim_assist_target_mode
+    pub action_type: u8, /// see types/camera/camera_aim_assist_action_type
     pub show_debug_render: bool,
-}
-
-pub fn new(
-    preset_id: String,
-    view_angle: Vec<f32>,
-    distance: f32,
-    target_mode: u8,
-    action_type: u8,
-    show_debug_render: bool,
-) -> CameraAimAssist {
-    CameraAimAssist {
-        preset_id,
-        view_angle,
-        distance,
-        target_mode,
-        action_type,
-        show_debug_render,
-    }
 }
 
 impl Packet for CameraAimAssist {
@@ -73,20 +55,9 @@ impl Packet for CameraAimAssist {
         }
     }
 
-    fn debug(&self) {
-        println!("Preset ID: {}", self.preset_id);
-        println!("View angle: {:?}", self.view_angle);
-        println!("Distance: {}", self.distance);
-        println!("Target mode: {}", self.target_mode);
-        println!("Action type: {}", self.action_type);
-        println!("Show debug render: {}", self.show_debug_render);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

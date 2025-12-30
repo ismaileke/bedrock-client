@@ -9,12 +9,6 @@ pub struct SubClientLogin {
     pub connection_request_data: String,
 }
 
-pub fn new(connection_request_data: String) -> SubClientLogin {
-    SubClientLogin {
-        connection_request_data,
-    }
-}
-
 impl Packet for SubClientLogin {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSubClientLogin.get_byte()
@@ -41,15 +35,9 @@ impl Packet for SubClientLogin {
         }
     }
 
-    fn debug(&self) {
-        println!("Connection Request Data: {}", self.connection_request_data);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

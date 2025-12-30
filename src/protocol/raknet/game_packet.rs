@@ -10,10 +10,7 @@ pub struct GamePacket {
 
 impl GamePacket {
     pub fn new(encryption: Option<Encryption>, compress_enabled: bool) -> GamePacket {
-        GamePacket {
-            encryption,
-            compress_enabled,
-        }
+        GamePacket { encryption, compress_enabled }
     }
 
     pub fn encode(&mut self, payload: &Vec<u8>) -> Vec<u8> {
@@ -26,13 +23,25 @@ impl GamePacket {
 
         let mut encrypted = compressed.clone();
         if let Some(ref mut encryption) = self.encryption {
-            encrypted = encryption
-                .encrypt(&compressed)
-                .expect("Game Packet Encrypt Error");
+            encrypted = encryption.encrypt(&compressed).expect("Game Packet Encrypt Error");
         }
 
         main_stream.put(encrypted);
         Vec::from(main_stream.get_buffer())
+    }
+
+    pub fn decode(&mut self, stream: &mut Stream) {
+        if self.encryption.is_some() {
+            *stream = Stream::new(self.decrypt(&stream.get_remaining()), 0);
+        }
+
+        if self.compress_enabled {
+            let compression_type = stream.get_byte();
+            //println!("Compression Type: {}", if compression_type == 0 { "ZLIB".to_string() } else if compression_type == 1 { "SNAPPY".to_string() } else { "NONE".to_string() });
+            if compression_type == 0 { // ZLIB
+                *stream = Stream::new(GamePacket::decompress(&stream.get_remaining()), 0);
+            }
+        }
     }
 
     /*pub fn encrypt(&mut self, payload: &Vec<u8>) -> Vec<u8> {
@@ -45,9 +54,7 @@ impl GamePacket {
 
     pub fn decrypt(&mut self, payload: &Vec<u8>) -> Vec<u8> {
         if let Some(ref mut encryption) = self.encryption {
-            return encryption
-                .decrypt(payload)
-                .expect("Decrypt Error GamePacket");
+            return encryption.decrypt(payload).expect("Decrypt Error GamePacket");
         }
         payload.clone()
     }
@@ -63,9 +70,7 @@ impl GamePacket {
 
         let mut compressed_data = vec![0u8; compressor.deflate_compress_bound(payload.len())];
 
-        let _compressed_size = compressor
-            .deflate_compress(payload.as_slice(), &mut compressed_data)
-            .expect("Compression failed");
+        let _compressed_size = compressor.deflate_compress(payload.as_slice(), &mut compressed_data).expect("Compression failed");
 
         let mut result = vec![0x00]; // 0 = ZLIB
         result.extend(compressed_data);
@@ -74,8 +79,7 @@ impl GamePacket {
     }
 
     pub fn decompress(payload: &Vec<u8>) -> Vec<u8> {
-        let decompressed_data =
-            decompress_to_vec(payload.as_slice()).expect("DecompressToVec Error");
+        let decompressed_data = decompress_to_vec(payload.as_slice()).expect("DecompressToVec Error");
         decompressed_data
     }
 }

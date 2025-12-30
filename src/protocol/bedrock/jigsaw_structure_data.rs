@@ -11,10 +11,6 @@ pub struct JigsawStructureData {
     pub nbt: CacheableNBT,
 }
 
-pub fn new(nbt: CacheableNBT) -> JigsawStructureData {
-    JigsawStructureData { nbt }
-}
-
 impl Packet for JigsawStructureData {
     fn id(&self) -> u16 {
         BedrockPacketType::IDJigsawStructureData.get_byte()
@@ -41,15 +37,9 @@ impl Packet for JigsawStructureData {
         JigsawStructureData { nbt }
     }
 
-    fn debug(&self) {
-        println!("NBT: {:?}", self.nbt);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

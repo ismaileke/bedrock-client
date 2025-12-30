@@ -12,39 +12,27 @@ pub struct SetSpawnPosition {
     pub causing_block_position: Vec<i32>,
 }
 
-pub fn new(
-    spawn_type: i32,
-    spawn_position: Vec<i32>,
-    dimension: i32,
-    causing_block_position: Vec<i32>,
-) -> SetSpawnPosition {
-    SetSpawnPosition {
-        spawn_type,
-        spawn_position,
-        dimension,
-        causing_block_position,
+impl SetSpawnPosition {
+    pub fn player_spawn(
+        spawn_position: Vec<i32>,
+        dimension: i32,
+        causing_block_position: Vec<i32>,
+    ) -> SetSpawnPosition {
+        SetSpawnPosition {
+            spawn_type: SetSpawnPosition::TYPE_PLAYER_SPAWN,
+            spawn_position,
+            dimension,
+            causing_block_position,
+        }
     }
-}
 
-pub fn player_spawn(
-    spawn_position: Vec<i32>,
-    dimension: i32,
-    causing_block_position: Vec<i32>,
-) -> SetSpawnPosition {
-    SetSpawnPosition {
-        spawn_type: SetSpawnPosition::TYPE_PLAYER_SPAWN,
-        spawn_position,
-        dimension,
-        causing_block_position,
-    }
-}
-
-pub fn world_spawn(spawn_position: Vec<i32>, dimension: i32) -> SetSpawnPosition {
-    SetSpawnPosition {
-        spawn_type: SetSpawnPosition::TYPE_WORLD_SPAWN,
-        spawn_position,
-        dimension,
-        causing_block_position: vec![i32::MIN, i32::MIN, i32::MIN],
+    pub fn world_spawn(spawn_position: Vec<i32>, dimension: i32) -> SetSpawnPosition {
+        SetSpawnPosition {
+            spawn_type: SetSpawnPosition::TYPE_WORLD_SPAWN,
+            spawn_position,
+            dimension,
+            causing_block_position: vec![i32::MIN, i32::MIN, i32::MIN],
+        }
     }
 }
 
@@ -83,20 +71,11 @@ impl Packet for SetSpawnPosition {
         }
     }
 
-    fn debug(&self) {
-        println!("Spawn Type: {}", self.spawn_type);
-        println!("Spawn Position: {:?}", self.spawn_position);
-        println!("Dimension: {}", self.dimension);
-        println!("Causing Block Position: {:?}", self.causing_block_position);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl SetSpawnPosition {

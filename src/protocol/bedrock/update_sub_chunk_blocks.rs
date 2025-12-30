@@ -12,18 +12,6 @@ pub struct UpdateSubChunkBlocks {
     pub layer_1_updates: Vec<UpdateSubChunkBlocksEntry>,
 }
 
-pub fn new(
-    base_block_position: Vec<i32>,
-    layer_0_updates: Vec<UpdateSubChunkBlocksEntry>,
-    layer_1_updates: Vec<UpdateSubChunkBlocksEntry>,
-) -> UpdateSubChunkBlocks {
-    UpdateSubChunkBlocks {
-        base_block_position,
-        layer_0_updates,
-        layer_1_updates,
-    }
-}
-
 impl Packet for UpdateSubChunkBlocks {
     fn id(&self) -> u16 {
         BedrockPacketType::IDUpdateSubChunkBlocks.get_byte()
@@ -63,24 +51,12 @@ impl Packet for UpdateSubChunkBlocks {
             layer_1_updates.push(UpdateSubChunkBlocksEntry::read(stream));
         }
 
-        UpdateSubChunkBlocks {
-            base_block_position,
-            layer_0_updates,
-            layer_1_updates,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Base Block Position: {:?}", self.base_block_position);
-        println!("Layer 0 Updates: {:?}", self.layer_0_updates);
-        println!("Layer 1 Updates: {:?}", self.layer_1_updates);
+        UpdateSubChunkBlocks { base_block_position, layer_0_updates, layer_1_updates }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -11,14 +11,6 @@ pub struct Transfer {
     pub reload_world: bool,
 }
 
-pub fn new(address: String, port: u16, reload_world: bool) -> Transfer {
-    Transfer {
-        address,
-        port,
-        reload_world,
-    }
-}
-
 impl Packet for Transfer {
     fn id(&self) -> u16 {
         BedrockPacketType::IDTransfer.get_byte()
@@ -44,24 +36,12 @@ impl Packet for Transfer {
         let port = stream.get_u16_le();
         let reload_world = stream.get_bool();
 
-        Transfer {
-            address,
-            port,
-            reload_world,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Address: {}", self.address);
-        println!("Port: {}", self.port);
-        println!("Reload World: {}", self.reload_world);
+        Transfer { address, port, reload_world }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

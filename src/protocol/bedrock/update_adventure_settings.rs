@@ -12,22 +12,6 @@ pub struct UpdateAdventureSettings {
     pub auto_jump: bool,
 }
 
-pub fn new(
-    no_attacking_mobs: bool,
-    no_attacking_players: bool,
-    world_immutable: bool,
-    show_name_tags: bool,
-    auto_jump: bool,
-) -> UpdateAdventureSettings {
-    UpdateAdventureSettings {
-        no_attacking_mobs,
-        no_attacking_players,
-        world_immutable,
-        show_name_tags,
-        auto_jump,
-    }
-}
-
 impl Packet for UpdateAdventureSettings {
     fn id(&self) -> u16 {
         BedrockPacketType::IDUpdateAdventureSettings.get_byte()
@@ -66,19 +50,9 @@ impl Packet for UpdateAdventureSettings {
         }
     }
 
-    fn debug(&self) {
-        println!("No Attacking Mobs: {}", self.no_attacking_mobs);
-        println!("No Attacking Players: {}", self.no_attacking_players);
-        println!("World Immutable: {}", self.world_immutable);
-        println!("Show Name Tags: {}", self.show_name_tags);
-        println!("Auto Jump: {}", self.auto_jump);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

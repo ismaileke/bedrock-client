@@ -15,13 +15,6 @@ pub struct ServerBoundPackSettingChange {
     pub pack_setting: PackSetting,
 }
 
-pub fn new(pack_id: String, pack_setting: PackSetting) -> ServerBoundPackSettingChange {
-    ServerBoundPackSettingChange {
-        pack_id,
-        pack_setting,
-    }
-}
-
 impl Packet for ServerBoundPackSettingChange {
     fn id(&self) -> u16 {
         BedrockPacketType::IDServerBoundPackSettingChange.get_byte()
@@ -56,22 +49,12 @@ impl Packet for ServerBoundPackSettingChange {
             }
         };
 
-        ServerBoundPackSettingChange {
-            pack_id,
-            pack_setting,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Pack ID: {}", self.pack_id);
-        println!("Pack Setting: {:?}", self.pack_setting);
+        ServerBoundPackSettingChange { pack_id, pack_setting }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

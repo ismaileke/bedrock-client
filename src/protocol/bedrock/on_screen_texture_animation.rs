@@ -8,10 +8,6 @@ pub struct OnScreenTextureAnimation {
     pub effect_id: u32,
 }
 
-pub fn new(effect_id: u32) -> OnScreenTextureAnimation {
-    OnScreenTextureAnimation { effect_id }
-}
-
 impl Packet for OnScreenTextureAnimation {
     fn id(&self) -> u16 {
         BedrockPacketType::IDOnScreenTextureAnimation.get_byte()
@@ -36,15 +32,9 @@ impl Packet for OnScreenTextureAnimation {
         OnScreenTextureAnimation { effect_id }
     }
 
-    fn debug(&self) {
-        println!("Effect ID: {}", self.effect_id);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -22,36 +22,6 @@ pub struct ClientMovementPredictionSync {
     pub actor_flying_state: bool,
 }
 
-pub fn new(
-    flags: BitSet,
-    scale: f32,
-    width: f32,
-    height: f32,
-    movement_speed: f32,
-    underwater_movement_speed: f32,
-    lava_movement_speed: f32,
-    jump_strength: f32,
-    health: f32,
-    hunger: f32,
-    actor_unique_id: i64,
-    actor_flying_state: bool,
-) -> ClientMovementPredictionSync {
-    ClientMovementPredictionSync {
-        flags,
-        scale,
-        width,
-        height,
-        movement_speed,
-        underwater_movement_speed,
-        lava_movement_speed,
-        jump_strength,
-        health,
-        hunger,
-        actor_unique_id,
-        actor_flying_state,
-    }
-}
-
 impl ClientMovementPredictionSync {
     pub const FLAG_LENGTH: u32 = EntityMetadataFlags::NUMBER_OF_FLAGS;
 }
@@ -115,29 +85,9 @@ impl Packet for ClientMovementPredictionSync {
         }
     }
 
-    fn debug(&self) {
-        println!("Flags: {:?}", self.flags);
-        println!("Scale: {}", self.scale);
-        println!("Width: {}", self.width);
-        println!("Height: {}", self.height);
-        println!("Movement Speed: {}", self.movement_speed);
-        println!(
-            "Underwater Movement Speed: {}",
-            self.underwater_movement_speed
-        );
-        println!("Lava Movement Speed: {}", self.lava_movement_speed);
-        println!("Jump Strength: {}", self.jump_strength);
-        println!("Health: {}", self.health);
-        println!("Hunger: {}", self.hunger);
-        println!("Actor Unique ID: {}", self.actor_unique_id);
-        println!("Actor Flying State: {}", self.actor_flying_state);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

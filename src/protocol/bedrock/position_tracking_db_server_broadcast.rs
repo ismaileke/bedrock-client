@@ -13,14 +13,6 @@ pub struct PositionTrackingDBServerBroadcast {
     pub nbt: CacheableNBT,
 }
 
-pub fn new(action: u8, tracking_id: i32, nbt: CacheableNBT) -> PositionTrackingDBServerBroadcast {
-    PositionTrackingDBServerBroadcast {
-        action,
-        tracking_id,
-        nbt,
-    }
-}
-
 impl Packet for PositionTrackingDBServerBroadcast {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPositionTrackingDBServerBroadcast.get_byte()
@@ -48,26 +40,14 @@ impl Packet for PositionTrackingDBServerBroadcast {
             stream,
         )));
 
-        PositionTrackingDBServerBroadcast {
-            action,
-            tracking_id,
-            nbt,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Action: {}", self.action);
-        println!("Tracking ID: {}", self.tracking_id);
-        println!("NBT: {:?}", self.nbt);
+        PositionTrackingDBServerBroadcast { action, tracking_id, nbt }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl PositionTrackingDBServerBroadcast {

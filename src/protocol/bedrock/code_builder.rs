@@ -10,13 +10,6 @@ pub struct CodeBuilder {
     pub open_code_builder: bool,
 }
 
-pub fn new(url: String, open_code_builder: bool) -> CodeBuilder {
-    CodeBuilder {
-        url,
-        open_code_builder,
-    }
-}
-
 impl Packet for CodeBuilder {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCodeBuilder.get_byte()
@@ -40,22 +33,12 @@ impl Packet for CodeBuilder {
         let url = PacketSerializer::get_string(stream);
         let open_code_builder = stream.get_bool();
 
-        CodeBuilder {
-            url,
-            open_code_builder,
-        }
-    }
-
-    fn debug(&self) {
-        println!("URL: {}", self.url);
-        println!("Open Code Builder: {}", self.open_code_builder);
+        CodeBuilder { url, open_code_builder }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

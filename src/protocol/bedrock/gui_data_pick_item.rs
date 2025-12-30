@@ -11,14 +11,6 @@ pub struct GUIDataPickItem {
     pub hotbar_slot: i32,
 }
 
-pub fn new(item_description: String, item_effects: String, hotbar_slot: i32) -> GUIDataPickItem {
-    GUIDataPickItem {
-        item_description,
-        item_effects,
-        hotbar_slot,
-    }
-}
-
 impl Packet for GUIDataPickItem {
     fn id(&self) -> u16 {
         BedrockPacketType::IDGUIDataPickItem.get_byte()
@@ -44,24 +36,12 @@ impl Packet for GUIDataPickItem {
         let item_effects = PacketSerializer::get_string(stream);
         let hotbar_slot = stream.get_i32_le();
 
-        GUIDataPickItem {
-            item_description,
-            item_effects,
-            hotbar_slot,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Item Description: {}", self.item_description);
-        println!("Item Effects: {}", self.item_effects);
-        println!("Hotbar Slot: {}", self.hotbar_slot);
+        GUIDataPickItem { item_description, item_effects, hotbar_slot }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

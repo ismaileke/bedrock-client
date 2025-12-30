@@ -10,13 +10,6 @@ pub struct UnlockedRecipes {
     pub recipes: Vec<String>,
 }
 
-pub fn new(unlock_type: u32, recipes: Vec<String>) -> UnlockedRecipes {
-    UnlockedRecipes {
-        unlock_type,
-        recipes,
-    }
-}
-
 impl Packet for UnlockedRecipes {
     fn id(&self) -> u16 {
         BedrockPacketType::IDUnlockedRecipes.get_byte()
@@ -48,24 +41,14 @@ impl Packet for UnlockedRecipes {
             recipes.push(recipe);
         }
 
-        UnlockedRecipes {
-            unlock_type,
-            recipes,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Unlock Type: {}", self.unlock_type);
-        println!("Recipes: {:?}", self.recipes);
+        UnlockedRecipes { unlock_type, recipes }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl UnlockedRecipes {

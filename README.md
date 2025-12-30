@@ -40,9 +40,10 @@ async fn main() {
         "127.0.0.1".to_string(),    // target address
         19132,                      // target port
         "1.21.130".to_string(),     // client version
-        false,                      // debug mode
+        false,                      // raknet debug mode
         |code, url| {
-            // If you turn on debug, the login code and url will already appear in the console, but you can use this if you want to edit it yourself.
+            // If you turn on debug, the login code and url will already appear
+            // in the console, but you can use this if you want to edit it yourself.
             println!("You can log in with the code {} at {}", code, url);
         }
     ).await.unwrap();
@@ -51,9 +52,9 @@ async fn main() {
         println!("New packet received: {} Packet", packet_name);
         println!("Packet as JSON: {}", packet.as_json());
         downcast_bedrock_packet!(packet, Text, |txt: &Text| {
-                println!("Text Packet Message: {:?}", txt.message);
-                println!("Text Parameters: {:?}", txt.parameters);
-            })
+            println!("Text Packet Message: {:?}", txt.message);
+            println!("Text Parameters: {:?}", txt.parameters);
+        });
     });
 
     client.set_block_callback(|block_coord, block_data| {

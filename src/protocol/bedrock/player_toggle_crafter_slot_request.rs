@@ -10,14 +10,6 @@ pub struct PlayerToggleCrafterSlotRequest {
     pub disabled: bool,
 }
 
-pub fn new(block_position: Vec<i32>, slot: u8, disabled: bool) -> PlayerToggleCrafterSlotRequest {
-    PlayerToggleCrafterSlotRequest {
-        block_position,
-        slot,
-        disabled,
-    }
-}
-
 impl Packet for PlayerToggleCrafterSlotRequest {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPlayerToggleCrafterSlotRequest.get_byte()
@@ -48,24 +40,12 @@ impl Packet for PlayerToggleCrafterSlotRequest {
         let disabled = stream.get_bool();
         let block_position = vec![x, y, z];
 
-        PlayerToggleCrafterSlotRequest {
-            block_position,
-            slot,
-            disabled,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Block Position: {:?}", self.block_position);
-        println!("Slot: {}", self.slot);
-        println!("Disabled: {}", self.disabled);
+        PlayerToggleCrafterSlotRequest { block_position, slot, disabled }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

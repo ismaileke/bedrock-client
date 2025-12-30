@@ -9,10 +9,6 @@ pub struct EduUriResource {
     pub resource: EducationUriResource,
 }
 
-pub fn new(resource: EducationUriResource) -> EduUriResource {
-    EduUriResource { resource }
-}
-
 impl Packet for EduUriResource {
     fn id(&self) -> u16 {
         BedrockPacketType::IDEduUriResource.get_byte()
@@ -37,15 +33,9 @@ impl Packet for EduUriResource {
         EduUriResource { resource }
     }
 
-    fn debug(&self) {
-        println!("Resource: {:?}", self.resource);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

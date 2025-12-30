@@ -10,13 +10,6 @@ pub struct OpenSign {
     pub front: bool,
 }
 
-pub fn new(block_position: Vec<i32>, front: bool) -> OpenSign {
-    OpenSign {
-        block_position,
-        front,
-    }
-}
-
 impl Packet for OpenSign {
     fn id(&self) -> u16 {
         BedrockPacketType::IDOpenSign.get_byte()
@@ -46,16 +39,9 @@ impl Packet for OpenSign {
         }
     }
 
-    fn debug(&self) {
-        println!("Block Position: {:?}", self.block_position);
-        println!("Front: {}", self.front);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

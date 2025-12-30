@@ -12,18 +12,6 @@ pub struct SubChunkRequest {
     pub entries: Vec<SubChunkPositionOffset>,
 }
 
-pub fn new(
-    dimension: i32,
-    base_position: Vec<i32>,
-    entries: Vec<SubChunkPositionOffset>,
-) -> SubChunkRequest {
-    SubChunkRequest {
-        dimension,
-        base_position,
-        entries,
-    }
-}
-
 impl Packet for SubChunkRequest {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSubChunkRequest.get_byte()
@@ -53,17 +41,9 @@ impl Packet for SubChunkRequest {
         todo!()
     }
 
-    fn debug(&self) {
-        println!("Dimension: {}", self.dimension);
-        println!("Base Position: {:?}", self.base_position);
-        println!("Entries: {:?}", &self.entries);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

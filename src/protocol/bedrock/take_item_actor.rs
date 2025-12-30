@@ -10,13 +10,6 @@ pub struct TakeItemActor {
     pub taker_actor_runtime_id: u64,
 }
 
-pub fn new(item_actor_runtime_id: u64, taker_actor_runtime_id: u64) -> TakeItemActor {
-    TakeItemActor {
-        item_actor_runtime_id,
-        taker_actor_runtime_id,
-    }
-}
-
 impl Packet for TakeItemActor {
     fn id(&self) -> u16 {
         BedrockPacketType::IDTakeItemActor.get_byte()
@@ -40,22 +33,12 @@ impl Packet for TakeItemActor {
         let item_actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let taker_actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
 
-        TakeItemActor {
-            item_actor_runtime_id,
-            taker_actor_runtime_id,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Item Actor Runtime ID: {}", self.item_actor_runtime_id);
-        println!("Taker Actor Runtime ID: {}", self.taker_actor_runtime_id);
+        TakeItemActor { item_actor_runtime_id, taker_actor_runtime_id }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

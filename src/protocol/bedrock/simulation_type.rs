@@ -8,10 +8,6 @@ pub struct SimulationType {
     pub simulation_type: u8,
 }
 
-pub fn new(simulation_type: u8) -> SimulationType {
-    SimulationType { simulation_type }
-}
-
 impl Packet for SimulationType {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSimulationType.get_byte()
@@ -36,17 +32,11 @@ impl Packet for SimulationType {
         SimulationType { simulation_type }
     }
 
-    fn debug(&self) {
-        println!("Simulation Type: {}", self.simulation_type);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl SimulationType {

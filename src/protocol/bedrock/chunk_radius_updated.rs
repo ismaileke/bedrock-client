@@ -8,10 +8,6 @@ pub struct ChunkRadiusUpdated {
     pub radius: i32,
 }
 
-pub fn new(radius: i32) -> ChunkRadiusUpdated {
-    ChunkRadiusUpdated { radius }
-}
-
 impl Packet for ChunkRadiusUpdated {
     fn id(&self) -> u16 {
         BedrockPacketType::IDChunkRadiusUpdated.get_byte()
@@ -36,15 +32,9 @@ impl Packet for ChunkRadiusUpdated {
         ChunkRadiusUpdated { radius }
     }
 
-    fn debug(&self) {
-        println!("Radius: {}", self.radius);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

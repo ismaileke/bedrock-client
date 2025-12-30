@@ -11,14 +11,6 @@ pub struct BlockPickRequest {
     pub hotbar_slot: u8,
 }
 
-pub fn new(block_position: Vec<i32>, add_user_data: bool, hotbar_slot: u8) -> BlockPickRequest {
-    BlockPickRequest {
-        block_position,
-        add_user_data,
-        hotbar_slot,
-    }
-}
-
 impl Packet for BlockPickRequest {
     fn id(&self) -> u16 {
         BedrockPacketType::IDBlockPickRequest.get_byte()
@@ -44,24 +36,12 @@ impl Packet for BlockPickRequest {
         let add_user_data = stream.get_bool();
         let hotbar_slot = stream.get_byte();
 
-        BlockPickRequest {
-            block_position,
-            add_user_data,
-            hotbar_slot,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Block Position: {:?}", self.block_position);
-        println!("Add User Data: {}", self.add_user_data);
-        println!("Hotbar Slot: {}", self.hotbar_slot);
+        BlockPickRequest { block_position, add_user_data, hotbar_slot }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

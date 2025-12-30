@@ -20,18 +20,6 @@ pub enum SubChunkEntries {
     ListWithoutCache(SubChunkEntryWithoutCacheList),
 }
 
-pub fn new(
-    dimension: i32,
-    base_sub_chunk_position: Vec<i32>,
-    entries: SubChunkEntries,
-) -> SubChunk {
-    SubChunk {
-        dimension,
-        base_sub_chunk_position,
-        entries,
-    }
-}
-
 impl Packet for SubChunk {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSubChunk.get_byte()
@@ -103,20 +91,9 @@ impl Packet for SubChunk {
         }
     }
 
-    fn debug(&self) {
-        println!("Dimension: {:?}", self.dimension);
-        println!(
-            "Base sub chunk position: {:?}",
-            self.base_sub_chunk_position
-        );
-        println!("Entries: {:?}", self.entries);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

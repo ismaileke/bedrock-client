@@ -20,18 +20,6 @@ pub struct InventoryTransaction {
     pub tr_data: TransactionData,
 }
 
-pub fn new(
-    request_id: i32,
-    request_changed_slots: Vec<InventoryTransactionChangedSlotsHack>,
-    tr_data: TransactionData,
-) -> InventoryTransaction {
-    InventoryTransaction {
-        request_id,
-        request_changed_slots,
-        tr_data,
-    }
-}
-
 impl Packet for InventoryTransaction {
     fn id(&self) -> u16 {
         BedrockPacketType::IDInventoryTransaction.get_byte()
@@ -125,19 +113,11 @@ impl Packet for InventoryTransaction {
         }
     }
 
-    fn debug(&self) {
-        println!("Request ID: {}", self.request_id);
-        println!("Request Changed Slots: {:?}", self.request_changed_slots);
-        println!("Transaction Data: {:?}", self.tr_data);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl InventoryTransaction {

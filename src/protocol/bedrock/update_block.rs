@@ -12,20 +12,6 @@ pub struct UpdateBlock {
     pub data_layer_id: u32,
 }
 
-pub fn new(
-    block_position: Vec<i32>,
-    block_runtime_id: u32,
-    flags: u32,
-    data_layer_id: u32,
-) -> UpdateBlock {
-    UpdateBlock {
-        block_position,
-        block_runtime_id,
-        flags,
-        data_layer_id,
-    }
-}
-
 impl Packet for UpdateBlock {
     fn id(&self) -> u16 {
         BedrockPacketType::IDUpdateBlock.get_byte()
@@ -61,20 +47,11 @@ impl Packet for UpdateBlock {
         }
     }
 
-    fn debug(&self) {
-        println!("Block Position: {:?}", self.block_position);
-        println!("Block Runtime ID: {}", self.block_runtime_id);
-        println!("Flags: {}", self.flags);
-        println!("Data Layer ID: {}", self.data_layer_id);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl UpdateBlock {

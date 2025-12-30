@@ -38,73 +38,63 @@ pub struct PlayerAuthInput {
     pub raw_move: Vec<f32>,
 }
 
-pub fn new(
-    pitch: f32,
-    yaw: f32,
-    position: Vec<f32>,
-    move_vec_x: f32,
-    move_vec_z: f32,
-    head_yaw: f32,
-    mut input_flags: BitSet,
-    input_mode: u32,
-    play_mode: u32,
-    interaction_mode: u32,
-    interact_rotation: Vec<f32>,
-    tick: u64,
-    delta: Vec<f32>,
-    item_interaction_data: Option<ItemInteractionData>,
-    item_stack_request: Option<ItemStackRequestEntry>,
-    block_actions: Option<Vec<PlayerBlockAction>>,
-    vehicle_info: Option<PlayerAuthInputVehicleInfo>,
-    analog_move_vec_x: f32,
-    analog_move_vec_z: f32,
-    camera_orientation: Vec<f32>,
-    raw_move: Vec<f32>,
-) -> PlayerAuthInput {
-    if input_flags.get_length() != PlayerAuthInputFlags::NUMBER_OF_FLAGS {
-        panic!(
-            "Input flags must be {} bits long",
-            PlayerAuthInputFlags::NUMBER_OF_FLAGS
-        );
-    }
-    input_flags.set(
-        PlayerAuthInputFlags::PERFORM_ITEM_STACK_REQUEST,
-        item_stack_request.is_some(),
-    );
-    input_flags.set(
-        PlayerAuthInputFlags::PERFORM_ITEM_INTERACTION,
-        item_interaction_data.is_some(),
-    );
-    input_flags.set(
-        PlayerAuthInputFlags::PERFORM_BLOCK_ACTIONS,
-        block_actions.is_some(),
-    );
-    input_flags.set(
-        PlayerAuthInputFlags::IN_CLIENT_PREDICTED_VEHICLE,
-        vehicle_info.is_some(),
-    );
-    PlayerAuthInput {
-        pitch,
-        yaw,
-        position,
-        move_vec_x,
-        move_vec_z,
-        head_yaw,
-        input_flags,
-        input_mode,
-        play_mode,
-        interaction_mode,
-        interact_rotation,
-        tick,
-        delta,
-        item_interaction_data,
-        item_stack_request,
-        block_actions,
-        vehicle_info,
-        analog_move_vec_x,
-        analog_move_vec_z,
-        camera_orientation,
-        raw_move,
+impl PlayerAuthInput {
+    pub fn new(
+        pitch: f32,
+        yaw: f32,
+        position: Vec<f32>,
+        move_vec_x: f32,
+        move_vec_z: f32,
+        head_yaw: f32,
+        mut input_flags: BitSet,
+        input_mode: u32,
+        play_mode: u32,
+        interaction_mode: u32,
+        interact_rotation: Vec<f32>,
+        tick: u64,
+        delta: Vec<f32>,
+        item_interaction_data: Option<ItemInteractionData>,
+        item_stack_request: Option<ItemStackRequestEntry>,
+        block_actions: Option<Vec<PlayerBlockAction>>,
+        vehicle_info: Option<PlayerAuthInputVehicleInfo>,
+        analog_move_vec_x: f32,
+        analog_move_vec_z: f32,
+        camera_orientation: Vec<f32>,
+        raw_move: Vec<f32>,
+    ) -> PlayerAuthInput {
+        if input_flags.get_length() != PlayerAuthInputFlags::NUMBER_OF_FLAGS {
+            panic!(
+                "Input flags must be {} bits long",
+                PlayerAuthInputFlags::NUMBER_OF_FLAGS
+            );
+        }
+        input_flags.set(PlayerAuthInputFlags::PERFORM_ITEM_STACK_REQUEST, item_stack_request.is_some());
+        input_flags.set(PlayerAuthInputFlags::PERFORM_ITEM_INTERACTION, item_interaction_data.is_some());
+        input_flags.set(PlayerAuthInputFlags::PERFORM_BLOCK_ACTIONS, block_actions.is_some());
+        input_flags.set(PlayerAuthInputFlags::IN_CLIENT_PREDICTED_VEHICLE, vehicle_info.is_some());
+        PlayerAuthInput {
+            pitch,
+            yaw,
+            position,
+            move_vec_x,
+            move_vec_z,
+            head_yaw,
+            input_flags,
+            input_mode,
+            play_mode,
+            interaction_mode,
+            interact_rotation,
+            tick,
+            delta,
+            item_interaction_data,
+            item_stack_request,
+            block_actions,
+            vehicle_info,
+            analog_move_vec_x,
+            analog_move_vec_z,
+            camera_orientation,
+            raw_move,
+        }
     }
 }
 
@@ -196,9 +186,7 @@ impl Packet for PlayerAuthInput {
                             stream,
                             action_type,
                         ))
-                    } else {
-                        panic!("Unexpected block action type {}", action_type);
-                    };
+                    } else { panic!("Unexpected block action type {}", action_type) };
                 sub_block_actions.push(block_action);
             }
             block_actions = Some(sub_block_actions);
@@ -237,37 +225,11 @@ impl Packet for PlayerAuthInput {
         }
     }
 
-    fn debug(&self) {
-        println!("Pitch: {}", self.pitch);
-        println!("Yaw: {}", self.yaw);
-        println!("Position: {:?}", self.position);
-        println!("Move Vector X: {:?}", self.move_vec_x);
-        println!("Move Vector Z: {:?}", self.move_vec_z);
-        println!("HeadYaw: {:?}", self.head_yaw);
-        println!("Input Flags: {:?}", self.input_flags);
-        println!("Input Mode: {}", self.input_mode);
-        println!("Play Mode: {}", self.play_mode);
-        println!("Interaction Mode: {}", self.interaction_mode);
-        println!("Interact Rotation: {:?}", self.interact_rotation);
-        println!("Tick: {}", self.tick);
-        println!("Delta: {:?}", self.delta);
-        println!("Item Interaction Data: {:?}", self.item_interaction_data);
-        println!("Item Stack Request: {:?}", self.item_stack_request);
-        println!("Block Actions: {:?}", self.block_actions);
-        println!("Vehicle Info: {:?}", self.vehicle_info);
-        println!("Analog Move Vec X: {}", self.analog_move_vec_x);
-        println!("Analog Move Vec Z: {}", self.analog_move_vec_z);
-        println!("Camera Orientation: {:?}", self.camera_orientation);
-        println!("Raw Move: {:?}", self.raw_move);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl PlayerAuthInput {

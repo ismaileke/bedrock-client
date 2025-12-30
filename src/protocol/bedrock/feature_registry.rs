@@ -9,10 +9,6 @@ pub struct FeatureRegistry {
     pub entries: Vec<FeatureRegistryPacketEntry>,
 }
 
-pub fn new(entries: Vec<FeatureRegistryPacketEntry>) -> FeatureRegistry {
-    FeatureRegistry { entries }
-}
-
 impl Packet for FeatureRegistry {
     fn id(&self) -> u16 {
         BedrockPacketType::IDFeatureRegistry.get_byte()
@@ -44,15 +40,9 @@ impl Packet for FeatureRegistry {
         FeatureRegistry { entries }
     }
 
-    fn debug(&self) {
-        println!("Entries: {:?}", self.entries);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

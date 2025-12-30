@@ -10,10 +10,6 @@ pub struct ServerSettingsResponse {
     pub form_data: String, // json
 }
 
-pub fn new(form_id: u32, form_data: String) -> ServerSettingsResponse {
-    ServerSettingsResponse { form_id, form_data }
-}
-
 impl Packet for ServerSettingsResponse {
     fn id(&self) -> u16 {
         BedrockPacketType::IDServerSettingsResponse.get_byte()
@@ -40,16 +36,9 @@ impl Packet for ServerSettingsResponse {
         ServerSettingsResponse { form_id, form_data }
     }
 
-    fn debug(&self) {
-        println!("Form ID: {}", self.form_id);
-        println!("Form Data: {}", self.form_data);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

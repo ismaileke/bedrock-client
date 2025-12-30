@@ -1,4 +1,4 @@
-#[derive(serde::Serialize, Debug, Clone)]
+#[derive(serde::Serialize, Debug, Clone, Default)]
 pub struct CommandEnum {
     enum_name: String,
     enum_values: Vec<String>,

@@ -10,10 +10,6 @@ pub struct ResourcePackClientResponse {
     pub pack_ids: Vec<String>,
 }
 
-pub fn new(status: u8, pack_ids: Vec<String>) -> ResourcePackClientResponse {
-    ResourcePackClientResponse { status, pack_ids }
-}
-
 impl Packet for ResourcePackClientResponse {
     fn id(&self) -> u16 {
         BedrockPacketType::IDResourcePackClientResponse.get_byte()
@@ -50,18 +46,11 @@ impl Packet for ResourcePackClientResponse {
         ResourcePackClientResponse { status, pack_ids }
     }
 
-    fn debug(&self) {
-        println!("Status: {}", self.status);
-        println!("Pack IDs: {:?}", self.pack_ids);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl ResourcePackClientResponse {

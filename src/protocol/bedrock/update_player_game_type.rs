@@ -11,14 +11,6 @@ pub struct UpdatePlayerGameType {
     pub tick: u64,
 }
 
-pub fn new(game_mode: i32, player_actor_unique_id: i64, tick: u64) -> UpdatePlayerGameType {
-    UpdatePlayerGameType {
-        game_mode,
-        player_actor_unique_id,
-        tick,
-    }
-}
-
 impl Packet for UpdatePlayerGameType {
     fn id(&self) -> u16 {
         BedrockPacketType::IDUpdatePlayerGameType.get_byte()
@@ -51,19 +43,11 @@ impl Packet for UpdatePlayerGameType {
         }
     }
 
-    fn debug(&self) {
-        println!("Game mode: {}", self.game_mode);
-        println!("Player actor unique id: {}", self.player_actor_unique_id);
-        println!("Tick: {}", self.tick);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl UpdatePlayerGameType {

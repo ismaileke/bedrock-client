@@ -20,32 +20,6 @@ pub struct UpdateTrade {
     pub offers: CacheableNBT,
 }
 
-pub fn new(
-    window_id: u8,
-    window_type: u8,
-    window_slot_count: i32,
-    trade_tier: i32,
-    trader_actor_unique_id: i64,
-    player_actor_unique_id: i64,
-    display_name: String,
-    is_v2_trading: bool,
-    is_economy_trading: bool,
-    offers: CacheableNBT,
-) -> UpdateTrade {
-    UpdateTrade {
-        window_id,
-        window_type,
-        window_slot_count,
-        trade_tier,
-        trader_actor_unique_id,
-        player_actor_unique_id,
-        display_name,
-        is_v2_trading,
-        is_economy_trading,
-        offers,
-    }
-}
-
 impl Packet for UpdateTrade {
     fn id(&self) -> u16 {
         BedrockPacketType::IDUpdateTrade.get_byte()
@@ -83,9 +57,7 @@ impl Packet for UpdateTrade {
         let display_name = PacketSerializer::get_string(stream);
         let is_v2_trading = stream.get_bool();
         let is_economy_trading = stream.get_bool();
-        let offers = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(
-            stream,
-        )));
+        let offers = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)));
 
         UpdateTrade {
             window_id,
@@ -101,24 +73,9 @@ impl Packet for UpdateTrade {
         }
     }
 
-    fn debug(&self) {
-        println!("Window ID: {}", self.window_id);
-        println!("Window Type: {}", self.window_type);
-        println!("Window Slot Count: {}", self.window_slot_count);
-        println!("Trade Tier: {}", self.trade_tier);
-        println!("Trade Actor Unique ID: {}", self.trader_actor_unique_id);
-        println!("Player Actor Unique ID: {}", self.player_actor_unique_id);
-        println!("Display Name: {}", self.display_name);
-        println!("Is V2 Trading: {}", self.is_v2_trading);
-        println!("Is Economy Trading: {}", self.is_economy_trading);
-        println!("Offers: {:?}", self.offers);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

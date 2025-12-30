@@ -14,17 +14,6 @@ pub struct PlaySound {
     pub pitch: f32,
 }
 
-pub fn new(sound_name: String, x: f32, y: f32, z: f32, volume: f32, pitch: f32) -> PlaySound {
-    PlaySound {
-        sound_name,
-        x,
-        y,
-        z,
-        volume,
-        pitch,
-    }
-}
-
 impl Packet for PlaySound {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPlaySound.get_byte()
@@ -72,20 +61,9 @@ impl Packet for PlaySound {
         }
     }
 
-    fn debug(&self) {
-        println!("Sound Name: {}", self.sound_name);
-        println!("X: {}", self.x);
-        println!("Y: {}", self.y);
-        println!("Z: {}", self.z);
-        println!("Volume: {}", self.volume);
-        println!("Pitch: {}", self.pitch);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -12,20 +12,6 @@ pub struct ContainerOpen {
     pub actor_unique_id: i64,
 }
 
-pub fn new(
-    window_id: u8,
-    window_type: u8,
-    block_position: Vec<i32>,
-    actor_unique_id: i64,
-) -> ContainerOpen {
-    ContainerOpen {
-        window_id,
-        window_type,
-        block_position,
-        actor_unique_id,
-    }
-}
-
 impl Packet for ContainerOpen {
     fn id(&self) -> u16 {
         BedrockPacketType::IDContainerOpen.get_byte()
@@ -53,26 +39,12 @@ impl Packet for ContainerOpen {
         let block_position = PacketSerializer::get_block_pos(stream);
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
 
-        ContainerOpen {
-            window_id,
-            window_type,
-            block_position,
-            actor_unique_id,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Window ID: {}", self.window_id);
-        println!("Window Type: {}", self.window_type);
-        println!("Block Position: {:?}", self.block_position);
-        println!("Actor Unique ID: {}", self.actor_unique_id);
+        ContainerOpen { window_id, window_type, block_position, actor_unique_id }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -6,10 +6,6 @@ use std::any::Any;
 #[derive(serde::Serialize, Debug)]
 pub struct ClientBoundMapItemData {}
 
-pub fn new() -> ClientBoundMapItemData {
-    ClientBoundMapItemData {}
-}
-
 impl Packet for ClientBoundMapItemData {
     fn id(&self) -> u16 {
         BedrockPacketType::IDClientBoundMapItemData.get_byte()
@@ -33,16 +29,9 @@ impl Packet for ClientBoundMapItemData {
 
         ClientBoundMapItemData {}
     }
-
-    fn debug(&self) {
-        // TODO
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

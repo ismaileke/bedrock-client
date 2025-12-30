@@ -12,18 +12,6 @@ pub struct CameraAimAssistPresets {
     pub operation: u8,
 }
 
-pub fn new(
-    categories: Vec<CameraAimAssistCategory>,
-    presets: Vec<CameraAimAssistPreset>,
-    operation: u8,
-) -> CameraAimAssistPresets {
-    CameraAimAssistPresets {
-        categories,
-        presets,
-        operation,
-    }
-}
-
 impl Packet for CameraAimAssistPresets {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCameraAimAssistPresets.get_byte()
@@ -70,17 +58,9 @@ impl Packet for CameraAimAssistPresets {
         }
     }
 
-    fn debug(&self) {
-        println!("Categories: {:?}", self.categories);
-        println!("Presets: {:?}", self.presets);
-        println!("Operation: {}", self.operation);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

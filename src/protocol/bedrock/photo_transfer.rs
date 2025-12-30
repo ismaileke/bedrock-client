@@ -15,26 +15,6 @@ pub struct PhotoTransfer {
     pub new_photo_name: String,
 }
 
-pub fn new(
-    photo_name: String,
-    photo_data: String,
-    book_id: String,
-    photo_type: u8,
-    source_type: u8,
-    owner_actor_unique_id: i64,
-    new_photo_name: String,
-) -> PhotoTransfer {
-    PhotoTransfer {
-        photo_name,
-        photo_data,
-        book_id,
-        photo_type,
-        source_type,
-        owner_actor_unique_id,
-        new_photo_name,
-    }
-}
-
 impl Packet for PhotoTransfer {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPhotoTransfer.get_byte()
@@ -79,21 +59,9 @@ impl Packet for PhotoTransfer {
         }
     }
 
-    fn debug(&self) {
-        println!("Photo Name: {}", self.photo_name);
-        println!("Photo Data: {}", self.photo_data);
-        println!("Book ID: {}", self.book_id);
-        println!("Photo Type: {}", self.photo_type);
-        println!("Source Type: {}", self.source_type);
-        println!("Owner Actor Unique ID: {}", self.owner_actor_unique_id);
-        println!("New Photo Name: {}", self.new_photo_name);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

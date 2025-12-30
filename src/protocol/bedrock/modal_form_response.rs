@@ -11,18 +11,6 @@ pub struct ModalFormResponse {
     pub cancel_reason: Option<u8>,
 }
 
-pub fn new(
-    form_id: u32,
-    form_data: Option<String>,
-    cancel_reason: Option<u8>,
-) -> ModalFormResponse {
-    ModalFormResponse {
-        form_id,
-        form_data,
-        cancel_reason,
-    }
-}
-
 impl Packet for ModalFormResponse {
     fn id(&self) -> u16 {
         BedrockPacketType::IDModalFormResponse.get_byte()
@@ -58,19 +46,11 @@ impl Packet for ModalFormResponse {
         }
     }
 
-    fn debug(&self) {
-        println!("Form ID: {}", self.form_id);
-        println!("Form Data: {:?}", self.form_data);
-        println!("Cancel Reason: {:?}", self.cancel_reason);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl ModalFormResponse {

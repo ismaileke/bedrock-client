@@ -12,20 +12,6 @@ pub struct ChangeDimension {
     pub loading_screen_id: Option<u32>,
 }
 
-pub fn new(
-    dimension: i32,
-    position: Vec<f32>,
-    respawn: bool,
-    loading_screen_id: Option<u32>,
-) -> ChangeDimension {
-    ChangeDimension {
-        dimension,
-        position,
-        respawn,
-        loading_screen_id,
-    }
-}
-
 impl Packet for ChangeDimension {
     fn id(&self) -> u16 {
         BedrockPacketType::IDChangeDimension.get_byte()
@@ -38,9 +24,7 @@ impl Packet for ChangeDimension {
         stream.put_var_i32(self.dimension);
         PacketSerializer::put_vector3(&mut stream, self.position.clone());
         stream.put_bool(self.respawn);
-        PacketSerializer::write_optional(&mut stream, &self.loading_screen_id, |s, v| {
-            s.put_u32_le(*v)
-        });
+        PacketSerializer::write_optional(&mut stream, &self.loading_screen_id, |s, v| s.put_u32_le(*v));
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -55,26 +39,12 @@ impl Packet for ChangeDimension {
         let respawn = stream.get_bool();
         let loading_screen_id = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
 
-        ChangeDimension {
-            dimension,
-            position,
-            respawn,
-            loading_screen_id,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Dimension: {}", self.dimension);
-        println!("Position: {:?}", self.position);
-        println!("Respawn: {}", self.respawn);
-        println!("Loading Screen ID: {:?}", self.loading_screen_id);
+        ChangeDimension { dimension, position, respawn, loading_screen_id }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

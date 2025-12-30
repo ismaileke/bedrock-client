@@ -8,10 +8,6 @@ pub struct RequestNetworkSettings {
     pub protocol_version: u32,
 }
 
-pub fn new(protocol_version: u32) -> RequestNetworkSettings {
-    RequestNetworkSettings { protocol_version }
-}
-
 impl Packet for RequestNetworkSettings {
     fn id(&self) -> u16 {
         BedrockPacketType::IDRequestNetworkSettings.get_byte()
@@ -37,15 +33,9 @@ impl Packet for RequestNetworkSettings {
         RequestNetworkSettings { protocol_version }
     }
 
-    fn debug(&self) {
-        println!("Protocol Version: {}", self.protocol_version);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

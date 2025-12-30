@@ -13,22 +13,6 @@ pub struct SpawnParticleEffect {
     pub molang_variables_json: Option<String>,
 }
 
-pub fn new(
-    dimension_id: u8,
-    actor_unique_id: i64,
-    position: Vec<f32>,
-    particle_name: String,
-    molang_variables_json: Option<String>,
-) -> SpawnParticleEffect {
-    SpawnParticleEffect {
-        dimension_id,
-        actor_unique_id,
-        position,
-        particle_name,
-        molang_variables_json,
-    }
-}
-
 impl Packet for SpawnParticleEffect {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSpawnParticleEffect.get_byte()
@@ -70,19 +54,9 @@ impl Packet for SpawnParticleEffect {
         }
     }
 
-    fn debug(&self) {
-        println!("Dimension ID: {}", self.dimension_id);
-        println!("Actor Unique ID: {}", self.actor_unique_id);
-        println!("Position: {:?}", self.position);
-        println!("Particle Name: {}", self.particle_name);
-        println!("Molang Variables JSON: {:?}", self.molang_variables_json);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

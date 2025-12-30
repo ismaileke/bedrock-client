@@ -13,20 +13,6 @@ pub struct StructureTemplateDataRequest {
     pub request_type: u8,
 }
 
-pub fn new(
-    structure_template_name: String,
-    structure_block_position: Vec<i32>,
-    structure_settings: StructureSettings,
-    request_type: u8,
-) -> StructureTemplateDataRequest {
-    StructureTemplateDataRequest {
-        structure_template_name,
-        structure_block_position,
-        structure_settings,
-        request_type,
-    }
-}
-
 impl Packet for StructureTemplateDataRequest {
     fn id(&self) -> u16 {
         BedrockPacketType::IDStructureTemplateDataRequest.get_byte()
@@ -62,21 +48,9 @@ impl Packet for StructureTemplateDataRequest {
         }
     }
 
-    fn debug(&self) {
-        println!("Structure Template Name: {}", self.structure_template_name);
-        println!(
-            "Structure Block Position: {:?}",
-            self.structure_block_position.clone()
-        );
-        println!("Structure Settings: {:?}", self.structure_settings);
-        println!("Request Type: {}", self.request_type);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

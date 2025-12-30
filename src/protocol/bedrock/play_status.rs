@@ -1,6 +1,5 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use crate::utils::color_format::*;
 use binary_utils::binary::Stream;
 use std::any::Any;
 use std::convert::TryFrom;
@@ -59,53 +58,9 @@ impl Packet for PlayStatus {
         }
     }
 
-    fn debug(&self) {
-        let status = LoginStatus::try_from(self.status).unwrap();
-        match status {
-            LoginStatus::LoginSuccess => {
-                println!("Status: {}Login Success{}", COLOR_GREEN, COLOR_WHITE)
-            }
-            LoginStatus::LoginFailedClient => {
-                println!("Status: {}Login Failed Client{}", COLOR_RED, COLOR_WHITE)
-            }
-            LoginStatus::LoginFailedServer => {
-                println!("Status: {}Login Failed Server{}", COLOR_RED, COLOR_WHITE)
-            }
-            LoginStatus::PlayerSpawn => {
-                println!("Status: {}Player Spawn{}", COLOR_GREEN, COLOR_WHITE)
-            }
-            LoginStatus::LoginFailedInvalidTenant => println!(
-                "Status: {}Login Failed Invalid Tenant{}",
-                COLOR_RED, COLOR_WHITE
-            ),
-            LoginStatus::LoginFailedVanillaEdu => println!(
-                "Status: {}Login Failed Vanilla Edu{}",
-                COLOR_RED, COLOR_WHITE
-            ),
-            LoginStatus::LoginFailedEduVanilla => println!(
-                "Status: {}Login Failed Edu Vanilla{}",
-                COLOR_RED, COLOR_WHITE
-            ),
-            LoginStatus::LoginFailedServerFull => println!(
-                "Status: {}Login Failed Server Full{}",
-                COLOR_RED, COLOR_WHITE
-            ),
-            LoginStatus::LoginFailedEditorVanilla => println!(
-                "Status: {}Login Failed Editor Vanilla{}",
-                COLOR_RED, COLOR_WHITE
-            ),
-            LoginStatus::LoginFailedVanillaEditor => println!(
-                "Status: {}Login Failed Vanilla Editor{}",
-                COLOR_RED, COLOR_WHITE
-            ),
-        }
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

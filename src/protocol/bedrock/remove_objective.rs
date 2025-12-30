@@ -9,10 +9,6 @@ pub struct RemoveObjective {
     pub objective_name: String,
 }
 
-pub fn new(objective_name: String) -> RemoveObjective {
-    RemoveObjective { objective_name }
-}
-
 impl Packet for RemoveObjective {
     fn id(&self) -> u16 {
         BedrockPacketType::IDRemoveObjective.get_byte()
@@ -37,15 +33,9 @@ impl Packet for RemoveObjective {
         RemoveObjective { objective_name }
     }
 
-    fn debug(&self) {
-        println!("Objective Name: {}", self.objective_name);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

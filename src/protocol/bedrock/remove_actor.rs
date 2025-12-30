@@ -9,10 +9,6 @@ pub struct RemoveActor {
     pub actor_unique_id: i64,
 }
 
-pub fn new(actor_unique_id: i64) -> RemoveActor {
-    RemoveActor { actor_unique_id }
-}
-
 impl Packet for RemoveActor {
     fn id(&self) -> u16 {
         BedrockPacketType::IDRemoveActor.get_byte()
@@ -37,15 +33,9 @@ impl Packet for RemoveActor {
         RemoveActor { actor_unique_id }
     }
 
-    fn debug(&self) {
-        println!("Actor Unique ID: {}", self.actor_unique_id);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

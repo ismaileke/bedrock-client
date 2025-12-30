@@ -6,10 +6,6 @@ use std::any::Any;
 #[derive(serde::Serialize, Debug)]
 pub struct CommandOutput {}
 
-pub fn new() -> CommandOutput {
-    CommandOutput {}
-}
-
 impl Packet for CommandOutput {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCommandOutput.get_byte()
@@ -34,15 +30,9 @@ impl Packet for CommandOutput {
         CommandOutput {}
     }
 
-    fn debug(&self) {
-        // TODO
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

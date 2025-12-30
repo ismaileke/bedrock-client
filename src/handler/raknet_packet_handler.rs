@@ -1,5 +1,4 @@
 use crate::protocol::bedrock::packet::Packet;
-use crate::protocol::bedrock::req_network_settings;
 use crate::protocol::raknet::conn_req::ConnReq;
 use crate::protocol::raknet::conn_req_accepted::ConnReqAccepted;
 use crate::protocol::raknet::connected_ping::ConnectedPing;
@@ -21,6 +20,7 @@ use binary_utils::binary::Stream;
 use chrono::Utc;
 use rand::{rng, Rng};
 use std::collections::HashMap;
+use crate::protocol::bedrock::req_network_settings::RequestNetworkSettings;
 
 pub struct RakNetPacketHandler {
     pub client_guid: i64,
@@ -104,7 +104,7 @@ impl RakNetPacketHandler {
                 let frame_two = Datagram::create_frame(connected_ping, UNRELIABLE, &self.frame_number_cache, None);
 
                 // Request Network Settings Packet
-                let request_network_settings = req_network_settings::new(BEDROCK_PROTOCOL_VERSION).encode();
+                let request_network_settings = RequestNetworkSettings{ protocol_version: BEDROCK_PROTOCOL_VERSION }.encode();
                 let frame_three = Datagram::create_frame(request_network_settings, RELIABLE_ORDERED, &self.frame_number_cache, None);
 
                 response_data = Datagram::create(vec![frame, frame_two, frame_three], &self.frame_number_cache).to_binary();

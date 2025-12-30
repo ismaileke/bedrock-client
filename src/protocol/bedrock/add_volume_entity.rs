@@ -18,28 +18,6 @@ pub struct AddVolumeEntity {
     pub engine_version: String,
 }
 
-pub fn new(
-    entity_net_id: u32,
-    data: CacheableNBT,
-    json_identifier: String,
-    instance_name: String,
-    min_bound: Vec<i32>,
-    max_bound: Vec<i32>,
-    dimension: i32,
-    engine_version: String,
-) -> AddVolumeEntity {
-    AddVolumeEntity {
-        entity_net_id,
-        data,
-        json_identifier,
-        instance_name,
-        min_bound,
-        max_bound,
-        dimension,
-        engine_version,
-    }
-}
-
 impl Packet for AddVolumeEntity {
     fn id(&self) -> u16 {
         BedrockPacketType::IDAddVolumeEntity.get_byte()
@@ -67,9 +45,7 @@ impl Packet for AddVolumeEntity {
 
     fn decode(stream: &mut Stream) -> AddVolumeEntity {
         let entity_net_id = stream.get_var_u32();
-        let data = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(
-            stream,
-        )));
+        let data = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)));
         let json_identifier = PacketSerializer::get_string(stream);
         let instance_name = PacketSerializer::get_string(stream);
         let min_bound = PacketSerializer::get_block_pos(stream);
@@ -89,22 +65,9 @@ impl Packet for AddVolumeEntity {
         }
     }
 
-    fn debug(&self) {
-        println!("Entity Net ID: {}", self.entity_net_id);
-        println!("Data(NBT): {:?}", self.data);
-        println!("JSON Identifier: {}", self.json_identifier);
-        println!("Instance Name: {}", self.instance_name);
-        println!("Min Bound: {:?}", self.min_bound);
-        println!("Max Bound: {:?}", self.max_bound);
-        println!("Dimension: {}", self.dimension);
-        println!("Engine Version: {}", self.engine_version);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

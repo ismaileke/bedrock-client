@@ -10,14 +10,6 @@ pub struct CodeBuilderSource {
     pub code_status: u8,
 }
 
-pub fn new(operation: u8, category: u8, code_status: u8) -> CodeBuilderSource {
-    CodeBuilderSource {
-        operation,
-        category,
-        code_status,
-    }
-}
-
 impl Packet for CodeBuilderSource {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCodeBuilderSource.get_byte()
@@ -43,24 +35,12 @@ impl Packet for CodeBuilderSource {
         let category = stream.get_byte();
         let code_status = stream.get_byte();
 
-        CodeBuilderSource {
-            operation,
-            category,
-            code_status,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Operation: {}", self.operation);
-        println!("Category: {}", self.category);
-        println!("Code Status: {}", self.code_status);
+        CodeBuilderSource { operation, category, code_status }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -10,13 +10,6 @@ pub struct ServerBoundLoadingScreen {
     pub loading_screen_id: Option<u32>,
 }
 
-pub fn new(loading_screen_type: i32, loading_screen_id: Option<u32>) -> ServerBoundLoadingScreen {
-    ServerBoundLoadingScreen {
-        loading_screen_type,
-        loading_screen_id,
-    }
-}
-
 impl Packet for ServerBoundLoadingScreen {
     fn id(&self) -> u16 {
         BedrockPacketType::IDServerBoundLoadingScreen.get_byte()
@@ -42,22 +35,12 @@ impl Packet for ServerBoundLoadingScreen {
         let loading_screen_type = stream.get_var_i32();
         let loading_screen_id = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
 
-        ServerBoundLoadingScreen {
-            loading_screen_type,
-            loading_screen_id,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Loading Screen Type: {}", self.loading_screen_type);
-        println!("Loading Screen ID: {:?}", self.loading_screen_id);
+        ServerBoundLoadingScreen { loading_screen_type, loading_screen_id }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

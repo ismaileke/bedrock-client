@@ -9,13 +9,6 @@ pub struct SetHud {
     pub visibility: i32,        // see types/hud/hud_visibility.rs
 }
 
-pub fn new(hud_elements: Vec<i32>, visibility: i32) -> SetHud {
-    SetHud {
-        hud_elements,
-        visibility,
-    }
-}
-
 impl Packet for SetHud {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetHud.get_byte()
@@ -46,22 +39,12 @@ impl Packet for SetHud {
         }
         let visibility = stream.get_var_i32();
 
-        SetHud {
-            hud_elements,
-            visibility,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Hud Elements: {:?}", self.hud_elements);
-        println!("Hud Visibility: {}", self.visibility);
+        SetHud { hud_elements, visibility }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -9,10 +9,6 @@ pub struct PlayerFog {
     pub fog_layers: Vec<String>,
 }
 
-pub fn new(fog_layers: Vec<String>) -> PlayerFog {
-    PlayerFog { fog_layers }
-}
-
 impl Packet for PlayerFog {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPlayerFog.get_byte()
@@ -44,15 +40,9 @@ impl Packet for PlayerFog {
         PlayerFog { fog_layers }
     }
 
-    fn debug(&self) {
-        println!("Fog Layers: {:?}", self.fog_layers);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

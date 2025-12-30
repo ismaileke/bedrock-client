@@ -13,20 +13,6 @@ pub struct GraphicsOverrideParameter {
     pub reset: bool,
 }
 
-pub fn new(
-    values: Vec<ParameterKeyframeValue>,
-    biome_identifier: String,
-    parameter_type: u8,
-    reset: bool,
-) -> GraphicsOverrideParameter {
-    GraphicsOverrideParameter {
-        values,
-        biome_identifier,
-        parameter_type,
-        reset,
-    }
-}
-
 impl Packet for GraphicsOverrideParameter {
     fn id(&self) -> u16 {
         BedrockPacketType::IDGraphicsOverrideParameter.get_byte()
@@ -69,20 +55,11 @@ impl Packet for GraphicsOverrideParameter {
         }
     }
 
-    fn debug(&self) {
-        println!("Values: {:?}", self.values);
-        println!("Biome Identifier: {}", self.biome_identifier);
-        println!("Parameter type: {}", self.parameter_type);
-        println!("Reset: {}", self.reset);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl GraphicsOverrideParameter {

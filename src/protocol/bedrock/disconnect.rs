@@ -54,22 +54,9 @@ impl Packet for Disconnect {
         }
     }
 
-    fn debug(&self) {
-        println!("Reason: {}", self.reason);
-        if !self.skip_message {
-            println!("Message: {}", self.message.clone().unwrap());
-            println!(
-                "Filtered Message: {}",
-                self.filtered_message.clone().unwrap()
-            );
-        }
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

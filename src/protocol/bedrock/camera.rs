@@ -10,13 +10,6 @@ pub struct Camera {
     pub player_actor_unique_id: i64,
 }
 
-pub fn new(camera_actor_unique_id: i64, player_actor_unique_id: i64) -> Camera {
-    Camera {
-        camera_actor_unique_id,
-        player_actor_unique_id,
-    }
-}
-
 impl Packet for Camera {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCamera.get_byte()
@@ -40,22 +33,12 @@ impl Packet for Camera {
         let camera_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let player_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
 
-        Camera {
-            camera_actor_unique_id,
-            player_actor_unique_id,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Camera Actor Unique ID: {}", self.camera_actor_unique_id);
-        println!("Player Actor Unique ID: {}", self.player_actor_unique_id);
+        Camera { camera_actor_unique_id, player_actor_unique_id }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -8,10 +8,6 @@ pub struct SimpleEvent {
     pub event_type: u16,
 }
 
-pub fn new(event_type: u16) -> SimpleEvent {
-    SimpleEvent { event_type }
-}
-
 impl Packet for SimpleEvent {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSimpleEvent.get_byte()
@@ -36,17 +32,11 @@ impl Packet for SimpleEvent {
         SimpleEvent { event_type }
     }
 
-    fn debug(&self) {
-        println!("Event Type: {}", self.event_type);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl SimpleEvent {

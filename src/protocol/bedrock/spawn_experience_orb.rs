@@ -10,10 +10,6 @@ pub struct SpawnExperienceOrb {
     pub amount: i32,
 }
 
-pub fn new(position: Vec<f32>, amount: i32) -> SpawnExperienceOrb {
-    SpawnExperienceOrb { position, amount }
-}
-
 impl Packet for SpawnExperienceOrb {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSpawnExperienceOrb.get_byte()
@@ -40,16 +36,9 @@ impl Packet for SpawnExperienceOrb {
         SpawnExperienceOrb { position, amount }
     }
 
-    fn debug(&self) {
-        println!("Position: {:?}", self.position);
-        println!("Amount: {}", self.amount);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

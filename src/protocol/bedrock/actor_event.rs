@@ -11,14 +11,6 @@ pub struct ActorEvent {
     pub event_data: i32,
 }
 
-pub fn new(actor_runtime_id: u64, event_id: u8, event_data: i32) -> ActorEvent {
-    ActorEvent {
-        actor_runtime_id,
-        event_id,
-        event_data,
-    }
-}
-
 impl Packet for ActorEvent {
     fn id(&self) -> u16 {
         BedrockPacketType::IDActorEvent.get_byte()
@@ -51,17 +43,9 @@ impl Packet for ActorEvent {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Event ID: {}", self.event_id);
-        println!("Event Data: {}", self.event_data);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

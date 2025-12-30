@@ -10,10 +10,6 @@ pub struct ClientCacheMissResponse {
     pub blobs: Vec<ChunkCacheBlob>,
 }
 
-pub fn new(blobs: Vec<ChunkCacheBlob>) -> ClientCacheMissResponse {
-    ClientCacheMissResponse { blobs }
-}
-
 impl Packet for ClientCacheMissResponse {
     fn id(&self) -> u16 {
         BedrockPacketType::IDClientCacheMissResponse.get_byte()
@@ -48,15 +44,9 @@ impl Packet for ClientCacheMissResponse {
         ClientCacheMissResponse { blobs }
     }
 
-    fn debug(&self) {
-        println!("Blobs: {:?}", self.blobs);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

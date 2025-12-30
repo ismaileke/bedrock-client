@@ -11,14 +11,6 @@ pub struct GameTestResults {
     pub test_name: String,
 }
 
-pub fn new(success: bool, error: String, test_name: String) -> GameTestResults {
-    GameTestResults {
-        success,
-        error,
-        test_name,
-    }
-}
-
 impl Packet for GameTestResults {
     fn id(&self) -> u16 {
         BedrockPacketType::IDGameTestResults.get_byte()
@@ -44,24 +36,12 @@ impl Packet for GameTestResults {
         let error = PacketSerializer::get_string(stream);
         let test_name = PacketSerializer::get_string(stream);
 
-        GameTestResults {
-            success,
-            error,
-            test_name,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Success: {}", self.success);
-        println!("Error: {}", self.error);
-        println!("Test Name: {}", self.test_name);
+        GameTestResults { success, error, test_name }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

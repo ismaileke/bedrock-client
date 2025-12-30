@@ -10,13 +10,6 @@ pub struct ShowCredits {
     pub status: i32,
 }
 
-pub fn new(player_actor_runtime_id: u64, status: i32) -> ShowCredits {
-    ShowCredits {
-        player_actor_runtime_id,
-        status,
-    }
-}
-
 impl Packet for ShowCredits {
     fn id(&self) -> u16 {
         BedrockPacketType::IDShowCredits.get_byte()
@@ -46,18 +39,11 @@ impl Packet for ShowCredits {
         }
     }
 
-    fn debug(&self) {
-        println!("Player Actor Runtime ID: {}", self.player_actor_runtime_id);
-        println!("Status: {}", self.status);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl ShowCredits {

@@ -12,22 +12,6 @@ pub struct SetPlayerInventoryOptions {
     pub crafting_layout: i32,
 }
 
-pub fn new(
-    left_tab: i32,
-    right_tab: i32,
-    filtering: bool,
-    inventory_layout: i32,
-    crafting_layout: i32,
-) -> SetPlayerInventoryOptions {
-    SetPlayerInventoryOptions {
-        left_tab,
-        right_tab,
-        filtering,
-        inventory_layout,
-        crafting_layout,
-    }
-}
-
 impl Packet for SetPlayerInventoryOptions {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetPlayerInventoryOptions.get_byte()
@@ -66,19 +50,9 @@ impl Packet for SetPlayerInventoryOptions {
         }
     }
 
-    fn debug(&self) {
-        println!("Left Tab: {}", self.left_tab);
-        println!("Right Tab: {}", self.right_tab);
-        println!("Filtering: {}", self.filtering);
-        println!("Inventory Layout: {}", self.inventory_layout);
-        println!("Crafting Layout: {}", self.crafting_layout);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

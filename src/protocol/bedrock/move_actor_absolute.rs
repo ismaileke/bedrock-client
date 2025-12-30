@@ -14,24 +14,6 @@ pub struct MoveActorAbsolute {
     pub head_yaw: f32, // always zero for non-mobs
 }
 
-pub fn new(
-    actor_runtime_id: u64,
-    flags: u8,
-    position: Vec<f32>,
-    pitch: f32,
-    yaw: f32,
-    head_yaw: f32,
-) -> MoveActorAbsolute {
-    MoveActorAbsolute {
-        actor_runtime_id,
-        flags,
-        position,
-        pitch,
-        yaw,
-        head_yaw,
-    }
-}
-
 impl Packet for MoveActorAbsolute {
     fn id(&self) -> u16 {
         BedrockPacketType::IDMoveActorAbsolute.get_byte()
@@ -73,22 +55,11 @@ impl Packet for MoveActorAbsolute {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Flags: {}", self.flags);
-        println!("Position: {:?}", self.position);
-        println!("Pitch: {}", self.pitch);
-        println!("Yaw: {}", self.yaw);
-        println!("Head Yaw: {}", self.head_yaw);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl MoveActorAbsolute {

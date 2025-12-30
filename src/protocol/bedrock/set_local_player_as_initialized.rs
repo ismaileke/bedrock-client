@@ -9,10 +9,6 @@ pub struct SetLocalPlayerAsInitializedPacket {
     pub actor_runtime_id: u64,
 }
 
-pub fn new(actor_runtime_id: u64) -> SetLocalPlayerAsInitializedPacket {
-    SetLocalPlayerAsInitializedPacket { actor_runtime_id }
-}
-
 impl Packet for SetLocalPlayerAsInitializedPacket {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetLocalPlayerAsInitialized.get_byte()
@@ -35,15 +31,9 @@ impl Packet for SetLocalPlayerAsInitializedPacket {
         todo!()
     }
 
-    fn debug(&self) {
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

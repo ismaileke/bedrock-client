@@ -11,14 +11,6 @@ pub struct LessonProgress {
     pub activity_id: String,
 }
 
-pub fn new(action: i32, score: i32, activity_id: String) -> LessonProgress {
-    LessonProgress {
-        action,
-        score,
-        activity_id,
-    }
-}
-
 impl Packet for LessonProgress {
     fn id(&self) -> u16 {
         BedrockPacketType::IDLessonProgress.get_byte()
@@ -44,26 +36,14 @@ impl Packet for LessonProgress {
         let score = stream.get_var_i32();
         let activity_id = PacketSerializer::get_string(stream);
 
-        LessonProgress {
-            action,
-            score,
-            activity_id,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Action: {}", self.action);
-        println!("Score: {}", self.score);
-        println!("Activity ID: {}", self.activity_id);
+        LessonProgress { action, score, activity_id }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl LessonProgress {

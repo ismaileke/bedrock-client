@@ -6,10 +6,6 @@ use std::any::Any;
 #[derive(serde::Serialize, Debug)]
 pub struct ClientToServerHandshake {}
 
-pub fn new() -> ClientToServerHandshake {
-    ClientToServerHandshake {}
-}
-
 impl Packet for ClientToServerHandshake {
     fn id(&self) -> u16 {
         BedrockPacketType::IDClientToServerHandshake.get_byte()
@@ -30,13 +26,9 @@ impl Packet for ClientToServerHandshake {
         ClientToServerHandshake {}
     }
 
-    fn debug(&self) {}
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

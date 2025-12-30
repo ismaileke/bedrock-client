@@ -9,10 +9,6 @@ pub struct DebugDrawer {
     pub shapes: Vec<PacketShapeData>,
 }
 
-pub fn new(shapes: Vec<PacketShapeData>) -> DebugDrawer {
-    DebugDrawer { shapes }
-}
-
 impl Packet for DebugDrawer {
     fn id(&self) -> u16 {
         BedrockPacketType::IDDebugDrawer.get_byte()
@@ -44,15 +40,9 @@ impl Packet for DebugDrawer {
         DebugDrawer { shapes }
     }
 
-    fn debug(&self) {
-        println!("Shapes: {:?}", self.shapes);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -11,13 +11,6 @@ pub struct BiomeDefinitionList {
     pub strings: Vec<String>,
 }
 
-pub fn new(definition_data: Vec<BiomeDefinitionData>, strings: Vec<String>) -> BiomeDefinitionList {
-    BiomeDefinitionList {
-        definition_data,
-        strings,
-    }
-}
-
 impl Packet for BiomeDefinitionList {
     fn id(&self) -> u16 {
         BedrockPacketType::IDBiomeDefinitionList.get_byte()
@@ -55,22 +48,12 @@ impl Packet for BiomeDefinitionList {
             strings.push(PacketSerializer::get_string(stream));
         }
 
-        BiomeDefinitionList {
-            definition_data,
-            strings,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Definition Data: {:?}", self.definition_data);
-        println!("Strings: {:?}", self.strings);
+        BiomeDefinitionList { definition_data, strings }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

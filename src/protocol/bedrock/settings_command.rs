@@ -10,13 +10,6 @@ pub struct SettingsCommand {
     pub suppress_output: bool,
 }
 
-pub fn new(command: String, suppress_output: bool) -> SettingsCommand {
-    SettingsCommand {
-        command,
-        suppress_output,
-    }
-}
-
 impl Packet for SettingsCommand {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSettingsCommand.get_byte()
@@ -46,16 +39,9 @@ impl Packet for SettingsCommand {
         }
     }
 
-    fn debug(&self) {
-        println!("Command: {}", self.command);
-        println!("Suppress Output: {}", self.suppress_output);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

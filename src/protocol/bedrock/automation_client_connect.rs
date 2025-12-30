@@ -9,10 +9,6 @@ pub struct AutomationClientConnect {
     pub server_uri: String,
 }
 
-pub fn new(server_uri: String) -> AutomationClientConnect {
-    AutomationClientConnect { server_uri }
-}
-
 impl Packet for AutomationClientConnect {
     fn id(&self) -> u16 {
         BedrockPacketType::IDAutomationClientConnect.get_byte()
@@ -37,15 +33,9 @@ impl Packet for AutomationClientConnect {
         AutomationClientConnect { server_uri }
     }
 
-    fn debug(&self) {
-        println!("Server URI: {}", self.server_uri);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -21,38 +21,6 @@ pub struct CommandBlockUpdate {
     pub execute_on_first_tick: bool,
 }
 
-pub fn new(
-    is_block: bool,
-    block_position: Option<Vec<i32>>,
-    command_block_mode: Option<u32>,
-    is_redstone_mode: Option<bool>,
-    is_conditional: Option<bool>,
-    minecart_actor_runtime_id: Option<u64>,
-    command: String,
-    last_output: String,
-    name: String,
-    filtered_name: String,
-    should_track_output: bool,
-    tick_delay: u32,
-    execute_on_first_tick: bool,
-) -> CommandBlockUpdate {
-    CommandBlockUpdate {
-        is_block,
-        block_position,
-        command_block_mode,
-        is_redstone_mode,
-        is_conditional,
-        minecart_actor_runtime_id,
-        command,
-        last_output,
-        name,
-        filtered_name,
-        should_track_output,
-        tick_delay,
-        execute_on_first_tick,
-    }
-}
-
 impl Packet for CommandBlockUpdate {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCommandBlockUpdate.get_byte()
@@ -129,30 +97,9 @@ impl Packet for CommandBlockUpdate {
         }
     }
 
-    fn debug(&self) {
-        println!("Is Block: {}", self.is_block);
-        println!("Block Position: {:?}", self.block_position);
-        println!("Command Block Mode: {:?}", self.command_block_mode);
-        println!("Is Redstone Mode: {:?}", self.is_redstone_mode);
-        println!("Is Conditional: {:?}", self.is_conditional);
-        println!(
-            "Minecart Actor Runtime ID: {:?}",
-            self.minecart_actor_runtime_id
-        );
-        println!("Command: {}", self.command);
-        println!("Last Output: {}", self.last_output);
-        println!("Name: {}", self.name);
-        println!("Filtered Name: {}", self.filtered_name);
-        println!("Should Track Output: {}", self.should_track_output);
-        println!("Tick Delay: {}", self.tick_delay);
-        println!("Execute On First Tick: {}", self.execute_on_first_tick);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

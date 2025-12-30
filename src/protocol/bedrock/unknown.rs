@@ -6,10 +6,6 @@ use std::any::Any;
 #[derive(serde::Serialize, Debug)]
 pub struct Unknown {}
 
-pub fn new() -> Unknown {
-    Unknown {}
-}
-
 impl Packet for Unknown {
     fn id(&self) -> u16 {
         BedrockPacketType::IDUnknown.get_byte()
@@ -24,13 +20,9 @@ impl Packet for Unknown {
         Unknown {}
     }
 
-    fn debug(&self) {}
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -15,26 +15,6 @@ pub struct ResourcePackDataInfo {
     pub pack_type: u8, // see types/resource_pack_type
 }
 
-pub fn new(
-    pack_id: String,
-    max_chunk_size: u32,
-    chunk_count: u32,
-    compressed_pack_size: u64,
-    sha256: String,
-    is_premium: bool,
-    pack_type: u8,
-) -> ResourcePackDataInfo {
-    ResourcePackDataInfo {
-        pack_id,
-        max_chunk_size,
-        chunk_count,
-        compressed_pack_size,
-        sha256,
-        is_premium,
-        pack_type,
-    }
-}
-
 impl Packet for ResourcePackDataInfo {
     fn id(&self) -> u16 {
         BedrockPacketType::IDResourcePackDataInfo.get_byte()
@@ -79,21 +59,9 @@ impl Packet for ResourcePackDataInfo {
         }
     }
 
-    fn debug(&self) {
-        println!("Pack ID: {}", self.pack_id);
-        println!("Max Chunk Size: {}", self.max_chunk_size);
-        println!("Chunk Count: {}", self.chunk_count);
-        println!("Compressed Pack Size: {}", self.compressed_pack_size);
-        println!("SHA256: {}", self.sha256);
-        println!("Is Premium: {}", self.is_premium);
-        println!("Pack Type: {}", self.pack_type);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

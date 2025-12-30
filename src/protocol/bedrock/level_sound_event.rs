@@ -15,26 +15,6 @@ pub struct LevelSoundEvent {
     pub actor_unique_id: i64,
 }
 
-pub fn new(
-    sound: u32,
-    position: Vec<f32>,
-    extra_data: i32,
-    entity_type: String,
-    is_baby_mob: bool,
-    disable_relative_volume: bool,
-    actor_unique_id: i64,
-) -> LevelSoundEvent {
-    LevelSoundEvent {
-        sound,
-        position,
-        extra_data,
-        entity_type,
-        is_baby_mob,
-        disable_relative_volume,
-        actor_unique_id,
-    }
-}
-
 impl Packet for LevelSoundEvent {
     fn id(&self) -> u16 {
         BedrockPacketType::IDLevelSoundEvent.get_byte()
@@ -79,23 +59,11 @@ impl Packet for LevelSoundEvent {
         }
     }
 
-    fn debug(&self) {
-        println!("Sound: {}", self.sound);
-        println!("Position: {:?}", self.position);
-        println!("Extra Data: {}", self.extra_data);
-        println!("Entity Type: {}", self.entity_type);
-        println!("Is Baby Mob: {}", self.is_baby_mob);
-        println!("Disable Relative Volume: {}", self.disable_relative_volume);
-        println!("Actor Unique ID: {}", self.actor_unique_id);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl LevelSoundEvent {

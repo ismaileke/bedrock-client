@@ -9,10 +9,6 @@ pub struct UpdateClientOptions {
     pub graphics_mode: Option<u8>,
 }
 
-pub fn new(graphics_mode: Option<u8>) -> UpdateClientOptions {
-    UpdateClientOptions { graphics_mode }
-}
-
 impl Packet for UpdateClientOptions {
     fn id(&self) -> u16 {
         BedrockPacketType::IDUpdateClientOptions.get_byte()
@@ -37,17 +33,11 @@ impl Packet for UpdateClientOptions {
         UpdateClientOptions { graphics_mode }
     }
 
-    fn debug(&self) {
-        println!("Graphics Mode: {:?}", self.graphics_mode);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl UpdateClientOptions {

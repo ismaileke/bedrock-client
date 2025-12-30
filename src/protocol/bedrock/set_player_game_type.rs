@@ -8,10 +8,6 @@ pub struct SetPlayerGameType {
     pub game_mode: i32,
 }
 
-pub fn new(game_mode: i32) -> SetPlayerGameType {
-    SetPlayerGameType { game_mode }
-}
-
 impl Packet for SetPlayerGameType {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetPlayerGameType.get_byte()
@@ -36,15 +32,9 @@ impl Packet for SetPlayerGameType {
         SetPlayerGameType { game_mode }
     }
 
-    fn debug(&self) {
-        println!("Game Mode: {}", self.game_mode);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -25,15 +25,9 @@ impl Packet for ServerToClientHandshake {
         ServerToClientHandshake { jwt }
     }
 
-    fn debug(&self) {
-        println!("JWT: {}", String::from_utf8(self.jwt.clone()).unwrap());
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

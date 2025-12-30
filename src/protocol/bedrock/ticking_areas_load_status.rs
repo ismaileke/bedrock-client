@@ -8,12 +8,6 @@ pub struct TickingAreasLoadStatus {
     pub waiting_for_preload: bool,
 }
 
-pub fn new(waiting_for_preload: bool) -> TickingAreasLoadStatus {
-    TickingAreasLoadStatus {
-        waiting_for_preload,
-    }
-}
-
 impl Packet for TickingAreasLoadStatus {
     fn id(&self) -> u16 {
         BedrockPacketType::IDTickingAreasLoadStatus.get_byte()
@@ -35,20 +29,12 @@ impl Packet for TickingAreasLoadStatus {
     fn decode(stream: &mut Stream) -> TickingAreasLoadStatus {
         let waiting_for_preload = stream.get_bool();
 
-        TickingAreasLoadStatus {
-            waiting_for_preload,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Waiting For Preload: {}", self.waiting_for_preload);
+        TickingAreasLoadStatus { waiting_for_preload }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

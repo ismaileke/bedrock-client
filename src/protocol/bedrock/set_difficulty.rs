@@ -8,10 +8,6 @@ pub struct SetDifficulty {
     pub difficulty: u32,
 }
 
-pub fn new(difficulty: u32) -> SetDifficulty {
-    SetDifficulty { difficulty }
-}
-
 impl Packet for SetDifficulty {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetDifficulty.get_byte()
@@ -36,15 +32,9 @@ impl Packet for SetDifficulty {
         SetDifficulty { difficulty }
     }
 
-    fn debug(&self) {
-        println!("Difficulty: {}", self.difficulty);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

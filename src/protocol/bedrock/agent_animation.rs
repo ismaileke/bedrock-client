@@ -10,13 +10,6 @@ pub struct AgentAnimation {
     pub actor_runtime_id: u64,
 }
 
-pub fn new(animation_type: u8, actor_runtime_id: u64) -> AgentAnimation {
-    AgentAnimation {
-        animation_type,
-        actor_runtime_id,
-    }
-}
-
 impl Packet for AgentAnimation {
     fn id(&self) -> u16 {
         BedrockPacketType::IDAgentAnimation.get_byte()
@@ -40,22 +33,12 @@ impl Packet for AgentAnimation {
         let animation_type = stream.get_byte();
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
 
-        AgentAnimation {
-            animation_type,
-            actor_runtime_id,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Animation Type: {}", self.animation_type);
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
+        AgentAnimation { animation_type, actor_runtime_id }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

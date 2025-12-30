@@ -14,24 +14,6 @@ pub struct UpdateBlockSynced {
     pub update_type: u64,
 }
 
-pub fn new(
-    block_position: Vec<i32>,
-    block_runtime_id: u32,
-    flags: u32,
-    layer: u32,
-    actor_unique_id: u64,
-    update_type: u64,
-) -> UpdateBlockSynced {
-    UpdateBlockSynced {
-        block_position,
-        block_runtime_id,
-        flags,
-        layer,
-        actor_unique_id,
-        update_type,
-    }
-}
-
 impl Packet for UpdateBlockSynced {
     fn id(&self) -> u16 {
         BedrockPacketType::IDUpdateBlockSynced.get_byte()
@@ -73,22 +55,11 @@ impl Packet for UpdateBlockSynced {
         }
     }
 
-    fn debug(&self) {
-        println!("Block Position: {:?}", self.block_position);
-        println!("Block Runtime ID: {}", self.block_runtime_id);
-        println!("Flags: {}", self.flags);
-        println!("Layer: {}", self.layer);
-        println!("Actor Unique ID: {}", self.actor_unique_id);
-        println!("Actor Sync Message: {}", self.update_type);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl UpdateBlockSynced {

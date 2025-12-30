@@ -15,20 +15,6 @@ pub struct SetActorData {
     pub tick: u64,
 }
 
-pub fn new(
-    actor_runtime_id: u64,
-    metadata: HashMap<u32, MetadataProperty>,
-    synced_properties: PropertySyncData,
-    tick: u64,
-) -> SetActorData {
-    SetActorData {
-        actor_runtime_id,
-        metadata,
-        synced_properties,
-        tick,
-    }
-}
-
 impl Packet for SetActorData {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetActorData.get_byte()
@@ -56,26 +42,12 @@ impl Packet for SetActorData {
         let synced_properties = PropertySyncData::read(stream);
         let tick = stream.get_var_u64();
 
-        SetActorData {
-            actor_runtime_id,
-            metadata,
-            synced_properties,
-            tick,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Metadata: {:?}", self.metadata);
-        println!("Synced Properties: {:?}", self.synced_properties);
-        println!("Tick: {}", self.tick);
+        SetActorData { actor_runtime_id, metadata, synced_properties, tick }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

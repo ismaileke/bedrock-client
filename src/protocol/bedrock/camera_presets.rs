@@ -9,10 +9,6 @@ pub struct CameraPresets {
     pub presets: Vec<CameraPreset>,
 }
 
-pub fn new(presets: Vec<CameraPreset>) -> CameraPresets {
-    CameraPresets { presets }
-}
-
 impl Packet for CameraPresets {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCameraPresets.get_byte()
@@ -44,15 +40,9 @@ impl Packet for CameraPresets {
         CameraPresets { presets }
     }
 
-    fn debug(&self) {
-        println!("Presets {:?}", self.presets);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

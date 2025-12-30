@@ -11,18 +11,6 @@ pub struct PlayerVideoCapture {
     pub file_prefix: Option<String>,
 }
 
-pub fn new(
-    is_recording: bool,
-    frame_rate: Option<u32>,
-    file_prefix: Option<String>,
-) -> PlayerVideoCapture {
-    PlayerVideoCapture {
-        is_recording,
-        frame_rate,
-        file_prefix,
-    }
-}
-
 impl Packet for PlayerVideoCapture {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPlayerVideoCapture.get_byte()
@@ -60,24 +48,12 @@ impl Packet for PlayerVideoCapture {
             file_prefix = Some(PacketSerializer::get_string(stream));
         }
 
-        PlayerVideoCapture {
-            is_recording,
-            frame_rate,
-            file_prefix,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Is Recording: {}", self.is_recording);
-        println!("Frame Rate: {:?}", self.frame_rate);
-        println!("File Prefix: {:?}", self.file_prefix);
+        PlayerVideoCapture { is_recording, frame_rate, file_prefix }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

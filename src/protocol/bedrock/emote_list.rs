@@ -10,13 +10,6 @@ pub struct EmoteList {
     pub emote_ids: Vec<String>,
 }
 
-pub fn new(player_actor_runtime_id: u64, emote_ids: Vec<String>) -> EmoteList {
-    EmoteList {
-        player_actor_runtime_id,
-        emote_ids,
-    }
-}
-
 impl Packet for EmoteList {
     fn id(&self) -> u16 {
         BedrockPacketType::IDEmoteList.get_byte()
@@ -47,22 +40,12 @@ impl Packet for EmoteList {
             emote_ids.push(PacketSerializer::get_uuid(stream));
         }
 
-        EmoteList {
-            player_actor_runtime_id,
-            emote_ids,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Player Actor Runtime ID: {}", self.player_actor_runtime_id);
-        println!("Emote IDs: {:?}", self.emote_ids);
+        EmoteList { player_actor_runtime_id, emote_ids }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

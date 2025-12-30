@@ -10,10 +10,6 @@ pub struct ToastRequest {
     pub body: String,
 }
 
-pub fn new(title: String, body: String) -> ToastRequest {
-    ToastRequest { title, body }
-}
-
 impl Packet for ToastRequest {
     fn id(&self) -> u16 {
         BedrockPacketType::IDToastRequest.get_byte()
@@ -40,16 +36,9 @@ impl Packet for ToastRequest {
         ToastRequest { title, body }
     }
 
-    fn debug(&self) {
-        println!("Title: {}", self.title);
-        println!("Body: {}", self.body);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

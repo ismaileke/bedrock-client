@@ -11,14 +11,6 @@ pub struct AgentActionEvent {
     pub response_json: String,
 }
 
-pub fn new(request_id: String, action: u32, response_json: String) -> AgentActionEvent {
-    AgentActionEvent {
-        request_id,
-        action,
-        response_json,
-    }
-}
-
 impl Packet for AgentActionEvent {
     fn id(&self) -> u16 {
         BedrockPacketType::IDAgentActionEvent.get_byte()
@@ -44,24 +36,12 @@ impl Packet for AgentActionEvent {
         let action = stream.get_u32_le();
         let response_json = PacketSerializer::get_string(stream);
 
-        AgentActionEvent {
-            request_id,
-            action,
-            response_json,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Request ID: {}", self.request_id);
-        println!("Action: {}", self.action);
-        println!("Response JSON: {}", self.response_json);
+        AgentActionEvent { request_id, action, response_json }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

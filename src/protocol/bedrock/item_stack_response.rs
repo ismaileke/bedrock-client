@@ -9,10 +9,6 @@ pub struct ItemStackResponse {
     pub responses: Vec<ItemStackResponseEntry>,
 }
 
-pub fn new(responses: Vec<ItemStackResponseEntry>) -> ItemStackResponse {
-    ItemStackResponse { responses }
-}
-
 impl Packet for ItemStackResponse {
     fn id(&self) -> u16 {
         BedrockPacketType::IDItemStackResponse.get_byte()
@@ -44,15 +40,9 @@ impl Packet for ItemStackResponse {
         ItemStackResponse { responses }
     }
 
-    fn debug(&self) {
-        println!("Responses: {:?}", self.responses);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

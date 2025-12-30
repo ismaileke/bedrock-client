@@ -10,13 +10,6 @@ pub struct MapCreateLockedCopy {
     pub new_map_id: i64,
 }
 
-pub fn new(original_map_id: i64, new_map_id: i64) -> MapCreateLockedCopy {
-    MapCreateLockedCopy {
-        original_map_id,
-        new_map_id,
-    }
-}
-
 impl Packet for MapCreateLockedCopy {
     fn id(&self) -> u16 {
         BedrockPacketType::IDMapCreateLockedCopy.get_byte()
@@ -40,22 +33,12 @@ impl Packet for MapCreateLockedCopy {
         let original_map_id = PacketSerializer::get_actor_unique_id(stream);
         let new_map_id = PacketSerializer::get_actor_unique_id(stream);
 
-        MapCreateLockedCopy {
-            original_map_id,
-            new_map_id,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Original Map ID: {}", self.original_map_id);
-        println!("New Map ID: {}", self.new_map_id);
+        MapCreateLockedCopy { original_map_id, new_map_id }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

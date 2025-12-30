@@ -10,13 +10,6 @@ pub struct PlayerStartItemCooldown {
     pub cooldown_ticks: i32,
 }
 
-pub fn new(item_category: String, cooldown_ticks: i32) -> PlayerStartItemCooldown {
-    PlayerStartItemCooldown {
-        item_category,
-        cooldown_ticks,
-    }
-}
-
 impl Packet for PlayerStartItemCooldown {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPlayerStartItemCooldown.get_byte()
@@ -40,22 +33,12 @@ impl Packet for PlayerStartItemCooldown {
         let item_category = PacketSerializer::get_string(stream);
         let cooldown_ticks = stream.get_var_i32();
 
-        PlayerStartItemCooldown {
-            item_category,
-            cooldown_ticks,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Item Category: {}", self.item_category);
-        println!("Cooldown Ticks: {}", self.cooldown_ticks);
+        PlayerStartItemCooldown { item_category, cooldown_ticks }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

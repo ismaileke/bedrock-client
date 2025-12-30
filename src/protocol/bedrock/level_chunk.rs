@@ -151,22 +151,9 @@ impl Packet for LevelChunk {
         }
     }
 
-    fn debug(&self) {
-        println!("Chunk X: {}", self.chunk_x);
-        println!("Chunk Z: {}", self.chunk_z);
-        println!("Dimension ID: {}", self.dimension_id);
-        println!("Highest Sub Chunk: {}", self.highest_sub_chunk);
-        println!("Sub Chunk Count: {}", self.sub_chunk_count);
-        println!("Cache Enabled: {}", self.cache_enabled);
-        println!("Used Blob Hashes: {:?}", self.used_blob_hashes);
-        println!("Extra Payload (Length): {}", self.extra_payload.len());
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

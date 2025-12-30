@@ -229,9 +229,12 @@ pub fn decode_sub_chunk(buf: &mut Stream, chunk: &Chunk, index: &mut u8) -> Resu
 }
 
 pub fn decode_paletted_storage(buf: &mut Stream) -> Result<Option<PalettedStorage>, String> {
-    let mut block_size = buf.get_byte();
+    let raw_block_size = buf.get_byte();
 
-    block_size = block_size >> 1;
+    let block_size = raw_block_size >> 1;
+
+    //let allow_persistent_ids = true; // true data palette, false runtime data palette
+    //let is_runtime = (raw_block_size & 1) != 0 || !allow_persistent_ids;
     if block_size == 0x7f {
         return Ok(None); // Go returns nil here
     }

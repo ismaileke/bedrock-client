@@ -11,13 +11,6 @@ pub struct SetScoreboardIdentity {
     pub entries: Vec<ScoreboardIdentityEntry>,
 }
 
-pub fn new(action_type: u8, entries: Vec<ScoreboardIdentityEntry>) -> SetScoreboardIdentity {
-    SetScoreboardIdentity {
-        action_type,
-        entries,
-    }
-}
-
 impl Packet for SetScoreboardIdentity {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSetScoreboardIdentity.get_byte()
@@ -59,24 +52,14 @@ impl Packet for SetScoreboardIdentity {
             });
         }
 
-        SetScoreboardIdentity {
-            action_type,
-            entries,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Action Type: {:?}", self.action_type);
-        println!("Entries: {:?}", self.entries);
+        SetScoreboardIdentity { action_type, entries }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl SetScoreboardIdentity {

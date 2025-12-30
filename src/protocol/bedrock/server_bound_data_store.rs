@@ -9,10 +9,6 @@ pub struct ServerBoundDataStore {
     pub update: DataStoreUpdate,
 }
 
-pub fn new(update: DataStoreUpdate) -> ServerBoundDataStore {
-    ServerBoundDataStore { update }
-}
-
 impl Packet for ServerBoundDataStore {
     fn id(&self) -> u16 {
         BedrockPacketType::IDServerBoundDataStore.get_byte()
@@ -37,15 +33,9 @@ impl Packet for ServerBoundDataStore {
         ServerBoundDataStore { update }
     }
 
-    fn debug(&self) {
-        println!("Update: {:?}", self.update);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

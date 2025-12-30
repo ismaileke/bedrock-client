@@ -9,10 +9,6 @@ pub struct CompletedUsingItem {
     pub action: i32,
 }
 
-pub fn new(item_id: i16, action: i32) -> CompletedUsingItem {
-    CompletedUsingItem { item_id, action }
-}
-
 impl Packet for CompletedUsingItem {
     fn id(&self) -> u16 {
         BedrockPacketType::IDCompletedUsingItem.get_byte()
@@ -39,18 +35,11 @@ impl Packet for CompletedUsingItem {
         CompletedUsingItem { item_id, action }
     }
 
-    fn debug(&self) {
-        println!("Item ID: {}", self.item_id);
-        println!("Action: {}", self.action);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl CompletedUsingItem {

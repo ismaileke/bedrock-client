@@ -13,22 +13,6 @@ pub struct AddPainting {
     pub title: String,
 }
 
-pub fn new(
-    actor_unique_id: i64,
-    actor_runtime_id: u64,
-    position: Vec<f32>,
-    direction: i32,
-    title: String,
-) -> AddPainting {
-    AddPainting {
-        actor_unique_id,
-        actor_runtime_id,
-        position,
-        direction,
-        title,
-    }
-}
-
 impl Packet for AddPainting {
     fn id(&self) -> u16 {
         BedrockPacketType::IDAddPainting.get_byte()
@@ -67,19 +51,9 @@ impl Packet for AddPainting {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Unique ID: {}", self.actor_unique_id);
-        println!("Actor Runtime ID: {}", self.actor_runtime_id);
-        println!("Position: {:?}", self.position);
-        println!("Direction: {}", self.direction);
-        println!("Title: {}", self.title);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

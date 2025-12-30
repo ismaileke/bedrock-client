@@ -11,14 +11,6 @@ pub struct LabTable {
     pub reaction_type: u8,
 }
 
-pub fn new(action_type: u8, block_position: Vec<i32>, reaction_type: u8) -> LabTable {
-    LabTable {
-        action_type,
-        block_position,
-        reaction_type,
-    }
-}
-
 impl Packet for LabTable {
     fn id(&self) -> u16 {
         BedrockPacketType::IDLabTable.get_byte()
@@ -51,19 +43,11 @@ impl Packet for LabTable {
         }
     }
 
-    fn debug(&self) {
-        println!("Action Type: {}", self.action_type);
-        println!("Block Position: {:?}", self.block_position);
-        println!("Reaction Type: {}", self.reaction_type);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl LabTable {

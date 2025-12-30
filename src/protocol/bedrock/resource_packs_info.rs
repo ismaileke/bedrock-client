@@ -85,38 +85,9 @@ impl Packet for ResourcePacksInfo {
         }
     }
 
-    fn debug(&self) {
-        println!("Must Accept: {}", self.must_accept);
-        println!("Has Addons: {}", self.has_addons);
-        println!("Has Scripts: {}", self.has_scripts);
-        println!("World Template ID: {}", self.world_template_id);
-        println!("World Template Version: {}", self.world_template_version);
-        println!(
-            "Force Disable Vibrant Visuals: {}",
-            self.force_disable_vibrant_visuals
-        );
-        println!("Resource Pack Count: {}", self.resource_packs.len());
-        for (i, resource_pack) in self.resource_packs.iter().enumerate() {
-            println!("- Resource Pack {} -", i + 1);
-            println!(" - UUID: {}", resource_pack.uuid);
-            println!(" - Version: {}", resource_pack.version);
-            println!(" - Size Bytes: {}", resource_pack.size_bytes);
-            println!(" - Encryption Key: {}", resource_pack.encryption_key);
-            println!(" - Sub Pack Name: {}", resource_pack.sub_pack_name);
-            println!(" - Content ID: {}", resource_pack.content_id);
-            println!(" - Has Scripts: {}", resource_pack.has_scripts);
-            println!(" - Is Addon Pack: {}", resource_pack.is_addon_pack);
-            println!(" - Is RTX Capable: {}", resource_pack.is_rtx_capable);
-            println!(" - CDN URL: {}", resource_pack.cdn_url);
-            println!("-------------------");
-        }
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

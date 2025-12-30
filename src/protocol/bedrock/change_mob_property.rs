@@ -14,24 +14,6 @@ pub struct ChangeMobProperty {
     pub float_value: f32,
 }
 
-pub fn new(
-    actor_unique_id: i64,
-    property_name: String,
-    bool_value: bool,
-    string_value: String,
-    int_value: i32,
-    float_value: f32,
-) -> ChangeMobProperty {
-    ChangeMobProperty {
-        actor_unique_id,
-        property_name,
-        bool_value,
-        string_value,
-        int_value,
-        float_value,
-    }
-}
-
 impl Packet for ChangeMobProperty {
     fn id(&self) -> u16 {
         BedrockPacketType::IDChangeMobProperty.get_byte()
@@ -73,20 +55,9 @@ impl Packet for ChangeMobProperty {
         }
     }
 
-    fn debug(&self) {
-        println!("Actor Unique ID: {}", self.actor_unique_id);
-        println!("Property Name: {}", self.property_name);
-        println!("Bool Value: {}", self.bool_value);
-        println!("String Value: {}", self.string_value);
-        println!("Int Value: {}", self.int_value);
-        println!("Float Value: {}", self.float_value);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

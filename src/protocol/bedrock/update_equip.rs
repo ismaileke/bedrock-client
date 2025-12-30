@@ -15,22 +15,6 @@ pub struct UpdateEquip {
     pub nbt: CacheableNBT,
 }
 
-pub fn new(
-    window_id: u8,
-    window_type: u8,
-    window_slot_count: i32,
-    actor_unique_id: i64,
-    nbt: CacheableNBT,
-) -> UpdateEquip {
-    UpdateEquip {
-        window_id,
-        window_type,
-        window_slot_count,
-        actor_unique_id,
-        nbt,
-    }
-}
-
 impl Packet for UpdateEquip {
     fn id(&self) -> u16 {
         BedrockPacketType::IDUpdateEquip.get_byte()
@@ -58,9 +42,7 @@ impl Packet for UpdateEquip {
         let window_type = stream.get_byte();
         let window_slot_count = stream.get_var_i32();
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
-        let nbt = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(
-            stream,
-        )));
+        let nbt = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)));
 
         UpdateEquip {
             window_id,
@@ -71,19 +53,9 @@ impl Packet for UpdateEquip {
         }
     }
 
-    fn debug(&self) {
-        println!("Window ID: {}", self.window_id);
-        println!("Window Type: {}", self.window_type);
-        println!("Window Slot Count: {}", self.window_slot_count);
-        println!("Actor Unique ID: {}", self.actor_unique_id);
-        println!("NBT: {:?}", self.nbt);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

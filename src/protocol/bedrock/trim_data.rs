@@ -11,13 +11,6 @@ pub struct TrimData {
     pub trim_materials: Vec<TrimMaterial>,
 }
 
-pub fn new(trim_patterns: Vec<TrimPattern>, trim_materials: Vec<TrimMaterial>) -> TrimData {
-    TrimData {
-        trim_patterns,
-        trim_materials,
-    }
-}
-
 impl Packet for TrimData {
     fn id(&self) -> u16 {
         BedrockPacketType::IDTrimData.get_byte()
@@ -55,22 +48,12 @@ impl Packet for TrimData {
             trim_materials.push(TrimMaterial::read(stream));
         }
 
-        TrimData {
-            trim_patterns,
-            trim_materials,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Trim Patterns: {:?}", self.trim_patterns);
-        println!("Trim Materials: {:?}", self.trim_materials);
+        TrimData { trim_patterns, trim_materials }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -11,10 +11,6 @@ pub struct SyncActorProperty {
     pub nbt: CacheableNBT,
 }
 
-pub fn new(nbt: CacheableNBT) -> SyncActorProperty {
-    SyncActorProperty { nbt }
-}
-
 impl Packet for SyncActorProperty {
     fn id(&self) -> u16 {
         BedrockPacketType::IDSyncActorProperty.get_byte()
@@ -41,15 +37,9 @@ impl Packet for SyncActorProperty {
         SyncActorProperty { nbt }
     }
 
-    fn debug(&self) {
-        println!("NBT: {:?}", self.nbt);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

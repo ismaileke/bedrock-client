@@ -14,22 +14,9 @@ pub struct Emote {
     pub flags: u8,
 }
 
-pub fn new(
-    actor_runtime_id: u64,
-    emote_id: String,
-    emote_length_ticks: u32,
-    xbox_user_id: String,
-    platform_chat_id: String,
-    flags: u8,
-) -> Emote {
-    Emote {
-        actor_runtime_id,
-        emote_id,
-        emote_length_ticks,
-        xbox_user_id,
-        platform_chat_id,
-        flags,
-    }
+impl Emote {
+    pub const FLAG_SERVER: u8 = 1 << 0;
+    pub const FLAG_MUTE_ANNOUNCEMENT: u8 = 1 << 1;
 }
 
 impl Packet for Emote {
@@ -73,24 +60,9 @@ impl Packet for Emote {
         }
     }
 
-    fn debug(&self) {
-        println!("Emote ID: {}", self.emote_id);
-        println!("Emote Length Ticks: {}", self.emote_length_ticks);
-        println!("Xbox User ID: {}", self.xbox_user_id);
-        println!("Platform Chat ID: {}", self.platform_chat_id);
-        println!("Flags: {}", self.flags);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
-}
-
-impl Emote {
-    pub const FLAG_SERVER: u8 = 1 << 0;
-    pub const FLAG_MUTE_ANNOUNCEMENT: u8 = 1 << 1;
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -6,10 +6,6 @@ use std::any::Any;
 #[derive(serde::Serialize, Debug)]
 pub struct AvailableCommands {}
 
-pub fn new() -> AvailableCommands {
-    AvailableCommands {}
-}
-
 impl AvailableCommands {
     /**
      * This flag is set on all types EXCEPT the POSTFIX type. Not completely sure what this is for, but it is required
@@ -52,17 +48,11 @@ impl Packet for AvailableCommands {
         AvailableCommands {}
     }
 
-    fn debug(&self) {
-        // TODO
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 /*use std::any::Any;
@@ -252,8 +242,6 @@ impl Packet for AvailableCommands {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 */

@@ -11,14 +11,6 @@ pub struct LegacyTelemetryEvent {
     pub use_player_id: u8,
 }
 
-pub fn new(player_unique_id: i64, event_type: i32, use_player_id: u8) -> LegacyTelemetryEvent {
-    LegacyTelemetryEvent {
-        player_unique_id,
-        event_type,
-        use_player_id,
-    }
-}
-
 impl Packet for LegacyTelemetryEvent {
     fn id(&self) -> u16 {
         BedrockPacketType::IDLegacyTelemetryEvent.get_byte()
@@ -51,19 +43,11 @@ impl Packet for LegacyTelemetryEvent {
         }
     }
 
-    fn debug(&self) {
-        println!("Player Unique ID: {}", self.player_unique_id);
-        println!("Event Type: {}", self.event_type);
-        println!("Use Player ID: {}", self.use_player_id);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl LegacyTelemetryEvent {

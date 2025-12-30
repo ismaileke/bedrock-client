@@ -13,20 +13,6 @@ pub struct PlayerSkin {
     pub old_skin_name: String,
 }
 
-pub fn new(
-    uuid: String,
-    skin: SkinData,
-    new_skin_name: String,
-    old_skin_name: String,
-) -> PlayerSkin {
-    PlayerSkin {
-        uuid,
-        skin,
-        new_skin_name,
-        old_skin_name,
-    }
-}
-
 impl Packet for PlayerSkin {
     fn id(&self) -> u16 {
         BedrockPacketType::IDPlayerSkin.get_byte()
@@ -64,18 +50,9 @@ impl Packet for PlayerSkin {
         }
     }
 
-    fn debug(&self) {
-        println!("UUID: {}", self.uuid);
-        println!("Skin: {:?}", self.skin);
-        println!("New Skin: {:?}", self.new_skin_name);
-        println!("Old Skin: {:?}", self.old_skin_name);
-    }
-
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -12,13 +12,6 @@ pub struct EditorNetwork {
     pub payload: CacheableNBT,
 }
 
-pub fn new(is_route_to_manager: bool, payload: CacheableNBT) -> EditorNetwork {
-    EditorNetwork {
-        is_route_to_manager,
-        payload,
-    }
-}
-
 impl Packet for EditorNetwork {
     fn id(&self) -> u16 {
         BedrockPacketType::IDEditorNetwork.get_byte()
@@ -40,26 +33,14 @@ impl Packet for EditorNetwork {
 
     fn decode(stream: &mut Stream) -> EditorNetwork {
         let is_route_to_manager = stream.get_bool();
-        let payload = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(
-            stream,
-        )));
+        let payload = CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)));
 
-        EditorNetwork {
-            is_route_to_manager,
-            payload,
-        }
-    }
-
-    fn debug(&self) {
-        println!("Is Route to Manager: {}", self.is_route_to_manager);
-        println!("Payload: {:?}", self.payload);
+        EditorNetwork { is_route_to_manager, payload }
     }
 
     fn as_any(&self) -> &dyn Any {
         self
     }
 
-    fn as_json(&self) -> String {
-        serde_json::to_string(self).unwrap()
-    }
+    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
