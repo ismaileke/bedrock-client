@@ -3,46 +3,55 @@
 mod tests {
     extern crate bedrock_client;
 
-    use chrono::{Local, Timelike};
+    use bedrock_client::protocol::bedrock::packet::Packet;
+    use bedrock_client::protocol::bedrock::play_status::PlayStatus;
     use bedrock_client::protocol::bedrock::text::Text;
     use bedrock_client::{client, downcast_bedrock_packet};
     use bedrock_client::utils::color_format;
 
     #[tokio::test]
-    async fn test() {
-        let mut client = client::create(
+    async fn test_client() {
+        let client = client::create(
             "127.0.0.1".to_string(),
             19132,
             "1.21.130".to_string(),
-            false,
-            |code, url| {
-                println!("You can log in with the code {} at {}", code, url);
-            },
-        )
-        .await
-        .unwrap();
+            true,
+            |code, url| { println!("Microsoft Auth: {} {}", code, url); }
+        ).await.unwrap();
 
-        client.set_packet_callback(|packet_name, packet| {
-            let now = Local::now();
-            let timestamp = format!(
-                "{}<{}{:02}:{:02}:{:02}:{:03}{}>",
-                color_format::COLOR_GRAY,
-                color_format::COLOR_MINECOIN_GOLD,
-                now.hour(),
-                now.minute(),
-                now.second(),
-                now.timestamp_subsec_millis(),
-                color_format::COLOR_GRAY,
-            );
-            println!("{} {}{} Packet {}", timestamp, color_format::FORMAT_BOLD, packet_name, color_format::FORMAT_RESET);
-            println!("Packet as JSON: {}", packet.as_json());
+        loop {
+            let packets = client.receive_packets();
 
-            downcast_bedrock_packet!(packet, Text, |txt: &Text| {
-                println!("Text Packet Message: {:?}", txt.message);
-                println!("Text Parameters: {:?}", txt.parameters);
-            });
-        });
+            for (packet_name, packet) in packets {
+                println!("{}[{}Packet{}] Received Packet:{} {}", color_format::COLOR_GRAY, color_format::COLOR_MINECOIN_GOLD, color_format::COLOR_GRAY, color_format::COLOR_BLUE, packet_name);
 
-        client.connect().unwrap();
+                downcast_bedrock_packet!(packet, Text, |txt: &Text| {
+                    println!("CHAT Message: {}", txt.message);
+                });
+
+                downcast_bedrock_packet!(packet, PlayStatus, |play_status: &PlayStatus| {
+                    if play_status.status == 3 {
+                        println!("Login Successful! Joined the game.");
+                        let my_text = Text {
+                            text_type: Text::TYPE_CHAT,
+                            needs_translation: false,
+                            source_name: Some("oyunkons1234".to_string()),
+                            message: "Hello server!".to_string(),
+                            parameters: None,
+                            xbox_uid: "".to_string(),
+                            platform_chat_id: "".to_string(),
+                            filtered_message: None,
+                        }.encode();
+
+                        client.send_packet(my_text);
+                    }
+                });
+            }
+
+            // B. Oyun mantığı / Render işlemleri burada yapılır...
+
+            // C. Döngü hızı (CPU'yu rahatlatmak için)
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
     }
 }
