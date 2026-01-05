@@ -48,15 +48,28 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
+use crate::utils::chunk::Chunk;
 
 pub struct Client {
-    network_sender: Sender<Vec<u8>>, // Oyun -> Network (Paket Gönder)
-    network_receiver: Receiver<(String, Box<dyn Packet + Send>)>, // Network -> Oyun (Paket Al)     Packet Type ismi ve Paketin kendisi
+    network_sender: Sender<Vec<u8>>, // Game -> Network
+    network_receiver: Receiver<ClientEvent>, // Network -> Game
+    pub chunk_palette_hashed: HashMap<u32, CompoundTag>,
+    pub chunk_palette_runtime: Vec<CompoundTag>,
+    pub chunk_air_id: u32,
     pub target_address: String,
     pub target_port: u16,
     pub client_version: String,
     pub debug: bool,
     pub auth_callback: Arc<Mutex<Option<Box<dyn Fn(&str, &str) + Send>>>>,
+}
+
+pub enum ClientEvent {
+    Packet(String, Box<dyn Packet + Send>),
+    BlockPalette {
+        hashed_ids: HashMap<u32, CompoundTag>,
+        runtime_ids: Vec<CompoundTag>,
+        air_id: u32,
+    }
 }
 
 pub async fn create<F>(
@@ -83,7 +96,7 @@ where
 
     // (Queue System)
     let (tx_outbound, rx_outbound) = channel::<Vec<u8>>(); // From game to network
-    let (tx_inbound, rx_inbound) = channel::<(String, Box<dyn Packet + Send>)>(); // From the Network to the Game
+    let (tx_inbound, rx_inbound) = channel::<ClientEvent>(); // From the Network to the Game
 
     let raknet_handler = RakNetPacketHandler::new();
     let bedrock_handler = BedrockPacketHandler::new(bedrock);
@@ -112,6 +125,9 @@ where
     Option::from(Client {
         network_sender: tx_outbound,
         network_receiver: rx_inbound,
+        chunk_palette_hashed: HashMap::new(),
+        chunk_palette_runtime: vec![],
+        chunk_air_id: 0,
         target_address,
         target_port,
         client_version,
@@ -124,12 +140,27 @@ impl Client {
 
     /// When you call this function, the packet is passed to the background thread.
     pub fn send_packet(&self, packet_data: Vec<u8>) {
-        self.network_sender.send(packet_data).expect("Network thread kapalı, paket gönderilemedi.");
+        self.network_sender.send(packet_data).expect("Network thread closed, packet could not be sent.");
     }
 
-    pub fn receive_packets(&self) -> Vec<(String, Box<dyn Packet + Send>)> {
+    pub fn next_event(&mut self) -> Option<(String, Box<dyn Packet + Send>)> {
+        match self.network_receiver.try_recv() {
+            Ok(event) => match event {
+                ClientEvent::BlockPalette { hashed_ids, runtime_ids, air_id } => {
+                    if self.debug { println!("Block Palette Synchronized! ({} block)", runtime_ids.len()); }
+                    self.chunk_palette_hashed = hashed_ids;
+                    self.chunk_palette_runtime = runtime_ids;
+                    self.chunk_air_id = air_id;
+                    None
+                },
+                ClientEvent::Packet(name, pkt) => Some((name, pkt)),
+            },
+            Err(_) => None,
+        }
+    }
+
+    pub fn receive_packets(&self) -> Vec<ClientEvent> {
         let mut packets = Vec::new();
-        // Kuyrukta bekleyen tüm paketleri çek
         while let Ok(pkt) = self.network_receiver.try_recv() {
             packets.push(pkt);
         }
@@ -148,27 +179,33 @@ impl Client {
         *self.auth_callback.lock().unwrap() = Some(Box::new(callback));
     }
 
-    /*pub fn print_all_blocks(&self, chunk_x: i32, chunk_z: i32, chunk: Chunk) {
+    pub fn print_chunk(&self, chunk_x: i32, chunk_z: i32, chunk: Chunk) {
+        if self.chunk_palette_runtime.is_empty() && self.chunk_palette_hashed.is_empty() {
+            println!("⚠️ The chunk package has arrived, but there is no pallet data yet, and the block names cannot be resolved.");
+            return;
+        }
         for (sub_chunk_index, sub_chunk) in chunk.sub.iter().enumerate() {
             for (layer_index, storage) in sub_chunk.storages.iter().enumerate() {
-                //println!("SubChunk {} - Layer {}:", sub_chunk_index, layer_index);
                 if layer_index == 0 {
                     for y in 0..16 {
                         for x in 0..16 {
                             for z in 0..16 {
                                 let block_id = storage.at(x as u8, y as u8, z as u8);
-                                let real_x = chunk_x*16 + x;
-                                let real_y = chunk.r.0 + (sub_chunk_index*16 + y) as isize;
-                                let real_z = chunk_z*16 + z;
-                                let block_info = if self.bedrock_handler.hashed_network_ids.len() != 0 {
-                                    self.bedrock_handler.hashed_network_ids.get(&block_id).expect(format!("({},{},{}) Block ID not found in hashed network ids {}", real_x, real_y, real_z, block_id).as_str())
+                                let block_info = if !self.chunk_palette_hashed.is_empty() {
+                                    self.chunk_palette_hashed.get(&block_id)
                                 } else {
-                                    self.bedrock_handler.runtime_network_ids.get(block_id as usize).expect(format!("({},{},{}) Block ID not found in runtime network ids {}", real_x, real_y, real_z, block_id).as_str())
+                                    self.chunk_palette_runtime.get(block_id as usize)
                                 };
 
-                                let name = block_info.get_string("name").unwrap();
-                                if name != "minecraft:air" {
-                                    //println!("({},{},{}) Block Name: {}", real_x, real_y, real_z, name);
+                                if let Some(tag) = block_info {
+                                    if let Some(name) = tag.get_string("name") {
+                                        if name != "minecraft:air" {
+                                            let real_x = chunk_x * 16 + x;
+                                            let real_y = chunk.r.0 + (sub_chunk_index * 16 + y) as isize;
+                                            let real_z = chunk_z * 16 + z;
+                                            println!("Block: {} Coordinate: {},{},{}", name, real_x, real_y, real_z);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -176,7 +213,7 @@ impl Client {
                 }
             }
         }
-    }*/
+    }
 }
 
 // =================================================================================
@@ -191,7 +228,7 @@ fn start_network_thread(
     mut raknet_handler: RakNetPacketHandler,
     mut bedrock_handler: BedrockPacketHandler,
     rx_from_game: Receiver<Vec<u8>>,
-    tx_to_game: Sender<(String, Box<dyn Packet + Send>)>
+    tx_to_game: Sender<ClientEvent>
 ) {
     if debug { println!("Connecting to {}:{}...", target_address, target_port); }
     socket.connect(format!("{}:{}", target_address, target_port)).expect("Socket connect fail");
@@ -743,6 +780,13 @@ fn start_network_thread(
                                                 ////////////////////////////////////////////////////
                                                 ////////////////////////////////////////////////////
 
+                                                let palette_event = ClientEvent::BlockPalette {
+                                                    hashed_ids: bedrock_handler.hashed_network_ids.clone(),
+                                                    runtime_ids: bedrock_handler.runtime_network_ids.clone(),
+                                                    air_id: bedrock_handler.air_network_id,
+                                                };
+                                                tx_to_game.send(palette_event).expect("Main thread koptu");
+
                                             },
                                             BedrockPacketType::IDAvailableCommands => {
                                                 // REQUEST CHUNK RADIUS PACKET
@@ -785,16 +829,8 @@ fn start_network_thread(
                                             _ => {}
                                         }
 
-                                        // -------------------------------------------------------------
-                                        // 2. KRİTİK EKLEME: PAKETİ OYUNA GÖNDERME
-                                        // İşimiz bitti, paketi kutuya (kanala) atıyoruz.
-                                        // Artık Main Thread (Oyun) bu paketi "receive_packets()" ile alabilir.
-                                        // -------------------------------------------------------------
-
-                                        // Handshake paketlerini oyuna göndermek zorunda değilsin ama
-                                        // debug için hepsini göndermek iyidir.
                                         let packet_name = BedrockPacketType::get_packet_name(packet_id as u16).to_string();
-                                        let _ = tx_to_game.send((packet_name, packet));
+                                        tx_to_game.send(ClientEvent::Packet(packet_name, packet)).unwrap();
                                     }
                                 },
                                 PacketType::DisconnectionNotification => {

@@ -52,21 +52,26 @@ async fn main() {
 
     // 2. Game Loop (Main Thread)
     loop {
-        // Fetch all incoming packets from the channel (Non-blocking)
-        let packets = client.receive_packets();
+        while let Some((packet_name, packet)) = client.next_event() {
+            println!("{}[{}Packet{}] Received Packet:{} {}{}", color_format::COLOR_GRAY, color_format::COLOR_MINECOIN_GOLD, color_format::COLOR_GRAY, color_format::COLOR_BLUE, packet_name, color_format::COLOR_GRAY);
 
-        for (packet_name, packet) in packets {
-            println!("Received Packet: {}", packet_name);
+            downcast_bedrock_packet!(packet, PlayStatus, |play_status: &PlayStatus| {
+                if play_status.status == 3 {
+                    println!("Login Successful! Joined the game.");
+                    let my_text = Text {
+                        text_type: Text::TYPE_CHAT,
+                        needs_translation: false,
+                        source_name: Some("ismaileke".to_string()),
+                        message: "Hello server!".to_string(),
+                        parameters: None,
+                        xbox_uid: "".to_string(),
+                        platform_chat_id: "".to_string(),
+                        filtered_message: None,
+                    }.encode();
 
-            // Example: Handle Chat Message
-            if packet_name == "Text" {
-                if let Some(txt) = packet.as_any().downcast_ref::<Text>() {
-                    println!("Chat: {:?}", txt.message);
-                    
-                    // You can send packets safely from here
-                    // client.send_packet(packet_bytes);
+                    client.send_packet(my_text);
                 }
-            }
+            });
         }
 
         // Logic & Ticking (Prevent 100% CPU usage on Main Thread)
