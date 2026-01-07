@@ -16,14 +16,8 @@ pub struct LevelChunk {
 }
 
 impl LevelChunk {
-    /**
-     * Client will request all sub chunks as needed up to the top of the world
-     */
     pub const SUB_CHUNK_REQUEST_MODE_LIMITLESS: u32 = u32::MAX;
-    /**
-     * Client will request sub chunks as needed up to the height written in the packet, and assume that anything above
-     * that height is air (wtf mojang ...)
-     */
+    
     pub const SUB_CHUNK_REQUEST_MODE_LIMITED: u32 = u32::MAX - 1;
 
     //this appears large enough for a world height of 1024 blocks - it may need to be increased in the future

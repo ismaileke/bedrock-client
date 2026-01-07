@@ -36,8 +36,7 @@ use std::time::Duration;
 
 #[tokio::main]
 async fn main() {
-    // 1. Initialize Client
-    // This immediately starts the Network Thread in the background.
+    // Check out my test file for detailed usage
     let client = client::create(
         "127.0.0.1".to_string(),    // target address
         19132,                      // target port
@@ -50,7 +49,6 @@ async fn main() {
 
     println!("Client started! Entering game loop...");
 
-    // 2. Game Loop (Main Thread)
     loop {
         while let Some((packet_name, packet)) = client.next_event() {
             println!("{}[{}Packet{}] Received Packet:{} {}{}", color_format::COLOR_GRAY, color_format::COLOR_MINECOIN_GOLD, color_format::COLOR_GRAY, color_format::COLOR_BLUE, packet_name, color_format::COLOR_GRAY);
@@ -75,7 +73,7 @@ async fn main() {
         }
 
         // Logic & Ticking (Prevent 100% CPU usage on Main Thread)
-        thread::sleep(Duration::from_millis(10));
+        thread::sleep(Duration::from_millis(5));
     }
 }
 ```

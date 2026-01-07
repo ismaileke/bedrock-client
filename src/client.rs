@@ -43,32 +43,46 @@ use mojang_nbt::tree_root::TreeRoot;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::io::{Cursor, Read};
-use std::net::UdpSocket;
+use std::net::{SocketAddr, ToSocketAddrs, UdpSocket};
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, Mutex};
-use std::thread;
+use std::{io, thread};
 use std::time::Duration;
 use crate::utils::chunk::Chunk;
 
 pub struct Client {
+    // Network
     network_sender: Sender<Vec<u8>>, // Game -> Network
     network_receiver: Receiver<ClientEvent>, // Network -> Game
-    pub chunk_palette_hashed: HashMap<u32, CompoundTag>,
-    pub chunk_palette_runtime: Vec<CompoundTag>,
-    pub chunk_air_id: u32,
     pub target_address: String,
     pub target_port: u16,
     pub client_version: String,
     pub debug: bool,
     pub auth_callback: Arc<Mutex<Option<Box<dyn Fn(&str, &str) + Send>>>>,
+    // In Game
+    pub chunk_palette_hashed: HashMap<u32, CompoundTag>,
+    pub chunk_palette_runtime: Vec<CompoundTag>,
+    pub chunk_air_id: u32,
+    pub runtime_id: u64,
+    pub unique_id: i64,
+    pub current_tick: u64,
+    pub player_position: Vec<f32>,
+    pub yaw: f32,
+    pub pitch: f32,
 }
 
 pub enum ClientEvent {
     Packet(String, Box<dyn Packet + Send>),
-    BlockPalette {
+    GameStarted {
         hashed_ids: HashMap<u32, CompoundTag>,
         runtime_ids: Vec<CompoundTag>,
         air_id: u32,
+        runtime_id: u64,
+        unique_id: i64,
+        current_tick: u64,
+        player_position: Vec<f32>,
+        yaw: f32,
+        pitch: f32,
     }
 }
 
@@ -82,6 +96,20 @@ pub async fn create<F>(
 where
     F: Fn(&str, &str) + Send + 'static
 {
+    let mut address = String::new();
+
+    match lookup_host(&target_address) {
+        Ok(addrs) => {
+            for addr in addrs {
+                address = addr.ip().to_string();
+                break;
+            }
+        },
+        Err(e) => {
+            panic!("Error: {}", e);
+        }
+    }
+
     let auth_callback: Arc<Mutex<Option<Box<dyn Fn(&str, &str) + Send>>>> =
         Arc::new(Mutex::new(Some(Box::new(auth_callback_fn))));
     let auth_callback_clone = auth_callback.clone();
@@ -104,7 +132,7 @@ where
     let socket = UdpSocket::bind("0.0.0.0:0").expect("Socket Bind Error");
     socket.set_nonblocking(true).expect("Non-blocking mode set failed");
 
-    let t_addr = target_address.clone();
+    let t_addr = address;
     let t_port = target_port;
     let t_ver = client_version.clone();
 
@@ -125,14 +153,20 @@ where
     Option::from(Client {
         network_sender: tx_outbound,
         network_receiver: rx_inbound,
-        chunk_palette_hashed: HashMap::new(),
-        chunk_palette_runtime: vec![],
-        chunk_air_id: 0,
         target_address,
         target_port,
         client_version,
         debug,
         auth_callback,
+        chunk_palette_hashed: HashMap::new(),
+        chunk_palette_runtime: vec![],
+        chunk_air_id: 0,
+        runtime_id: 0,
+        unique_id: 0,
+        current_tick: 0,
+        player_position: vec![0.0, 0.0, 0.0],
+        yaw: 0.0,
+        pitch: 0.0,
     })
 }
 
@@ -146,11 +180,17 @@ impl Client {
     pub fn next_event(&mut self) -> Option<(String, Box<dyn Packet + Send>)> {
         match self.network_receiver.try_recv() {
             Ok(event) => match event {
-                ClientEvent::BlockPalette { hashed_ids, runtime_ids, air_id } => {
-                    if self.debug { println!("Block Palette Synchronized! ({} block)", runtime_ids.len()); }
+                ClientEvent::GameStarted { hashed_ids, runtime_ids, air_id, runtime_id, unique_id, current_tick, player_position, yaw, pitch } => {
+                    if self.debug { println!("Block Palette Synchronized! ({} block)", if runtime_ids.len() != 0 { runtime_ids.len() } else { hashed_ids.len() }); }
                     self.chunk_palette_hashed = hashed_ids;
                     self.chunk_palette_runtime = runtime_ids;
                     self.chunk_air_id = air_id;
+                    self.runtime_id = runtime_id;
+                    self.unique_id = unique_id;
+                    self.current_tick = current_tick;
+                    self.player_position = player_position;
+                    self.yaw = yaw;
+                    self.pitch = pitch;
                     None
                 },
                 ClientEvent::Packet(name, pkt) => Some((name, pkt)),
@@ -181,7 +221,7 @@ impl Client {
 
     pub fn print_chunk(&self, chunk_x: i32, chunk_z: i32, chunk: Chunk) {
         if self.chunk_palette_runtime.is_empty() && self.chunk_palette_hashed.is_empty() {
-            println!("⚠️ The chunk package has arrived, but there is no pallet data yet, and the block names cannot be resolved.");
+            println!("⚠️ The chunk packet has arrived, but there is no pallet data yet, and the block names cannot be resolved.");
             return;
         }
         for (sub_chunk_index, sub_chunk) in chunk.sub.iter().enumerate() {
@@ -257,8 +297,7 @@ fn start_network_thread(
         }
 
         // ------------------------------------------------------------------
-        // B. INBOUND (Gelen Paketler - Consumer)
-        // Soketi dinle (Non-blocking)
+        // B. INBOUND (Gelen Paketler)
         // ------------------------------------------------------------------
         match socket.recv_from(&mut buffer) {
             Ok((amt, _src)) => {
@@ -780,10 +819,16 @@ fn start_network_thread(
                                                 ////////////////////////////////////////////////////
                                                 ////////////////////////////////////////////////////
 
-                                                let palette_event = ClientEvent::BlockPalette {
+                                                let palette_event = ClientEvent::GameStarted {
                                                     hashed_ids: bedrock_handler.hashed_network_ids.clone(),
                                                     runtime_ids: bedrock_handler.runtime_network_ids.clone(),
                                                     air_id: bedrock_handler.air_network_id,
+                                                    runtime_id: start_game.actor_runtime_id,
+                                                    unique_id: start_game.actor_unique_id,
+                                                    current_tick: start_game.current_tick,
+                                                    player_position: start_game.player_position.clone(),
+                                                    yaw: start_game.yaw,
+                                                    pitch: start_game.pitch
                                                 };
                                                 tx_to_game.send(palette_event).expect("Main thread koptu");
 
@@ -822,7 +867,7 @@ fn start_network_thread(
                                                         socket.send(&datagram.to_binary()).expect("C->S Packet could not be sent");
                                                     }
                                                 }
-                                            }
+                                            },
                                             BedrockPacketType::IDDisconnect => {
                                                 should_stop = true;
                                             }
@@ -845,22 +890,21 @@ fn start_network_thread(
                     }
                 }
 
-                // ÖNEMLİ: İşlem yaptıysak busy = true yapalım ki CPU uyumasın
                 busy = true;
             },
-            Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {},
+            Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {},
             Err(e) => {
                 eprintln!("Error receiving data: {}", e);
             }
         }
 
-        // ------------------------------------------------------------------
-        // C. CPU SAVER
-        // ------------------------------------------------------------------
-        // Eğer ne paket gönderdik ne de aldık, işlemciyi yakmamak için
-        // çok kısa (50 mikrosaniye) uyu. Bu pingi etkilemez.
+        // CPU SAVER
         if !busy {
             thread::sleep(Duration::from_micros(50));
         }
     }
+}
+
+fn lookup_host(hostname: &String) -> io::Result<Vec<SocketAddr>> {
+    (hostname.to_string(), 0).to_socket_addrs().map(|addrs| addrs.collect())
 }
