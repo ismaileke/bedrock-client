@@ -643,7 +643,11 @@ impl PacketSerializer {
     fn get_skin_image(stream: &mut Stream) -> SkinImage {
         let width = stream.get_u32_le();
         let height = stream.get_u32_le();
-        let data = PacketSerializer::get_string(stream);
+
+        // check later (improve get string func)
+        let length = stream.get_var_u32();
+        let data = stream.get(length);
+        //let data = PacketSerializer::get_string(stream);
 
         SkinImage::new(width, height, data)
     }
@@ -651,7 +655,10 @@ impl PacketSerializer {
     fn put_skin_image(stream: &mut Stream, skin_image: &SkinImage) {
         stream.put_u32_le(skin_image.width());
         stream.put_u32_le(skin_image.height());
-        PacketSerializer::put_string(stream, skin_image.data());
+        // check later (improve get string func)
+        stream.put_var_u32(skin_image.data().len() as u32);
+        stream.put(skin_image.data());
+        //PacketSerializer::put_string(stream, skin_image.data());
     }
 
     pub fn get_structure_settings(stream: &mut Stream) -> StructureSettings {

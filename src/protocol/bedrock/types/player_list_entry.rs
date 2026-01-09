@@ -31,7 +31,7 @@ impl PlayerListEntry {
                 String::new(),
                 String::new(),
                 String::new(),
-                SkinImage::new(0, 0, String::new()),
+                SkinImage::new(0, 0, vec![]),
             ),
             is_teacher: false,
             is_host: false,

@@ -20,7 +20,7 @@ mod tests {
     #[tokio::test]
     async fn test_client() {
         let mut client = client::create(
-            "play.craftersmc.net".to_string(),
+            "127.0.0.1".to_string(),
             19132,
             "1.21.130".to_string(),
             true,
@@ -91,8 +91,8 @@ mod tests {
                         );
 
                         match decoded_chunk {
-                            Ok(chunk) => {
-                                client.print_chunk(level_chunk.chunk_x, level_chunk.chunk_z, chunk);
+                            Ok(_chunk) => {
+                                //client.print_chunk(level_chunk.chunk_x, level_chunk.chunk_z, chunk);
                             },
                             Err(e) => eprintln!("Chunk could not be resolved: {}", e),
                         }
@@ -129,7 +129,7 @@ mod tests {
                 last_auth_input_time = Instant::now();
             }
 
-            std::thread::sleep(Duration::from_millis(5));
+            tokio::time::sleep(Duration::from_millis(5)).await;
         }
     }
 }

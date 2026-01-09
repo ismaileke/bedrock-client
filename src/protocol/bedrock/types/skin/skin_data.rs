@@ -45,7 +45,7 @@ impl SkinData {
             resource_patch,
             skin_image,
             animations: vec![],
-            cape_image: Some(SkinImage::new(0, 0, String::new())),
+            cape_image: Some(SkinImage::new(0, 0, vec![])),
             geometry_data: String::new(),
             geometry_data_engine_version: String::from("1.21.130"),
             animation_data: String::new(),

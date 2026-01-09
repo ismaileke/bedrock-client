@@ -31,7 +31,6 @@ tokio = "1.49.0"
 ```rust
 use bedrock_client::client;
 use bedrock_client::protocol::bedrock::text::Text;
-use std::thread;
 use std::time::Duration;
 
 #[tokio::main]
@@ -73,7 +72,7 @@ async fn main() {
         }
 
         // Logic & Ticking (Prevent 100% CPU usage on Main Thread)
-        thread::sleep(Duration::from_millis(5));
+        tokio::time::sleep(Duration::from_millis(5)).await;
     }
 }
 ```
