@@ -9,8 +9,6 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::play_status::PlayStatus;
 use crate::protocol::bedrock::request_chunk_radius::RequestChunkRadius;
 use crate::protocol::bedrock::resource_pack_client_response::ResourcePackClientResponse;
-use crate::protocol::bedrock::resource_pack_stack::ResourcePackStack;
-use crate::protocol::bedrock::resource_packs_info::ResourcePacksInfo;
 use crate::protocol::bedrock::server_to_client_handshake::ServerToClientHandshake;
 use crate::protocol::bedrock::set_local_player_as_initialized::SetLocalPlayerAsInitializedPacket;
 use crate::protocol::bedrock::start_game::StartGame;
@@ -489,15 +487,15 @@ fn start_network_thread(
                                                 }
                                             },
                                             BedrockPacketType::IDResourcePacksInfo => {
-                                                let resource_packs_info = packet.as_any().downcast_ref::<ResourcePacksInfo>().unwrap();
+                                                /*let resource_packs_info = packet.as_any().downcast_ref::<ResourcePacksInfo>().unwrap();
 
                                                 let mut rp_uuids = Vec::new();
                                                 for (_, resource_pack) in resource_packs_info.resource_packs.iter().enumerate() {
                                                     rp_uuids.push(resource_pack.uuid.clone());
-                                                }
+                                                }*/
 
                                                 // RESOURCE PACK CLIENT RESPONSE PACKET {HAVE ALL PACKS}
-                                                let rp_client_response = ResourcePackClientResponse{ status: ResourcePackClientResponse::HAVE_ALL_PACKS, pack_ids: rp_uuids }.encode();
+                                                let rp_client_response = ResourcePackClientResponse{ status: ResourcePackClientResponse::HAVE_ALL_PACKS, pack_ids: vec![] }.encode();
 
                                                 let game_packet = raknet_handler.game.encode(&rp_client_response);
                                                 let datagrams = Datagram::split_packet(game_packet, &mut raknet_handler.frame_number_cache);
@@ -515,15 +513,15 @@ fn start_network_thread(
                                                 }
                                             },
                                             BedrockPacketType::IDResourcePackStack => {
-                                                let resource_pack_stack = packet.as_any().downcast_ref::<ResourcePackStack>().unwrap();
+                                                /*let resource_pack_stack = packet.as_any().downcast_ref::<ResourcePackStack>().unwrap();
 
                                                 let mut pack_ids = vec![];
                                                 for resource_stack_entry in &resource_pack_stack.resource_pack_stack {
                                                     pack_ids.push(resource_stack_entry.pack_id.clone());
-                                                }
+                                                }*/
 
                                                 // RESOURCE PACK CLIENT RESPONSE PACKET {COMPLETED}
-                                                let rp_client_response = ResourcePackClientResponse{ status: ResourcePackClientResponse::COMPLETED, pack_ids }.encode();
+                                                let rp_client_response = ResourcePackClientResponse{ status: ResourcePackClientResponse::COMPLETED, pack_ids: vec![] }.encode();
 
                                                 let game_packet = raknet_handler.game.encode(&rp_client_response);
                                                 let datagrams = Datagram::split_packet(game_packet, &mut raknet_handler.frame_number_cache);

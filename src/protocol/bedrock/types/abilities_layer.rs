@@ -1,5 +1,6 @@
 use binary_utils::binary::Stream;
 use std::collections::HashMap;
+use log::error;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AbilitiesLayer {
@@ -77,19 +78,19 @@ impl AbilitiesLayer {
         }
         if set_abilities & (1 << Self::ABILITY_FLY_SPEED) == 0 {
             if fly_speed.unwrap() != 0.0 {
-                panic!("Fly speed should be zero if the layer does not set it");
+                error!("Fly speed should be zero if the layer does not set it");
             }
             fly_speed = None;
         }
         if set_abilities & (1 << Self::ABILITY_VERTICAL_FLY_SPEED) == 0 {
             if vertical_fly_speed.unwrap() != 0.0 {
-                panic!("Vertical Fly speed should be zero if the layer does not set it");
+                error!("Vertical Fly speed should be zero if the layer does not set it");
             }
             vertical_fly_speed = None;
         }
         if set_abilities & (1 << Self::ABILITY_WALK_SPEED) == 0 {
             if walk_speed.unwrap() != 0.0 {
-                panic!("Walk speed should be zero if the layer does not set it");
+                error!("Walk speed should be zero if the layer does not set it");
             }
             walk_speed = None;
         }
