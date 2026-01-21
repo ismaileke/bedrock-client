@@ -2,9 +2,9 @@ use crate::protocol::raknet::packet_ids::PacketType;
 use binary_utils::binary::Stream;
 
 pub struct OpenConnReq1 {
-    magic: [u8; 16],
-    protocol: u8,
-    mtu_size: u16,
+    pub magic: [u8; 16],
+    pub protocol: u8,
+    pub mtu_size: u16,
 }
 
 impl OpenConnReq1 {

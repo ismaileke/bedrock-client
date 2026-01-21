@@ -2,9 +2,9 @@ use crate::protocol::raknet::packet_ids::PacketType;
 use binary_utils::binary::Stream;
 
 pub struct ConnReq {
-    client_guid: u64,
-    request_time: u64,
-    secure: bool,
+    pub client_guid: u64,
+    pub request_time: u64,
+    pub secure: bool,
 }
 
 impl ConnReq {

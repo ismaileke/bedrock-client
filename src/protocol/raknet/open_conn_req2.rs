@@ -4,12 +4,12 @@ use binary_utils::binary::Stream;
 use crate::utils::address;
 
 pub struct OpenConnReq2 {
-    magic: [u8; 16],
-    server_address: InternetAddress,
-    cookie: Option<u32>,
-    client_supports_security: bool,
-    mtu: u16,
-    client_guid: u64,
+    pub magic: [u8; 16],
+    pub server_address: InternetAddress,
+    pub cookie: Option<u32>,
+    pub client_supports_security: bool,
+    pub mtu: u16,
+    pub client_guid: u64,
 }
 
 impl OpenConnReq2 {
