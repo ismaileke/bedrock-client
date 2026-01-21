@@ -1,6 +1,8 @@
 pub mod acknowledge;
 pub mod conn_req;
 pub mod conn_req_accepted;
+pub mod unconnected_pong;
+pub mod unconnected_ping;
 pub mod connected_ping;
 pub mod connected_pong;
 pub mod frame_set;

@@ -16,12 +16,7 @@ impl NewIncomingConn {
         ping_time: u64,
         pong_time: u64,
     ) -> NewIncomingConn {
-        NewIncomingConn {
-            server_address,
-            system_addresses,
-            ping_time,
-            pong_time,
-        }
+        NewIncomingConn { server_address, system_addresses, ping_time, pong_time }
     }
 
     pub fn encode(&self) -> Vec<u8> {

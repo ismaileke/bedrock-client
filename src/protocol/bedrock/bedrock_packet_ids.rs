@@ -431,7 +431,7 @@ pub enum BedrockPacketType {
 }
 
 impl BedrockPacketType {
-    pub(crate) fn from_byte(byte: u16) -> Self {
+    pub fn from_byte(byte: u16) -> Self {
         match byte {
             0x01 => BedrockPacketType::IDLogin,
             0x02 => BedrockPacketType::IDPlayStatus,
@@ -647,7 +647,7 @@ impl BedrockPacketType {
             _ => BedrockPacketType::IDUnknown,
         }
     }
-    pub(crate) fn get_byte(self) -> u16 {
+    pub fn get_byte(self) -> u16 {
         match self {
             BedrockPacketType::IDLogin => 0x01,
             BedrockPacketType::IDPlayStatus => 0x02,
@@ -863,7 +863,7 @@ impl BedrockPacketType {
             _ => 0,
         }
     }
-    pub(crate) fn get_packet_name(id: u16) -> &'static str {
+    pub fn get_packet_name(id: u16) -> &'static str {
         match id {
             0x01 => "Login",
             0x02 => "Play Status",
@@ -1080,7 +1080,7 @@ impl BedrockPacketType {
         }
     }
 
-    pub(crate) fn get_packet_from_id(id: u16, stream: &mut Stream) -> Box<dyn Packet> {
+    pub fn get_packet_from_id(id: u16, stream: &mut Stream) -> Box<dyn Packet> {
         match id {
             0x01 => Box::new(Login::decode(stream)),
             0x02 => Box::new(PlayStatus::decode(stream)),

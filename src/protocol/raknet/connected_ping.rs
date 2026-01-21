@@ -28,11 +28,7 @@ impl ConnectedPing {
     }
 
     pub fn debug(&self) {
-        println!(
-            "--- {}ConnectedPing{} ---",
-            color_format::COLOR_GOLD,
-            COLOR_WHITE
-        );
+        println!("--- {}ConnectedPing{} ---", color_format::COLOR_GOLD, COLOR_WHITE);
         println!("Ping Time: {:?}", self.ping_time);
     }
 }

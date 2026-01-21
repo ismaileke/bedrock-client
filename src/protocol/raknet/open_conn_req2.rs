@@ -20,14 +20,7 @@ impl OpenConnReq2 {
         mtu: u16,
         client_guid: u64,
     ) -> OpenConnReq2 {
-        OpenConnReq2 {
-            magic,
-            server_address,
-            cookie,
-            client_supports_security,
-            mtu,
-            client_guid,
-        }
+        OpenConnReq2 { magic, server_address, cookie, client_supports_security, mtu, client_guid }
     }
 
     pub fn encode(&self) -> Vec<u8> {

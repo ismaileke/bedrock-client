@@ -24,21 +24,11 @@ impl OpenConnReply1 {
         }
         let mtu = stream.get_u16_be();
 
-        OpenConnReply1 {
-            magic,
-            server_guid,
-            server_security,
-            cookie,
-            mtu,
-        }
+        OpenConnReply1 { magic, server_guid, server_security, cookie, mtu }
     }
 
     pub fn debug(&self) {
-        println!(
-            "--- {}OpenConnReply1{} ---",
-            color_format::COLOR_GOLD,
-            COLOR_WHITE
-        );
+        println!("--- {}OpenConnReply1{} ---", color_format::COLOR_GOLD, COLOR_WHITE);
         println!("Magic: {:?}", self.magic);
         let guid_format = format!("{:x}", self.server_guid);
         println!("Server GUID (Format DecToHex): {}", guid_format);

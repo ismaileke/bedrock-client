@@ -33,33 +33,15 @@ impl ConnReqAccepted {
         let ping_time = stream.get_u64_be();
         let pong_time = stream.get_u64_be();
 
-        ConnReqAccepted {
-            client_address,
-            system_index,
-            system_addresses,
-            ping_time,
-            pong_time,
-        }
+        ConnReqAccepted { client_address, system_index, system_addresses, ping_time, pong_time }
     }
 
     pub fn debug(&self) {
-        println!(
-            "--- {}ConnectionRequestAccepted{} ---",
-            color_format::COLOR_GOLD,
-            COLOR_WHITE
-        );
-        println!(
-            "Client Address: {}:{}",
-            self.client_address.address, self.client_address.port
-        );
+        println!("--- {}ConnectionRequestAccepted{} ---", color_format::COLOR_GOLD, COLOR_WHITE);
+        println!("Client Address: {}:{}", self.client_address.address, self.client_address.port);
         println!("System Index: {}", self.system_index);
         for index in 0..10 {
-            println!(
-                "System Address {}: {}:{}",
-                index + 1,
-                self.system_addresses[index].address,
-                self.system_addresses[index].port
-            );
+            println!("System Address {}: {}:{}", index + 1, self.system_addresses[index].address, self.system_addresses[index].port);
         }
         println!("Ping Time: {}", self.ping_time);
         println!("Pong Time: {}", self.ping_time);

@@ -14,9 +14,5 @@ pub fn decode(bytes: Vec<u8>) -> IncompatibleProtocol {
     let magic: [u8; 16] = stream.get(16).try_into().expect("Invalid length for magic");
     let server_guid = stream.get_u64_be();
 
-    IncompatibleProtocol {
-        server_protocol,
-        magic,
-        server_guid,
-    }
+    IncompatibleProtocol { server_protocol, magic, server_guid }
 }

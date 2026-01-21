@@ -1,6 +1,8 @@
 #[repr(u8)]
 #[derive(Copy, Clone)]
 pub enum PacketType {
+    UnconnectedPing,
+    UnconnectedPong,
     ConnectedPing,
     ConnectedPong,
     OpenConnReq1,
@@ -21,8 +23,10 @@ pub enum PacketType {
 }
 
 impl PacketType {
-    pub(crate) fn from_byte(byte: u8) -> Self {
+    pub fn from_byte(byte: u8) -> Self {
         match byte {
+            0x01 => PacketType::UnconnectedPing,
+            0x1c => PacketType::UnconnectedPong,
             0x00 => PacketType::ConnectedPing,
             0x03 => PacketType::ConnectedPong,
             0x05 => PacketType::OpenConnReq1,
@@ -42,8 +46,10 @@ impl PacketType {
             _ => PacketType::Unknown,
         }
     }
-    pub(crate) fn get_byte(self) -> u8 {
+    pub fn get_byte(self) -> u8 {
         match self {
+            PacketType::UnconnectedPing => 0x01,
+            PacketType::UnconnectedPong => 0x1c,
             PacketType::ConnectedPing => 0x00,
             PacketType::ConnectedPong => 0x03,
             PacketType::OpenConnReq1 => 0x05,

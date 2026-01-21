@@ -92,14 +92,7 @@ impl Acknowledge {
         } else {
             println!("--- {}ACK{} ---", color_format::COLOR_GREEN, COLOR_WHITE);
         }
-        println!(
-            "Record Count: Record Type {}",
-            if self.record_count == 0 {
-                "Range"
-            } else {
-                "Single"
-            }
-        );
+        println!("Record Count: Record Type {}", if self.record_count == 0 { "Range" } else { "Single" });
         println!("Single Sequence Number: {}", self.single_sequence_number);
         println!("Sequence Number: {:?}", self.sequence_number);
         println!("Start Sequence Number: {:?}", self.start_sequence_number);
