@@ -2,7 +2,6 @@ use crate::protocol::raknet::packet_ids::PacketType;
 use crate::utils::color_format;
 use crate::utils::color_format::COLOR_WHITE;
 use crate::protocol::raknet::packet_ids;
-use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use binary_utils::binary::Stream;
 
 pub struct UnconnectedPong {
@@ -22,7 +21,8 @@ impl UnconnectedPong {
         stream.put_u64_be(self.pong_time);
         stream.put_u64_be(self.server_id);
         stream.put(Vec::from(packet_ids::MAGIC));
-        PacketSerializer::put_string(&mut stream, self.server_name.clone());
+        stream.put_u16_be(self.server_name.len() as u16);
+        stream.put(self.server_name.clone().into_bytes());
         Vec::from(stream.get_buffer())
     }
 
@@ -33,7 +33,8 @@ impl UnconnectedPong {
         let pong_time = stream.get_u64_be();
         let server_id = stream.get_u64_be();
         let _ = stream.get(16);
-        let server_name = PacketSerializer::get_string(&mut stream);
+        let len = stream.get_u16_be();
+        let server_name = String::from_utf8(stream.get(len as u32)).expect("Vec<u8> to String UTF8 conversion failed");
 
         UnconnectedPong { pong_time, server_id, server_name }
     }
