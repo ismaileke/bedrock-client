@@ -1,6 +1,7 @@
 use crate::utils::address::InternetAddress;
 use crate::utils::color_format::COLOR_WHITE;
 use crate::utils::{address, color_format};
+use crate::protocol::raknet::packet_ids::PacketType;
 use binary_utils::binary::Stream;
 
 pub struct OpenConnReply2 {
@@ -12,6 +13,19 @@ pub struct OpenConnReply2 {
 }
 
 impl OpenConnReply2 {
+    pub fn encode(&self) -> Vec<u8> {
+        let mut stream = Stream::new(Vec::new(), 0);
+
+        stream.put_byte(PacketType::get_byte(PacketType::OpenConnReply2));
+        stream.put(Vec::from(self.magic));
+        stream.put_u64_be(self.server_guid);
+        stream.put(self.client_address.put_address());
+        stream.put_u16_be(self.mtu);
+        stream.put_bool(self.encryption_enabled);
+
+        Vec::from(stream.get_buffer())
+    }
+
     pub fn decode(bytes: Vec<u8>) -> OpenConnReply2 {
         let mut stream = Stream::new(bytes, 0);
 

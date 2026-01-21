@@ -1,6 +1,7 @@
 use crate::protocol::raknet::packet_ids::PacketType;
 use crate::utils::address::InternetAddress;
 use binary_utils::binary::Stream;
+use crate::utils::address;
 
 pub struct NewIncomingConn {
     pub server_address: InternetAddress,
@@ -31,5 +32,29 @@ impl NewIncomingConn {
         stream.put_u64_be(self.pong_time);
 
         Vec::from(stream.get_buffer())
+    }
+
+    pub fn decode(bytes: Vec<u8>) -> NewIncomingConn {
+        let mut stream = Stream::new(bytes, 0);
+
+        let _ = stream.get_byte();
+        let (server_address, offset) = address::get_address(stream.get_remaining()).unwrap();
+        stream.set_offset(stream.get_offset() + offset);
+        let mut system_addresses: [InternetAddress; 20] = core::array::from_fn(|_| address::new(4, "127.0.0.1".to_string(), 0));
+        for i in 0..20 {
+            let (system_address, offset) = address::get_address(stream.get_remaining()).unwrap();
+            stream.set_offset(stream.get_offset() + offset);
+            system_addresses[i] = system_address;
+        }
+
+        let ping_time = stream.get_u64_be();
+        let pong_time = stream.get_u64_be();
+
+        NewIncomingConn {
+            server_address,
+            system_addresses,
+            ping_time,
+            pong_time,
+        }
     }
 }

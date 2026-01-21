@@ -1,6 +1,7 @@
 use crate::utils::color_format;
 use crate::utils::color_format::COLOR_WHITE;
 use binary_utils::binary::Stream;
+use crate::protocol::raknet::packet_ids::PacketType;
 
 pub struct OpenConnReply1 {
     pub magic: [u8; 16],
@@ -11,6 +12,21 @@ pub struct OpenConnReply1 {
 }
 
 impl OpenConnReply1 {
+    pub fn encode(&self) -> Vec<u8> {
+        let mut stream = Stream::new(Vec::new(), 0);
+
+        stream.put_byte(PacketType::get_byte(PacketType::OpenConnReply1));
+        stream.put(Vec::from(self.magic));
+        stream.put_u64_be(self.server_guid);
+        stream.put_bool(self.server_security);
+        if let Some(cookie) = self.cookie {
+            stream.put_u32_be(cookie);
+        }
+        stream.put_u16_be(self.mtu);
+
+        Vec::from(stream.get_buffer())
+    }
+
     pub fn decode(bytes: Vec<u8>) -> OpenConnReply1 {
         let mut stream = Stream::new(bytes, 0);
 

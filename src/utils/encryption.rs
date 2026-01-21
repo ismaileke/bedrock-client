@@ -22,10 +22,8 @@ pub struct Encryption {
 
 impl Encryption {
     pub fn new(encryption_key: Vec<u8>, iv: Vec<u8>) -> Result<Self, Box<dyn Error>> {
-        let decrypt_cipher = Aes256Ctr::new_from_slices(&encryption_key, &iv)
-            .expect("Decrypt Cipher Creating Error");
-        let encrypt_cipher = Aes256Ctr::new_from_slices(&encryption_key, &iv)
-            .expect("Encrypt Cipher Creating Error");
+        let decrypt_cipher = Aes256Ctr::new_from_slices(&encryption_key, &iv).expect("Decrypt Cipher Creating Error");
+        let encrypt_cipher = Aes256Ctr::new_from_slices(&encryption_key, &iv).expect("Encrypt Cipher Creating Error");
 
         Ok(Encryption {
             key: encryption_key,

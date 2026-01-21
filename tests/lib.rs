@@ -11,12 +11,12 @@ mod tests {
     use bedrock_client::protocol::bedrock::text::Text;
     use bedrock_client::utils::color_format;
     use bedrock_client::{client, downcast_bedrock_packet};
-    use std::time::{Duration, Instant};
     use bedrock_client::protocol::bedrock::level_chunk::LevelChunk;
     use bedrock_client::protocol::bedrock::move_actor_absolute::MoveActorAbsolute;
     use bedrock_client::protocol::bedrock::move_player::MovePlayer;
     use bedrock_client::utils::chunk::{get_dimension_chunk_bounds, network_decode};
-
+    use std::time::{Duration, Instant};
+    
     #[tokio::test]
     async fn test_client() {
         let mut client = client::create(

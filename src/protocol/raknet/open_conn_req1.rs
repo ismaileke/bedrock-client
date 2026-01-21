@@ -23,4 +23,15 @@ impl OpenConnReq1 {
 
         Vec::from(stream.get_buffer())
     }
+
+    pub fn decode(bytes: Vec<u8>) -> OpenConnReq1 {
+        let mut stream = Stream::new(bytes, 0);
+
+        let _ = stream.get_byte();
+        let magic: [u8; 16] = stream.get(16).try_into().expect("Invalid length for magic");
+        let protocol = stream.get_byte();
+        let mtu_size = stream.get_remaining().len() as u16;
+
+        OpenConnReq1 { magic, protocol, mtu_size }
+    }
 }
