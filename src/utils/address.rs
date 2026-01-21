@@ -15,12 +15,7 @@ impl InternetAddress {
 
         if self.version == 4 {
             let parts: Vec<&str> = self.address.split('.').collect();
-            assert_eq!(
-                parts.len(),
-                4,
-                "Wrong number of parts in IPv4 IP, expected 4, got {}",
-                parts.len()
-            );
+            assert_eq!(parts.len(), 4, "Wrong number of parts in IPv4 IP, expected 4, got {}", parts.len());
             for part in parts {
                 let b: u8 = part.parse().unwrap();
                 stream.put_byte((!b) & 0xff);
@@ -46,11 +41,7 @@ impl InternetAddress {
 }
 
 pub fn new(version: u8, address: String, port: u16) -> InternetAddress {
-    InternetAddress {
-        version,
-        address,
-        port,
-    }
+    InternetAddress { version, address, port }
 }
 
 pub fn get_address(address: Vec<u8>) -> Result<(InternetAddress, u32), Box<dyn Error>> {
@@ -65,14 +56,8 @@ pub fn get_address(address: Vec<u8>) -> Result<(InternetAddress, u32), Box<dyn E
             !stream.get_byte() & 0xff
         );
         let port = stream.get_u16_be();
-        Ok((
-            InternetAddress {
-                version,
-                address,
-                port,
-            },
-            stream.get_offset(),
-        ))
+        
+        Ok((InternetAddress { version, address, port }, stream.get_offset()))
     } else if version == 6 {
         stream.get_u16_le(); //Family, AF_INET6
         let port = stream.get_u16_be();
@@ -83,14 +68,7 @@ pub fn get_address(address: Vec<u8>) -> Result<(InternetAddress, u32), Box<dyn E
         let ipv6 = Ipv6Addr::from(bytes);
         let address = IpAddr::V6(ipv6).to_string();
 
-        Ok((
-            InternetAddress {
-                version,
-                address,
-                port,
-            },
-            stream.get_offset(),
-        ))
+        Ok((InternetAddress { version, address, port }, stream.get_offset()))
     } else {
         panic!("Unsupported internet protocol version: {}", version)
     }
