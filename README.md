@@ -78,5 +78,4 @@ async fn main() {
 ```
 
 > [!NOTE]
-> This project is mainly designed for [Abyssal Eclipse](https://github.com/ismaileke/abyssal-eclipse), but you can get ideas and develop something from the code I wrote.
-> It is still in development. Access to the servers is generally successful.
+> It is still in development.
