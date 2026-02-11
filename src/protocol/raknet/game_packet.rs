@@ -37,7 +37,7 @@ impl GamePacket {
 
         if self.compress_enabled {
             let compression_type = stream.get_byte();
-            //println!("Compression Type: {}", if compression_type == 0 { "ZLIB".to_string() } else if compression_type == 1 { "SNAPPY".to_string() } else { "NONE".to_string() });
+            println!("Compression Type: {}", if compression_type == 0 { "ZLIB".to_string() } else if compression_type == 1 { "SNAPPY".to_string() } else { "NONE".to_string() });
             if compression_type == 0 { // ZLIB
                 *stream = Stream::new(GamePacket::decompress(&stream.get_remaining()), 0);
             }

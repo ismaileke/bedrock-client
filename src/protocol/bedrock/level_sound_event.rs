@@ -611,4 +611,23 @@ impl LevelSoundEvent {
     pub const IMITATE_CAMEL_HUSK: u32 = 575;
     pub const ITEM_SPEAR_USE: u32 = 576;
     pub const ITEM_WOODEN_SPEAR_USE: u32 = 577;
+    pub const SADDLE_IN_WATER: u32 = 578;
+    pub const ITEM_STONE_SPEAR_ATTACK_HIT: u32 = 579;
+    pub const ITEM_IRON_SPEAR_ATTACK_HIT: u32 = 580;
+    pub const ITEM_COPPER_SPEAR_ATTACK_HIT: u32 = 581;
+    pub const ITEM_GOLDEN_SPEAR_ATTACK_HIT: u32 = 582;
+    pub const ITEM_DIAMOND_SPEAR_ATTACK_HIT: u32 = 583;
+    pub const ITEM_NETHERITE_SPEAR_ATTACK_HIT: u32 = 584;
+    pub const ITEM_STONE_SPEAR_ATTACK_MISS: u32 = 585;
+    pub const ITEM_IRON_SPEAR_ATTACK_MISS: u32 = 586;
+    pub const ITEM_COPPER_SPEAR_ATTACK_MISS: u32 = 587;
+    pub const ITEM_GOLDEN_SPEAR_ATTACK_MISS: u32 = 588;
+    pub const ITEM_DIAMOND_SPEAR_ATTACK_MISS: u32 = 589;
+    pub const ITEM_NETHERITE_SPEAR_ATTACK_MISS: u32 = 590;
+    pub const ITEM_STONE_SPEAR_USE: u32 = 591;
+    pub const ITEM_IRON_SPEAR_USE: u32 = 592;
+    pub const ITEM_COPPER_SPEAR_USE: u32 = 593;
+    pub const ITEM_GOLDEN_SPEAR_USE: u32 = 594;
+    pub const ITEM_DIAMOND_SPEAR_USE: u32 = 595;
+    pub const ITEM_NETHERITE_SPEAR_USE: u32 = 596;
 }

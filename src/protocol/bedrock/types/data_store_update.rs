@@ -13,23 +13,12 @@ pub struct DataStoreUpdate {
     pub path: String,
     pub data: DataStoreValue,
     pub update_count: u32,
+    pub path_update_count: u32
 }
 
 impl DataStoreUpdate {
-    pub fn new(
-        name: String,
-        property: String,
-        path: String,
-        data: DataStoreValue,
-        update_count: u32,
-    ) -> DataStoreUpdate {
-        DataStoreUpdate {
-            name,
-            property,
-            path,
-            data,
-            update_count,
-        }
+    pub fn new(name: String, property: String, path: String, data: DataStoreValue, update_count: u32, path_update_count: u32) -> DataStoreUpdate {
+        DataStoreUpdate { name, property, path, data, update_count, path_update_count }
     }
 
     pub fn read(stream: &mut Stream) -> DataStoreUpdate {
@@ -48,15 +37,10 @@ impl DataStoreUpdate {
             DataStoreValueTypes::BOOL => DataStoreValue::Bool(DataStoreValueBool::read(stream)),
             _ => panic!("Unknown data store value type: {}", data_type),
         };
-        let update_count = stream.get_var_u32();
+        let update_count = stream.get_u32_le();
+        let path_update_count = stream.get_u32_le();
 
-        DataStoreUpdate {
-            name,
-            property,
-            path,
-            data,
-            update_count,
-        }
+        DataStoreUpdate { name, property, path, data, update_count, path_update_count }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {
@@ -65,6 +49,7 @@ impl DataStoreUpdate {
         PacketSerializer::put_string(stream, self.path.clone());
         stream.put_var_u32(self.data.get_type_id());
         self.data.write(stream);
-        stream.put_var_u32(self.update_count);
+        stream.put_u32_le(self.update_count);
+        stream.put_u32_le(self.path_update_count);
     }
 }

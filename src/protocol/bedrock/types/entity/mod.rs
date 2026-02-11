@@ -7,3 +7,4 @@ pub mod entity_metadata_types;
 pub mod metadata_property;
 pub mod property_sync_data;
 pub mod update_attribute;
+pub mod entity_metadata_properties;

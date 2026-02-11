@@ -6,7 +6,7 @@ pub mod protocol;
 pub mod utils;
 
 const RAKNET_PROTOCOL_VERSION: u8 = 11;
-const BEDROCK_PROTOCOL_VERSION: u32 = 898;
+const BEDROCK_PROTOCOL_VERSION: u32 = 924;
 const VANILLA_BLOCK_PALETTE: &[u8] = include_bytes!("../resources/block_palette_897.nbt");
 
 /*

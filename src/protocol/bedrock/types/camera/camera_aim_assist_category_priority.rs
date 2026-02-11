@@ -2,24 +2,24 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
-pub struct CameraAimAssistCategoryEntityPriority {
+pub struct CameraAimAssistCategoryPriority {
     pub identifier: String,
     pub priority: i32,
 }
 
-impl CameraAimAssistCategoryEntityPriority {
-    pub fn new(identifier: String, priority: i32) -> CameraAimAssistCategoryEntityPriority {
-        CameraAimAssistCategoryEntityPriority {
+impl CameraAimAssistCategoryPriority {
+    pub fn new(identifier: String, priority: i32) -> CameraAimAssistCategoryPriority {
+        CameraAimAssistCategoryPriority {
             identifier,
             priority,
         }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraAimAssistCategoryEntityPriority {
+    pub fn read(stream: &mut Stream) -> CameraAimAssistCategoryPriority {
         let identifier = PacketSerializer::get_string(stream);
         let priority = stream.get_i32_le();
 
-        CameraAimAssistCategoryEntityPriority {
+        CameraAimAssistCategoryPriority {
             identifier,
             priority,
         }

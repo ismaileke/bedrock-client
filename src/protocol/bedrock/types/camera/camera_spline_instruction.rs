@@ -1,13 +1,14 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_rotation_option::CameraRotationOption;
 use binary_utils::binary::Stream;
+use crate::protocol::bedrock::types::camera::camera_progress_option::CameraProgressOption;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraSplineInstruction {
     pub total_time: f32,
     pub ease_type: u8, // see types/camera/camera_set_instruction_ease_type.rs
     pub curve: Vec<Vec<f32>>,
-    pub progress_key_frames: Vec<Vec<f32>>,
+    pub progress_key_frames: Vec<CameraProgressOption>,
     pub rotation_options: Vec<CameraRotationOption>,
 }
 
@@ -16,7 +17,7 @@ impl CameraSplineInstruction {
         total_time: f32,
         ease_type: u8,
         curve: Vec<Vec<f32>>,
-        progress_key_frames: Vec<Vec<f32>>,
+        progress_key_frames: Vec<CameraProgressOption>,
         rotation_options: Vec<CameraRotationOption>,
     ) -> CameraSplineInstruction {
         CameraSplineInstruction {
@@ -41,7 +42,7 @@ impl CameraSplineInstruction {
         let mut progress_key_frames = Vec::new();
         let progress_key_frames_count = stream.get_var_u32();
         for _ in 0..progress_key_frames_count {
-            progress_key_frames.push(PacketSerializer::get_vector2(stream));
+            progress_key_frames.push(CameraProgressOption::read(stream));
         }
 
         let mut rotation_options = Vec::new();
@@ -50,13 +51,7 @@ impl CameraSplineInstruction {
             rotation_options.push(CameraRotationOption::read(stream));
         }
 
-        CameraSplineInstruction {
-            total_time,
-            ease_type,
-            curve,
-            progress_key_frames,
-            rotation_options,
-        }
+        CameraSplineInstruction { total_time, ease_type, curve, progress_key_frames, rotation_options }
     }
 
     pub fn write(&self, stream: &mut Stream) {
@@ -69,8 +64,8 @@ impl CameraSplineInstruction {
         }
 
         stream.put_var_u32(self.progress_key_frames.len() as u32);
-        for progress_key_frames in &self.progress_key_frames {
-            PacketSerializer::put_vector2(stream, progress_key_frames.clone());
+        for progress_key_frame in &self.progress_key_frames {
+            progress_key_frame.write(stream);
         }
 
         stream.put_var_u32(self.rotation_options.len() as u32);

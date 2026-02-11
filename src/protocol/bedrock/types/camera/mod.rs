@@ -1,7 +1,7 @@
 pub mod camera_aim_assist_action_type;
 pub mod camera_aim_assist_category;
-pub mod camera_aim_assist_category_block_priority;
-pub mod camera_aim_assist_category_entity_priority;
+pub mod camera_aim_assist_category_priority;
+pub mod camera_spline_definition;
 pub mod camera_aim_assist_category_priorities;
 pub mod camera_aim_assist_preset;
 pub mod camera_aim_assist_preset_item_settings;
@@ -20,3 +20,5 @@ pub mod camera_set_instruction_rotation;
 pub mod camera_spline_instruction;
 pub mod camera_target_instruction;
 pub mod camera_aim_assist_preset_exclusion_definition;
+pub mod camera_aim_assist_actor_priority_data;
+pub mod camera_progress_option;

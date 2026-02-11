@@ -211,6 +211,13 @@ use crate::protocol::bedrock::update_player_game_type::UpdatePlayerGameType;
 use crate::protocol::bedrock::update_soft_enum::UpdateSoftEnum;
 use crate::protocol::bedrock::update_sub_chunk_blocks::UpdateSubChunkBlocks;
 use crate::protocol::bedrock::update_trade::UpdateTrade;
+use crate::protocol::bedrock::camera_aim_assist_actor_priority::CameraAimAssistActorPriority;
+use crate::protocol::bedrock::camera_spline::CameraSpline;
+use crate::protocol::bedrock::client_bound_data_driven_ui_close_all_screens::ClientBoundDataDrivenUICloseAllScreens;
+use crate::protocol::bedrock::client_bound_data_driven_ui_reload::ClientBoundDataDrivenUIReload;
+use crate::protocol::bedrock::client_bound_data_driven_ui_show_screen::ClientBoundDataDrivenUIShowScreen;
+use crate::protocol::bedrock::client_bound_texture_shift::ClientBoundTextureShift;
+use crate::protocol::bedrock::voxel_shapes::VoxelShapes;
 use binary_utils::binary::Stream;
 
 #[repr(u16)]
@@ -427,6 +434,13 @@ pub enum BedrockPacketType {
     IDClientBoundDataStore,
     IDGraphicsOverrideParameter,
     IDServerBoundDataStore,
+    IDClientBoundDataDrivenUIShowScreen,
+    IDClientBoundDataDrivenUICloseAllScreens,
+    IDClientBoundDataDrivenUIReload,
+    IDClientBoundTextureShift,
+    IDVoxelShapes,
+    IDCameraSpline,
+    IDCameraAimAssistActorPriority,
     IDUnknown,
 }
 
@@ -644,6 +658,13 @@ impl BedrockPacketType {
             0x14a => BedrockPacketType::IDClientBoundDataStore,
             0x14b => BedrockPacketType::IDGraphicsOverrideParameter,
             0x14c => BedrockPacketType::IDServerBoundDataStore,
+            0x14d => BedrockPacketType::IDClientBoundDataDrivenUIShowScreen,
+            0x14e => BedrockPacketType::IDClientBoundDataDrivenUICloseAllScreens,
+            0x14f => BedrockPacketType::IDClientBoundDataDrivenUIReload,
+            0x150 => BedrockPacketType::IDClientBoundTextureShift,
+            0x151 => BedrockPacketType::IDVoxelShapes,
+            0x152 => BedrockPacketType::IDCameraSpline,
+            0x153 => BedrockPacketType::IDCameraAimAssistActorPriority,
             _ => BedrockPacketType::IDUnknown,
         }
     }
@@ -860,6 +881,13 @@ impl BedrockPacketType {
             BedrockPacketType::IDClientBoundDataStore => 0x14a,
             BedrockPacketType::IDGraphicsOverrideParameter => 0x14b,
             BedrockPacketType::IDServerBoundDataStore => 0x14c,
+            BedrockPacketType::IDClientBoundDataDrivenUIShowScreen => 0x14d,
+            BedrockPacketType::IDClientBoundDataDrivenUICloseAllScreens => 0x14e,
+            BedrockPacketType::IDClientBoundDataDrivenUIReload => 0x14f,
+            BedrockPacketType::IDClientBoundTextureShift => 0x150,
+            BedrockPacketType::IDVoxelShapes => 0x151,
+            BedrockPacketType::IDCameraSpline => 0x152,
+            BedrockPacketType::IDCameraAimAssistActorPriority => 0x153,
             _ => 0,
         }
     }
@@ -1076,6 +1104,13 @@ impl BedrockPacketType {
             0x14a => "Client Bound Data Store",
             0x14b => "Graphics Override Parameter",
             0x14c => "Server Bound Data Store",
+            0x14d => "Client Bound Data Driven UI Show Screen",
+            0x14e => "Client Bound Data Driven UI Close All Screens",
+            0x14f => "Client Bound Data Driven UI Reload",
+            0x150 => "Client Bound Texture Shift",
+            0x151 => "Voxel Shapes",
+            0x152 => "Camera Spline",
+            0x153 => "Camera Aim Assist Actor Priority",
             _ => "Unknown Packet",
         }
     }
@@ -1293,6 +1328,13 @@ impl BedrockPacketType {
             0x14a => Box::new(ClientBoundDataStore::decode(stream)),
             0x14b => Box::new(GraphicsOverrideParameter::decode(stream)),
             0x14c => Box::new(ServerBoundDataStore::decode(stream)),
+            0x14d => Box::new(ClientBoundDataDrivenUIShowScreen::decode(stream)),
+            0x14e => Box::new(ClientBoundDataDrivenUICloseAllScreens::decode(stream)),
+            0x14f => Box::new(ClientBoundDataDrivenUIReload::decode(stream)),
+            0x150 => Box::new(ClientBoundTextureShift::decode(stream)),
+            0x151 => Box::new(VoxelShapes::decode(stream)),
+            0x152 => Box::new(CameraSpline::decode(stream)),
+            0x153 => Box::new(CameraAimAssistActorPriority::decode(stream)),
             _ => Box::new(Unknown::decode(stream)),
         }
     }

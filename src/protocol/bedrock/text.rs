@@ -29,24 +29,12 @@ impl Packet for Text {
         match self.text_type {
             Text::TYPE_RAW | Text::TYPE_TIP | Text::TYPE_SYSTEM | Text::TYPE_JSON_WHISPER | Text::TYPE_JSON_ANNOUNCEMENT | Text::TYPE_JSON => {
                 stream.put_byte(Text::CATEGORY_MESSAGE_ONLY);
-                PacketSerializer::put_string(&mut stream, String::from("raw"));
-                PacketSerializer::put_string(&mut stream, String::from("tip"));
-                PacketSerializer::put_string(&mut stream, String::from("systemMessage"));
-                PacketSerializer::put_string(&mut stream, String::from("textObjectWhisper"));
-                PacketSerializer::put_string(&mut stream, String::from("textObjectAnnouncement"));
-                PacketSerializer::put_string(&mut stream, String::from("textObject"));
             },
             Text::TYPE_CHAT | Text::TYPE_WHISPER | Text::TYPE_ANNOUNCEMENT => {
                 stream.put_byte(Text::CATEGORY_AUTHORED_MESSAGE);
-                PacketSerializer::put_string(&mut stream, String::from("chat"));
-                PacketSerializer::put_string(&mut stream, String::from("whisper"));
-                PacketSerializer::put_string(&mut stream, String::from("announcement"));
             },
             _ => {
                 stream.put_byte(Text::CATEGORY_MESSAGE_WITH_PARAMETERS);
-                PacketSerializer::put_string(&mut stream, String::from("translate"));
-                PacketSerializer::put_string(&mut stream, String::from("popup"));
-                PacketSerializer::put_string(&mut stream, String::from("jukeboxPopup"));
             }
         }
         stream.put_byte(self.text_type);
@@ -85,28 +73,6 @@ impl Packet for Text {
     fn decode(stream: &mut Stream) -> Text {
         let needs_translation = stream.get_bool();
         let category = stream.get_byte();
-        match category {
-            Text::CATEGORY_MESSAGE_ONLY => {
-                Self::assert_string(PacketSerializer::get_string(stream), "raw");
-                Self::assert_string(PacketSerializer::get_string(stream), "tip");
-                Self::assert_string(PacketSerializer::get_string(stream), "systemMessage");
-                Self::assert_string(PacketSerializer::get_string(stream), "textObjectWhisper");
-                Self::assert_string(PacketSerializer::get_string(stream), "textObjectAnnouncement");
-                Self::assert_string(PacketSerializer::get_string(stream), "textObject");
-            },
-            Text::CATEGORY_AUTHORED_MESSAGE => {
-                Self::assert_string(PacketSerializer::get_string(stream), "chat");
-                Self::assert_string(PacketSerializer::get_string(stream), "whisper");
-                Self::assert_string(PacketSerializer::get_string(stream), "announcement");
-            },
-            Text::CATEGORY_MESSAGE_WITH_PARAMETERS => {
-                Self::assert_string(PacketSerializer::get_string(stream), "translate");
-                Self::assert_string(PacketSerializer::get_string(stream), "popup");
-                Self::assert_string(PacketSerializer::get_string(stream), "jukeboxPopup");
-            },
-            _ => panic!("Undefined text category type: {}", category)
-        }
-
         let text_type = stream.get_byte();
         let mut source_name: Option<String> = None;
         let mut message = String::new();

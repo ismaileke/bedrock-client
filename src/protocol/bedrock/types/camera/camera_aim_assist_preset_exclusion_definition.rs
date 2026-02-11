@@ -6,6 +6,7 @@ pub struct CameraAimAssistPresetExclusionDefinition {
     pub blocks: Vec<String>,
     pub entities: Vec<String>,
     pub block_tags: Vec<String>,
+    pub entity_type_families: Vec<String>
 }
 
 impl CameraAimAssistPresetExclusionDefinition {
@@ -13,11 +14,13 @@ impl CameraAimAssistPresetExclusionDefinition {
         blocks: Vec<String>,
         entities: Vec<String>,
         block_tags: Vec<String>,
+        entity_type_families: Vec<String>
     ) -> CameraAimAssistPresetExclusionDefinition {
         CameraAimAssistPresetExclusionDefinition {
             blocks,
             entities,
             block_tags,
+            entity_type_families
         }
     }
 
@@ -25,6 +28,7 @@ impl CameraAimAssistPresetExclusionDefinition {
         let mut blocks = Vec::new();
         let mut entities = Vec::new();
         let mut block_tags = Vec::new();
+        let mut entity_type_families = Vec::new();
 
         let mut len = stream.get_var_u32();
         for _ in 0..len {
@@ -41,10 +45,16 @@ impl CameraAimAssistPresetExclusionDefinition {
             block_tags.push(PacketSerializer::get_string(stream));
         }
 
+        len = stream.get_var_u32();
+        for _ in 0..len {
+            entity_type_families.push(PacketSerializer::get_string(stream));
+        }
+
         CameraAimAssistPresetExclusionDefinition {
             blocks,
             entities,
             block_tags,
+            entity_type_families
         }
     }
 
@@ -62,6 +72,11 @@ impl CameraAimAssistPresetExclusionDefinition {
         stream.put_var_u32(self.block_tags.len() as u32);
         for block_tag in &self.block_tags {
             PacketSerializer::put_string(stream, block_tag.clone());
+        }
+
+        stream.put_var_u32(self.entity_type_families.len() as u32);
+        for entity_type in &self.entity_type_families {
+            PacketSerializer::put_string(stream, entity_type.clone());
         }
     }
 }

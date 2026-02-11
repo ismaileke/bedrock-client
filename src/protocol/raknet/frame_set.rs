@@ -178,8 +178,7 @@ impl Datagram {
             let reliability = (flags & RELIABILITY_FLAGS) >> RELIABILITY_SHIFT;
             let has_split = (flags & SPLIT_FLAG) != 0;
             let length_in_bits = stream.get_u16_be();
-            let (mut reliable_frame_index, mut sequenced_frame_index, mut order, mut fragment) =
-                (None, None, None, None);
+            let (mut reliable_frame_index, mut sequenced_frame_index, mut order, mut fragment) = (None, None, None, None);
 
             if is_reliable(reliability) {
                 reliable_frame_index = Option::from(stream.get_u24_le());

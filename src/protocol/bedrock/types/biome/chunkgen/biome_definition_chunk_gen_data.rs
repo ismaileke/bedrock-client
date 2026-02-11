@@ -29,6 +29,7 @@ pub struct BiomeDefinitionChunkGenData {
     pub multi_noise_gen_rules: Option<BiomeMultinoiseGenRulesData>,
     pub legacy_world_gen_rules: Option<BiomeLegacyWorldGenRulesData>,
     pub replacements_data: Option<Vec<BiomeReplacementData>>,
+    pub village_type: Option<u8>,
 }
 
 impl BiomeDefinitionChunkGenData {
@@ -48,6 +49,7 @@ impl BiomeDefinitionChunkGenData {
         multi_noise_gen_rules: Option<BiomeMultinoiseGenRulesData>,
         legacy_world_gen_rules: Option<BiomeLegacyWorldGenRulesData>,
         replacements_data: Option<Vec<BiomeReplacementData>>,
+        village_type: Option<u8>,
     ) -> Self {
         BiomeDefinitionChunkGenData {
             climate,
@@ -65,34 +67,25 @@ impl BiomeDefinitionChunkGenData {
             multi_noise_gen_rules,
             legacy_world_gen_rules,
             replacements_data,
+            village_type,
         }
     }
 
     pub fn read(stream: &mut Stream) -> BiomeDefinitionChunkGenData {
         let climate = PacketSerializer::read_optional(stream, |s| BiomeClimateData::read(s));
-        let consolidated_features =
-            PacketSerializer::read_optional(stream, |s| BiomeConsolidatedFeaturesData::read(s));
-        let mountain_params =
-            PacketSerializer::read_optional(stream, |s| BiomeMountainParamsData::read(s));
-        let surface_material_adjustment = PacketSerializer::read_optional(stream, |s| {
-            BiomeSurfaceMaterialAdjustmentData::read(s)
-        });
-        let surface_material =
-            PacketSerializer::read_optional(stream, |s| BiomeSurfaceMaterialData::read(s));
+        let consolidated_features = PacketSerializer::read_optional(stream, |s| BiomeConsolidatedFeaturesData::read(s));
+        let mountain_params = PacketSerializer::read_optional(stream, |s| BiomeMountainParamsData::read(s));
+        let surface_material_adjustment = PacketSerializer::read_optional(stream, |s| BiomeSurfaceMaterialAdjustmentData::read(s));
+        let surface_material = PacketSerializer::read_optional(stream, |s| BiomeSurfaceMaterialData::read(s));
         let default_overworld_surface = stream.get_bool();
         let swamp_surface = stream.get_bool();
         let frozen_ocean_surface = stream.get_bool();
         let the_end_surface = stream.get_bool();
-        let mesa_surface =
-            PacketSerializer::read_optional(stream, |s| BiomeMesaSurfaceData::read(s));
-        let capped_surface =
-            PacketSerializer::read_optional(stream, |s| BiomeCappedSurfaceData::read(s));
-        let overworld_gen_rules =
-            PacketSerializer::read_optional(stream, |s| BiomeOverworldGenRulesData::read(s));
-        let multi_noise_gen_rules =
-            PacketSerializer::read_optional(stream, |s| BiomeMultinoiseGenRulesData::read(s));
-        let legacy_world_gen_rules =
-            PacketSerializer::read_optional(stream, |s| BiomeLegacyWorldGenRulesData::read(s));
+        let mesa_surface = PacketSerializer::read_optional(stream, |s| BiomeMesaSurfaceData::read(s));
+        let capped_surface = PacketSerializer::read_optional(stream, |s| BiomeCappedSurfaceData::read(s));
+        let overworld_gen_rules = PacketSerializer::read_optional(stream, |s| BiomeOverworldGenRulesData::read(s));
+        let multi_noise_gen_rules = PacketSerializer::read_optional(stream, |s| BiomeMultinoiseGenRulesData::read(s));
+        let legacy_world_gen_rules = PacketSerializer::read_optional(stream, |s| BiomeLegacyWorldGenRulesData::read(s));
         let replacements_data = PacketSerializer::read_optional(stream, |s| {
             let count = s.get_var_u32();
             let mut result = Vec::with_capacity(count as usize);
@@ -101,6 +94,7 @@ impl BiomeDefinitionChunkGenData {
             }
             result
         });
+        let village_type = PacketSerializer::read_optional(stream, |s| s.get_byte());
 
         BiomeDefinitionChunkGenData::new(
             climate,
@@ -118,6 +112,7 @@ impl BiomeDefinitionChunkGenData {
             multi_noise_gen_rules,
             legacy_world_gen_rules,
             replacements_data,
+            village_type
         )
     }
 
@@ -125,9 +120,7 @@ impl BiomeDefinitionChunkGenData {
         PacketSerializer::write_optional(stream, &self.climate, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.consolidated_features, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.mountain_params, |s, v| v.write(s));
-        PacketSerializer::write_optional(stream, &self.surface_material_adjustment, |s, v| {
-            v.write(s)
-        });
+        PacketSerializer::write_optional(stream, &self.surface_material_adjustment, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.surface_material, |s, v| v.write(s));
         stream.put_bool(self.default_overworld_surface);
         stream.put_bool(self.swamp_surface);
@@ -144,5 +137,6 @@ impl BiomeDefinitionChunkGenData {
                 item.write(s);
             }
         });
+        PacketSerializer::write_optional(stream, &self.village_type, |s, v| s.put_byte(*v));
     }
 }

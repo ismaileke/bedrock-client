@@ -6,10 +6,10 @@ use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BookEdit {
-    pub event_type: u8,
-    pub inventory_slot: u8,
-    pub page_number: u8,
-    pub secondary_page_number: u8,
+    pub inventory_slot: i32,
+    pub event_type: u32,
+    pub page_number: i32,
+    pub secondary_page_number: i32,
     pub text: String,
     pub photo_name: String,
     pub title: String,
@@ -18,11 +18,11 @@ pub struct BookEdit {
 }
 
 impl BookEdit {
-    pub const TYPE_REPLACE_PAGE: u8 = 0;
-    pub const TYPE_ADD_PAGE: u8 = 1;
-    pub const TYPE_DELETE_PAGE: u8 = 2;
-    pub const TYPE_SWAP_PAGES: u8 = 3;
-    pub const TYPE_SIGN_BOOK: u8 = 4;
+    pub const TYPE_REPLACE_PAGE: u32 = 0;
+    pub const TYPE_ADD_PAGE: u32 = 1;
+    pub const TYPE_DELETE_PAGE: u32 = 2;
+    pub const TYPE_SWAP_PAGES: u32 = 3;
+    pub const TYPE_SIGN_BOOK: u32 = 4;
 }
 
 impl Packet for BookEdit {
@@ -34,21 +34,21 @@ impl Packet for BookEdit {
         let mut stream = Stream::new(Vec::new(), 0);
         stream.put_var_u32(self.id() as u32);
 
-        stream.put_byte(self.event_type);
-        stream.put_byte(self.inventory_slot);
+        stream.put_var_i32(self.inventory_slot);
+        stream.put_var_u32(self.event_type);
 
         match self.event_type {
             BookEdit::TYPE_REPLACE_PAGE | BookEdit::TYPE_ADD_PAGE => {
-                stream.put_byte(self.page_number);
+                stream.put_var_i32(self.page_number);
                 PacketSerializer::put_string(&mut stream, self.text.clone());
                 PacketSerializer::put_string(&mut stream, self.photo_name.clone());
             }
             BookEdit::TYPE_DELETE_PAGE => {
-                stream.put_byte(self.page_number);
+                stream.put_var_i32(self.page_number);
             }
             BookEdit::TYPE_SWAP_PAGES => {
-                stream.put_byte(self.page_number);
-                stream.put_byte(self.secondary_page_number);
+                stream.put_var_i32(self.page_number);
+                stream.put_var_i32(self.secondary_page_number);
             }
             BookEdit::TYPE_SIGN_BOOK => {
                 PacketSerializer::put_string(&mut stream, self.title.clone());
@@ -68,8 +68,8 @@ impl Packet for BookEdit {
     }
 
     fn decode(stream: &mut Stream) -> BookEdit {
-        let event_type = stream.get_byte();
-        let inventory_slot = stream.get_byte();
+        let inventory_slot = stream.get_var_i32();
+        let event_type = stream.get_var_u32();
         let mut page_number = 0;
         let mut secondary_page_number = 0;
         let mut text = String::new();
@@ -80,16 +80,16 @@ impl Packet for BookEdit {
 
         match event_type {
             BookEdit::TYPE_REPLACE_PAGE | BookEdit::TYPE_ADD_PAGE => {
-                page_number = stream.get_byte();
+                page_number = stream.get_var_i32();
                 text = PacketSerializer::get_string(stream);
                 photo_name = PacketSerializer::get_string(stream);
             }
             BookEdit::TYPE_DELETE_PAGE => {
-                page_number = stream.get_byte();
+                page_number = stream.get_var_i32();
             }
             BookEdit::TYPE_SWAP_PAGES => {
-                page_number = stream.get_byte();
-                secondary_page_number = stream.get_byte();
+                page_number = stream.get_var_i32();
+                secondary_page_number = stream.get_var_i32();
             }
             BookEdit::TYPE_SIGN_BOOK => {
                 title = PacketSerializer::get_string(stream);

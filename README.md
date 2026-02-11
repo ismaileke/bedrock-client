@@ -39,7 +39,7 @@ async fn main() {
     let client = client::create(
         "127.0.0.1".to_string(),    // target address
         19132,                      // target port
-        "1.21.130".to_string(),     // client version
+        "1.26.0".to_string(),     // client version
         false,                      // RakNet debug mode
         |code, url| {
             println!("Microsoft Auth Code: {} - URL: {}", code, url);

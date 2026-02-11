@@ -6,6 +6,8 @@ use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 use crate::protocol::bedrock::types::level_settings::LevelSettings;
 use crate::protocol::bedrock::types::network_permissions::NetworkPermissions;
 use crate::protocol::bedrock::types::player_movement_settings::PlayerMovementSettings;
+use crate::protocol::bedrock::types::server_join_information::ServerJoinInformation;
+use crate::protocol::bedrock::types::server_telemetry_data::ServerTelemetryData;
 use binary_utils::binary::Stream;
 use mojang_nbt::nbt_serializer::NBTSerializer;
 use mojang_nbt::tag::tag::Tag;
@@ -37,6 +39,8 @@ pub struct StartGame {
     pub enable_client_side_chunk_generation: bool,
     pub block_network_ids_are_hashes: bool,
     pub network_permissions: NetworkPermissions,
+    pub server_join_information: Option<ServerJoinInformation>,
+    pub server_telemetry_data: ServerTelemetryData,
 }
 
 impl Packet for StartGame {
@@ -85,11 +89,7 @@ impl Packet for StartGame {
             let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
             stream.set_offset(offset);
 
-            let state = Tag::Compound(
-                nbt_root
-                    .must_get_compound_tag()
-                    .expect("StartGamePacket TreeRoot to CompoundTag conversion error"),
-            );
+            let state = Tag::Compound(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error"), );
 
             block_palette.push(BlockPaletteEntry::new(block_name, CacheableNBT::new(state)));
         }
@@ -104,11 +104,7 @@ impl Packet for StartGame {
         let mut nbt_serializer = NBTSerializer::new_network();
         let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
         stream.set_offset(offset);
-        let player_actor_properties = CacheableNBT::new(Tag::Compound(
-            nbt_root
-                .must_get_compound_tag()
-                .expect("StartGamePacket TreeRoot to CompoundTag conversion error"),
-        ));
+        let player_actor_properties = CacheableNBT::new(Tag::Compound(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error"), ));
 
         let block_palette_checksum = stream.get_u64_le();
 
@@ -119,6 +115,10 @@ impl Packet for StartGame {
         let block_network_ids_are_hashes = stream.get_bool();
 
         let network_permissions = NetworkPermissions::read(stream);
+
+        let server_join_information = PacketSerializer::read_optional(stream, |s| ServerJoinInformation::read(s));
+
+        let server_telemetry_data = ServerTelemetryData::read(stream);
 
         StartGame {
             actor_unique_id,
@@ -145,6 +145,8 @@ impl Packet for StartGame {
             enable_client_side_chunk_generation,
             block_network_ids_are_hashes,
             network_permissions,
+            server_join_information,
+            server_telemetry_data,
         }
     }
 

@@ -8,6 +8,8 @@ use std::any::Any;
 #[derive(serde::Serialize, Debug)]
 pub struct GraphicsOverrideParameter {
     pub values: Vec<ParameterKeyframeValue>,
+    pub unknown_float: f32,
+    pub unknown_vector3: Vec<f32>,
     pub biome_identifier: String,
     pub parameter_type: u8,
     pub reset: bool,
@@ -26,6 +28,8 @@ impl Packet for GraphicsOverrideParameter {
         for value in &self.values {
             value.write(&mut stream);
         }
+        stream.put_f32_le(self.unknown_float);
+        PacketSerializer::put_vector3(&mut stream, self.unknown_vector3.clone());
         PacketSerializer::put_string(&mut stream, self.biome_identifier.clone());
         stream.put_byte(self.parameter_type);
         stream.put_bool(self.reset);
@@ -43,16 +47,13 @@ impl Packet for GraphicsOverrideParameter {
         for _ in 0..count {
             values.push(ParameterKeyframeValue::read(stream));
         }
+        let unknown_float = stream.get_f32_le();
+        let unknown_vector3 = PacketSerializer::get_vector3(stream);
         let biome_identifier = PacketSerializer::get_string(stream);
         let parameter_type = stream.get_byte();
         let reset = stream.get_bool();
 
-        GraphicsOverrideParameter {
-            values,
-            biome_identifier,
-            parameter_type,
-            reset,
-        }
+        GraphicsOverrideParameter { values, unknown_float, unknown_vector3, biome_identifier, parameter_type, reset }
     }
 
     fn as_any(&self) -> &dyn Any {
@@ -73,4 +74,20 @@ impl GraphicsOverrideParameter {
     pub const SUN_MIE_STRENGTH: u8 = 7;
     pub const MOON_MIE_STRENGTH: u8 = 8;
     pub const SUN_GLARE_SHAPE: u8 = 9;
+    pub const CHLOROPHYLL: u8 = 10;
+    pub const CDOM: u8 = 11;
+    pub const SUSPENDED_SEDIMENT: u8 = 12;
+    pub const WAVES_DEPTH: u8 = 13;
+    pub const WAVES_FREQUENCY: u8 = 14;
+    pub const WAVES_FREQUENCY_SCALING: u8 = 15;
+    pub const WAVES_SPEED: u8 = 16;
+    pub const WAVES_SPEED_SCALING: u8 = 17;
+    pub const WAVES_SHAPE: u8 = 18;
+    pub const WAVES_OCTAVES: u8 = 19;
+    pub const WAVES_MIX: u8 = 20;
+    pub const WAVES_PULL: u8 = 21;
+    pub const WAVES_DIRECTION_INCREMENT: u8 = 22;
+    pub const MIDTONES_CONTRAST: u8 = 23;
+    pub const HIGHLIGHTS_CONTRAST: u8 = 24;
+    pub const SHADOWS_CONTRAST: u8 = 25;
 }

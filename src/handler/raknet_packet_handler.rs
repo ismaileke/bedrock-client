@@ -73,7 +73,7 @@ impl RakNetPacketHandler {
                 response_data = OpenConnReq2::new(MAGIC, address::new(4, target_address.to_string(), target_port), open_conn_reply1.cookie, false, open_conn_reply1.mtu, self.client_guid as u64).encode();
 
                 //client.socket.send(&req2).expect("Open Connection Request 2 Packet could not be sent");
-            }
+            },
             PacketType::OpenConnReply2 => {
                 let open_conn_reply2 = OpenConnReply2::decode(Vec::from(stream.get_buffer()));
                 if debug { open_conn_reply2.debug(); }
@@ -85,7 +85,7 @@ impl RakNetPacketHandler {
                 self.frame_number_cache.sequence_number += 1;
                 self.frame_number_cache.reliable_frame_index += 1;
                 //client.socket.send(&datagram).expect("Connection Request Packet could not be sent");
-            }
+            },
             PacketType::ConnReqAccepted => {
                 let conn_req_accepted = ConnReqAccepted::decode(Vec::from(stream.get_buffer()));
                 if debug {
@@ -113,12 +113,12 @@ impl RakNetPacketHandler {
                 self.frame_number_cache.ordered_frame_index += 1;
                 //client.socket.send(&datagram).expect("NewIncomingConnection & RequestNetworkSettings Packet could not be sent");
                 //should_stop = true;
-            }
+            },
             PacketType::IncompatibleProtocol => {
                 let incompatible_protocol = incompatible_protocol::decode(Vec::from(stream.get_buffer()));
                 println!("{}Incompatible Protocol Version, Server Protocol Version: {}{}", COLOR_RED, incompatible_protocol.server_protocol, COLOR_WHITE);
                 *should_stop = true;
-            }
+            },
             PacketType::DisconnectionNotification => {
                 println!("{}Disconnection Notification Packet Received From Server.{}", COLOR_RED, COLOR_WHITE);
                 *should_stop = true;

@@ -56,10 +56,6 @@ pub struct LevelSettings {
     pub experimental_gameplay_override: bool,
     pub chat_restriction_level: u8,
     pub disable_player_interactions: bool,
-    pub server_identifier: String,
-    pub world_identifier: String,
-    pub scenario_identifier: String,
-    pub owner_identifier: String,
 }
 
 impl LevelSettings {
@@ -112,10 +108,6 @@ impl LevelSettings {
         let experimental_gameplay_override = stream.get_bool();
         let chat_restriction_level = stream.get_byte();
         let disable_player_interactions = stream.get_bool();
-        let server_identifier = PacketSerializer::get_string(stream);
-        let world_identifier = PacketSerializer::get_string(stream);
-        let scenario_identifier = PacketSerializer::get_string(stream);
-        let owner_identifier = PacketSerializer::get_string(stream);
 
         LevelSettings {
             seed,
@@ -165,11 +157,7 @@ impl LevelSettings {
             edu_shared_uri_resource,
             experimental_gameplay_override,
             chat_restriction_level,
-            disable_player_interactions,
-            server_identifier,
-            world_identifier,
-            scenario_identifier,
-            owner_identifier,
+            disable_player_interactions
         }
     }
 }
