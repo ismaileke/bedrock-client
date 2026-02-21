@@ -2,6 +2,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
 use std::any::Any;
+use crate::protocol::raknet::packet_ids::PacketType;
 
 #[derive(serde::Serialize, Debug)]
 pub struct RequestNetworkSettings {
@@ -20,7 +21,7 @@ impl Packet for RequestNetworkSettings {
         stream.put_u32_be(self.protocol_version);
 
         let mut main_stream = Stream::new(Vec::new(), 0);
-        main_stream.put_byte(0xfe);
+        main_stream.put_byte(PacketType::Game.get_byte());
         main_stream.put_var_u32(stream.get_buffer().len() as u32);
         main_stream.put(Vec::from(stream.get_buffer()));
 

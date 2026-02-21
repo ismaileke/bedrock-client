@@ -1,5 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
+use crate::protocol::raknet::packet_ids::PacketType;
 use binary_utils::binary::Stream;
 use std::any::Any;
 
@@ -25,7 +26,21 @@ impl Packet for NetworkSettings {
     }
 
     fn encode(&mut self) -> Vec<u8> {
-        todo!()
+        let mut stream = Stream::new(Vec::new(), 0);
+        stream.put_var_u32(self.id() as u32);
+
+        stream.put_u16_le(self.compression_threshold);
+        stream.put_u16_le(self.compression_algorithm);
+        stream.put_bool(self.enable_client_throttling);
+        stream.put_byte(self.client_throttle_threshold);
+        stream.put_f32_le(self.client_throttle_scalar);
+
+        let mut main_stream = Stream::new(Vec::new(), 0);
+        main_stream.put_byte(PacketType::Game.get_byte());
+        main_stream.put_var_u32(stream.get_buffer().len() as u32);
+        main_stream.put(Vec::from(stream.get_buffer()));
+
+        Vec::from(main_stream.get_buffer())
     }
 
     fn decode(stream: &mut Stream) -> NetworkSettings {

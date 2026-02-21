@@ -21,7 +21,23 @@ impl Packet for ResourcePackStack {
     }
 
     fn encode(&mut self) -> Vec<u8> {
-        todo!()
+        let mut stream = Stream::new(Vec::new(), 0);
+        stream.put_var_u32(self.id() as u32);
+
+        stream.put_bool(self.must_accept);
+        stream.put_var_u32(self.resource_pack_stack.len() as u32);
+        for resource_pack_stack_entry in &self.resource_pack_stack {
+            resource_pack_stack_entry.write(&mut stream);
+        }
+        PacketSerializer::put_string(&mut stream, self.base_game_version.clone());
+        self.experiments.write(&mut stream);
+        stream.put_bool(self.use_vanilla_editor_packs);
+
+        let mut compress_stream = Stream::new(Vec::new(), 0);
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
+
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(stream: &mut Stream) -> ResourcePackStack {

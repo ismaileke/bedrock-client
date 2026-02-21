@@ -27,8 +27,10 @@ impl Packet for SetLocalPlayerAsInitializedPacket {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(_stream: &mut Stream) -> SetLocalPlayerAsInitializedPacket {
-        todo!()
+    fn decode(stream: &mut Stream) -> SetLocalPlayerAsInitializedPacket {
+        let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
+
+        SetLocalPlayerAsInitializedPacket { actor_runtime_id }
     }
 
     fn as_any(&self) -> &dyn Any {

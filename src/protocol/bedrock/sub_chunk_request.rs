@@ -22,9 +22,7 @@ impl Packet for SubChunkRequest {
         stream.put_var_u32(self.id() as u32);
 
         stream.put_var_i32(self.dimension);
-
         PacketSerializer::put_block_pos(&mut stream, self.base_position.clone());
-
         stream.put_u32_le(self.entries.len() as u32);
         for entry in &self.entries {
             entry.write(&mut stream);
@@ -37,8 +35,16 @@ impl Packet for SubChunkRequest {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(_stream: &mut Stream) -> SubChunkRequest {
-        todo!()
+    fn decode(stream: &mut Stream) -> SubChunkRequest {
+        let dimension = stream.get_var_i32();
+        let base_position = PacketSerializer::get_block_pos(stream);
+        let len = stream.get_var_u32() as usize;
+        let mut entries = vec![];
+        for _ in 0..len {
+            entries.push(SubChunkPositionOffset::read(stream));
+        }
+
+        SubChunkRequest { dimension, base_position, entries }
     }
 
     fn as_any(&self) -> &dyn Any {

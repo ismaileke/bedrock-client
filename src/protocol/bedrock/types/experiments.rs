@@ -19,9 +19,15 @@ impl Experiments {
         }
         let has_previously_used_experiments = stream.get_bool();
 
-        Experiments {
-            experiments,
-            has_previously_used_experiments,
+        Experiments { experiments, has_previously_used_experiments }
+    }
+
+    pub fn write(&self, stream: &mut Stream) {
+        stream.put_var_u32(self.experiments.len() as u32);
+        for experiment in self.experiments.iter() {
+            PacketSerializer::put_string(stream, experiment.0.clone());
+            stream.put_bool(experiment.1.clone());
         }
+        stream.put_bool(self.has_previously_used_experiments);
     }
 }

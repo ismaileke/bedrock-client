@@ -9,8 +9,10 @@ impl NetworkPermissions {
     pub fn read(stream: &mut Stream) -> NetworkPermissions {
         let disable_client_sounds = stream.get_bool();
 
-        NetworkPermissions {
-            disable_client_sounds,
-        }
+        NetworkPermissions { disable_client_sounds }
+    }
+
+    pub fn write(&self, stream: &mut Stream) {
+        stream.put_bool(self.disable_client_sounds);
     }
 }

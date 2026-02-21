@@ -160,4 +160,55 @@ impl LevelSettings {
             disable_player_interactions
         }
     }
+
+    pub fn write(&mut self, stream: &mut Stream) {
+        stream.put_u64_le(self.seed);
+        self.spawn_settings.write(stream);
+        stream.put_var_i32(self.generator);
+        stream.put_var_i32(self.world_game_mode);
+        stream.put_bool(self.hardcore);
+        stream.put_var_i32(self.difficulty);
+        PacketSerializer::put_block_pos(stream, self.spawn_position.clone());
+        stream.put_bool(self.has_achievements_disabled);
+        stream.put_var_i32(self.editor_world_type);
+        stream.put_bool(self.created_in_editor_mode);
+        stream.put_bool(self.exported_from_editor_mode);
+        stream.put_var_i32(self.time);
+        stream.put_var_i32(self.edu_edition_offer);
+        stream.put_bool(self.has_edu_features_enabled);
+        PacketSerializer::put_string(stream, self.edu_product_uuid.clone());
+        stream.put_f32_le(self.rain_level);
+        stream.put_f32_le(self.lightning_level);
+        stream.put_bool(self.has_confirmed_platform_locked_content);
+        stream.put_bool(self.is_multiplayer_game);
+        stream.put_bool(self.has_lan_broadcast);
+        stream.put_bool(self.has_lan_broadcast);
+        stream.put_var_i32(self.xbox_live_broadcast_mode);
+        stream.put_var_i32(self.platform_broadcast_mode);
+        stream.put_bool(self.commands_enabled);
+        stream.put_bool(self.is_texture_packs_required);
+        PacketSerializer::put_game_rules(stream, &mut self.game_rules, true);
+        stream.put_bool(self.has_bonus_chest_enabled);
+        stream.put_bool(self.has_start_with_map_enabled);
+        stream.put_var_i32(self.default_player_permission);
+        stream.put_i32_le(self.server_chunk_tick_radius);
+        stream.put_bool(self.has_locked_behavior_pack);
+        stream.put_bool(self.has_locked_resource_pack);
+        stream.put_bool(self.is_from_locked_world_template);
+        stream.put_bool(self.use_msa_gamer_tags_only);
+        stream.put_bool(self.is_from_world_template);
+        stream.put_bool(self.is_world_template_option_locked);
+        stream.put_bool(self.only_spawn_v1_villagers);
+        stream.put_bool(self.disable_persona);
+        stream.put_bool(self.disable_custom_skins);
+        stream.put_bool(self.mute_emote_announcements);
+        PacketSerializer::put_string(stream, self.vanilla_version.clone());
+        stream.put_i32_le(self.limited_world_width);
+        stream.put_i32_le(self.limited_world_length);
+        stream.put_bool(self.is_new_nether);
+        self.edu_shared_uri_resource.write(stream);
+        stream.put_bool(self.experimental_gameplay_override);
+        stream.put_byte(self.chat_restriction_level);
+        stream.put_bool(self.disable_player_interactions);
+    }
 }

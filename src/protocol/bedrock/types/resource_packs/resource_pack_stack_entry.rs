@@ -14,10 +14,12 @@ impl ResourcePackStackEntry {
         let version = PacketSerializer::get_string(stream);
         let sub_pack_name = PacketSerializer::get_string(stream);
 
-        ResourcePackStackEntry {
-            pack_id,
-            version,
-            sub_pack_name,
-        }
+        ResourcePackStackEntry { pack_id, version, sub_pack_name }
+    }
+
+    pub fn write(&self, stream: &mut Stream) {
+        PacketSerializer::put_string(stream, self.pack_id.clone());
+        PacketSerializer::put_string(stream, self.version.clone());
+        PacketSerializer::put_string(stream, self.sub_pack_name.clone());
     }
 }

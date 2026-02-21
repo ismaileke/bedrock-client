@@ -49,13 +49,20 @@ impl Packet for PlayStatus {
     }
 
     fn encode(&mut self) -> Vec<u8> {
-        todo!()
+        let mut stream = Stream::new(Vec::new(), 0);
+        stream.put_var_u32(self.id() as u32);
+
+        stream.put_u32_be(self.status);
+
+        let mut compress_stream = Stream::new(Vec::new(), 0);
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
+
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(stream: &mut Stream) -> PlayStatus {
-        PlayStatus {
-            status: stream.get_u32_be(),
-        }
+        PlayStatus { status: stream.get_u32_be(), }
     }
 
     fn as_any(&self) -> &dyn Any {

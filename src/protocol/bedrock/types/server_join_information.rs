@@ -14,7 +14,7 @@ impl ServerJoinInformation {
         ServerJoinInformation { gathering_join_info }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Stream) {
         PacketSerializer::write_optional(stream, &self.gathering_join_info, |s, v| v.write(s));
     }
 }

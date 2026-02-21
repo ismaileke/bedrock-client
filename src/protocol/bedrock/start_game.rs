@@ -49,34 +49,63 @@ impl Packet for StartGame {
     }
 
     fn encode(&mut self) -> Vec<u8> {
-        todo!()
+        let mut stream = Stream::new(Vec::new(), 0);
+        stream.put_var_u32(self.id() as u32);
+
+        PacketSerializer::put_actor_unique_id(&mut stream, self.actor_unique_id);
+        PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
+        stream.put_var_i32(self.player_game_mode);
+        PacketSerializer::put_vector3(&mut stream, self.player_position.clone());
+        stream.put_f32_le(self.pitch);
+        stream.put_f32_le(self.yaw);
+        self.level_settings.write(&mut stream);
+        PacketSerializer::put_string(&mut stream, self.level_id.clone());
+        PacketSerializer::put_string(&mut stream, self.world_name.clone());
+        PacketSerializer::put_string(&mut stream, self.premium_world_template_id.clone());
+        stream.put_bool(self.is_trial);
+        self.player_movement_settings.write(&mut stream);
+        stream.put_u64_le(self.current_tick);
+        stream.put_var_i32(self.enchantment_seed);
+        stream.put_var_u32(self.block_palette.len() as u32);
+        for block_palette_entry in &self.block_palette {
+            PacketSerializer::put_string(&mut stream, block_palette_entry.get_name());
+            //for now
+            let mut states = block_palette_entry.get_states().clone();
+            stream.put(states.get_encoded_nbt());
+        }
+        PacketSerializer::put_string(&mut stream, self.multiplayer_correlation_id.clone());
+        stream.put_bool(self.enable_new_inventory_system);
+        PacketSerializer::put_string(&mut stream, self.server_software_version.clone());
+        stream.put(self.player_actor_properties.get_encoded_nbt());
+        stream.put_u64_le(self.block_palette_checksum);
+        PacketSerializer::put_uuid(&mut stream, self.world_template_id.clone());
+        stream.put_bool(self.enable_client_side_chunk_generation);
+        stream.put_bool(self.block_network_ids_are_hashes);
+        self.network_permissions.write(&mut stream);
+        PacketSerializer::write_optional(&mut stream, &mut self.server_join_information, |s, v| v.write(s));
+        self.server_telemetry_data.write(&mut stream);
+
+        let mut compress_stream = Stream::new(Vec::new(), 0);
+        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
+        compress_stream.put(Vec::from(stream.get_buffer()));
+
+        Vec::from(compress_stream.get_buffer())
     }
 
     fn decode(stream: &mut Stream) -> StartGame {
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
-
         let player_game_mode = stream.get_var_i32();
-
         let player_position = PacketSerializer::get_vector3(stream);
-
         let pitch = stream.get_f32_le();
         let yaw = stream.get_f32_le();
-
         let level_settings = LevelSettings::read(stream);
-
         let level_id = PacketSerializer::get_string(stream);
-
         let world_name = PacketSerializer::get_string(stream);
-
         let premium_world_template_id = PacketSerializer::get_string(stream);
-
         let is_trial = stream.get_bool();
-
         let player_movement_settings = PlayerMovementSettings::read(stream);
-
         let current_tick = stream.get_u64_le();
-
         let enchantment_seed = stream.get_var_i32();
 
         let mut block_palette: Vec<BlockPaletteEntry> = vec![];
