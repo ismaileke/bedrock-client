@@ -2,9 +2,7 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::raknet::conn_req::ConnReq;
 use crate::protocol::raknet::conn_req_accepted::ConnReqAccepted;
 use crate::protocol::raknet::connected_ping::ConnectedPing;
-use crate::protocol::raknet::frame_set::{
-    Datagram, Frame, FrameNumberCache, RELIABLE, RELIABLE_ORDERED, UNRELIABLE,
-};
+use crate::protocol::raknet::frame_set::{Datagram, Frame, FrameNumberCache, RELIABLE, RELIABLE_ORDERED, UNRELIABLE};
 use crate::protocol::raknet::game_packet::GamePacket;
 use crate::protocol::raknet::new_incoming_conn::NewIncomingConn;
 use crate::protocol::raknet::open_conn_reply1::OpenConnReply1;
