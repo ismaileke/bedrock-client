@@ -22,12 +22,14 @@ pub const RELIABILITY_FLAGS: u8 = 0b111 << RELIABILITY_SHIFT;
 
 pub const SPLIT_FLAG: u8 = 0b00010000;
 
+#[derive(Debug)]
 pub struct Datagram {
     pub packet_id: u8,
     pub sequence_number: u32,
     pub frames: Vec<Frame>,
 }
 
+#[derive(Debug)]
 pub struct Frame {
     pub flags: u8,
     pub length_in_bits: u16,
@@ -38,11 +40,13 @@ pub struct Frame {
     pub body: Vec<u8>,
 }
 
+#[derive(Debug)]
 pub struct Order {
     pub ordered_frame_index: u32,
     pub order_channel: u8,
 }
 
+#[derive(Debug)]
 pub struct Fragment {
     pub compound_size: u32,
     pub compound_id: u16,
