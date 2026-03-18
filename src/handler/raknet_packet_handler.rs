@@ -16,8 +16,9 @@ use crate::utils::color_format::{COLOR_RED, COLOR_WHITE};
 use crate::BEDROCK_PROTOCOL_VERSION;
 use binary_utils::binary::Stream;
 use chrono::Utc;
-use rand::{rng, Rng};
+use rand::{rng, RngExt};
 use std::collections::HashMap;
+use crate::protocol::bedrock::network_settings::NONE;
 use crate::protocol::bedrock::req_network_settings::RequestNetworkSettings;
 
 pub struct RakNetPacketHandler {
@@ -34,7 +35,7 @@ impl RakNetPacketHandler {
     pub fn new() -> RakNetPacketHandler {
         let mut rng = rng();
         let client_guid = rng.random_range(10000..100000);
-        let game = GamePacket::new(None, false);
+        let game = GamePacket::new(None, false, NONE);
         let frame_number_cache = frame_set::start_number_cache();
         let last_received_packets = HashMap::new();
         let last_received_fragment_packets = HashMap::new();

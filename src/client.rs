@@ -46,6 +46,7 @@ use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use std::{io, thread};
 use std::time::Duration;
+use crate::protocol::bedrock::network_settings::NetworkSettings;
 use crate::utils::chunk::Chunk;
 
 pub struct Client {
@@ -435,7 +436,8 @@ fn start_network_thread(
 
                                         match packet_type {
                                             BedrockPacketType::IDNetworkSettings => {
-                                                raknet_handler.game = GamePacket::new(None, true);
+                                                let network_settings = packet.as_any().downcast_ref::<NetworkSettings>().unwrap();
+                                                raknet_handler.game = GamePacket::new(None, true, network_settings.compression_algorithm as u8);
                                                 bedrock_handler.compression_enabled = true;
 
                                                 // LOGIN PACKET
@@ -474,7 +476,7 @@ fn start_network_thread(
                                                 let encryption_key = encryption::generate_key(&shared_secret, salt);
                                                 let encryption = Encryption::fake_gcm(encryption_key).expect("Encryption Fake GCM Error");
 
-                                                raknet_handler.game = GamePacket::new(Option::from(encryption), bedrock_handler.compression_enabled);
+                                                raknet_handler.game = GamePacket::new(Option::from(encryption), bedrock_handler.compression_enabled, raknet_handler.game.compression_type);
                                                 bedrock_handler.encryption_enabled = true;
 
                                                 // CLIENT TO SERVER HANDSHAKE PACKET

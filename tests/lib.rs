@@ -34,7 +34,7 @@ mod tests {
 
         loop {
             while let Some((packet_name, packet)) = client.next_event() {
-                println!("{}[{}Packet{}] Received Packet:{} {}{}", color_format::COLOR_GRAY, color_format::COLOR_MINECOIN_GOLD, color_format::COLOR_GRAY, color_format::COLOR_BLUE, packet_name, color_format::COLOR_GRAY);
+                println!("{}[{}Packet{}] {}{}{}", color_format::COLOR_GRAY, color_format::COLOR_MINECOIN_GOLD, color_format::COLOR_GRAY, color_format::COLOR_BLUE, packet_name, color_format::COLOR_GRAY);
 
                 downcast_bedrock_packet!(packet, StartGame, |start_game: &StartGame| {
                     client.player_position = start_game.player_position.clone();
