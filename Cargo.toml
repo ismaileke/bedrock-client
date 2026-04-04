@@ -26,17 +26,17 @@ sha2 = "0.11"
 uuid = "1.19.0"
 snap = "1.1.1"
 
-parking_lot = "0.12"  # Lighter than std::Mutex
-bytes = "1.5"         # Zero-copy buffers
-smallvec = "1.11"     # Stack-allocated small vectors
-tinyvec = "1.6"       # Smaller Vec alternative
-bumpalo = "3.14"      # Arena allocator
-memchr = "2.7"        # Efficient memory search
+#parking_lot = "0.12"  # Lighter than std::Mutex
+#bytes = "1.5"         # Zero-copy buffers
+#smallvec = "1.11"     # Stack-allocated small vectors
+#tinyvec = "1.6"       # Smaller Vec alternative
+#bumpalo = "3.14"      # Arena allocator
+#memchr = "2.7"        # Efficient memory search
 
 
-[dev-dependencies]
-memory-stats = "1.0"
-valgrind = "0.1"
+#[dev-dependencies]
+#memory-stats = "1.0"
+#valgrind = "0.1"
 
 
 
