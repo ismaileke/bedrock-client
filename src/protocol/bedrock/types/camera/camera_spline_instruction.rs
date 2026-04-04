@@ -10,6 +10,8 @@ pub struct CameraSplineInstruction {
     pub curve: Vec<Vec<f32>>,
     pub progress_key_frames: Vec<CameraProgressOption>,
     pub rotation_options: Vec<CameraRotationOption>,
+    pub spline_identifier: String,
+    pub load_from_json: bool
 }
 
 impl CameraSplineInstruction {
@@ -19,6 +21,8 @@ impl CameraSplineInstruction {
         curve: Vec<Vec<f32>>,
         progress_key_frames: Vec<CameraProgressOption>,
         rotation_options: Vec<CameraRotationOption>,
+        spline_identifier: String,
+        load_from_json: bool
     ) -> CameraSplineInstruction {
         CameraSplineInstruction {
             total_time,
@@ -26,6 +30,8 @@ impl CameraSplineInstruction {
             curve,
             progress_key_frames,
             rotation_options,
+            spline_identifier,
+            load_from_json
         }
     }
 
@@ -51,7 +57,10 @@ impl CameraSplineInstruction {
             rotation_options.push(CameraRotationOption::read(stream));
         }
 
-        CameraSplineInstruction { total_time, ease_type, curve, progress_key_frames, rotation_options }
+        let spline_identifier = PacketSerializer::get_string(stream);
+        let load_from_json = stream.get_bool();
+
+        CameraSplineInstruction { total_time, ease_type, curve, progress_key_frames, rotation_options, spline_identifier, load_from_json }
     }
 
     pub fn write(&self, stream: &mut Stream) {
@@ -72,5 +81,8 @@ impl CameraSplineInstruction {
         for rotation_options in &self.rotation_options {
             rotation_options.write(stream);
         }
+
+        PacketSerializer::put_string(stream, self.spline_identifier.clone());
+        stream.put_bool(self.load_from_json);
     }
 }

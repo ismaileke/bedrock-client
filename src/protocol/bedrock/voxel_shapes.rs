@@ -10,6 +10,7 @@ use std::collections::HashMap;
 pub struct VoxelShapes {
     pub shapes: Vec<SerializableVoxelShape>,
     pub name_map: HashMap<String, u16>,
+    pub custom_shape_count: u16
 }
 
 impl Packet for VoxelShapes {
@@ -30,6 +31,7 @@ impl Packet for VoxelShapes {
             PacketSerializer::put_string(&mut stream, name.clone());
             stream.put_u16_le(*id);
         }
+        stream.put_u16_le(self.custom_shape_count);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -51,8 +53,9 @@ impl Packet for VoxelShapes {
             let id = stream.get_u16_le();
             name_map.insert(name, id);
         }
+        let custom_shape_count = stream.get_u16_le();
 
-        VoxelShapes { shapes, name_map }
+        VoxelShapes { shapes, name_map, custom_shape_count }
     }
 
     fn as_any(&self) -> &dyn Any {

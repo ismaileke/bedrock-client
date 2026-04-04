@@ -213,12 +213,18 @@ use crate::protocol::bedrock::update_sub_chunk_blocks::UpdateSubChunkBlocks;
 use crate::protocol::bedrock::update_trade::UpdateTrade;
 use crate::protocol::bedrock::camera_aim_assist_actor_priority::CameraAimAssistActorPriority;
 use crate::protocol::bedrock::camera_spline::CameraSpline;
-use crate::protocol::bedrock::client_bound_data_driven_ui_close_all_screens::ClientBoundDataDrivenUICloseAllScreens;
+use crate::protocol::bedrock::client_bound_data_driven_ui_close_screen::ClientBoundDataDrivenUICloseScreen;
 use crate::protocol::bedrock::client_bound_data_driven_ui_reload::ClientBoundDataDrivenUIReload;
 use crate::protocol::bedrock::client_bound_data_driven_ui_show_screen::ClientBoundDataDrivenUIShowScreen;
 use crate::protocol::bedrock::client_bound_texture_shift::ClientBoundTextureShift;
 use crate::protocol::bedrock::voxel_shapes::VoxelShapes;
 use binary_utils::binary::Stream;
+use crate::protocol::bedrock::client_bound_attribute_layer_sync::ClientBoundAttributeLayerSync;
+use crate::protocol::bedrock::locator_bar::LocatorBar;
+use crate::protocol::bedrock::party_changed::PartyChanged;
+use crate::protocol::bedrock::resource_packs_ready_for_validation::ResourcePacksReadyForValidation;
+use crate::protocol::bedrock::server_bound_data_driven_screen_closed::ServerBoundDataDrivenScreenClosed;
+use crate::protocol::bedrock::sync_world_clocks::SyncWorldClocks;
 
 #[repr(u16)]
 pub enum BedrockPacketType {
@@ -435,12 +441,18 @@ pub enum BedrockPacketType {
     IDGraphicsOverrideParameter,
     IDServerBoundDataStore,
     IDClientBoundDataDrivenUIShowScreen,
-    IDClientBoundDataDrivenUICloseAllScreens,
+    IDClientBoundDataDrivenUICloseScreen,
     IDClientBoundDataDrivenUIReload,
     IDClientBoundTextureShift,
     IDVoxelShapes,
     IDCameraSpline,
     IDCameraAimAssistActorPriority,
+    IDResourcePacksReadyForValidation,
+    IDLocatorBar,
+    IDPartyChanged,
+    IDServerBoundDataDrivenScreenClosed,
+    IDSyncWorldClocks,
+    IDClientBoundAttributeLayerSync,
     IDUnknown,
 }
 
@@ -659,12 +671,18 @@ impl BedrockPacketType {
             0x14b => BedrockPacketType::IDGraphicsOverrideParameter,
             0x14c => BedrockPacketType::IDServerBoundDataStore,
             0x14d => BedrockPacketType::IDClientBoundDataDrivenUIShowScreen,
-            0x14e => BedrockPacketType::IDClientBoundDataDrivenUICloseAllScreens,
+            0x14e => BedrockPacketType::IDClientBoundDataDrivenUICloseScreen,
             0x14f => BedrockPacketType::IDClientBoundDataDrivenUIReload,
             0x150 => BedrockPacketType::IDClientBoundTextureShift,
             0x151 => BedrockPacketType::IDVoxelShapes,
             0x152 => BedrockPacketType::IDCameraSpline,
             0x153 => BedrockPacketType::IDCameraAimAssistActorPriority,
+            0x154 => BedrockPacketType::IDResourcePacksReadyForValidation,
+            0x155 => BedrockPacketType::IDLocatorBar,
+            0x156 => BedrockPacketType::IDPartyChanged,
+            0x157 => BedrockPacketType::IDServerBoundDataDrivenScreenClosed,
+            0x158 => BedrockPacketType::IDSyncWorldClocks,
+            0x159 => BedrockPacketType::IDClientBoundAttributeLayerSync,
             _ => BedrockPacketType::IDUnknown,
         }
     }
@@ -882,12 +900,18 @@ impl BedrockPacketType {
             BedrockPacketType::IDGraphicsOverrideParameter => 0x14b,
             BedrockPacketType::IDServerBoundDataStore => 0x14c,
             BedrockPacketType::IDClientBoundDataDrivenUIShowScreen => 0x14d,
-            BedrockPacketType::IDClientBoundDataDrivenUICloseAllScreens => 0x14e,
+            BedrockPacketType::IDClientBoundDataDrivenUICloseScreen => 0x14e,
             BedrockPacketType::IDClientBoundDataDrivenUIReload => 0x14f,
             BedrockPacketType::IDClientBoundTextureShift => 0x150,
             BedrockPacketType::IDVoxelShapes => 0x151,
             BedrockPacketType::IDCameraSpline => 0x152,
             BedrockPacketType::IDCameraAimAssistActorPriority => 0x153,
+            BedrockPacketType::IDResourcePacksReadyForValidation => 0x154,
+            BedrockPacketType::IDLocatorBar => 0x155,
+            BedrockPacketType::IDPartyChanged => 0x156,
+            BedrockPacketType::IDServerBoundDataDrivenScreenClosed => 0x157,
+            BedrockPacketType::IDSyncWorldClocks => 0x158,
+            BedrockPacketType::IDClientBoundAttributeLayerSync => 0x159,
             _ => 0,
         }
     }
@@ -1105,12 +1129,18 @@ impl BedrockPacketType {
             0x14b => "Graphics Override Parameter",
             0x14c => "Server Bound Data Store",
             0x14d => "Client Bound Data Driven UI Show Screen",
-            0x14e => "Client Bound Data Driven UI Close All Screens",
+            0x14e => "Client Bound Data Driven UI Close Screen",
             0x14f => "Client Bound Data Driven UI Reload",
             0x150 => "Client Bound Texture Shift",
             0x151 => "Voxel Shapes",
             0x152 => "Camera Spline",
             0x153 => "Camera Aim Assist Actor Priority",
+            0x154 => "Resource Packs Ready For Validation",
+            0x155 => "Locator Bar",
+            0x156 => "Party Changed",
+            0x157 => "Server Bound Data Driven Screen Closed",
+            0x158 => "Sync World Clocks",
+            0x159 => "Client Bound Attribute Layer Sync",
             _ => "Unknown Packet",
         }
     }
@@ -1329,12 +1359,18 @@ impl BedrockPacketType {
             0x14b => Box::new(GraphicsOverrideParameter::decode(stream)),
             0x14c => Box::new(ServerBoundDataStore::decode(stream)),
             0x14d => Box::new(ClientBoundDataDrivenUIShowScreen::decode(stream)),
-            0x14e => Box::new(ClientBoundDataDrivenUICloseAllScreens::decode(stream)),
+            0x14e => Box::new(ClientBoundDataDrivenUICloseScreen::decode(stream)),
             0x14f => Box::new(ClientBoundDataDrivenUIReload::decode(stream)),
             0x150 => Box::new(ClientBoundTextureShift::decode(stream)),
             0x151 => Box::new(VoxelShapes::decode(stream)),
             0x152 => Box::new(CameraSpline::decode(stream)),
             0x153 => Box::new(CameraAimAssistActorPriority::decode(stream)),
+            0x154 => Box::new(ResourcePacksReadyForValidation::decode(stream)),
+            0x155 => Box::new(LocatorBar::decode(stream)),
+            0x156 => Box::new(PartyChanged::decode(stream)),
+            0x157 => Box::new(ServerBoundDataDrivenScreenClosed::decode(stream)),
+            0x158 => Box::new(SyncWorldClocks::decode(stream)),
+            0x159 => Box::new(ClientBoundAttributeLayerSync::decode(stream)),
             _ => Box::new(Unknown::decode(stream)),
         }
     }

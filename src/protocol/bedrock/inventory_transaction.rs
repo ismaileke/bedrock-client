@@ -75,6 +75,7 @@ impl Packet for InventoryTransaction {
                 vec![],
                 0,
                 0,
+                0
             )),
             Self::TYPE_USE_ITEM_ON_ENTITY => {
                 TransactionData::UseItemOnEntity(UseItemOnEntityTransactionData::new(

@@ -34,3 +34,43 @@ impl CameraSetInstructionEaseType {
     pub const OUT_ELASTIC: u8 = 30;
     pub const IN_OUT_ELASTIC: u8 = 31;
 }
+
+impl CameraSetInstructionEaseType {
+    pub fn name(value: u8) -> &'static str {
+        match value {
+            Self::LINEAR => "linear",
+            Self::SPRING => "spring",
+            Self::IN_SINE => "in_sine",
+            Self::OUT_SINE => "out_sine",
+            Self::IN_OUT_SINE => "in_out_sine",
+            Self::IN_QUAD => "in_quad",
+            Self::OUT_QUAD => "out_quad",
+            Self::IN_OUT_QUAD => "in_out_quad",
+            Self::IN_CUBIC => "in_cubic",
+            Self::OUT_CUBIC => "out_cubic",
+            Self::IN_OUT_CUBIC => "in_out_cubic",
+            Self::IN_QUART => "in_quart",
+            Self::OUT_QUART => "out_quart",
+            Self::IN_OUT_QUART => "in_out_quart",
+            Self::IN_QUINT => "in_quint",
+            Self::OUT_QUINT => "out_quint",
+            Self::IN_OUT_QUINT => "in_out_quint",
+            Self::IN_EXPO => "in_expo",
+            Self::OUT_EXPO => "out_expo",
+            Self::IN_OUT_EXPO => "in_out_expo",
+            Self::IN_CIRC => "in_circ",
+            Self::OUT_CIRC => "out_circ",
+            Self::IN_OUT_CIRC => "in_out_circ",
+            Self::IN_BACK => "in_back",
+            Self::OUT_BACK => "out_back",
+            Self::IN_OUT_BACK => "in_out_back",
+            Self::IN_ELASTIC => "in_elastic",
+            Self::OUT_ELASTIC => "out_elastic",
+            Self::IN_OUT_ELASTIC => "in_out_elastic",
+            Self::IN_BOUNCE => "in_bounce",
+            Self::OUT_BOUNCE => "out_bounce",
+            Self::IN_OUT_BOUNCE => "in_out_bounce",
+            _ => "unknown",
+        }
+    }
+}

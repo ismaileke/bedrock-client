@@ -8,8 +8,8 @@ use std::any::Any;
 #[derive(serde::Serialize, Debug)]
 pub struct GraphicsOverrideParameter {
     pub values: Vec<ParameterKeyframeValue>,
-    pub unknown_float: f32,
-    pub unknown_vector3: Vec<f32>,
+    pub unknown_float: Option<f32>,
+    pub unknown_vector3: Option<Vec<f32>>,
     pub biome_identifier: String,
     pub parameter_type: u8,
     pub reset: bool,
@@ -28,8 +28,8 @@ impl Packet for GraphicsOverrideParameter {
         for value in &self.values {
             value.write(&mut stream);
         }
-        stream.put_f32_le(self.unknown_float);
-        PacketSerializer::put_vector3(&mut stream, self.unknown_vector3.clone());
+        PacketSerializer::write_optional(&mut stream, &self.unknown_float, |s, v| s.put_f32_le(*v));
+        PacketSerializer::write_optional(&mut stream, &self.unknown_vector3, |s, v| PacketSerializer::put_vector3(s, v.clone()));
         PacketSerializer::put_string(&mut stream, self.biome_identifier.clone());
         stream.put_byte(self.parameter_type);
         stream.put_bool(self.reset);
@@ -47,8 +47,8 @@ impl Packet for GraphicsOverrideParameter {
         for _ in 0..count {
             values.push(ParameterKeyframeValue::read(stream));
         }
-        let unknown_float = stream.get_f32_le();
-        let unknown_vector3 = PacketSerializer::get_vector3(stream);
+        let unknown_float = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
+        let unknown_vector3 = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
         let biome_identifier = PacketSerializer::get_string(stream);
         let parameter_type = stream.get_byte();
         let reset = stream.get_bool();
@@ -90,4 +90,27 @@ impl GraphicsOverrideParameter {
     pub const MIDTONES_CONTRAST: u8 = 23;
     pub const HIGHLIGHTS_CONTRAST: u8 = 24;
     pub const SHADOWS_CONTRAST: u8 = 25;
+    pub const HIGHLIGHTS_GAIN: u8 = 26;
+    pub const HIGHLIGHTS_GAMMA: u8 = 27;
+    pub const HIGHLIGHTS_OFFSET: u8 = 28;
+    pub const HIGHLIGHTS_SATURATION: u8 = 29;
+    pub const MIDTONES_GAIN: u8 = 30;
+    pub const MIDTONES_GAMMA: u8 = 31;
+    pub const MIDTONES_OFFSET: u8 = 32;
+    pub const MIDTONES_SATURATION: u8 = 33;
+    pub const SHADOWS_GAIN: u8 = 34;
+    pub const SHADOWS_GAMMA: u8 = 35;
+    pub const SHADOWS_OFFSET: u8 = 36;
+    pub const SHADOWS_SATURATION: u8 = 37;
+    pub const HIGHLIGHTS_MIN: u8 = 38;
+    pub const SHADOWS_MAX: u8 = 39;
+    pub const TEMPERATURE: u8 = 40;
+    pub const SUN_COLOR: u8 = 41;
+    pub const SUN_ILLUMINANCE: u8 = 42;
+    pub const MOON_COLOR: u8 = 43;
+    pub const MOON_ILLUMINANCE: u8 = 44;
+    pub const FLASH_COLOR: u8 = 45;
+    pub const FLASH_ILLUMINANCE: u8 = 46;
+    pub const AMBIENT_COLOR: u8 = 47;
+    pub const AMBIENT_ILLUMINANCE: u8 = 48;
 }

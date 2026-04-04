@@ -125,29 +125,16 @@ impl PacketSerializer {
         stream.put_f32_le(data[1]);
     }
 
-    pub fn get_signed_block_pos(stream: &mut Stream) -> Vec<i32> {
+    pub fn get_block_pos(stream: &mut Stream) -> Vec<i32> {
         let x = stream.get_var_i32();
         let y = stream.get_var_i32();
         let z = stream.get_var_i32();
         vec![x, y, z]
     }
 
-    pub fn put_signed_block_pos(stream: &mut Stream, data: Vec<i32>) {
-        stream.put_var_i32(data[0]);
-        stream.put_var_i32(data[1]);
-        stream.put_var_i32(data[2]);
-    }
-
-    pub fn get_block_pos(stream: &mut Stream) -> Vec<i32> {
-        let x = stream.get_var_i32();
-        let y = stream.get_var_u32() as i32;
-        let z = stream.get_var_i32();
-        vec![x, y, z]
-    }
-
     pub fn put_block_pos(stream: &mut Stream, data: Vec<i32>) {
         stream.put_var_i32(data[0]);
-        stream.put_var_u32(data[1] as u32);
+        stream.put_var_i32(data[1]);
         stream.put_var_i32(data[2]);
     }
 
@@ -194,9 +181,7 @@ impl PacketSerializer {
     }
 
     pub fn get_nbt_compound_root(stream: &mut Stream) -> CompoundTag {
-        let ct = PacketSerializer::get_nbt_root(stream)
-            .must_get_compound_tag()
-            .expect("get_nbt_compound_root() error");
+        let ct = PacketSerializer::get_nbt_root(stream).must_get_compound_tag().expect("get_nbt_compound_root() error");
         ct
     }
 
@@ -218,19 +203,11 @@ impl PacketSerializer {
             EntityMetadataTypes::SHORT => MetadataProperty::Short(stream.get_i16_le()),
             EntityMetadataTypes::INT => MetadataProperty::Int(stream.get_var_i32()),
             EntityMetadataTypes::FLOAT => MetadataProperty::Float(stream.get_f32_le()),
-            EntityMetadataTypes::STRING => {
-                MetadataProperty::String(PacketSerializer::get_string(stream))
-            }
-            EntityMetadataTypes::COMPOUND_TAG => MetadataProperty::CompoundTag(CacheableNBT::new(
-                Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)),
-            )),
-            EntityMetadataTypes::BLOCK_POS => {
-                MetadataProperty::BlockPos(PacketSerializer::get_signed_block_pos(stream))
-            }
+            EntityMetadataTypes::STRING => MetadataProperty::String(PacketSerializer::get_string(stream)),
+            EntityMetadataTypes::COMPOUND_TAG => MetadataProperty::CompoundTag(CacheableNBT::new(Tag::Compound(PacketSerializer::get_nbt_compound_root(stream)))),
+            EntityMetadataTypes::BLOCK_POS => MetadataProperty::BlockPos(PacketSerializer::get_block_pos(stream)),
             EntityMetadataTypes::LONG => MetadataProperty::Long(stream.get_var_i64()),
-            EntityMetadataTypes::VECTOR3F => {
-                MetadataProperty::Vector3f(PacketSerializer::get_vector3(stream))
-            }
+            EntityMetadataTypes::VECTOR3F => MetadataProperty::Vector3f(PacketSerializer::get_vector3(stream)),
             _ => panic!("Unknown metadata type id: {}", metadata_type),
         }
     }
@@ -385,10 +362,7 @@ impl PacketSerializer {
             stack_header[2].unwrap_count(),
         );
 
-        ItemStackWrapper {
-            stack_id,
-            item_stack,
-        }
+        ItemStackWrapper { stack_id, item_stack }
     }
 
     pub fn put_item_stack_wrapper(stream: &mut Stream, wrapper: ItemStackWrapper) {
@@ -406,19 +380,11 @@ impl PacketSerializer {
     pub fn get_recipe_ingredient(stream: &mut Stream) -> RecipeIngredient {
         let descriptor_type = stream.get_byte();
         let descriptor = match descriptor_type {
-            ItemDescriptorType::INT_ID_META => Some(ItemDescriptor::IntIDMeta(
-                IntIdMetaItemDescriptor::read(stream),
-            )),
-            ItemDescriptorType::STRING_ID_META => Some(ItemDescriptor::StringIDMeta(
-                StringIdMetaItemDescriptor::read(stream),
-            )),
+            ItemDescriptorType::INT_ID_META => Some(ItemDescriptor::IntIDMeta(IntIdMetaItemDescriptor::read(stream))),
+            ItemDescriptorType::STRING_ID_META => Some(ItemDescriptor::StringIDMeta(StringIdMetaItemDescriptor::read(stream))),
             ItemDescriptorType::TAG => Some(ItemDescriptor::Tag(TagItemDescriptor::read(stream))),
-            ItemDescriptorType::MOLANG => {
-                Some(ItemDescriptor::Molang(MolangItemDescriptor::read(stream)))
-            }
-            ItemDescriptorType::COMPLEX_ALIAS => Some(ItemDescriptor::ComplexAlias(
-                ComplexAliasItemDescriptor::read(stream),
-            )),
+            ItemDescriptorType::MOLANG => Some(ItemDescriptor::Molang(MolangItemDescriptor::read(stream))),
+            ItemDescriptorType::COMPLEX_ALIAS => Some(ItemDescriptor::ComplexAlias(ComplexAliasItemDescriptor::read(stream))),
             _ => None,
         };
         let count = stream.get_var_i32();
@@ -465,19 +431,12 @@ impl PacketSerializer {
             let name = PacketSerializer::get_string(stream);
             let is_player_modifiable = stream.get_bool();
             let rule_type = stream.get_var_u32();
-            rules.insert(
-                name,
-                Self::read_game_rule(stream, rule_type, is_player_modifiable, is_start_game),
-            );
+            rules.insert(name, Self::read_game_rule(stream, rule_type, is_player_modifiable, is_start_game));
         }
         rules
     }
 
-    pub fn put_game_rules(
-        stream: &mut Stream,
-        rules: &mut HashMap<String, GameRule>,
-        is_start_game: bool,
-    ) {
+    pub fn put_game_rules(stream: &mut Stream, rules: &mut HashMap<String, GameRule>, is_start_game: bool) {
         stream.put_var_u32(rules.len() as u32);
         for (name, rule) in rules {
             PacketSerializer::put_string(stream, name.clone());

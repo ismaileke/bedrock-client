@@ -20,7 +20,7 @@ impl Packet for BlockPickRequest {
         let mut stream = Stream::new(Vec::new(), 0);
         stream.put_var_u32(self.id() as u32);
 
-        PacketSerializer::put_signed_block_pos(&mut stream, self.block_position.clone());
+        PacketSerializer::put_block_pos(&mut stream, self.block_position.clone());
         stream.put_bool(self.add_user_data);
         stream.put_byte(self.hotbar_slot);
 
@@ -32,7 +32,7 @@ impl Packet for BlockPickRequest {
     }
 
     fn decode(stream: &mut Stream) -> BlockPickRequest {
-        let block_position = PacketSerializer::get_signed_block_pos(stream);
+        let block_position = PacketSerializer::get_block_pos(stream);
         let add_user_data = stream.get_bool();
         let hotbar_slot = stream.get_byte();
 

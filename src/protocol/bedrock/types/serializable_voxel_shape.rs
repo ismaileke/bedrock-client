@@ -3,7 +3,7 @@ use crate::protocol::bedrock::types::serializable_voxel_cells::SerializableVoxel
 
 #[derive(serde::Serialize, Debug)]
 pub struct SerializableVoxelShape {
-    pub cells: Vec<SerializableVoxelCells>,
+    pub cells: SerializableVoxelCells,
     pub x_coordinates: Vec<f32>,
     pub y_coordinates: Vec<f32>,
     pub z_coordinates: Vec<f32>,
@@ -11,11 +11,7 @@ pub struct SerializableVoxelShape {
 
 impl SerializableVoxelShape {
     pub fn read(stream: &mut Stream) -> SerializableVoxelShape {
-        let mut cells = Vec::new();
-        let cells_count = stream.get_var_u32();
-        for _ in 0..cells_count {
-            cells.push(SerializableVoxelCells::read(stream));
-        }
+        let cells = SerializableVoxelCells::read(stream);
 
         let mut x_coordinates = Vec::new();
         let x_coordinates_count = stream.get_var_u32();
@@ -39,10 +35,7 @@ impl SerializableVoxelShape {
     }
 
     pub fn write(&mut self, stream: &mut Stream) {
-        stream.put_var_u32(self.cells.len() as u32);
-        for storage in &mut self.cells {
-            storage.write(stream);
-        }
+        self.cells.write(stream);
 
         stream.put_var_u32(self.x_coordinates.len() as u32);
         for x_coord in &self.x_coordinates {

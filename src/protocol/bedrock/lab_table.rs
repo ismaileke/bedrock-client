@@ -21,7 +21,7 @@ impl Packet for LabTable {
         stream.put_var_u32(self.id() as u32);
 
         stream.put_byte(self.action_type);
-        PacketSerializer::put_signed_block_pos(&mut stream, self.block_position.clone());
+        PacketSerializer::put_block_pos(&mut stream, self.block_position.clone());
         stream.put_byte(self.reaction_type);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
@@ -33,7 +33,7 @@ impl Packet for LabTable {
 
     fn decode(stream: &mut Stream) -> LabTable {
         let action_type = stream.get_byte();
-        let block_position = PacketSerializer::get_signed_block_pos(stream);
+        let block_position = PacketSerializer::get_block_pos(stream);
         let reaction_type = stream.get_byte();
 
         LabTable {

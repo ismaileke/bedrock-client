@@ -35,7 +35,7 @@ impl Packet for GameTestRequest {
         stream.put_var_i32(self.repeat_count);
         stream.put_byte(self.rotation);
         stream.put_bool(self.stop_on_failure);
-        PacketSerializer::put_signed_block_pos(&mut stream, self.test_position.clone());
+        PacketSerializer::put_block_pos(&mut stream, self.test_position.clone());
         stream.put_var_i32(self.tests_per_row);
         PacketSerializer::put_string(&mut stream, self.test_name.clone());
 
@@ -51,7 +51,7 @@ impl Packet for GameTestRequest {
         let repeat_count = stream.get_var_i32();
         let rotation = stream.get_byte();
         let stop_on_failure = stream.get_bool();
-        let test_position = PacketSerializer::get_signed_block_pos(stream);
+        let test_position = PacketSerializer::get_block_pos(stream);
         let tests_per_row = stream.get_var_i32();
         let test_name = PacketSerializer::get_string(stream);
 

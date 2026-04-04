@@ -22,26 +22,18 @@ impl PlayerBlockActionWithBlockInfo {
         if !Self::is_valid_action_type(action_type) {
             panic!("Invalid action type for PlayerBlockActionWithBlockInfo");
         }
-        PlayerBlockActionWithBlockInfo {
-            action_type,
-            block_position,
-            face,
-        }
+        PlayerBlockActionWithBlockInfo { action_type, block_position, face }
     }
 
     pub fn read(stream: &mut Stream, action_type: i32) -> PlayerBlockActionWithBlockInfo {
-        let block_position = PacketSerializer::get_signed_block_pos(stream);
+        let block_position = PacketSerializer::get_block_pos(stream);
         let face = stream.get_var_i32();
 
-        PlayerBlockActionWithBlockInfo {
-            action_type,
-            block_position,
-            face,
-        }
+        PlayerBlockActionWithBlockInfo { action_type, block_position, face }
     }
 
     pub fn write(&mut self, stream: &mut Stream) {
-        PacketSerializer::put_signed_block_pos(stream, self.block_position.clone());
+        PacketSerializer::put_block_pos(stream, self.block_position.clone());
         stream.put_var_i32(self.face);
     }
 

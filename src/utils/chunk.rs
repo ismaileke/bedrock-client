@@ -3,16 +3,12 @@ use binary_utils::binary::Stream;
 #[derive(Clone)]
 pub struct PaletteSize(pub u8);
 impl PaletteSize {
-
     pub fn uint32s(self) -> isize {
         let mut index_u32_count: isize = 0;
         if self.0 != 0 {
-
             let indices_per_u32 = 32 / self.0 as isize;
-
             index_u32_count = 4096 / indices_per_u32;
         }
-
         if self.0 == 3 || self.0 == 5 || self.0 == 6 {
             index_u32_count += 1;
         }
@@ -63,7 +59,6 @@ pub struct Palette {
 }
 
 impl PalettedStorage {
-
     fn new(indices: Vec<u32>, palette: Palette) -> Self {
         let bits_per_index = (indices.len() / 32 / 4) as u16;
 

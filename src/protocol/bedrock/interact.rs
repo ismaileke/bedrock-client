@@ -43,8 +43,7 @@ impl Packet for Interact {
     fn decode(stream: &mut Stream) -> Interact {
         let action = stream.get_byte();
         let target_actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
-        let position =
-            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
+        let position = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
 
         Interact { action, target_actor_runtime_id, position }
     }

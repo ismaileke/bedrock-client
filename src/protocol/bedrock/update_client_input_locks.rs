@@ -1,13 +1,11 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use binary_utils::binary::Stream;
 use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct UpdateClientInputLocks {
     pub flags: u32,
-    pub position: Vec<f32>,
 }
 
 impl Packet for UpdateClientInputLocks {
@@ -20,7 +18,6 @@ impl Packet for UpdateClientInputLocks {
         stream.put_var_u32(self.id() as u32);
 
         stream.put_var_u32(self.flags);
-        PacketSerializer::put_vector3(&mut stream, self.position.clone());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -31,9 +28,8 @@ impl Packet for UpdateClientInputLocks {
 
     fn decode(stream: &mut Stream) -> UpdateClientInputLocks {
         let flags = stream.get_var_u32();
-        let position = PacketSerializer::get_vector3(stream);
 
-        UpdateClientInputLocks { flags, position }
+        UpdateClientInputLocks { flags }
     }
 
     fn as_any(&self) -> &dyn Any {

@@ -630,4 +630,6 @@ impl LevelSoundEvent {
     pub const ITEM_GOLDEN_SPEAR_USE: u32 = 594;
     pub const ITEM_DIAMOND_SPEAR_USE: u32 = 595;
     pub const ITEM_NETHERITE_SPEAR_USE: u32 = 596;
+    pub const PAUSE_GROWTH: u32 = 597;
+    pub const RESET_GROWTH: u32 = 598;
 }

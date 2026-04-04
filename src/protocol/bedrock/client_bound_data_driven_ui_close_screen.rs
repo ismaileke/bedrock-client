@@ -1,21 +1,24 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
+use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use binary_utils::binary::Stream;
 use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
-pub struct ClientBoundDataDrivenUICloseAllScreens {}
+pub struct ClientBoundDataDrivenUICloseScreen {
+    pub form_id: Option<u32>
+}
 
-impl Packet for ClientBoundDataDrivenUICloseAllScreens {
+impl Packet for ClientBoundDataDrivenUICloseScreen {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDClientBoundDataDrivenUICloseAllScreens.get_byte()
+        BedrockPacketType::IDClientBoundDataDrivenUICloseScreen.get_byte()
     }
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
         stream.put_var_u32(self.id() as u32);
 
-        // NO PAYLOAD
+        PacketSerializer::write_optional(&mut stream, &self.form_id, |s, v| s.put_u32_le(*v));
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -24,10 +27,10 @@ impl Packet for ClientBoundDataDrivenUICloseAllScreens {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(_stream: &mut Stream) -> ClientBoundDataDrivenUICloseAllScreens {
-        // NO PAYLOAD
+    fn decode(stream: &mut Stream) -> ClientBoundDataDrivenUICloseScreen {
+        let form_id = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
 
-        ClientBoundDataDrivenUICloseAllScreens {}
+        ClientBoundDataDrivenUICloseScreen { form_id}
     }
 
     fn as_any(&self) -> &dyn Any {

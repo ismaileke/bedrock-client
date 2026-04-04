@@ -16,6 +16,7 @@ pub struct UseItemTransactionData {
     click_position: Vec<f32>,
     block_runtime_id: u32,
     client_interact_prediction: u32, //see types/inventory/predicted_result.rs
+    client_cooldown_state: u8
 }
 
 impl UseItemTransactionData {
@@ -36,6 +37,7 @@ impl UseItemTransactionData {
         click_position: Vec<f32>,
         block_runtime_id: u32,
         client_interact_prediction: u32,
+        client_cooldown_state: u8
     ) -> UseItemTransactionData {
         UseItemTransactionData {
             actions,
@@ -49,6 +51,7 @@ impl UseItemTransactionData {
             click_position,
             block_runtime_id,
             client_interact_prediction,
+            client_cooldown_state,
         }
     }
 
@@ -71,6 +74,7 @@ impl UseItemTransactionData {
         self.click_position = PacketSerializer::get_vector3(stream);
         self.block_runtime_id = stream.get_var_u32();
         self.client_interact_prediction = stream.get_var_u32();
+        self.client_cooldown_state = stream.get_byte();
     }
 
     pub fn encode_data(&self, stream: &mut Stream) {
@@ -84,5 +88,6 @@ impl UseItemTransactionData {
         PacketSerializer::put_vector3(stream, self.click_position.clone());
         stream.put_var_u32(self.block_runtime_id);
         stream.put_var_u32(self.client_interact_prediction);
+        stream.put_byte(self.client_cooldown_state);
     }
 }

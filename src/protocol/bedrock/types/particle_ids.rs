@@ -102,4 +102,6 @@ impl ParticleIDS {
     pub const EYEBLOSSOM_OPEN: u32 = 96;
     pub const EYEBLOSSOM_CLOSE: u32 = 97;
     pub const GREEN_FLAME: u32 = 98;
+    pub const PAUSE_MOB_GROWTH: u32 = 99;
+    pub const RESET_MOB_GROWTH: u32 = 100;
 }

@@ -42,7 +42,7 @@ async fn main() {
     let mut client = client::create(
         "127.0.0.1".to_string(),    // target address
         19132,                      // target port
-        "1.26.0".to_string(),     // client version
+        "1.26.10".to_string(),      // client version
         false,                      // RakNet debug mode
         |code, url| {
             println!("Microsoft Auth Code: {} - URL: {}", code, url);
@@ -53,7 +53,7 @@ async fn main() {
 
     loop {
         while let Some((packet_name, packet)) = client.next_event() {
-            println!("{}[{}Packet{}] Received Packet:{} {}{}", color_format::COLOR_GRAY, color_format::COLOR_MINECOIN_GOLD, color_format::COLOR_GRAY, color_format::COLOR_BLUE, packet_name, color_format::COLOR_GRAY);
+            println!("[Packet] Received Packet: {}", packet_name);
 
             downcast_bedrock_packet!(packet, PlayStatus, |play_status: &PlayStatus| {
                 if play_status.status == 3 {
@@ -61,7 +61,7 @@ async fn main() {
                     let my_text = Text {
                         text_type: Text::TYPE_CHAT,
                         needs_translation: false,
-                        source_name: Some("ismaileke".to_string()),
+                        source_name: Some("Steve".to_string()),
                         message: "Hello server!".to_string(),
                         parameters: None,
                         xbox_uid: "".to_string(),
