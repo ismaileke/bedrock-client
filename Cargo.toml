@@ -10,7 +10,7 @@ mojang-nbt = { git = "https://github.com/ismaileke/mojang-nbt.git", branch = "ma
 log = "0.4.28"
 rand = "0.10.0"
 tokio = { version = "1.49.0", features = ["full"] }
-base64 = "0.22.1"
+base64 = "0.23.0"
 serde_json = "1.0.143"
 flate2 = "1.1.2"
 chrono = "0.4.41"
