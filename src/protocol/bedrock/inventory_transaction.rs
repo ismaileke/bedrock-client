@@ -70,6 +70,7 @@ impl Packet for InventoryTransaction {
                 ItemStackWrapper {
                     stack_id: 0,
                     item_stack: ItemStack::null(),
+                    variant: 0,
                 },
                 vec![],
                 vec![],
@@ -86,6 +87,7 @@ impl Packet for InventoryTransaction {
                     ItemStackWrapper {
                         stack_id: 0,
                         item_stack: ItemStack::null(),
+                        variant: 0,
                     },
                     vec![],
                     vec![],
@@ -99,6 +101,7 @@ impl Packet for InventoryTransaction {
                     ItemStackWrapper {
                         stack_id: 0,
                         item_stack: ItemStack::null(),
+                        variant: 0,
                     },
                     vec![],
                 ))

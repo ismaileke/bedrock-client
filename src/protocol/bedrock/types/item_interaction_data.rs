@@ -35,9 +35,10 @@ impl ItemInteractionData {
             }
         }
         let mut tr_data = TransactionData::UseItem(UseItemTransactionData::new(vec![], 0, 0, vec![], 0, 0, ItemStackWrapper {
-                stack_id: 0,
-                item_stack: ItemStack::null(),
-            }, vec![], vec![], 0, 0, 0)); // bad way LOL
+            stack_id: 0,
+            item_stack: ItemStack::null(),
+            variant: 0,
+        }, vec![], vec![], 0, 0, 0)); // bad way LOL
         tr_data.decode(stream);
 
         let use_item_tr_data = match tr_data {

@@ -345,6 +345,7 @@ impl PacketSerializer {
             return ItemStackWrapper {
                 stack_id: 0,
                 item_stack: ItemStack::null(),
+                variant: 0,
             };
         }
 
@@ -362,7 +363,7 @@ impl PacketSerializer {
             stack_header[2].unwrap_count(),
         );
 
-        ItemStackWrapper { stack_id, item_stack }
+        ItemStackWrapper { stack_id, item_stack, variant: 0 }
     }
 
     pub fn put_item_stack_wrapper(stream: &mut Stream, wrapper: ItemStackWrapper) {
@@ -383,7 +384,7 @@ impl PacketSerializer {
         let meta = stream.get_var_u32();
 
         let has_net_id = stream.get_bool();
-        let _variant = if has_net_id {
+        let variant = if has_net_id {
             stream.get_var_u32()
         } else {
             0
@@ -403,7 +404,7 @@ impl PacketSerializer {
             count,
             block_runtime_id: block_runtime_id as i32,
             raw_extra_data,
-        } }
+        }, variant }
     }
 
     pub fn put_network_item_stack_descriptor(stream: &mut Stream, wrapper: ItemStackWrapper) {
@@ -414,7 +415,7 @@ impl PacketSerializer {
         let has_net_id = wrapper.stack_id != 0;
         stream.put_bool(has_net_id);
         if has_net_id {
-            stream.put_var_u32(0);
+            stream.put_var_u32(wrapper.variant);
             stream.put_var_i32(wrapper.stack_id);
         }
         stream.put_var_u32(wrapper.item_stack.block_runtime_id as u32);
