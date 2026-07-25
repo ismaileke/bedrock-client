@@ -2,16 +2,16 @@ use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct Enchant {
-    id: u8,
+    id: u32,
     level: u8,
 }
 
 impl Enchant {
-    pub fn new(id: u8, level: u8) -> Enchant {
+    pub fn new(id: u32, level: u8) -> Enchant {
         Enchant { id, level }
     }
 
-    pub fn get_id(&self) -> u8 {
+    pub fn get_id(&self) -> u32 {
         self.id
     }
 
@@ -20,14 +20,14 @@ impl Enchant {
     }
 
     pub fn read(stream: &mut Stream) -> Enchant {
-        let id = stream.get_byte();
+        let id = stream.get_var_u32();
         let level = stream.get_byte();
 
         Enchant { id, level }
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_byte(self.id);
+        stream.put_var_u32(self.id);
         stream.put_byte(self.level);
     }
 }

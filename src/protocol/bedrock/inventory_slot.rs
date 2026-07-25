@@ -10,8 +10,8 @@ use std::any::Any;
 pub struct InventorySlot {
     pub window_id: u32,
     pub inventory_slot: u32,
-    pub container_name: FullContainerName,
-    pub storage: ItemStackWrapper,
+    pub container_name: Option<FullContainerName>,
+    pub storage: Option<ItemStackWrapper>,
     pub item: ItemStackWrapper,
 }
 
@@ -26,9 +26,9 @@ impl Packet for InventorySlot {
 
         stream.put_var_u32(self.window_id);
         stream.put_var_u32(self.inventory_slot);
-        self.container_name.write(&mut stream);
-        PacketSerializer::put_item_stack_wrapper(&mut stream, self.storage.clone());
-        PacketSerializer::put_item_stack_wrapper(&mut stream, self.item.clone());
+        PacketSerializer::write_optional(&mut stream, &self.container_name, |s, v| v.write(s));
+        PacketSerializer::write_optional(&mut stream, &self.storage, |s, v| PacketSerializer::put_network_item_stack_descriptor(s, v.clone()));
+        PacketSerializer::put_network_item_stack_descriptor(&mut stream, self.item.clone());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -40,9 +40,9 @@ impl Packet for InventorySlot {
     fn decode(stream: &mut Stream) -> InventorySlot {
         let window_id = stream.get_var_u32();
         let inventory_slot = stream.get_var_u32();
-        let container_name = FullContainerName::read(stream);
-        let storage = PacketSerializer::get_item_stack_wrapper(stream);
-        let item = PacketSerializer::get_item_stack_wrapper(stream);
+        let container_name = PacketSerializer::read_optional(stream, |s| FullContainerName::read(s));
+        let storage = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_network_item_stack_descriptor(s));
+        let item = PacketSerializer::get_network_item_stack_descriptor(stream);
 
         InventorySlot {
             window_id,

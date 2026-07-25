@@ -45,14 +45,7 @@ impl Packet for MoveActorAbsolute {
         let yaw = PacketSerializer::get_rotation_byte(stream);
         let head_yaw = PacketSerializer::get_rotation_byte(stream);
 
-        MoveActorAbsolute {
-            actor_runtime_id,
-            flags,
-            position,
-            pitch,
-            yaw,
-            head_yaw,
-        }
+        MoveActorAbsolute { actor_runtime_id, flags, position, pitch, yaw, head_yaw }
     }
 
     fn as_any(&self) -> &dyn Any {
@@ -66,4 +59,5 @@ impl MoveActorAbsolute {
     pub const FLAG_GROUND: u8 = 0x01;
     pub const FLAG_TELEPORT: u8 = 0x02;
     pub const FLAG_FORCE_MOVE_LOCAL_ENTITY: u8 = 0x04;
+    pub const FLAG_FORCE_COMPLETION: u8 = 0x08;
 }

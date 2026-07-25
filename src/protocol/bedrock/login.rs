@@ -129,6 +129,8 @@ pub fn convert_login_chain(
         "DeviceModel": "System Product Name ASUS",
         "DeviceOS": 1,
         "GameVersion": client_version,
+        "IsPartyLeader": false,
+        "FilterProfanity": false,
         "GraphicsMode": 0, // SIMPLE = 0 FANCY = 1 ADVANCED = 2 RAY_TRACED = 3;
         "GuiScale": -1,
         "IsEditorMode": false,
@@ -136,6 +138,7 @@ pub fn convert_login_chain(
         "OverrideSkin": false,
         "MaxViewDistance": 40,
         "MemoryTier": 5,
+        "PartyId": "",
         "PersonaPieces": [],
         "PersonaSkin": false,
         "PieceTintColors": [],

@@ -1,6 +1,5 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use crate::protocol::bedrock::types::recipe::furnace_recipe::FurnaceRecipe;
 use crate::protocol::bedrock::types::recipe::material_reducer_recipe::MaterialReducerRecipe;
 use crate::protocol::bedrock::types::recipe::material_reducer_recipe_output::MaterialReducerRecipeOutput;
 use crate::protocol::bedrock::types::recipe::multi_recipe::MultiRecipe;
@@ -81,7 +80,6 @@ impl Packet for CraftingData {
                 | Self::ENTRY_USER_DATA_SHAPELESS
                 | Self::ENTRY_SHAPELESS_CHEMISTRY => Recipe::Shapeless(ShapelessRecipe::read(recipe_type, stream)),
                 Self::ENTRY_SHAPED | Self::ENTRY_SHAPED_CHEMISTRY => Recipe::Shaped(ShapedRecipe::read(recipe_type, stream)),
-                Self::ENTRY_FURNACE | Self::ENTRY_FURNACE_DATA => Recipe::Furnace(FurnaceRecipe::read(recipe_type, stream)),
                 Self::ENTRY_MULTI => Recipe::Multi(MultiRecipe::read(recipe_type, stream)),
                 Self::ENTRY_SMITHING_TRANSFORM => Recipe::SmitingTransform(SmithingTransformRecipe::read(recipe_type, stream)),
                 Self::ENTRY_SMITHING_TRIM => Recipe::SmithingTrim(SmithingTrimRecipe::read(recipe_type, stream)),
@@ -163,8 +161,6 @@ impl Packet for CraftingData {
 impl CraftingData {
     pub const ENTRY_SHAPELESS: i32 = 0;
     pub const ENTRY_SHAPED: i32 = 1;
-    pub const ENTRY_FURNACE: i32 = 2;
-    pub const ENTRY_FURNACE_DATA: i32 = 3;
     pub const ENTRY_MULTI: i32 = 4;
     pub const ENTRY_USER_DATA_SHAPELESS: i32 = 5;
     pub const ENTRY_SHAPELESS_CHEMISTRY: i32 = 6;

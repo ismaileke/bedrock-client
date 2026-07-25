@@ -18,6 +18,9 @@ pub struct ClientMovementPredictionSync {
     pub jump_strength: f32,
     pub health: f32,
     pub hunger: f32,
+    pub friction_modifier: f32,
+    pub bounciness: f32,
+    pub air_drag_modifier: f32,
     pub actor_unique_id: i64,
     pub actor_flying_state: bool,
 }
@@ -45,6 +48,9 @@ impl Packet for ClientMovementPredictionSync {
         stream.put_f32_le(self.jump_strength);
         stream.put_f32_le(self.health);
         stream.put_f32_le(self.hunger);
+        stream.put_f32_le(self.friction_modifier);
+        stream.put_f32_le(self.bounciness);
+        stream.put_f32_le(self.air_drag_modifier);
         PacketSerializer::put_actor_unique_id(&mut stream, self.actor_unique_id);
         stream.put_bool(self.actor_flying_state);
 
@@ -66,6 +72,9 @@ impl Packet for ClientMovementPredictionSync {
         let jump_strength = stream.get_f32_le();
         let health = stream.get_f32_le();
         let hunger = stream.get_f32_le();
+        let friction_modifier = stream.get_f32_le();
+        let bounciness = stream.get_f32_le();
+        let air_drag_modifier = stream.get_f32_le();
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let actor_flying_state = stream.get_bool();
 
@@ -80,6 +89,9 @@ impl Packet for ClientMovementPredictionSync {
             jump_strength,
             health,
             hunger,
+            friction_modifier,
+            bounciness,
+            air_drag_modifier,
             actor_unique_id,
             actor_flying_state,
         }

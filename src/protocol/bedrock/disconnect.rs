@@ -7,7 +7,7 @@ use std::any::Any;
 #[derive(serde::Serialize, Debug)]
 pub struct Disconnect {
     pub reason: i32,
-    pub skip_message: bool,
+    pub message_type: u32,
     pub message: Option<String>,
     pub filtered_message: Option<String>,
 }
@@ -22,8 +22,8 @@ impl Packet for Disconnect {
         stream.put_var_u32(self.id() as u32);
 
         stream.put_var_i32(self.reason);
-        stream.put_bool(self.skip_message);
-        if !self.skip_message {
+        stream.put_var_u32(self.message_type);
+        if self.message_type == 0 && self.message.is_some() && self.filtered_message.is_some() {
             PacketSerializer::put_string(&mut stream, self.message.clone().unwrap());
             PacketSerializer::put_string(&mut stream, self.filtered_message.clone().unwrap());
         }
@@ -37,21 +37,16 @@ impl Packet for Disconnect {
 
     fn decode(stream: &mut Stream) -> Disconnect {
         let reason = stream.get_var_i32();
-        let skip_message = stream.get_bool();
+        let message_type = stream.get_var_u32();
         let mut message: Option<String> = None;
         let mut filtered_message: Option<String> = None;
 
-        if !skip_message {
+        if message_type == 0 {
             message = Option::from(PacketSerializer::get_string(stream));
             filtered_message = Option::from(PacketSerializer::get_string(stream));
         }
 
-        Disconnect {
-            reason,
-            skip_message,
-            message,
-            filtered_message,
-        }
+        Disconnect { reason, message_type, message, filtered_message }
     }
 
     fn as_any(&self) -> &dyn Any {

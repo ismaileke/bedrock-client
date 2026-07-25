@@ -1,5 +1,4 @@
 pub mod complex_alias_item_descriptor;
-pub mod furnace_recipe;
 pub mod int_id_meta_item_descriptor;
 pub mod item_descriptor;
 pub mod item_descriptor_type;

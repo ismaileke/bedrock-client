@@ -1,26 +1,25 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use crate::protocol::bedrock::types::client_store_entrypoint_config::ClientStoreEntrypointConfig;
 use binary_utils::binary::Stream;
 use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
-pub struct PartyChanged {
-    pub party_id: String,
-    pub party_leader: bool,
+pub struct ServerStoreInfo {
+    pub client_store_entrypoint_config: Option<ClientStoreEntrypointConfig>,
 }
 
-impl Packet for PartyChanged {
+impl Packet for ServerStoreInfo {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDPartyChanged.get_byte()
+        BedrockPacketType::IDServerStoreInfo.get_byte()
     }
 
     fn encode(&mut self) -> Vec<u8> {
         let mut stream = Stream::new(Vec::new(), 0);
         stream.put_var_u32(self.id() as u32);
 
-        PacketSerializer::put_string(&mut stream, self.party_id.clone());
-        stream.put_bool(self.party_leader);
+        PacketSerializer::write_optional(&mut stream, &self.client_store_entrypoint_config, |s, v| v.write(s));
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -29,11 +28,10 @@ impl Packet for PartyChanged {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> PartyChanged {
-        let party_id = PacketSerializer::get_string(stream);
-        let party_leader = stream.get_bool();
+    fn decode(stream: &mut Stream) -> ServerStoreInfo {
+        let client_store_entrypoint_config = PacketSerializer::read_optional(stream, |s| ClientStoreEntrypointConfig::read(s));
 
-        PartyChanged { party_id, party_leader }
+        ServerStoreInfo { client_store_entrypoint_config }
     }
 
     fn as_any(&self) -> &dyn Any {

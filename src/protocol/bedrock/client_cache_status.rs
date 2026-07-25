@@ -5,7 +5,7 @@ use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientCacheStatus {
-    pub enabled: bool,
+    pub enabled: bool
 }
 
 impl Packet for ClientCacheStatus {

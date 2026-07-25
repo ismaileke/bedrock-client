@@ -145,4 +145,6 @@ impl EntityMetadataProperties {
     pub const AIM_ASSIST_PRIORITY_PRESET_ID: u32 = 136; //int
     pub const AIM_ASSIST_PRIORITY_CATEGORY_ID: u32 = 137; //int
     pub const AIM_ASSIST_PRIORITY_ACTOR_ID: u32 = 138; //int
+    pub const RESERVED_139: u32 = 139; //long
+    pub const NAMEPLATE_RENDER_DISTANCE_MAX: u32 = 140; //float
 }

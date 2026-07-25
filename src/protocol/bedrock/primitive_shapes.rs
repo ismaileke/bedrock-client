@@ -5,13 +5,13 @@ use binary_utils::binary::Stream;
 use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
-pub struct DebugDrawer {
+pub struct PrimitiveShapes {
     pub shapes: Vec<PacketShapeData>,
 }
 
-impl Packet for DebugDrawer {
+impl Packet for PrimitiveShapes {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDDebugDrawer.get_byte()
+        BedrockPacketType::IDPrimitiveShapes.get_byte()
     }
 
     fn encode(&mut self) -> Vec<u8> {
@@ -30,14 +30,14 @@ impl Packet for DebugDrawer {
         Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> DebugDrawer {
+    fn decode(stream: &mut Stream) -> PrimitiveShapes {
         let mut shapes = Vec::new();
         let count = stream.get_var_u32() as usize;
         for _ in 0..count {
             shapes.push(PacketShapeData::read(stream));
         }
 
-        DebugDrawer { shapes }
+        PrimitiveShapes { shapes }
     }
 
     fn as_any(&self) -> &dyn Any {

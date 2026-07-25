@@ -7,6 +7,7 @@ use std::any::Any;
 #[derive(serde::Serialize, Debug)]
 pub struct UpdateClientOptions {
     pub graphics_mode: Option<u8>,
+    pub filter_profanity_change: Option<bool>,
 }
 
 impl Packet for UpdateClientOptions {
@@ -19,6 +20,7 @@ impl Packet for UpdateClientOptions {
         stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::write_optional(&mut stream, &self.graphics_mode, |s, v| s.put_byte(*v));
+        PacketSerializer::write_optional(&mut stream, &self.filter_profanity_change, |s, v| s.put_bool(*v));
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -29,8 +31,9 @@ impl Packet for UpdateClientOptions {
 
     fn decode(stream: &mut Stream) -> UpdateClientOptions {
         let graphics_mode = PacketSerializer::read_optional(stream, |s| s.get_byte());
+        let filter_profanity_change = PacketSerializer::read_optional(stream, |s| s.get_bool());
 
-        UpdateClientOptions { graphics_mode }
+        UpdateClientOptions { graphics_mode, filter_profanity_change }
     }
 
     fn as_any(&self) -> &dyn Any {

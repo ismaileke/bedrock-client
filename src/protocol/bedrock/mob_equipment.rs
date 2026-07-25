@@ -24,7 +24,7 @@ impl Packet for MobEquipment {
         stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
-        PacketSerializer::put_item_stack_wrapper(&mut stream, self.item.clone());
+        PacketSerializer::put_network_item_stack_descriptor(&mut stream, self.item.clone());
         stream.put_byte(self.inventory_slot);
         stream.put_byte(self.hotbar_slot);
         stream.put_byte(self.window_id);
@@ -38,18 +38,12 @@ impl Packet for MobEquipment {
 
     fn decode(stream: &mut Stream) -> MobEquipment {
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
-        let item = PacketSerializer::get_item_stack_wrapper(stream);
+        let item = PacketSerializer::get_network_item_stack_descriptor(stream);
         let inventory_slot = stream.get_byte();
         let hotbar_slot = stream.get_byte();
         let window_id = stream.get_byte();
 
-        MobEquipment {
-            actor_runtime_id,
-            item,
-            inventory_slot,
-            hotbar_slot,
-            window_id,
-        }
+        MobEquipment { actor_runtime_id, item, inventory_slot, hotbar_slot, window_id }
     }
 
     fn as_any(&self) -> &dyn Any {

@@ -42,7 +42,7 @@ async fn main() {
     let mut client = client::create(
         "127.0.0.1".to_string(),    // target address
         19132,                      // target port
-        "1.26.10".to_string(),      // client version
+        "1.26.20".to_string(),      // client version
         false,                      // RakNet debug mode
         |code, url| {
             println!("Microsoft Auth Code: {} - URL: {}", code, url);
@@ -54,28 +54,26 @@ async fn main() {
     loop {
         while let Some((packet_name, packet)) = client.next_event() {
             println!("[Packet] Received Packet: {}", packet_name);
+            match packet {
+                BedrockPacket::PlayStatus(play_status) => {
+                    if play_status.status == 3 {
+                        println!("Login Successful! Joined the game.");
+                        let my_text = Text {
+                            text_type: Text::TYPE_CHAT,
+                            needs_translation: false,
+                            source_name: Some("Steve".to_string()),
+                            message: "Hello server!".to_string(),
+                            parameters: None,
+                            xbox_uid: "".to_string(),
+                            platform_chat_id: "".to_string(),
+                            filtered_message: None,
+                        }.encode();
 
-            downcast_bedrock_packet!(packet, PlayStatus, |play_status: &PlayStatus| {
-                if play_status.status == 3 {
-                    println!("Login Successful! Joined the game.");
-                    let my_text = Text {
-                        text_type: Text::TYPE_CHAT,
-                        needs_translation: false,
-                        source_name: Some("Steve".to_string()),
-                        message: "Hello server!".to_string(),
-                        parameters: None,
-                        xbox_uid: "".to_string(),
-                        platform_chat_id: "".to_string(),
-                        filtered_message: None,
-                    }.encode();
-
-                    client.send_packet(my_text);
-                }
-            });
+                        client.send_packet(my_text);
+                    }
+                },
+            };
         }
-
-        // Logic & Ticking (Prevent 100% CPU usage on Main Thread)
-        tokio::time::sleep(Duration::from_millis(5)).await;
     }
 }
 ```

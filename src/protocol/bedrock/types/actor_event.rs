@@ -51,7 +51,7 @@ impl ActorEvent {
     pub const CONSUME_TOTEM: i32 = 65;
     pub const DEPRECATED_UPDATE_STRUCTURE_FEATURE: i32 = 66; //mojang...
     pub const ENTITY_SPAWN: i32 = 67; //used for MinecraftEventing stuff, not needed
-    pub const DRAGON_PUKE: i32 = 68; //they call this puke particles
+    pub const DRAGON_PUKE: i32 = 68; //they call these puke particles
     pub const ITEM_ENTITY_MERGE: i32 = 69;
     pub const START_SWIM: i32 = 70;
     pub const BALLOON_POP: i32 = 71;
@@ -64,4 +64,5 @@ impl ActorEvent {
     pub const DRINK_MILK: i32 = 78;
     pub const SHAKE_WETNESS_STOP: i32 = 79;
     pub const KINETIC_DAMAGE_DEALT: i32 = 80;
+    pub const HURT_WITHOUT_RECEIVING_DAMAGE: i32 = 81;
 }

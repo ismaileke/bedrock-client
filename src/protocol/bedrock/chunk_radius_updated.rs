@@ -5,7 +5,7 @@ use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ChunkRadiusUpdated {
-    pub radius: i32,
+    pub radius: i32
 }
 
 impl Packet for ChunkRadiusUpdated {

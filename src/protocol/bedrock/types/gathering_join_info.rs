@@ -8,27 +8,33 @@ pub struct GatheringJoinInfo {
     pub experience_world_id: String,
     pub experience_world_name: String,
     pub creator_id: String,
-    pub store_id: String
+    pub target_id: String,
+    pub scenario_id: String,
+    pub server_id: String,
 }
 
 impl GatheringJoinInfo {
     pub fn read(stream: &mut Stream) -> GatheringJoinInfo {
-        let experience_id = PacketSerializer::get_string(stream);
+        let experience_id = PacketSerializer::get_uuid(stream);
         let experience_name = PacketSerializer::get_string(stream);
-        let experience_world_id = PacketSerializer::get_string(stream);
+        let experience_world_id = PacketSerializer::get_uuid(stream);
         let experience_world_name = PacketSerializer::get_string(stream);
         let creator_id = PacketSerializer::get_string(stream);
-        let store_id = PacketSerializer::get_string(stream);
+        let target_id = PacketSerializer::get_uuid(stream);
+        let scenario_id = PacketSerializer::get_string(stream);
+        let server_id = PacketSerializer::get_string(stream);
 
-        GatheringJoinInfo { experience_id, experience_name, experience_world_id, experience_world_name, creator_id, store_id }
+        GatheringJoinInfo { experience_id, experience_name, experience_world_id, experience_world_name, creator_id, target_id, scenario_id, server_id }
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        PacketSerializer::put_string(stream, self.experience_id.clone());
+        PacketSerializer::put_uuid(stream, self.experience_id.clone());
         PacketSerializer::put_string(stream, self.experience_name.clone());
-        PacketSerializer::put_string(stream, self.experience_world_id.clone());
+        PacketSerializer::put_uuid(stream, self.experience_world_id.clone());
         PacketSerializer::put_string(stream, self.experience_world_name.clone());
         PacketSerializer::put_string(stream, self.creator_id.clone());
-        PacketSerializer::put_string(stream, self.store_id.clone());
+        PacketSerializer::put_uuid(stream, self.target_id.clone());
+        PacketSerializer::put_string(stream, self.scenario_id.clone());
+        PacketSerializer::put_string(stream, self.server_id.clone());
     }
 }

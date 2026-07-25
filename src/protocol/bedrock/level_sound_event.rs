@@ -13,6 +13,7 @@ pub struct LevelSoundEvent {
     pub is_baby_mob: bool,
     pub disable_relative_volume: bool,
     pub actor_unique_id: i64,
+    pub fire_position: Option<Vec<f32>>,
 }
 
 impl Packet for LevelSoundEvent {
@@ -31,6 +32,7 @@ impl Packet for LevelSoundEvent {
         stream.put_bool(self.is_baby_mob);
         stream.put_bool(self.disable_relative_volume);
         stream.put_i64_le(self.actor_unique_id);
+        PacketSerializer::write_optional(&mut stream, &self.fire_position, |s, v| PacketSerializer::put_vector3(s, v.clone()));
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -47,6 +49,7 @@ impl Packet for LevelSoundEvent {
         let is_baby_mob = stream.get_bool();
         let disable_relative_volume = stream.get_bool();
         let actor_unique_id = stream.get_i64_le();
+        let fire_position = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
 
         LevelSoundEvent {
             sound,
@@ -56,6 +59,7 @@ impl Packet for LevelSoundEvent {
             is_baby_mob,
             disable_relative_volume,
             actor_unique_id,
+            fire_position,
         }
     }
 
@@ -632,4 +636,6 @@ impl LevelSoundEvent {
     pub const ITEM_NETHERITE_SPEAR_USE: u32 = 596;
     pub const PAUSE_GROWTH: u32 = 597;
     pub const RESET_GROWTH: u32 = 598;
+    pub const PUSHED_BY_PLAYER: u32 = 599;
+    pub const BOUNCE: u32 = 600;
 }

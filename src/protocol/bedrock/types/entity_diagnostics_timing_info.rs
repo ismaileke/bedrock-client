@@ -1,0 +1,31 @@
+use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+
+#[derive(serde::Serialize, Debug)]
+pub struct EntityDiagnosticTimingInfo {
+    display_name: String,
+    entity: String,
+    time_in_ns: u64,
+    percent_of_total: u8,
+}
+
+impl EntityDiagnosticTimingInfo {
+    pub fn new(display_name: String, entity: String, time_in_ns: u64, percent_of_total: u8) -> EntityDiagnosticTimingInfo {
+        EntityDiagnosticTimingInfo { display_name, entity, time_in_ns, percent_of_total }
+    }
+
+    pub fn read(stream: &mut Stream) -> EntityDiagnosticTimingInfo {
+        let display_name = PacketSerializer::get_string(stream);
+        let entity = PacketSerializer::get_string(stream);
+        let time_in_ns = stream.get_u64_le();
+        let percent_of_total = stream.get_byte();
+        EntityDiagnosticTimingInfo { display_name, entity, time_in_ns, percent_of_total }
+    }
+
+    pub fn write(&self, stream: &mut Stream) {
+        PacketSerializer::put_string(stream, self.display_name.clone());
+        PacketSerializer::put_string(stream, self.entity.clone());
+        stream.put_u64_le(self.time_in_ns);
+        stream.put_byte(self.percent_of_total);
+    }
+}

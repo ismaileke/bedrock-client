@@ -4,7 +4,7 @@ use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct EnchantOption {
-    cost: u32,
+    cost: u8,
     slot_flags: u32,
     equip_activated_enchantments: Vec<Enchant>,
     held_activated_enchantments: Vec<Enchant>,
@@ -15,7 +15,7 @@ pub struct EnchantOption {
 
 impl EnchantOption {
     pub fn new(
-        cost: u32,
+        cost: u8,
         slot_flags: u32,
         equip_activated_enchantments: Vec<Enchant>,
         held_activated_enchantments: Vec<Enchant>,
@@ -51,7 +51,7 @@ impl EnchantOption {
     }
 
     pub fn read(stream: &mut Stream) -> EnchantOption {
-        let cost = stream.get_var_u32();
+        let cost = stream.get_byte();
         let slot_flags = stream.get_u32_le();
         let equip_activated_enchantments = Self::read_enchant_list(stream);
         let held_activated_enchantments = Self::read_enchant_list(stream);
@@ -71,7 +71,7 @@ impl EnchantOption {
     }
 
     pub fn write(&self, stream: &mut Stream) {
-        stream.put_var_u32(self.cost);
+        stream.put_byte(self.cost);
         stream.put_u32_le(self.slot_flags);
         Self::write_enchant_list(stream, self.equip_activated_enchantments.clone());
         Self::write_enchant_list(stream, self.held_activated_enchantments.clone());

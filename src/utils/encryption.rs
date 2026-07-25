@@ -78,6 +78,7 @@ impl Encryption {
         Ok(to_encrypt)
     }
 
+    #[inline]
     fn calculate_checksum(&self, counter: u64, payload: &[u8]) -> Result<Vec<u8>, Box<dyn Error>> {
         let mut data = counter.to_le_bytes().to_vec();
         data.extend_from_slice(payload);
@@ -100,6 +101,7 @@ impl Encryption {
     }
 }
 
+#[inline]
 pub fn generate_key(secret: &[u8], salt: Vec<u8>) -> Vec<u8> {
     let hex_secret = hex::encode(secret);
     let hex_secret = if hex_secret.len() < 96 { format!("{:0>96}", hex_secret) } else { hex_secret };
@@ -110,15 +112,18 @@ pub fn generate_key(secret: &[u8], salt: Vec<u8>) -> Vec<u8> {
     hasher.finalize().to_vec()
 }
 
+#[inline]
 pub fn generate_shared_secret(local_private: &SigningKey, remote_public: &PublicKey) -> Vec<u8> {
     let shared = diffie_hellman(local_private.as_nonzero_scalar(), remote_public.as_affine());
     shared.raw_secret_bytes().to_vec()
 }
 
+#[inline]
 pub fn parse_der_public_key(der_key: &[u8]) -> PublicKey {
     PublicKey::from_public_key_der(der_key).expect("DER To Public Key Convert Error")
 }
 
+#[inline]
 pub fn fix_base64_padding(s: &str) -> String {
     let rem = s.len() % 4;
     if rem == 0 { s.to_string() } else {

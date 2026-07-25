@@ -377,6 +377,50 @@ impl PacketSerializer {
         }
     }
 
+    pub fn get_network_item_stack_descriptor(stream: &mut Stream) -> ItemStackWrapper {
+        let id = stream.get_i16_le();
+        let count = stream.get_u16_le();
+        let meta = stream.get_var_u32();
+
+        let has_net_id = stream.get_bool();
+        let _variant = if has_net_id {
+            stream.get_var_u32()
+        } else {
+            0
+        };
+        let stack_id = if has_net_id {
+            stream.get_var_i32()
+        } else {
+            0
+        };
+
+        let block_runtime_id = stream.get_var_u32();
+        let raw_extra_data = PacketSerializer::get_string(stream);
+
+        ItemStackWrapper { stack_id, item_stack: ItemStack {
+            id: id as i32,
+            meta,
+            count,
+            block_runtime_id: block_runtime_id as i32,
+            raw_extra_data,
+        } }
+    }
+
+    pub fn put_network_item_stack_descriptor(stream: &mut Stream, wrapper: ItemStackWrapper) {
+        stream.put_i16_le(wrapper.item_stack.id as i16);
+        stream.put_u16_le(wrapper.item_stack.count);
+        stream.put_var_u32(wrapper.item_stack.meta);
+
+        let has_net_id = wrapper.stack_id != 0;
+        stream.put_bool(has_net_id);
+        if has_net_id {
+            stream.put_var_u32(0);
+            stream.put_var_i32(wrapper.stack_id);
+        }
+        stream.put_var_u32(wrapper.item_stack.block_runtime_id as u32);
+        PacketSerializer::put_string(stream, wrapper.item_stack.raw_extra_data.clone());
+    }
+
     pub fn get_recipe_ingredient(stream: &mut Stream) -> RecipeIngredient {
         let descriptor_type = stream.get_byte();
         let descriptor = match descriptor_type {

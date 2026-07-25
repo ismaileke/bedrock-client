@@ -8,7 +8,7 @@ use std::any::Any;
 pub struct ClientCameraAimAssist {
     pub preset_id: String,
     pub action_type: u8, //see types/camera/camera_aim_assist_action_type.rs
-    pub allow_aim_assist: bool,
+    pub allow_aim_assist: bool
 }
 
 impl Packet for ClientCameraAimAssist {
