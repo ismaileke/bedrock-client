@@ -11,7 +11,6 @@ use crate::protocol::bedrock::types::server_telemetry_data::ServerTelemetryData;
 use binary_utils::binary::Stream;
 use mojang_nbt::nbt_serializer::NBTSerializer;
 use mojang_nbt::tag::tag::Tag;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct StartGame {
@@ -39,6 +38,7 @@ pub struct StartGame {
     pub enable_client_side_chunk_generation: bool,
     pub block_network_ids_are_hashes: bool,
     pub network_permissions: NetworkPermissions,
+    pub is_logging_chat: bool,
     pub server_join_information: Option<ServerJoinInformation>,
     pub server_telemetry_data: ServerTelemetryData,
 }
@@ -82,6 +82,7 @@ impl Packet for StartGame {
         stream.put_bool(self.enable_client_side_chunk_generation);
         stream.put_bool(self.block_network_ids_are_hashes);
         self.network_permissions.write(&mut stream);
+        stream.put_bool(self.is_logging_chat);
         PacketSerializer::write_optional(&mut stream, &mut self.server_join_information, |s, v| v.write(s));
         self.server_telemetry_data.write(&mut stream);
 
@@ -145,6 +146,8 @@ impl Packet for StartGame {
 
         let network_permissions = NetworkPermissions::read(stream);
 
+        let is_logging_chat = stream.get_bool();
+
         let server_join_information = PacketSerializer::read_optional(stream, |s| ServerJoinInformation::read(s));
 
         let server_telemetry_data = ServerTelemetryData::read(stream);
@@ -174,14 +177,9 @@ impl Packet for StartGame {
             enable_client_side_chunk_generation,
             block_network_ids_are_hashes,
             network_permissions,
+            is_logging_chat,
             server_join_information,
             server_telemetry_data,
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

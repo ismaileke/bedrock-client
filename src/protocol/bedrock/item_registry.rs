@@ -5,7 +5,6 @@ use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 use crate::protocol::bedrock::types::item_type_entry::ItemTypeEntry;
 use binary_utils::binary::Stream;
 use mojang_nbt::tag::tag::Tag;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemRegistry {
@@ -57,10 +56,4 @@ impl Packet for ItemRegistry {
 
         ItemRegistry { entries }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

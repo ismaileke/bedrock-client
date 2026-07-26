@@ -3,7 +3,6 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::parameter_keyframe_value::ParameterKeyframeValue;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct GraphicsOverrideParameter {
@@ -11,6 +10,7 @@ pub struct GraphicsOverrideParameter {
     pub unknown_float: Option<f32>,
     pub unknown_vector3: Option<Vec<f32>>,
     pub biome_identifier: String,
+    pub player_identifier: Option<String>,
     pub parameter_type: u8,
     pub reset: bool,
 }
@@ -31,6 +31,7 @@ impl Packet for GraphicsOverrideParameter {
         PacketSerializer::write_optional(&mut stream, &self.unknown_float, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(&mut stream, &self.unknown_vector3, |s, v| PacketSerializer::put_vector3(s, v.clone()));
         PacketSerializer::put_string(&mut stream, self.biome_identifier.clone());
+        PacketSerializer::write_optional(&mut stream, &self.player_identifier, |s, v| PacketSerializer::put_string(s, v.clone()));
         stream.put_byte(self.parameter_type);
         stream.put_bool(self.reset);
 
@@ -50,17 +51,12 @@ impl Packet for GraphicsOverrideParameter {
         let unknown_float = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let unknown_vector3 = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
         let biome_identifier = PacketSerializer::get_string(stream);
+        let player_identifier = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
         let parameter_type = stream.get_byte();
         let reset = stream.get_bool();
 
-        GraphicsOverrideParameter { values, unknown_float, unknown_vector3, biome_identifier, parameter_type, reset }
+        GraphicsOverrideParameter { values, unknown_float, unknown_vector3, biome_identifier, player_identifier, parameter_type, reset }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl GraphicsOverrideParameter {

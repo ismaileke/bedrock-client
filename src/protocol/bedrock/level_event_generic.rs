@@ -4,7 +4,6 @@ use binary_utils::binary::Stream;
 use mojang_nbt::nbt::NBT;
 use mojang_nbt::nbt_serializer::NBTSerializer;
 use mojang_nbt::tag::tag::Tag;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct LevelEventGeneric {
@@ -42,10 +41,4 @@ impl Packet for LevelEventGeneric {
 
         LevelEventGeneric { event_id, event_data }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

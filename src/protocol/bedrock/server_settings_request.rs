@@ -1,7 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ServerSettingsRequest {}
@@ -28,10 +27,4 @@ impl Packet for ServerSettingsRequest {
         // No payload
         ServerSettingsRequest {}
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

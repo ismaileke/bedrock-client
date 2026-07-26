@@ -3,7 +3,6 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_category::CameraAimAssistCategory;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_preset::CameraAimAssistPreset;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraAimAssistPresets {
@@ -57,10 +56,4 @@ impl Packet for CameraAimAssistPresets {
             operation,
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

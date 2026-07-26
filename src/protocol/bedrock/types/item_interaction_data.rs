@@ -18,11 +18,7 @@ impl ItemInteractionData {
         request_changed_slots: Vec<InventoryTransactionChangedSlotsHack>,
         tr_data: UseItemTransactionData,
     ) -> ItemInteractionData {
-        ItemInteractionData {
-            request_id,
-            request_changed_slots,
-            tr_data,
-        }
+        ItemInteractionData { request_id, request_changed_slots, tr_data }
     }
 
     pub fn read(stream: &mut Stream) -> ItemInteractionData {
@@ -39,16 +35,11 @@ impl ItemInteractionData {
             item_stack: ItemStack::null(),
             variant: 0,
         }, vec![], vec![], 0, 0, 0)); // bad way LOL
-        tr_data.decode(stream);
+        tr_data.decode_auth_input(stream);
 
         let use_item_tr_data = match tr_data {
             TransactionData::UseItem(data) => data,
-            _ => {
-                panic!(
-                    "Expected UseItemTransactionData, got {:?}",
-                    tr_data.get_type_id()
-                )
-            }
+            _ => panic!("Expected UseItemTransactionData, got {:?}", tr_data.get_type_id())
         };
 
         ItemInteractionData {
@@ -67,6 +58,6 @@ impl ItemInteractionData {
             }
         }
         let tr_data = TransactionData::UseItem(self.tr_data.clone());
-        tr_data.encode(stream);
+        tr_data.encode_auth_input(stream);
     }
 }

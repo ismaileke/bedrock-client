@@ -1,7 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetHealth {
@@ -31,10 +30,4 @@ impl Packet for SetHealth {
 
         SetHealth { health }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

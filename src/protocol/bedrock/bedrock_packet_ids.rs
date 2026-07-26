@@ -226,6 +226,9 @@ use crate::protocol::bedrock::server_bound_data_driven_screen_closed::ServerBoun
 use crate::protocol::bedrock::sync_world_clocks::SyncWorldClocks;
 use crate::protocol::bedrock::server_presence_info::ServerPresenceInfo;
 use crate::protocol::bedrock::server_store_info::ServerStoreInfo;
+use crate::protocol::bedrock::client_bound_update_sound_data::ClientBoundUpdateSoundData;
+use crate::protocol::bedrock::send_party_destination_cookie::SendPartyDestinationCookie;
+use crate::protocol::bedrock::party_destination_cookie_response::PartyDestinationCookieResponse;
 use binary_utils::binary::Stream;
 
 #[repr(u16)]
@@ -457,6 +460,9 @@ pub enum BedrockPacketType {
     IDClientBoundAttributeLayerSync,
     IDServerStoreInfo,
     IDServerPresenceInfo,
+    IDClientBoundUpdateSoundData,
+    IDSendPartyDestinationCookie,
+    IDPartyDestinationCookieResponse,
     IDUnknown,
 }
 
@@ -689,6 +695,9 @@ impl BedrockPacketType {
             0x159 => BedrockPacketType::IDClientBoundAttributeLayerSync,
             0x15a => BedrockPacketType::IDServerStoreInfo,
             0x15b => BedrockPacketType::IDServerPresenceInfo,
+            0x15c => BedrockPacketType::IDClientBoundUpdateSoundData,
+            0x15d => BedrockPacketType::IDSendPartyDestinationCookie,
+            0x15e => BedrockPacketType::IDPartyDestinationCookieResponse,
             _ => BedrockPacketType::IDUnknown,
         }
     }
@@ -920,6 +929,9 @@ impl BedrockPacketType {
             BedrockPacketType::IDClientBoundAttributeLayerSync => 0x159,
             BedrockPacketType::IDServerStoreInfo => 0x15a,
             BedrockPacketType::IDServerPresenceInfo => 0x15b,
+            BedrockPacketType::IDClientBoundUpdateSoundData => 0x15c,
+            BedrockPacketType::IDSendPartyDestinationCookie => 0x15d,
+            BedrockPacketType::IDPartyDestinationCookieResponse => 0x15e,
             _ => 0,
         }
     }
@@ -1151,6 +1163,9 @@ impl BedrockPacketType {
             0x159 => "Client Bound Attribute Layer Sync",
             0x15a => "Server Store Info",
             0x15b => "Server Presence Info",
+            0x15c => "Client Bound Update Sound Data",
+            0x15d => "Send Party Destination Cookie",
+            0x15e => "Party Destination Cookie Response",
             _ => "Unknown Packet",
         }
     }
@@ -1383,6 +1398,9 @@ impl BedrockPacketType {
             0x159 => BedrockPacket::ClientBoundAttributeLayerSync(ClientBoundAttributeLayerSync::decode(stream)),
             0x15a => BedrockPacket::ServerStoreInfo(ServerStoreInfo::decode(stream)),
             0x15b => BedrockPacket::ServerPresenceInfo(ServerPresenceInfo::decode(stream)),
+            0x15c => BedrockPacket::ClientBoundUpdateSoundData(ClientBoundUpdateSoundData::decode(stream)),
+            0x15d => BedrockPacket::SendPartyDestinationCookie(SendPartyDestinationCookie::decode(stream)),
+            0x15e => BedrockPacket::PartyDestinationCookieResponse(PartyDestinationCookieResponse::decode(stream)),
             _ => BedrockPacket::Unknown(Unknown::decode(stream)),
         }
     }
@@ -1615,5 +1633,8 @@ pub enum BedrockPacket {
     ClientBoundAttributeLayerSync(ClientBoundAttributeLayerSync),
     ServerStoreInfo(ServerStoreInfo),
     ServerPresenceInfo(ServerPresenceInfo),
+    ClientBoundUpdateSoundData(ClientBoundUpdateSoundData),
+    SendPartyDestinationCookie(SendPartyDestinationCookie),
+    PartyDestinationCookieResponse(PartyDestinationCookieResponse),
     Unknown(Unknown),
 }

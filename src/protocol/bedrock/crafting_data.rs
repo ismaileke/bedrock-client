@@ -11,7 +11,6 @@ use crate::protocol::bedrock::types::recipe::shapeless_recipe::ShapelessRecipe;
 use crate::protocol::bedrock::types::recipe::smithing_transform_recipe::SmithingTransformRecipe;
 use crate::protocol::bedrock::types::recipe::smithing_trim_recipe::SmithingTrimRecipe;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CraftingData {
@@ -150,12 +149,6 @@ impl Packet for CraftingData {
             clean_recipes,
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl CraftingData {

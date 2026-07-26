@@ -1,7 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
-use std::any::Any;
 use std::convert::TryFrom;
 
 #[repr(u32)]
@@ -64,10 +63,4 @@ impl Packet for PlayStatus {
     fn decode(stream: &mut Stream) -> PlayStatus {
         PlayStatus { status: stream.get_u32_be(), }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -229,3 +229,6 @@ pub mod server_bound_data_driven_screen_closed;
 pub mod sync_world_clocks;
 pub mod server_store_info;
 pub mod server_presence_info;
+pub mod client_bound_update_sound_data;
+pub mod party_destination_cookie_response;
+pub mod send_party_destination_cookie;

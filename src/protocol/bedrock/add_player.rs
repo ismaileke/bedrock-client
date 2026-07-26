@@ -7,7 +7,6 @@ use crate::protocol::bedrock::types::entity::property_sync_data::PropertySyncDat
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::update_abilities::UpdateAbilities;
 use binary_utils::binary::Stream;
-use std::any::Any;
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
@@ -111,10 +110,4 @@ impl Packet for AddPlayer {
             build_platform,
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

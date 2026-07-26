@@ -3,7 +3,6 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::update_sub_chunk_blocks_entry::UpdateSubChunkBlocksEntry;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct UpdateSubChunkBlocks {
@@ -53,10 +52,4 @@ impl Packet for UpdateSubChunkBlocks {
 
         UpdateSubChunkBlocks { base_block_position, layer_0_updates, layer_1_updates }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

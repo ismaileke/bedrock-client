@@ -11,12 +11,11 @@ use crate::protocol::bedrock::types::inventory::transaction_data::TransactionDat
 use crate::protocol::bedrock::types::inventory::use_item_on_entity_transaction_data::UseItemOnEntityTransactionData;
 use crate::protocol::bedrock::types::inventory::use_item_transaction_data::UseItemTransactionData;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct InventoryTransaction {
     pub request_id: i32,
-    pub request_changed_slots: Vec<InventoryTransactionChangedSlotsHack>,
+    pub request_changed_slots: Option<Vec<InventoryTransactionChangedSlotsHack>>,
     pub tr_data: TransactionData,
 }
 
@@ -30,14 +29,16 @@ impl Packet for InventoryTransaction {
         stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::write_legacy_item_stack_request_id(&mut stream, self.request_id);
-        if self.request_id != 0 {
-            stream.put_var_u32(self.request_changed_slots.len() as u32);
-            for request_changed_slot in &self.request_changed_slots {
-                request_changed_slot.write(&mut stream);
+        PacketSerializer::write_optional(&mut stream, &self.request_changed_slots, |s, v| {
+            s.put_var_u32(v.len() as u32);
+            for changed_slot in v {
+                changed_slot.write(s);
             }
-        }
+        });
+        stream.put_byte(1);
         stream.put_var_u32(self.tr_data.get_type_id());
-        self.tr_data.encode(&mut stream);
+        stream.put_byte(1);
+        self.tr_data.encode_transaction(&mut stream);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -48,14 +49,21 @@ impl Packet for InventoryTransaction {
 
     fn decode(stream: &mut Stream) -> InventoryTransaction {
         let request_id = PacketSerializer::read_legacy_item_stack_request_id(stream);
-        let mut request_changed_slots = Vec::new();
-        if request_id != 0 {
-            let slot_count = stream.get_var_u32() as usize;
+        let request_changed_slots = PacketSerializer::read_optional(stream, |s| {
+            let mut result = Vec::new();
+            let slot_count = s.get_var_u32() as usize;
             for _ in 0..slot_count {
-                request_changed_slots.push(InventoryTransactionChangedSlotsHack::read(stream));
+                result.push(InventoryTransactionChangedSlotsHack::read(s));
             }
+            return result;
+        });
+        if stream.get_byte() != 1 {
+            panic!("Dummy optional bool for transactionType should always be 1");
         }
         let tr_type = stream.get_var_u32();
+        if stream.get_byte() != 1 {
+            panic!("Dummy optional bool for trData should always be 1");
+        }
         // check later, bad using
         let mut tr_data = match tr_type {
             Self::TYPE_NORMAL => TransactionData::Normal(NormalTransactionData::new(vec![])),
@@ -108,20 +116,10 @@ impl Packet for InventoryTransaction {
             }
             _ => TransactionData::Normal(NormalTransactionData::new(vec![])),
         };
-        tr_data.decode(stream);
+        tr_data.decode_transaction(stream);
 
-        InventoryTransaction {
-            request_id,
-            request_changed_slots,
-            tr_data,
-        }
+        InventoryTransaction { request_id, request_changed_slots, tr_data }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl InventoryTransaction {

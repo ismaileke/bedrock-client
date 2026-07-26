@@ -67,19 +67,36 @@ impl TransactionData {
         }
     }
 
-    pub fn decode(&mut self, stream: &mut Stream) {
+    pub fn decode_transaction(&mut self, stream: &mut Stream) {
         let action_count = stream.get_var_u32();
         for _ in 0..action_count {
-            let action = NetworkInventoryAction::read(stream);
+            let action = NetworkInventoryAction::read_transaction(stream);
             self.get_actions_mut().push(action);
         }
         self.decode_data(stream)
     }
 
-    pub fn encode(&self, stream: &mut Stream) {
+    pub fn decode_auth_input(&mut self, stream: &mut Stream) {
+        let action_count = stream.get_var_u32();
+        for _ in 0..action_count {
+            let action = NetworkInventoryAction::read_auth_input(stream);
+            self.get_actions_mut().push(action);
+        }
+        self.decode_data(stream)
+    }
+
+    pub fn encode_transaction(&self, stream: &mut Stream) {
         stream.put_var_u32(self.get_actions().len() as u32);
         for action in self.get_actions() {
-            action.write(stream);
+            action.write_transaction(stream);
+        }
+        self.encode_data(stream)
+    }
+
+    pub fn encode_auth_input(&self, stream: &mut Stream) {
+        stream.put_var_u32(self.get_actions().len() as u32);
+        for action in self.get_actions() {
+            action.write_auth_input(stream);
         }
         self.encode_data(stream)
     }

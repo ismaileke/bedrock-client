@@ -2,7 +2,6 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::types::inventory::stack_response::item_stack_response_entry::ItemStackResponseEntry;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemStackResponse {
@@ -39,10 +38,4 @@ impl Packet for ItemStackResponse {
 
         ItemStackResponse { responses }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

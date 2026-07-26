@@ -3,7 +3,6 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::structure_editor_data::StructureEditorData;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct StructureBlockUpdate {
@@ -42,10 +41,4 @@ impl Packet for StructureBlockUpdate {
 
         StructureBlockUpdate { block_position, structure_editor_data, is_powered, water_logged }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

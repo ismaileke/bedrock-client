@@ -1,7 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AvailableCommands {}
@@ -47,12 +46,6 @@ impl Packet for AvailableCommands {
 
         AvailableCommands {}
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 /*use std::any::Any;
@@ -237,11 +230,5 @@ impl Packet for AvailableCommands {
     fn debug(&self) {
         println!("Actor Unique ID: {}", self.actor_unique_id);
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 */

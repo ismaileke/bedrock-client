@@ -19,5 +19,6 @@ impl CommandParameterType {
     pub const RAWTEXT: u32 = 70; // text
     pub const JSON_OBJECT: u32 = 74; // json
     pub const BLOCK_STATE_ARRAY: u32 = 84; // block states
-    pub const CODE_BUILDER_ARGS: u32 = 87; // command
+    pub const CLOCK_TIMEMARKER_NAME: u32 = 86; // timemarker name
+    pub const CODEBUILDERARGS: u32 = 88; // command
 }

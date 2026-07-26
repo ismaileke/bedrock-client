@@ -4,7 +4,6 @@ use crate::protocol::bedrock::serializer::bit_set::BitSet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::entity_metadata_flags::EntityMetadataFlags;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientMovementPredictionSync {
@@ -96,10 +95,4 @@ impl Packet for ClientMovementPredictionSync {
             actor_flying_state,
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

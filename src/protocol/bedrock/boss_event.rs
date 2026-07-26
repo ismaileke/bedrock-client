@@ -2,40 +2,47 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BossEvent {
     pub boss_actor_unique_id: i64,
-    pub event_type: u32,
     pub player_actor_unique_id: i64,
-    pub health_percent: f32,
+    pub event_type: u8,
     pub title: String,
     pub filtered_title: String,
-    pub darken_screen: bool,
-    pub color: u32,
-    pub overlay: u32,
+    pub health_percent: f32,
+    pub color: u8,
+    pub overlay: u8,
 }
 
 impl BossEvent {
     /** S2C: Shows the boss-bar to the player. */
-    pub const TYPE_SHOW: u32 = 0;
+    pub const TYPE_SHOW: u8 = 0;
     /** C2S: Registers a player to a boss fight. */
-    pub const TYPE_REGISTER_PLAYER: u32 = 1;
+    pub const TYPE_REGISTER_PLAYER: u8 = 1;
     /** S2C: Removes the boss-bar from the client. */
-    pub const TYPE_HIDE: u32 = 2;
+    pub const TYPE_HIDE: u8 = 2;
     /** C2S: Unregisters a player from a boss fight. */
-    pub const TYPE_UNREGISTER_PLAYER: u32 = 3;
+    pub const TYPE_UNREGISTER_PLAYER: u8 = 3;
     /** S2C: Sets the bar percentage. */
-    pub const TYPE_HEALTH_PERCENT: u32 = 4;
+    pub const TYPE_HEALTH_PERCENT: u8 = 4;
     /** S2C: Sets the title of the bar. */
-    pub const TYPE_TITLE: u32 = 5;
+    pub const TYPE_TITLE: u8 = 5;
     /** S2C: Updates misc properties of the bar and environment. */
-    pub const TYPE_PROPERTIES: u32 = 6;
+    pub const TYPE_PROPERTIES: u8 = 6;
     /** S2C: Updates boss-bar color and overlay texture. */
-    pub const TYPE_TEXTURE: u32 = 7;
+    pub const TYPE_TEXTURE: u8 = 7;
     /** C2S: Client asking the server to resend all boss data. */
-    pub const TYPE_QUERY: u32 = 8;
+    pub const TYPE_QUERY: u8 = 8;
+
+    pub const PINK: u8 = 0;
+    pub const BLUE: u8 = 1;
+    pub const RED: u8 = 2;
+    pub const GREEN: u8 = 3;
+    pub const YELLOW: u8 = 4;
+    pub const PURPLE: u8 = 5;
+    pub const REBECCA_PURPLE: u8 = 6;
+    pub const WHITE: u8 = 7;
 }
 
 impl Packet for BossEvent {
@@ -48,40 +55,13 @@ impl Packet for BossEvent {
         stream.put_var_u32(self.id() as u32);
 
         PacketSerializer::put_actor_unique_id(&mut stream, self.boss_actor_unique_id);
-        stream.put_var_u32(self.event_type);
-        match self.event_type {
-            BossEvent::TYPE_REGISTER_PLAYER
-            | BossEvent::TYPE_UNREGISTER_PLAYER
-            | BossEvent::TYPE_QUERY => {
-                PacketSerializer::put_actor_unique_id(&mut stream, self.player_actor_unique_id);
-            }
-            BossEvent::TYPE_SHOW => {
-                PacketSerializer::put_string(&mut stream, self.title.clone());
-                PacketSerializer::put_string(&mut stream, self.filtered_title.clone());
-                stream.put_f32_le(self.health_percent);
-
-                stream.put_u16_le(if self.darken_screen { 1 } else { 0 });
-                stream.put_var_u32(self.color);
-                stream.put_var_u32(self.overlay);
-            }
-            BossEvent::TYPE_PROPERTIES => {
-                stream.put_u16_le(if self.darken_screen { 1 } else { 0 });
-                stream.put_var_u32(self.color);
-                stream.put_var_u32(self.overlay);
-            }
-            BossEvent::TYPE_TEXTURE => {
-                stream.put_var_u32(self.color);
-                stream.put_var_u32(self.overlay);
-            }
-            BossEvent::TYPE_HEALTH_PERCENT => {
-                stream.put_f32_le(self.health_percent);
-            }
-            BossEvent::TYPE_TITLE => {
-                PacketSerializer::put_string(&mut stream, self.title.clone());
-                PacketSerializer::put_string(&mut stream, self.filtered_title.clone());
-            }
-            _ => {}
-        }
+        PacketSerializer::put_actor_unique_id(&mut stream, self.player_actor_unique_id);
+        stream.put_byte(self.event_type);
+        PacketSerializer::put_string(&mut stream, self.title.clone());
+        PacketSerializer::put_string(&mut stream, self.filtered_title.clone());
+        stream.put_f32_le(self.health_percent);
+        stream.put_byte(self.color);
+        stream.put_byte(self.overlay);
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -92,72 +72,23 @@ impl Packet for BossEvent {
 
     fn decode(stream: &mut Stream) -> BossEvent {
         let boss_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
-        let event_type = stream.get_var_u32();
-        let mut player_actor_unique_id = 0;
-        let mut health_percent = 0.0;
-        let mut title = String::new();
-        let mut filtered_title = String::new();
-        let mut darken_screen = false;
-        let mut color = 0;
-        let mut overlay = 0;
-
-        match event_type {
-            BossEvent::TYPE_REGISTER_PLAYER
-            | BossEvent::TYPE_UNREGISTER_PLAYER
-            | BossEvent::TYPE_QUERY => {
-                player_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
-            }
-            BossEvent::TYPE_SHOW => {
-                title = PacketSerializer::get_string(stream);
-                filtered_title = PacketSerializer::get_string(stream);
-                health_percent = stream.get_f32_le();
-
-                // fallthrough: PROPERTIES
-                let raw = stream.get_u16_le();
-                darken_screen = if raw == 0 { false } else { true };
-
-                // fallthrough: TEXTURE
-                color = stream.get_var_u32();
-                overlay = stream.get_var_u32();
-            }
-            BossEvent::TYPE_PROPERTIES => {
-                let raw = stream.get_u16_le();
-                darken_screen = if raw == 0 { false } else { true };
-
-                // fallthrough: TEXTURE
-                color = stream.get_var_u32();
-                overlay = stream.get_var_u32();
-            }
-            BossEvent::TYPE_TEXTURE => {
-                color = stream.get_var_u32();
-                overlay = stream.get_var_u32();
-            }
-            BossEvent::TYPE_HEALTH_PERCENT => {
-                health_percent = stream.get_f32_le();
-            }
-            BossEvent::TYPE_TITLE => {
-                title = PacketSerializer::get_string(stream);
-                filtered_title = PacketSerializer::get_string(stream);
-            }
-            _ => {}
-        }
+        let player_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
+        let event_type = stream.get_byte();
+        let title = PacketSerializer::get_string(stream);
+        let filtered_title = PacketSerializer::get_string(stream);
+        let health_percent = stream.get_f32_le();
+        let color = stream.get_byte();
+        let overlay = stream.get_byte();
 
         BossEvent {
             boss_actor_unique_id,
-            event_type,
             player_actor_unique_id,
-            health_percent,
+            event_type,
             title,
             filtered_title,
-            darken_screen,
+            health_percent,
             color,
             overlay,
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -4,7 +4,6 @@ use crate::utils::encryption::Encryption;
 use binary_utils::binary::Stream;
 use chrono::Utc;
 use serde_json::{json, to_vec, Value};
-use std::any::Any;
 use p384::ecdsa::{signature::Signer, Signature, SigningKey};
 
 #[derive(serde::Serialize, Debug)]
@@ -65,12 +64,6 @@ impl Packet for Login {
             client_data_jwt,
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 pub fn convert_login_chain(
@@ -121,6 +114,8 @@ pub fn convert_login_chain(
         "CapeImageHeight": 0,
         "CapeImageWidth": 0,
         "CapeOnClassicSkin": false,
+        "ClientEditorConnectionIntent": 0,
+        "ClientIsEditorCapable": false,
         "ClientRandomId": client_guid,
         "CompatibleWithClientSideChunkGen": true,
         "CurrentInputMode": 1,
@@ -133,7 +128,6 @@ pub fn convert_login_chain(
         "FilterProfanity": false,
         "GraphicsMode": 0, // SIMPLE = 0 FANCY = 1 ADVANCED = 2 RAY_TRACED = 3;
         "GuiScale": -1,
-        "IsEditorMode": false,
         "LanguageCode": "en_US",
         "OverrideSkin": false,
         "MaxViewDistance": 40,

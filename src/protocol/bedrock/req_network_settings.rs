@@ -1,7 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
-use std::any::Any;
 use crate::protocol::raknet::packet_ids::PacketType;
 
 #[derive(serde::Serialize, Debug)]
@@ -33,10 +32,4 @@ impl Packet for RequestNetworkSettings {
 
         RequestNetworkSettings { protocol_version }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

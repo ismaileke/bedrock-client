@@ -4,7 +4,6 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::dimension_data_entry::DimensionDataEntry;
 use crate::protocol::bedrock::types::dimension_name_ids::DimensionNameIds;
 use binary_utils::binary::Stream;
-use std::any::Any;
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
@@ -56,10 +55,4 @@ impl Packet for DimensionData {
 
         DimensionData { definitions }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

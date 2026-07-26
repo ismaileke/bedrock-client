@@ -1,7 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
-use std::any::Any;
 //use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(serde::Serialize, Debug)]
@@ -46,7 +45,7 @@ impl Packet for ClientBoundMapItemData {
             }
         }
 
-        if (map_type & (Self::BITFLAG_MAP_CREATION | Self::BITFLAG_DECORATION_UPDATE | Self::BITFLAG_TEXTURE_UPDATE)) != 0 { //Decoration bitflag or colour bitflag
+        if (map_type & (Self::BITFLAG_MAP_CREATION | Self::BITFLAG_DECORATION_UPDATE | Self::BITFLAG_TEXTURE_UPDATE)) != 0 { //Decoration bitflag or color bitflag
             let scale = stream.get_byte();
         }
 
@@ -65,11 +64,6 @@ impl Packet for ClientBoundMapItemData {
 
         ClientBoundMapItemData {}
     }
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl ClientBoundMapItemData {

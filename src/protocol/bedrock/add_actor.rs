@@ -6,7 +6,6 @@ use crate::protocol::bedrock::types::entity::entity_link::EntityLink;
 use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty;
 use crate::protocol::bedrock::types::entity::property_sync_data::PropertySyncData;
 use binary_utils::binary::Stream;
-use std::any::Any;
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
@@ -108,10 +107,4 @@ impl Packet for AddActor {
             links,
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

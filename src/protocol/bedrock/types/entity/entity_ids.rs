@@ -107,6 +107,7 @@ impl EntityIds {
     pub const SQUID: &'static str = "minecraft:squid";
     pub const STRAY: &'static str = "minecraft:stray";
     pub const STRIDER: &'static str = "minecraft:strider";
+    pub const SULFUR_CUBE: &'static str = "minecraft:sulfur_cube";
     pub const TADPOLE: &'static str = "minecraft:tadpole";
     pub const THROWN_TRIDENT: &'static str = "minecraft:thrown_trident";
     pub const TNT: &'static str = "minecraft:tnt";

@@ -4,7 +4,6 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::education_settings_agent_capabilities::EducationSettingsAgentCapabilities;
 use crate::protocol::bedrock::types::education_settings_external_link_settings::EducationSettingsExternalLinkSettings;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct EducationSettings {
@@ -74,10 +73,4 @@ impl Packet for EducationSettings {
             link_settings,
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

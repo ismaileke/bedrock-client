@@ -11,7 +11,6 @@ use crate::protocol::bedrock::types::player_block_action::PlayerBlockAction;
 use crate::protocol::bedrock::types::player_block_action_stop_break::PlayerBlockActionStopBreak;
 use crate::protocol::bedrock::types::player_block_action_with_block_info::PlayerBlockActionWithBlockInfo;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerAuthInput {
@@ -224,12 +223,6 @@ impl Packet for PlayerAuthInput {
             raw_move,
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }
 
 impl PlayerAuthInput {

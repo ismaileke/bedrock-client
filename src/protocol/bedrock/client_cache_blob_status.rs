@@ -1,7 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientCacheBlobStatus {
@@ -19,10 +18,10 @@ impl Packet for ClientCacheBlobStatus {
         stream.put_var_u32(self.id() as u32);
 
         stream.put_var_u32(self.miss_hashes.len() as u32);
-        stream.put_var_u32(self.hit_hashes.len() as u32);
         for hash in self.miss_hashes.iter() {
             stream.put_u64_le(*hash);
         }
+        stream.put_var_u32(self.hit_hashes.len() as u32);
         for hash in self.hit_hashes.iter() {
             stream.put_u64_le(*hash);
         }
@@ -36,22 +35,16 @@ impl Packet for ClientCacheBlobStatus {
 
     fn decode(stream: &mut Stream) -> ClientCacheBlobStatus {
         let miss_len = stream.get_var_u32() as usize;
-        let hit_len = stream.get_var_u32() as usize;
         let mut miss_hashes = Vec::new();
-        let mut hit_hashes = Vec::new();
         for _ in 0..miss_len {
             miss_hashes.push(stream.get_u64_le());
         }
+        let hit_len = stream.get_var_u32() as usize;
+        let mut hit_hashes = Vec::new();
         for _ in 0..hit_len {
             hit_hashes.push(stream.get_u64_le());
         }
 
         ClientCacheBlobStatus { miss_hashes, hit_hashes }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

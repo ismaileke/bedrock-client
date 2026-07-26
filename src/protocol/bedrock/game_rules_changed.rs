@@ -3,7 +3,6 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::game_rule::GameRule;
 use binary_utils::binary::Stream;
-use std::any::Any;
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
@@ -34,10 +33,4 @@ impl Packet for GameRulesChanged {
 
         GameRulesChanged { game_rules }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

@@ -4,13 +4,13 @@ use crate::protocol::bedrock::types::sub_chunk_entry_with_cache::SubChunkEntryWi
 use crate::protocol::bedrock::types::sub_chunk_entry_with_cache_list::SubChunkEntryWithCacheList;
 use crate::protocol::bedrock::types::sub_chunk_entry_without_cache::SubChunkEntryWithoutCache;
 use crate::protocol::bedrock::types::sub_chunk_entry_without_cache_list::SubChunkEntryWithoutCacheList;
+use crate::protocol::bedrock::types::sub_chunk_position::SubChunkPosition;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SubChunk {
     pub dimension: i32,
-    pub base_sub_chunk_position: Vec<i32>,
+    pub base_sub_chunk_position: SubChunkPosition,
     pub entries: SubChunkEntries,
 }
 
@@ -32,9 +32,7 @@ impl Packet for SubChunk {
         let cache_enabled = matches!(self.entries, SubChunkEntries::ListWithCache(_));
         stream.put_bool(cache_enabled);
         stream.put_var_i32(self.dimension);
-        for &coord in &self.base_sub_chunk_position {
-            stream.put_var_i32(coord);
-        }
+        self.base_sub_chunk_position.write_var_ints(&mut stream);
         match &self.entries {
             SubChunkEntries::ListWithCache(list) => {
                 stream.put_u32_le(list.get_entries().len() as u32);
@@ -49,7 +47,7 @@ impl Packet for SubChunk {
                 }
             }
         }; // check later
-           /*stream.put_l_int(self.entries.len() as u32);
+           /*stream.put_u32_le(self.entries.len() as u32);
            for entry in self.entries {
                entry.write(&mut stream);
            }*/
@@ -64,11 +62,7 @@ impl Packet for SubChunk {
     fn decode(stream: &mut Stream) -> SubChunk {
         let cache_enabled = stream.get_bool();
         let dimension = stream.get_var_i32();
-        let x = stream.get_var_i32();
-        let y = stream.get_var_i32();
-        let z = stream.get_var_i32();
-        let base_sub_chunk_position = vec![x, y, z];
-
+        let base_sub_chunk_position = SubChunkPosition::read_var_ints(stream);
         let count = stream.get_u32_le();
         let entries = if cache_enabled {
             let mut sub_entries = Vec::new();
@@ -84,16 +78,6 @@ impl Packet for SubChunk {
             SubChunkEntries::ListWithoutCache(SubChunkEntryWithoutCacheList::new(sub_entries))
         };
 
-        SubChunk {
-            dimension,
-            base_sub_chunk_position,
-            entries,
-        }
+        SubChunk { dimension, base_sub_chunk_position, entries }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

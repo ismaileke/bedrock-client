@@ -2,7 +2,6 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::types::armor_slot_and_damage_pair::ArmorSlotAndDamagePair;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerArmorDamage {
@@ -41,10 +40,4 @@ impl Packet for PlayerArmorDamage {
             armor_slot_and_damage_pairs,
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

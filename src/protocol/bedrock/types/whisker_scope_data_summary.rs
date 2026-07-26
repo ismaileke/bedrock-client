@@ -1,0 +1,41 @@
+use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::Stream;
+
+#[derive(serde::Serialize, Debug)]
+pub struct WhiskerScopeDataSummary {
+    label: String,
+    indentation: String,
+    total_high_cost_ns: u64,
+    total_mid_cost_ns: u64,
+    total_low_cost_ns: u64
+}
+
+impl WhiskerScopeDataSummary {
+    pub fn new(
+        label: String,
+        indentation: String,
+        total_high_cost_ns: u64,
+        total_mid_cost_ns: u64,
+        total_low_cost_ns: u64
+    ) -> WhiskerScopeDataSummary {
+        WhiskerScopeDataSummary { label, indentation, total_high_cost_ns, total_mid_cost_ns, total_low_cost_ns }
+    }
+
+    pub fn read(stream: &mut Stream) -> WhiskerScopeDataSummary {
+        let label = PacketSerializer::get_string(stream);
+        let indentation = PacketSerializer::get_string(stream);
+        let total_high_cost_ns = stream.get_u64_le();
+        let total_mid_cost_ns = stream.get_u64_le();
+        let total_low_cost_ns = stream.get_u64_le();
+        WhiskerScopeDataSummary { label, indentation, total_high_cost_ns, total_mid_cost_ns, total_low_cost_ns }
+    }
+
+    pub fn write(&self, stream: &mut Stream) {
+        PacketSerializer::put_string(stream, self.label.clone());
+        PacketSerializer::put_string(stream, self.indentation.clone());
+        stream.put_u64_le(self.total_high_cost_ns);
+        stream.put_u64_le(self.total_mid_cost_ns);
+        stream.put_u64_le(self.total_low_cost_ns);
+    }
+
+}

@@ -1,16 +1,15 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use crate::protocol::bedrock::types::data_store::DataStore;
-use crate::protocol::bedrock::types::data_store_change::DataStoreChange;
-use crate::protocol::bedrock::types::data_store_removal::DataStoreRemoval;
-use crate::protocol::bedrock::types::data_store_types::DataStoreTypes;
-use crate::protocol::bedrock::types::data_store_update::DataStoreUpdate;
+use crate::protocol::bedrock::types::ddui::data_store_change::DataStoreChange;
+use crate::protocol::bedrock::types::ddui::data_store_removal::DataStoreRemoval;
+use crate::protocol::bedrock::types::ddui::data_store_update::DataStoreUpdate;
+use crate::protocol::bedrock::types::ddui::data_store_operation::DataStoreOperation;
+use crate::protocol::bedrock::types::ddui::data_store_types::DataStoreOperationTypes;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientBoundDataStore {
-    pub values: Vec<DataStore>,
+    pub values: Vec<DataStoreOperation>,
 }
 
 impl Packet for ClientBoundDataStore {
@@ -42,9 +41,9 @@ impl Packet for ClientBoundDataStore {
             let value_type = stream.get_var_u32();
             values.push(
                 match value_type {
-                    DataStoreTypes::UPDATE => DataStore::Update(DataStoreUpdate::read(stream)),
-                    DataStoreTypes::CHANGE => DataStore::Change(DataStoreChange::read(stream)),
-                    DataStoreTypes::REMOVAL => DataStore::Removal(DataStoreRemoval::read(stream)),
+                    DataStoreOperationTypes::UPDATE => DataStoreOperation::Update(DataStoreUpdate::read(stream)),
+                    DataStoreOperationTypes::CHANGE => DataStoreOperation::Change(DataStoreChange::read(stream)),
+                    DataStoreOperationTypes::REMOVAL => DataStoreOperation::Removal(DataStoreRemoval::read(stream)),
                     _ => panic!("Unknown data store type {}", value_type),
                 }
             );
@@ -52,10 +51,4 @@ impl Packet for ClientBoundDataStore {
 
         ClientBoundDataStore { values }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

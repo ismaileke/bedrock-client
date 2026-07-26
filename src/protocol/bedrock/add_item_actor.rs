@@ -4,7 +4,6 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use binary_utils::binary::Stream;
-use std::any::Any;
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
@@ -61,10 +60,4 @@ impl Packet for AddItemActor {
             is_from_fishing,
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

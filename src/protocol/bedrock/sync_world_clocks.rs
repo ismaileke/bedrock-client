@@ -6,7 +6,6 @@ use crate::protocol::bedrock::types::sync_world_clocks_initialize_registry::Sync
 use crate::protocol::bedrock::types::sync_world_clocks_remove_time_marker::SyncWorldClocksRemoveTimeMarker;
 use crate::protocol::bedrock::types::sync_world_clocks_sync_state::SyncWorldClocksSyncState;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SyncWorldClocks {
@@ -44,10 +43,4 @@ impl Packet for SyncWorldClocks {
 
         SyncWorldClocks { payload }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

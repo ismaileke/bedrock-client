@@ -6,37 +6,37 @@ use binary_utils::binary::Stream;
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct UseItemTransactionData {
     actions: Vec<NetworkInventoryAction>,
-    action_type: u32,
-    trigger_type: u32, //see types/inventory/see trigger_type.rs
+    action_type: i32,
+    trigger_type: u8, //see types/inventory/see trigger_type.rs
     block_position: Vec<i32>,
-    face: i32,
+    face: u8,
     hotbar_slot: i32,
     item_in_hand: ItemStackWrapper,
     player_position: Vec<f32>,
     click_position: Vec<f32>,
     block_runtime_id: u32,
-    client_interact_prediction: u32, //see types/inventory/predicted_result.rs
+    client_interact_prediction: u8, //see types/inventory/predicted_result.rs
     client_cooldown_state: u8
 }
 
 impl UseItemTransactionData {
-    pub const ACTION_CLICK_BLOCK: u32 = 0;
-    pub const ACTION_CLICK_AIR: u32 = 1;
-    pub const ACTION_BREAK_BLOCK: u32 = 2;
-    pub const ACTION_USE_AS_ATTACK: u32 = 3;
+    pub const ACTION_CLICK_BLOCK: i32 = 0;
+    pub const ACTION_CLICK_AIR: i32 = 1;
+    pub const ACTION_BREAK_BLOCK: i32 = 2;
+    pub const ACTION_USE_AS_ATTACK: i32 = 3;
 
     pub fn new(
         actions: Vec<NetworkInventoryAction>,
-        action_type: u32,
-        trigger_type: u32,
+        action_type: i32,
+        trigger_type: u8,
         block_position: Vec<i32>,
-        face: i32,
+        face: u8,
         hotbar_slot: i32,
         item_in_hand: ItemStackWrapper,
         player_position: Vec<f32>,
         click_position: Vec<f32>,
         block_runtime_id: u32,
-        client_interact_prediction: u32,
+        client_interact_prediction: u8,
         client_cooldown_state: u8
     ) -> UseItemTransactionData {
         UseItemTransactionData {
@@ -64,30 +64,30 @@ impl UseItemTransactionData {
     }
 
     pub fn decode_data(&mut self, stream: &mut Stream) {
-        self.action_type = stream.get_var_u32();
-        self.trigger_type = stream.get_var_u32();
+        self.action_type = stream.get_var_i32();
+        self.trigger_type = stream.get_byte();
         self.block_position = PacketSerializer::get_block_pos(stream);
-        self.face = stream.get_var_i32();
+        self.face = stream.get_byte();
         self.hotbar_slot = stream.get_var_i32();
-        self.item_in_hand = PacketSerializer::get_item_stack_wrapper(stream);
+        self.item_in_hand = PacketSerializer::get_network_item_stack_descriptor(stream);
         self.player_position = PacketSerializer::get_vector3(stream);
         self.click_position = PacketSerializer::get_vector3(stream);
         self.block_runtime_id = stream.get_var_u32();
-        self.client_interact_prediction = stream.get_var_u32();
+        self.client_interact_prediction = stream.get_byte();
         self.client_cooldown_state = stream.get_byte();
     }
 
     pub fn encode_data(&self, stream: &mut Stream) {
-        stream.put_var_u32(self.action_type);
-        stream.put_var_u32(self.trigger_type);
+        stream.put_var_i32(self.action_type);
+        stream.put_byte(self.trigger_type);
         PacketSerializer::put_block_pos(stream, self.block_position.clone());
-        stream.put_var_i32(self.face);
+        stream.put_byte(self.face);
         stream.put_var_i32(self.hotbar_slot);
-        PacketSerializer::put_item_stack_wrapper(stream, self.item_in_hand.clone());
+        PacketSerializer::put_network_item_stack_descriptor(stream, self.item_in_hand.clone());
         PacketSerializer::put_vector3(stream, self.player_position.clone());
         PacketSerializer::put_vector3(stream, self.click_position.clone());
         stream.put_var_u32(self.block_runtime_id);
-        stream.put_var_u32(self.client_interact_prediction);
+        stream.put_byte(self.client_interact_prediction);
         stream.put_byte(self.client_cooldown_state);
     }
 }

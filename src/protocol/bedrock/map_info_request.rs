@@ -3,7 +3,6 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::map_info_request_packet_client_pixel::MapInfoRequestPacketClientPixel;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct MapInfoRequest {
@@ -43,10 +42,4 @@ impl Packet for MapInfoRequest {
 
         MapInfoRequest { map_id, client_pixels }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

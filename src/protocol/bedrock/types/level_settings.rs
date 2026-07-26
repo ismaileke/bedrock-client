@@ -56,6 +56,8 @@ pub struct LevelSettings {
     pub experimental_gameplay_override: bool,
     pub chat_restriction_level: u8,
     pub disable_player_interactions: bool,
+    pub server_editor_connection_policy: i32,
+    pub allow_anonymous_block_drops_in_editor_worlds: bool,
 }
 
 impl LevelSettings {
@@ -108,6 +110,8 @@ impl LevelSettings {
         let experimental_gameplay_override = stream.get_bool();
         let chat_restriction_level = stream.get_byte();
         let disable_player_interactions = stream.get_bool();
+        let server_editor_connection_policy = stream.get_var_i32();
+        let allow_anonymous_block_drops_in_editor_worlds = stream.get_bool();
 
         LevelSettings {
             seed,
@@ -157,7 +161,9 @@ impl LevelSettings {
             edu_shared_uri_resource,
             experimental_gameplay_override,
             chat_restriction_level,
-            disable_player_interactions
+            disable_player_interactions,
+            server_editor_connection_policy,
+            allow_anonymous_block_drops_in_editor_worlds
         }
     }
 
@@ -210,5 +216,7 @@ impl LevelSettings {
         stream.put_bool(self.experimental_gameplay_override);
         stream.put_byte(self.chat_restriction_level);
         stream.put_bool(self.disable_player_interactions);
+        stream.put_var_i32(self.server_editor_connection_policy);
+        stream.put_bool(self.allow_anonymous_block_drops_in_editor_worlds);
     }
 }

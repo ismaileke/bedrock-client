@@ -2,7 +2,6 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_actor_priority_data::CameraAimAssistActorPriorityData;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraAimAssistActorPriority {
@@ -39,10 +38,4 @@ impl Packet for CameraAimAssistActorPriority {
 
         CameraAimAssistActorPriority { priority_data }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

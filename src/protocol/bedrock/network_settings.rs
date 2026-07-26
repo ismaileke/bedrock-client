@@ -2,7 +2,6 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::raknet::packet_ids::PacketType;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 pub const COMPRESS_NOTHING: u8 = 0;
 pub const COMPRESS_EVERYTHING: u8 = 1;
@@ -58,10 +57,4 @@ impl Packet for NetworkSettings {
             client_throttle_scalar,
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

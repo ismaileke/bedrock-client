@@ -1,9 +1,9 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use crate::protocol::bedrock::types::data_store_value::DataStoreValue;
-use crate::protocol::bedrock::types::data_store_value_bool::DataStoreValueBool;
-use crate::protocol::bedrock::types::data_store_value_double::DataStoreValueDouble;
-use crate::protocol::bedrock::types::data_store_value_string::DataStoreValueString;
-use crate::protocol::bedrock::types::data_store_value_types::DataStoreValueTypes;
+use crate::protocol::bedrock::types::ddui::update::data_store_value::DataStoreUpdateValue;
+use crate::protocol::bedrock::types::ddui::update::data_store_value_bool::DataStoreUpdateValueBool;
+use crate::protocol::bedrock::types::ddui::update::data_store_value_double::DataStoreUpdateValueDouble;
+use crate::protocol::bedrock::types::ddui::update::data_store_value_string::DataStoreUpdateValueString;
+use crate::protocol::bedrock::types::ddui::update::data_store_value_types::DataStoreUpdateValueTypes;
 use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
@@ -11,13 +11,13 @@ pub struct DataStoreUpdate {
     pub name: String,
     pub property: String,
     pub path: String,
-    pub data: DataStoreValue,
+    pub data: DataStoreUpdateValue,
     pub update_count: u32,
     pub path_update_count: u32
 }
 
 impl DataStoreUpdate {
-    pub fn new(name: String, property: String, path: String, data: DataStoreValue, update_count: u32, path_update_count: u32) -> DataStoreUpdate {
+    pub fn new(name: String, property: String, path: String, data: DataStoreUpdateValue, update_count: u32, path_update_count: u32) -> DataStoreUpdate {
         DataStoreUpdate { name, property, path, data, update_count, path_update_count }
     }
 
@@ -25,17 +25,16 @@ impl DataStoreUpdate {
         let name = PacketSerializer::get_string(stream);
         let property = PacketSerializer::get_string(stream);
         let path = PacketSerializer::get_string(stream);
-
         let data_type = stream.get_var_u32();
         let data = match data_type {
-            DataStoreValueTypes::DOUBLE => {
-                DataStoreValue::Double(DataStoreValueDouble::read(stream))
+            DataStoreUpdateValueTypes::DOUBLE => {
+                DataStoreUpdateValue::Double(DataStoreUpdateValueDouble::read(stream))
             }
-            DataStoreValueTypes::STRING => {
-                DataStoreValue::String(DataStoreValueString::read(stream))
+            DataStoreUpdateValueTypes::STRING => {
+                DataStoreUpdateValue::String(DataStoreUpdateValueString::read(stream))
             }
-            DataStoreValueTypes::BOOL => DataStoreValue::Bool(DataStoreValueBool::read(stream)),
-            _ => panic!("Unknown data store value type: {}", data_type),
+            DataStoreUpdateValueTypes::BOOL => DataStoreUpdateValue::Bool(DataStoreUpdateValueBool::read(stream)),
+            _ => panic!("Unknown update data store value type: {}", data_type),
         };
         let update_count = stream.get_u32_le();
         let path_update_count = stream.get_u32_le();

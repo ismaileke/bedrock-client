@@ -7,7 +7,6 @@ use crate::protocol::bedrock::types::pack_setting::PackSetting;
 use crate::protocol::bedrock::types::pack_setting_type::PackSettingType;
 use crate::protocol::bedrock::types::string_pack_setting::StringPackSetting;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ServerBoundPackSettingChange {
@@ -51,10 +50,4 @@ impl Packet for ServerBoundPackSettingChange {
 
         ServerBoundPackSettingChange { pack_id, pack_setting }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

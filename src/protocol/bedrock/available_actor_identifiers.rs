@@ -4,7 +4,6 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 use binary_utils::binary::Stream;
 use mojang_nbt::tag::tag::Tag;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AvailableActorIdentifiers {
@@ -34,10 +33,4 @@ impl Packet for AvailableActorIdentifiers {
 
         AvailableActorIdentifiers { identifiers }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

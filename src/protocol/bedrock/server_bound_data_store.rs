@@ -1,8 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
+use crate::protocol::bedrock::types::ddui::data_store_update::DataStoreUpdate;
 use binary_utils::binary::Stream;
-use std::any::Any;
-use crate::protocol::bedrock::types::data_store_update::DataStoreUpdate;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ServerBoundDataStore {
@@ -32,10 +31,4 @@ impl Packet for ServerBoundDataStore {
 
         ServerBoundDataStore { update }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

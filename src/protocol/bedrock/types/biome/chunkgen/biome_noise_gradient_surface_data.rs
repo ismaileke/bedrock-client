@@ -1,10 +1,11 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use crate::protocol::bedrock::types::biome::chunkgen::biome_noise_block_specifier::BiomeNoiseBlockSpecifier;
 use binary_utils::binary::Stream;
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeNoiseGradientSurfaceData {
     pub non_replaceable_blocks: Vec<u32>,
-    pub gradient_blocks: Vec<u32>,
+    pub gradient_blocks: Vec<BiomeNoiseBlockSpecifier>,
     pub noise_seed: String,
     pub first_octave: bool,
     pub amplitudes: Vec<f32>
@@ -13,7 +14,7 @@ pub struct BiomeNoiseGradientSurfaceData {
 impl BiomeNoiseGradientSurfaceData {
     pub fn new(
         non_replaceable_blocks: Vec<u32>,
-        gradient_blocks: Vec<u32>,
+        gradient_blocks: Vec<BiomeNoiseBlockSpecifier>,
         noise_seed: String,
         first_octave: bool,
         amplitudes: Vec<f32>
@@ -30,7 +31,7 @@ impl BiomeNoiseGradientSurfaceData {
         count = stream.get_var_u32();
         let mut gradient_blocks = Vec::new();
         for _ in 0..count {
-            gradient_blocks.push(stream.get_u32_le());
+            gradient_blocks.push(BiomeNoiseBlockSpecifier::read(stream));
         }
         let noise_seed = PacketSerializer::get_string(stream);
         let first_octave = stream.get_bool();
@@ -50,7 +51,7 @@ impl BiomeNoiseGradientSurfaceData {
         }
         stream.put_var_u32(self.gradient_blocks.len() as u32);
         for gradient_block in &self.gradient_blocks {
-            stream.put_u32_le(*gradient_block);
+            gradient_block.write(stream);
         }
         PacketSerializer::put_string(stream, self.noise_seed.clone());
         stream.put_bool(self.first_octave);

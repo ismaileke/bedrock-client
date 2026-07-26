@@ -4,7 +4,6 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::full_container_name::FullContainerName;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct InventoryContent {
@@ -26,10 +25,10 @@ impl Packet for InventoryContent {
         stream.put_var_u32(self.window_id);
         stream.put_var_u32(self.items.len() as u32);
         for item in &self.items {
-            PacketSerializer::put_item_stack_wrapper(&mut stream, item.clone());
+            PacketSerializer::put_network_item_stack_descriptor(&mut stream, item.clone());
         }
         self.container_name.write(&mut stream);
-        PacketSerializer::put_item_stack_wrapper(&mut stream, self.storage.clone());
+        PacketSerializer::put_network_item_stack_descriptor(&mut stream, self.storage.clone());
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
         compress_stream.put_var_u32(stream.get_buffer().len() as u32);
@@ -43,17 +42,11 @@ impl Packet for InventoryContent {
         let items_count = stream.get_var_u32();
         let mut items = Vec::new();
         for _ in 0..items_count {
-            items.push(PacketSerializer::get_item_stack_wrapper(stream));
+            items.push(PacketSerializer::get_network_item_stack_descriptor(stream));
         }
         let container_name = FullContainerName::read(stream);
-        let storage = PacketSerializer::get_item_stack_wrapper(stream);
+        let storage = PacketSerializer::get_network_item_stack_descriptor(stream);
 
         InventoryContent { window_id, items, container_name, storage }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

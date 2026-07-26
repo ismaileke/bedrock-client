@@ -4,7 +4,6 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::experiments::Experiments;
 use crate::protocol::bedrock::types::resource_packs::resource_pack_stack_entry::ResourcePackStackEntry;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ResourcePackStack {
@@ -59,10 +58,4 @@ impl Packet for ResourcePackStack {
             use_vanilla_editor_packs,
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

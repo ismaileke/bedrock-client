@@ -3,8 +3,8 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::types::memory_category_counter::MemoryCategoryCounter;
 use crate::protocol::bedrock::types::entity_diagnostics_timing_info::EntityDiagnosticTimingInfo;
 use crate::protocol::bedrock::types::system_diagnostics_timing_info::SystemDiagnosticTimingInfo;
+use crate::protocol::bedrock::types::whisker_scope_data_summary::WhiskerScopeDataSummary;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ServerBoundDiagnostics {
@@ -19,7 +19,8 @@ pub struct ServerBoundDiagnostics {
     pub avg_unaccounted_time_percent: f32,
     pub memory_category_values: Vec<MemoryCategoryCounter>,
     pub entity_diagnostics: Vec<EntityDiagnosticTimingInfo>,
-    pub system_diagnostics: Vec<SystemDiagnosticTimingInfo>
+    pub system_diagnostics: Vec<SystemDiagnosticTimingInfo>,
+    pub whisker_scopes: Vec<WhiskerScopeDataSummary>
 }
 
 impl Packet for ServerBoundDiagnostics {
@@ -51,6 +52,10 @@ impl Packet for ServerBoundDiagnostics {
         stream.put_var_u32(self.system_diagnostics.len() as u32);
         for system_diagnostics_value in &self.system_diagnostics {
             system_diagnostics_value.write(&mut stream);
+        }
+        stream.put_var_u32(self.whisker_scopes.len() as u32);
+        for whisker_scopes_value in &self.whisker_scopes {
+            whisker_scopes_value.write(&mut stream);
         }
 
         let mut compress_stream = Stream::new(Vec::new(), 0);
@@ -85,6 +90,11 @@ impl Packet for ServerBoundDiagnostics {
         for _ in 0..count {
             system_diagnostics.push(SystemDiagnosticTimingInfo::read(stream));
         }
+        count = stream.get_var_u32();
+        let mut whisker_scopes = Vec::new();
+        for _ in 0..count {
+            whisker_scopes.push(WhiskerScopeDataSummary::read(stream));
+        }
 
         ServerBoundDiagnostics {
             avg_fps,
@@ -98,13 +108,8 @@ impl Packet for ServerBoundDiagnostics {
             avg_unaccounted_time_percent,
             memory_category_values,
             entity_diagnostics,
-            system_diagnostics
+            system_diagnostics,
+            whisker_scopes
         }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

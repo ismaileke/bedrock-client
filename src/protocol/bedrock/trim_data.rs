@@ -3,7 +3,6 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::types::trim_material::TrimMaterial;
 use crate::protocol::bedrock::types::trim_pattern::TrimPattern;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct TrimData {
@@ -50,10 +49,4 @@ impl Packet for TrimData {
 
         TrimData { trim_patterns, trim_materials }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

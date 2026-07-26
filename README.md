@@ -29,9 +29,8 @@ tokio = "1.49.0"
 
 📄main.rs
 ```rust
-use bedrock_client::{client, downcast_bedrock_packet};
+use bedrock_client::client;
 use bedrock_client::protocol::bedrock::text::Text;
-use std::time::Duration;
 use bedrock_client::protocol::bedrock::packet::Packet;
 use bedrock_client::protocol::bedrock::play_status::PlayStatus;
 use bedrock_client::utils::color_format;
@@ -42,7 +41,7 @@ async fn main() {
     let mut client = client::create(
         "127.0.0.1".to_string(),    // target address
         19132,                      // target port
-        "1.26.20".to_string(),      // client version
+        "1.26.30".to_string(),      // client version
         false,                      // RakNet debug mode
         |code, url| {
             println!("Microsoft Auth Code: {} - URL: {}", code, url);

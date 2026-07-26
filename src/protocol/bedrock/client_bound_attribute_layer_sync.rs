@@ -6,7 +6,6 @@ use crate::protocol::bedrock::types::attribute_update_layer_settings::AttributeU
 use crate::protocol::bedrock::types::attribute_update_layers::AttributeUpdateLayers;
 use crate::protocol::bedrock::types::attribute_layer_sync_payload::AttributeLayerSyncPayload;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 
 #[derive(serde::Serialize, Debug)]
@@ -45,10 +44,4 @@ impl Packet for ClientBoundAttributeLayerSync {
 
         ClientBoundAttributeLayerSync { payload }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

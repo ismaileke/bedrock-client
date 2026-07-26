@@ -3,7 +3,6 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::debug_marker_data::DebugMarkerData;
 use binary_utils::binary::Stream;
-use std::any::Any;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientBoundDebugRenderer {
@@ -42,10 +41,4 @@ impl Packet for ClientBoundDebugRenderer {
 
         ClientBoundDebugRenderer { debug_type, debug_marker_data }
     }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_json(&self) -> String { serde_json::to_string(self).unwrap() }
 }

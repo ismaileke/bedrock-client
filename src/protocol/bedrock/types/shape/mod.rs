@@ -1,0 +1,12 @@
+pub mod packet_shape_data;
+pub mod primitive_shape_arrow_payload;
+pub mod primitive_shape_box_payload;
+pub mod primitive_shape_type;
+pub mod primitive_shape_circle_or_sphere_payload;
+pub mod primitive_shape_cone_payload;
+pub mod primitive_shape_cylinder_payload;
+pub mod primitive_shape_ellipsoid_payload;
+pub mod primitive_shape_line_payload;
+pub mod primitive_shape_pyramid_payload;
+pub mod primitive_shape_text_payload;
+pub mod primitive_shape_payload;
