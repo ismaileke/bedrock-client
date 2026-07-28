@@ -228,8 +228,9 @@ pub fn decode_paletted_storage(buf: &mut Stream) -> Result<Option<PalettedStorag
 
     let block_size = raw_block_size >> 1;
 
-    //let allow_persistent_ids = true; // true data palette, false runtime data palette
-    //let is_runtime = (raw_block_size & 1) != 0 || !allow_persistent_ids;
+    // DiskDecode IMPORTANT
+    let allow_persistent_ids = true; // true data palette, false runtime data palette
+    let is_runtime = (raw_block_size & 1) != 0 || !allow_persistent_ids;
     if block_size == 0x7f {
         return Ok(None); // Go returns nil here
     }
@@ -254,12 +255,21 @@ pub fn decode_paletted_storage(buf: &mut Stream) -> Result<Option<PalettedStorag
         uint32s.insert(i, u32::from_le_bytes([data[i*4], data[i*4+1], data[i*4+2], data[i*4+3]]));
     }
 
-    let palette = decode_palette(buf, PaletteSize(block_size))?;
+    // Disk/Network Decode
+    let palette = if is_runtime {
+        //println!("NetworkDecode:");
+        // VarInt okuyan standart network decode (şu anki kodun)
+        decode_palette_network(buf, PaletteSize(block_size))?
+    } else {
+        //println!("DiskDecode:");
+        // NBT okuyan disk decode (bunu yazman veya bir NBT kütüphanesi kullanman gerekecek)
+        decode_palette_disk(buf, PaletteSize(block_size))?
+    };
 
     Ok(Some(PalettedStorage::new(uint32s, palette)))
 }
 
-pub fn decode_palette(buf: &mut Stream, palette_size: PaletteSize) -> Result<Palette, String> {
+pub fn decode_palette_network(buf: &mut Stream, palette_size: PaletteSize) -> Result<Palette, String> {
     let mut palette_count: i32 = 1;
     if palette_size.0 != 0 {
         palette_count = buf.get_var_i32();
@@ -274,6 +284,40 @@ pub fn decode_palette(buf: &mut Stream, palette_size: PaletteSize) -> Result<Pal
         blocks.push(temp as u32);
     }
     Ok(Palette{
+        last: 0,
+        last_index: 0,
+        size: palette_size,
+        values: blocks,
+    })
+}
+
+pub fn decode_palette_disk(buf: &mut Stream, palette_size: PaletteSize) -> Result<Palette, String> {
+    let mut palette_count: u32 = 1;
+    if palette_size.0 != 0 {
+        palette_count = buf.get_u32_le();
+        if palette_count <= 0 {
+            return Err(format!("Invalid palette entry count {}", palette_count));
+        }
+    }
+
+    if palette_count > 4096 {
+        return Err(format!("Invalid palette entry count {}", palette_count));
+    }
+
+    let mut blocks = Vec::<u32>::with_capacity(palette_count as usize);
+    for _ in 0..palette_count {
+  /*      let mut offset = buf.get_offset();
+        let mut nbt_serializer = NBTSerializer::new_network();
+        let nbt_root = nbt_serializer.read(Vec::from(buf.get_buffer()), &mut offset, 0);
+        buf.set_offset(offset);
+        let test = CacheableNBT::new(Tag::Compound(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error"), ));
+*/
+
+        let runtime_id = 0; // Gerçek implementasyonda NBT'den çevrilmiş ID olacak
+        blocks.push(runtime_id);
+    }
+
+    Ok(Palette {
         last: 0,
         last_index: 0,
         size: palette_size,

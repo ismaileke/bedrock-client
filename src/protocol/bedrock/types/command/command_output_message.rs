@@ -1,6 +1,6 @@
 #[derive(serde::Serialize, Debug)]
 pub struct CommandOutputMessage {
-    is_internal: bool,
-    message_id: String,
-    parameters: Vec<String>,
+    pub is_internal: bool,
+    pub message_id: String,
+    pub parameters: Vec<String>,
 }

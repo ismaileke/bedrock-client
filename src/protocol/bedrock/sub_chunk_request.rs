@@ -1,6 +1,5 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::sub_chunk_position_offset::SubChunkPositionOffset;
 use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::sub_chunk_position::SubChunkPosition;

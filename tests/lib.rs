@@ -61,7 +61,7 @@ mod tests {
                             let my_text = Text {
                                 text_type: Text::TYPE_CHAT,
                                 needs_translation: false,
-                                source_name: Some("yourName".to_string()),
+                                source_name: Some("oyunkons1234".to_string()),
                                 message: "Hello server!".to_string(),
                                 parameters: None,
                                 xbox_uid: "".to_string(),
@@ -89,6 +89,11 @@ mod tests {
                             }
                         }
                     },
+                    BedrockPacket::PlayerList(player_list) => {
+                        for entry in &player_list.entries {
+                            println!("User Name: {}", entry.username);
+                        }
+                    }
                     _ => {},
                 }
             }

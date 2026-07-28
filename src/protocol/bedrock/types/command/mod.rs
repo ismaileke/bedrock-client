@@ -9,3 +9,5 @@ pub mod command_overload;
 pub mod command_parameter;
 pub mod command_parameter_types;
 pub mod command_permissions;
+pub mod raw;
+pub mod command_soft_enum;
