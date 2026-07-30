@@ -121,3 +121,6 @@ pub mod ddui;
 pub mod shape;
 pub mod whisker_scope_data_summary;
 pub mod cereal;
+pub mod map_decoration;
+pub mod map_image;
+pub mod map_tracked_object;
