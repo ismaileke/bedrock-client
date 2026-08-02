@@ -7,24 +7,25 @@ edition = "2021"
 binary-utils = { git = "https://github.com/ismaileke/binary-utils.git", branch = "master" }
 minecraft-auth = { git = "https://github.com/ismaileke/minecraft-auth.git", branch = "master" }
 mojang-nbt = { git = "https://github.com/ismaileke/mojang-nbt.git", branch = "master" }
-log = "0.4.28"
-rand = "0.10.0"
-tokio = { version = "1.49.0", features = ["full"] }
+log = "0.4.33"
+rand = "0.10.2"
+tokio = { version = "1.53.1", features = ["full"] }
 base64 = "0.23.0"
-serde_json = "1.0.143"
+serde_json = "1.0.151"
 flate2 = "1.1.2"
-chrono = "0.4.41"
+chrono = "0.4.45"
 miniz_oxide = "0.9.0"
 hex = "0.4.3"
-aes = "0.9.0-rc.1"
-ctr = "0.10.0-rc.1"
+aes = "0.9.2"
+ctr = "0.10.1"
 libdeflater = "1.24.0"
-serde = { version = "1.0.228", features = ["derive"] }
+serde = { version = "1.0.229", features = ["derive"] }
 linked-hash-map = "0.5.6"
 p384 = { version = "0.13", features = ["ecdsa"] }
 sha2 = "0.11"
-uuid = "1.19.0"
-snap = "1.1.1"
+uuid = "1.24.0"
+snap = "1.1.2"
+#once_cell = "1.21.4"
 
 #[lib]
 #crate-type = ["staticlib"]

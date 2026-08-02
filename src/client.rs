@@ -170,9 +170,9 @@ impl Client {
         self.network_sender.send(packet_data).expect("Network thread closed, packet could not be sent.");
     }
 
-    pub fn next_event(&mut self) -> Option<(String, BedrockPacket)> {
-        match self.network_receiver.try_recv() {
-            Ok(event) => match event {
+    pub async fn next_event(&mut self) -> Option<(String, BedrockPacket)> {
+        match self.network_receiver.recv().await {
+            Some(event) => match event {
                 ClientEvent::GameStarted { hashed_ids, runtime_ids, air_id, runtime_id, unique_id, current_tick, player_position, yaw, pitch } => {
                     if self.debug { println!("Block Palette Synchronized! ({} block)", if runtime_ids.len() != 0 { runtime_ids.len() } else { hashed_ids.len() }); }
                     self.chunk_palette_hashed = hashed_ids;
@@ -188,16 +188,8 @@ impl Client {
                 },
                 ClientEvent::Packet(name, pkt) => Some((name, pkt)),
             },
-            Err(_) => None,
+            None => None,
         }
-    }
-
-    pub fn receive_packets(&mut self) -> Vec<ClientEvent> {
-        let mut packets = Vec::new();
-        while let Ok(pkt) = self.network_receiver.try_recv() {
-            packets.push(pkt);
-        }
-        packets
     }
 
     pub fn get_sender(&self) -> UnboundedSender<Vec<u8>> {
@@ -814,6 +806,15 @@ async fn start_network_thread(
                                                 };
                                                 tx_to_game.send(palette_event).expect("Main thread koptu");
 
+                                                // REQUEST CHUNK RADIUS PACKET
+                                                let req_chunk_radius = RequestChunkRadius { radius: 40, max_radius: 40 }.encode();
+
+                                                let game_packet = raknet_handler.game.encode(&req_chunk_radius);
+                                                let datagrams = Datagram::split_packet(game_packet, &mut raknet_handler.frame_number_cache);
+                                                for datagram in datagrams {
+                                                    socket.send(&datagram.to_binary()).await.expect("C->S Packet could not be sent");
+                                                }
+
                                             },
                                             BedrockPacket::AvailableCommands(_available_commands) => {
                                                 // REQUEST CHUNK RADIUS PACKET
@@ -854,7 +855,7 @@ async fn start_network_thread(
                                         }
 
                                         let packet_name = BedrockPacketType::get_packet_name(packet_id as u16).to_string();
-                                        tx_to_game.send(ClientEvent::Packet(packet_name, packet)).unwrap();
+                                        if let Err(e) = tx_to_game.send(ClientEvent::Packet(packet_name, packet)) { continue };
                                     }
                                 },
                                 PacketType::DisconnectionNotification => {

@@ -230,6 +230,7 @@ use crate::protocol::bedrock::client_bound_update_sound_data::ClientBoundUpdateS
 use crate::protocol::bedrock::send_party_destination_cookie::SendPartyDestinationCookie;
 use crate::protocol::bedrock::party_destination_cookie_response::PartyDestinationCookieResponse;
 use binary_utils::binary::Stream;
+use serde::Serialize;
 
 #[repr(u16)]
 pub enum BedrockPacketType {
@@ -1406,6 +1407,7 @@ impl BedrockPacketType {
     }
 }
 
+#[derive(Serialize)]
 pub enum BedrockPacket {
     Login(Login),
     PlayStatus(PlayStatus),

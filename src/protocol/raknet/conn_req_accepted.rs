@@ -36,10 +36,12 @@ impl ConnReqAccepted {
         stream.set_offset(stream.get_offset() + offset);
         let system_index = stream.get_u16_be();
         let mut system_addresses: [InternetAddress; 10] = core::array::from_fn(|_| address::new(4, "127.0.0.1".to_string(), 0));
-        for index in 0..10 {
-            let (system_address, offset) = address::get_address(stream.get_remaining()).unwrap();
-            stream.set_offset(stream.get_offset() + offset);
-            system_addresses[index] = system_address;
+        if stream.get_remaining().len() > 16 {
+            for index in 0..10 {
+                let (system_address, offset) = address::get_address(stream.get_remaining()).unwrap();
+                stream.set_offset(stream.get_offset() + offset);
+                system_addresses[index] = system_address;
+            }
         }
 
         let ping_time = stream.get_u64_be();
