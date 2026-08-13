@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ResourcePackClientResponse {
@@ -11,29 +11,20 @@ pub struct ResourcePackClientResponse {
 
 impl Packet for ResourcePackClientResponse {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDResourcePackClientResponse.get_byte()
+        BedrockPacketType::IDResourcePackClientResponse.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        stream.put_byte(self.status);
+    fn encode(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.status);
         stream.put_u16_le(self.pack_ids.len() as u16);
 
         for pack_id in &self.pack_ids {
-            PacketSerializer::put_string(&mut stream, pack_id.clone());
+            PacketSerializer::put_string(stream, pack_id.clone());
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> ResourcePackClientResponse {
-        let status = stream.get_byte();
+    fn decode(stream: &mut Reader) -> ResourcePackClientResponse {
+        let status = stream.get_u8();
         let entry_count = stream.get_u16_le();
 
         let mut pack_ids = vec![];

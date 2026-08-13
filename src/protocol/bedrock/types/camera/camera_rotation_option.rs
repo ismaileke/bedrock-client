@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraRotationOption {
@@ -13,7 +13,7 @@ impl CameraRotationOption {
         CameraRotationOption { value, time, ease_type }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraRotationOption {
+    pub fn read(stream: &mut Reader) -> CameraRotationOption {
         let value = PacketSerializer::get_vector3(stream);
         let time = stream.get_f32_le();
         let ease_type = PacketSerializer::get_string(stream);
@@ -21,7 +21,7 @@ impl CameraRotationOption {
         CameraRotationOption { value, time, ease_type }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_vector3(stream, self.value.clone());
         stream.put_f32_le(self.time);
         PacketSerializer::put_string(stream, self.ease_type.clone());

@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::types::cereal::dynamic_value::DynamicValue;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
@@ -14,7 +14,7 @@ impl DynamicValueMap {
         DynamicValueMap { values }
     }
 
-    pub fn read(stream: &mut Stream) -> DynamicValueMap {
+    pub fn read(stream: &mut Reader) -> DynamicValueMap {
         let count = stream.get_var_u32();
         let mut values = HashMap::with_capacity(count as usize);
         for _ in 0..count {
@@ -26,7 +26,7 @@ impl DynamicValueMap {
         DynamicValueMap { values }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.values.len() as u32);
         for (key, value) in &self.values {
             PacketSerializer::put_string(stream, key.to_string());

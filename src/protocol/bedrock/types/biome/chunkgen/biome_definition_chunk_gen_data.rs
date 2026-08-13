@@ -8,7 +8,7 @@ use crate::protocol::bedrock::types::biome::chunkgen::biome_overworld_gen_rules_
 use crate::protocol::bedrock::types::biome::chunkgen::biome_replacement_data::BiomeReplacementData;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_surface_material_adjustment_data::BiomeSurfaceMaterialAdjustmentData;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_surface_builder_data::BiomeSurfaceBuilderData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeDefinitionChunkGenData {
@@ -54,7 +54,7 @@ impl BiomeDefinitionChunkGenData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeDefinitionChunkGenData {
+    pub fn read(stream: &mut Reader) -> BiomeDefinitionChunkGenData {
         let climate = PacketSerializer::read_optional(stream, |s| BiomeClimateData::read(s));
         let consolidated_features = PacketSerializer::read_optional(stream, |s| BiomeConsolidatedFeaturesData::read(s));
         let mountain_params = PacketSerializer::read_optional(stream, |s| BiomeMountainParamsData::read(s));
@@ -70,7 +70,7 @@ impl BiomeDefinitionChunkGenData {
             }
             result
         });
-        let village_type = PacketSerializer::read_optional(stream, |s| s.get_byte());
+        let village_type = PacketSerializer::read_optional(stream, |s| s.get_u8());
         let surface_builder_data = PacketSerializer::read_optional(stream, |s| BiomeSurfaceBuilderData::read(s));
         let sub_surface_builder_data = PacketSerializer::read_optional(stream, |s| BiomeSurfaceBuilderData::read(s));
 
@@ -89,7 +89,7 @@ impl BiomeDefinitionChunkGenData {
         )
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::write_optional(stream, &self.climate, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.consolidated_features, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.mountain_params, |s, v| v.write(s));
@@ -103,7 +103,7 @@ impl BiomeDefinitionChunkGenData {
                 item.write(s);
             }
         });
-        PacketSerializer::write_optional(stream, &self.village_type, |s, v| s.put_byte(*v));
+        PacketSerializer::write_optional(stream, &self.village_type, |s, v| s.put_u8(*v));
         PacketSerializer::write_optional(stream, &self.surface_builder_data, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.sub_surface_builder_data, |s, v| v.write(s));
     }

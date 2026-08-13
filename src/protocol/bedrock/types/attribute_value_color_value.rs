@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::types::attribute_value_color_array::AttributeValueColorArray;
 use crate::protocol::bedrock::types::attribute_value_color_string::AttributeValueColorString;
-use binary_utils::binary::Stream;
+use binary_utils::binary::Writer;
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -20,7 +20,7 @@ impl AttributeValueColorValue {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         match self {
             AttributeValueColorValue::String(r) => r.write(stream),
             AttributeValueColorValue::Array(r) => r.write(stream),

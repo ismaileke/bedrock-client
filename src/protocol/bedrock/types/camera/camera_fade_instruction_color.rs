@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraFadeInstructionColor {
@@ -12,7 +12,7 @@ impl CameraFadeInstructionColor {
         CameraFadeInstructionColor { red, green, blue }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraFadeInstructionColor {
+    pub fn read(stream: &mut Reader) -> CameraFadeInstructionColor {
         let red = stream.get_f32_le();
         let green = stream.get_f32_le();
         let blue = stream.get_f32_le();
@@ -20,7 +20,7 @@ impl CameraFadeInstructionColor {
         CameraFadeInstructionColor { red, green, blue }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.red);
         stream.put_f32_le(self.green);
         stream.put_f32_le(self.blue);

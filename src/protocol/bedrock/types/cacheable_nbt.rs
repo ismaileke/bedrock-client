@@ -1,4 +1,4 @@
-use mojang_nbt::nbt_serializer::NBTSerializer;
+use mojang_nbt::nbt_serializer::NBTWriter;
 use mojang_nbt::tag::tag::Tag;
 use mojang_nbt::tree_root::TreeRoot;
 use std::fmt::Debug;
@@ -17,19 +17,16 @@ impl CacheableNBT {
         }
     }
 
-    pub fn get_root(&self) -> Tag {
-        self.nbt_root.clone()
+    pub fn get_root(&self) -> &Tag {
+        &self.nbt_root
     }
 
-    pub fn get_encoded_nbt(&mut self) -> Vec<u8> {
-        if let None = self.encoded_nbt.as_ref() {
-            let mut serializer = NBTSerializer::new_network();
-            let encoded_nbt_vector =
-                serializer.write(TreeRoot::new(self.get_root(), "".to_string()));
-
-            self.encoded_nbt = Option::from(encoded_nbt_vector);
+    pub fn get_encoded_nbt(&mut self) -> &[u8] {
+        if self.encoded_nbt.is_none() {
+            let mut serializer = NBTWriter::new_network();
+            let bytes = serializer.write(TreeRoot::new(self.nbt_root.clone(), ""));
+            self.encoded_nbt = Some(bytes.to_vec());
         }
-
-        self.encoded_nbt.clone().unwrap()
+        self.encoded_nbt.as_ref().unwrap()
     }
 }

@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::world_position::WorldPosition;
 use crate::utils::color::Color;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct LocatorBarWaypoint {
@@ -38,7 +38,7 @@ impl LocatorBarWaypoint {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> LocatorBarWaypoint {
+    pub fn read(stream: &mut Reader) -> LocatorBarWaypoint {
         let update_flag = stream.get_u32_le();
         let visible = PacketSerializer::read_optional(stream, |s| s.get_bool());
         let world_position = PacketSerializer::read_optional(stream, |s| WorldPosition::read(s));
@@ -60,7 +60,7 @@ impl LocatorBarWaypoint {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_u32_le(self.update_flag);
         PacketSerializer::write_optional(stream, &self.visible, |s, v| s.put_bool(*v));
         PacketSerializer::write_optional(stream, &self.world_position, |s, v| v.write(s));

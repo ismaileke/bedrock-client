@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ShowStoreOffer {
@@ -11,26 +11,17 @@ pub struct ShowStoreOffer {
 
 impl Packet for ShowStoreOffer {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDShowStoreOffer.get_byte()
+        BedrockPacketType::IDShowStoreOffer.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_uuid(&mut stream, self.offer_id.clone());
-        stream.put_byte(self.redirect_type);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_uuid(stream, self.offer_id.clone());
+        stream.put_u8(self.redirect_type);
     }
 
-    fn decode(stream: &mut Stream) -> ShowStoreOffer {
+    fn decode(stream: &mut Reader) -> ShowStoreOffer {
         let offer_id = PacketSerializer::get_uuid(stream);
-        let redirect_type = stream.get_byte();
+        let redirect_type = stream.get_u8();
 
         ShowStoreOffer { offer_id, redirect_type }
     }

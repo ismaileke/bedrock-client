@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_slot_info::ItemStackRequestSlotInfo;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct DropStackRequestAction {
@@ -21,8 +21,8 @@ impl DropStackRequestAction {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> DropStackRequestAction {
-        let count = stream.get_byte();
+    pub fn read(stream: &mut Reader) -> DropStackRequestAction {
+        let count = stream.get_u8();
         let source = ItemStackRequestSlotInfo::read(stream);
         let randomly = stream.get_bool();
 
@@ -33,8 +33,8 @@ impl DropStackRequestAction {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
-        stream.put_byte(self.count);
+    pub fn write(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.count);
         self.source.write(stream);
         stream.put_bool(self.randomly);
     }

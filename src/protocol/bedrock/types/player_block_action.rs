@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::types::player_block_action_stop_break::PlayerBlockActionStopBreak;
 use crate::protocol::bedrock::types::player_block_action_with_block_info::PlayerBlockActionWithBlockInfo;
-use binary_utils::binary::Stream;
+use binary_utils::binary::Writer;
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -17,7 +17,7 @@ impl PlayerBlockAction {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         match self {
             PlayerBlockAction::StopBreak(r) => r.write(stream),
             PlayerBlockAction::WithBlockInfo(r) => r.write(stream),

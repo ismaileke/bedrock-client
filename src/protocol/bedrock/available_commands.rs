@@ -6,7 +6,7 @@ use crate::protocol::bedrock::types::command::raw::chained_sub_command_raw_data:
 use crate::protocol::bedrock::types::command::raw::command_enum_constraint_raw_data::CommandEnumConstraintRawData;
 use crate::protocol::bedrock::types::command::raw::command_enum_raw_data::CommandEnumRawData;
 use crate::protocol::bedrock::types::command::raw::command_raw_data::CommandRawData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct AvailableCommands {
@@ -40,54 +40,45 @@ impl AvailableCommands {
 
 impl Packet for AvailableCommands {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDAvailableCommands.get_byte()
+        BedrockPacketType::IDAvailableCommands.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.enum_values.len() as u32);
         for value in &self.enum_values {
-            PacketSerializer::put_string(&mut stream, value.clone());
+            PacketSerializer::put_string(stream, value.clone());
         }
         stream.put_var_u32(self.chained_sub_command_values.len() as u32);
         for value in &self.chained_sub_command_values {
-            PacketSerializer::put_string(&mut stream, value.clone());
+            PacketSerializer::put_string(stream, value.clone());
         }
         stream.put_var_u32(self.postfixes.len() as u32);
         for value in &self.postfixes {
-            PacketSerializer::put_string(&mut stream, value.clone());
+            PacketSerializer::put_string(stream, value.clone());
         }
         stream.put_var_u32(self.enums.len() as u32);
         for value in &self.enums {
-            value.write(&mut stream);
+            value.write(stream);
         }
         stream.put_var_u32(self.chained_sub_command_data.len() as u32);
         for value in &self.chained_sub_command_data {
-            value.write(&mut stream);
+            value.write(stream);
         }
         stream.put_var_u32(self.command_data.len() as u32);
         for value in &self.command_data {
-            value.write(&mut stream);
+            value.write(stream);
         }
         stream.put_var_u32(self.soft_enums.len() as u32);
         for value in &self.soft_enums {
-            value.write(&mut stream);
+            value.write(stream);
         }
         stream.put_var_u32(self.enum_constraints.len() as u32);
         for value in &self.enum_constraints {
-            value.write(&mut stream);
+            value.write(stream);
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> AvailableCommands {
+    fn decode(stream: &mut Reader) -> AvailableCommands {
         let mut enum_values = Vec::new();
         let mut chained_sub_command_values = Vec::new();
         let mut postfixes = Vec::new();

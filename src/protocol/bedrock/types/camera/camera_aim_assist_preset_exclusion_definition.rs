@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraAimAssistPresetExclusionDefinition {
@@ -24,7 +24,7 @@ impl CameraAimAssistPresetExclusionDefinition {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraAimAssistPresetExclusionDefinition {
+    pub fn read(stream: &mut Reader) -> CameraAimAssistPresetExclusionDefinition {
         let mut blocks = Vec::new();
         let mut entities = Vec::new();
         let mut block_tags = Vec::new();
@@ -58,7 +58,7 @@ impl CameraAimAssistPresetExclusionDefinition {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.blocks.len() as u32);
         for block in &self.blocks {
             PacketSerializer::put_string(stream, block.clone());

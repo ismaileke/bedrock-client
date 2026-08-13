@@ -1,8 +1,8 @@
+use crate::protocol::raknet::packet_ids::PacketType;
 use crate::utils::address::InternetAddress;
 use crate::utils::color_format::COLOR_WHITE;
-use crate::utils::{address, color_format};
-use crate::protocol::raknet::packet_ids::PacketType;
-use binary_utils::binary::Stream;
+use crate::utils::color_format;
+use binary_utils::binary::{Reader, Writer};
 
 pub struct ConnReqAccepted {
     pub client_address: InternetAddress,
@@ -13,33 +13,30 @@ pub struct ConnReqAccepted {
 }
 
 impl ConnReqAccepted {
-    pub fn encode(&self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-
-        stream.put_byte(PacketType::get_byte(PacketType::ConnReqAccepted));
-        stream.put(self.client_address.put_address());
+    pub fn encode(&self, stream: &mut Writer) {
+        stream.clear();
+        stream.put_u8(PacketType::get_u8(PacketType::ConnReqAccepted));
+        self.client_address.put_address(stream);
         stream.put_u16_be(self.system_index);
         for system_address in &self.system_addresses {
-            stream.put(system_address.put_address());
+            system_address.put_address(stream);
         }
         stream.put_u64_be(self.ping_time);
         stream.put_u64_be(self.pong_time);
-
-        Vec::from(stream.get_buffer())
     }
     
-    pub fn decode(bytes: Vec<u8>) -> ConnReqAccepted {
-        let mut stream = Stream::new(bytes, 0);
+    pub fn decode(bytes: &[u8]) -> ConnReqAccepted {
+        let mut stream = Reader::new(bytes);
 
-        let _ = stream.get_byte();
-        let (client_address, offset) = address::get_address(stream.get_remaining()).unwrap();
-        stream.set_offset(stream.get_offset() + offset);
+        let _ = stream.get_u8();
+        let (client_address, offset) = InternetAddress::get_address(stream.remaining()).unwrap();
+        stream.set_offset(stream.offset() + offset);
         let system_index = stream.get_u16_be();
-        let mut system_addresses: [InternetAddress; 10] = core::array::from_fn(|_| address::new(4, "127.0.0.1".to_string(), 0));
-        if stream.get_remaining().len() > 16 {
+        let mut system_addresses: [InternetAddress; 10] = core::array::from_fn(|_| InternetAddress::new(4, "127.0.0.1".to_string(), 0));
+        if stream.remaining_byte_count() > 16 {
             for index in 0..10 {
-                let (system_address, offset) = address::get_address(stream.get_remaining()).unwrap();
-                stream.set_offset(stream.get_offset() + offset);
+                let (system_address, offset) = InternetAddress::get_address(stream.remaining()).unwrap();
+                stream.set_offset(stream.offset() + offset);
                 system_addresses[index] = system_address;
             }
         }

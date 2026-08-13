@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct AttributeUpdateEnvironment {
@@ -14,7 +14,7 @@ impl AttributeUpdateEnvironment {
         AttributeUpdateEnvironment { name, dimension, attributes }
     }
 
-    pub fn read(stream: &mut Stream) -> AttributeUpdateEnvironment {
+    pub fn read(stream: &mut Reader) -> AttributeUpdateEnvironment {
         let name = PacketSerializer::get_string(stream);
         let dimension = stream.get_var_u32();
         let len = stream.get_var_u32();
@@ -26,7 +26,7 @@ impl AttributeUpdateEnvironment {
         AttributeUpdateEnvironment { name, dimension, attributes }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.name.clone());
         stream.put_var_u32(self.dimension);
         stream.put_var_u32(self.attributes.len() as u32);

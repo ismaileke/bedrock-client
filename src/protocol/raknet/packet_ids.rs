@@ -46,7 +46,7 @@ impl PacketType {
             _ => PacketType::Unknown,
         }
     }
-    pub fn get_byte(self) -> u8 {
+    pub fn get_u8(self) -> u8 {
         match self {
             PacketType::UnconnectedPing => 0x01,
             PacketType::UnconnectedPong => 0x1c,

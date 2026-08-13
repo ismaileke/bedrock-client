@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetPlayerInventoryOptions {
@@ -13,27 +13,18 @@ pub struct SetPlayerInventoryOptions {
 
 impl Packet for SetPlayerInventoryOptions {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDSetPlayerInventoryOptions.get_byte()
+        BedrockPacketType::IDSetPlayerInventoryOptions.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_i32(self.left_tab);
         stream.put_var_i32(self.right_tab);
         stream.put_bool(self.filtering);
         stream.put_var_i32(self.inventory_layout);
         stream.put_var_i32(self.crafting_layout);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> SetPlayerInventoryOptions {
+    fn decode(stream: &mut Reader) -> SetPlayerInventoryOptions {
         let left_tab = stream.get_var_i32();
         let right_tab = stream.get_var_i32();
         let filtering = stream.get_bool();

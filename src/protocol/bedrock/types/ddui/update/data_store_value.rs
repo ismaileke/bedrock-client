@@ -2,7 +2,7 @@ use crate::protocol::bedrock::types::ddui::update::data_store_value_bool::DataSt
 use crate::protocol::bedrock::types::ddui::update::data_store_value_double::DataStoreUpdateValueDouble;
 use crate::protocol::bedrock::types::ddui::update::data_store_value_string::DataStoreUpdateValueString;
 use crate::protocol::bedrock::types::ddui::update::data_store_value_types::DataStoreUpdateValueTypes;
-use binary_utils::binary::Stream;
+use binary_utils::binary::Writer;
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -21,7 +21,7 @@ impl DataStoreUpdateValue {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         match self {
             DataStoreUpdateValue::Double(r) => r.write(stream),
             DataStoreUpdateValue::Bool(r) => r.write(stream),

@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraAimAssistPresetItemSettings {
@@ -18,7 +18,7 @@ impl CameraAimAssistPresetItemSettings {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraAimAssistPresetItemSettings {
+    pub fn read(stream: &mut Reader) -> CameraAimAssistPresetItemSettings {
         let item_identifier = PacketSerializer::get_string(stream);
         let category_name = PacketSerializer::get_string(stream);
 
@@ -28,7 +28,7 @@ impl CameraAimAssistPresetItemSettings {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.item_identifier.clone());
         PacketSerializer::put_string(stream, self.category_name.clone());
     }

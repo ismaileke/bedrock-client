@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
@@ -9,7 +9,7 @@ pub struct Experiments {
 }
 
 impl Experiments {
-    pub fn read(stream: &mut Stream) -> Experiments {
+    pub fn read(stream: &mut Reader) -> Experiments {
         let mut experiments = HashMap::new();
         let length = stream.get_u32_le();
         for _ in 0..length {
@@ -22,7 +22,7 @@ impl Experiments {
         Experiments { experiments, has_previously_used_experiments }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.experiments.len() as u32);
         for experiment in self.experiments.iter() {
             PacketSerializer::put_string(stream, experiment.0.clone());

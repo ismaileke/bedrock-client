@@ -5,7 +5,7 @@ use crate::protocol::bedrock::types::inventory::normal_transaction_data::NormalT
 use crate::protocol::bedrock::types::inventory::release_item_transaction_data::ReleaseItemTransactionData;
 use crate::protocol::bedrock::types::inventory::use_item_on_entity_transaction_data::UseItemOnEntityTransactionData;
 use crate::protocol::bedrock::types::inventory::use_item_transaction_data::UseItemTransactionData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub enum TransactionData {
@@ -47,7 +47,7 @@ impl TransactionData {
         }
     }
 
-    pub fn encode_data(&self, stream: &mut Stream) {
+    pub fn encode_data(&self, stream: &mut Writer) {
         match self {
             TransactionData::Normal(r) => r.encode_data(stream),
             TransactionData::Mismatch(r) => r.encode_data(stream),
@@ -57,7 +57,7 @@ impl TransactionData {
         }
     }
 
-    pub fn decode_data(&mut self, stream: &mut Stream) {
+    pub fn decode_data(&mut self, stream: &mut Reader) {
         match self {
             TransactionData::Normal(r) => r.decode_data(stream),
             TransactionData::Mismatch(r) => r.decode_data(stream),
@@ -67,7 +67,7 @@ impl TransactionData {
         }
     }
 
-    pub fn decode_transaction(&mut self, stream: &mut Stream) {
+    pub fn decode_transaction(&mut self, stream: &mut Reader) {
         let action_count = stream.get_var_u32();
         for _ in 0..action_count {
             let action = NetworkInventoryAction::read_transaction(stream);
@@ -76,7 +76,7 @@ impl TransactionData {
         self.decode_data(stream)
     }
 
-    pub fn decode_auth_input(&mut self, stream: &mut Stream) {
+    pub fn decode_auth_input(&mut self, stream: &mut Reader) {
         let action_count = stream.get_var_u32();
         for _ in 0..action_count {
             let action = NetworkInventoryAction::read_auth_input(stream);
@@ -85,7 +85,7 @@ impl TransactionData {
         self.decode_data(stream)
     }
 
-    pub fn encode_transaction(&self, stream: &mut Stream) {
+    pub fn encode_transaction(&self, stream: &mut Writer) {
         stream.put_var_u32(self.get_actions().len() as u32);
         for action in self.get_actions() {
             action.write_transaction(stream);
@@ -93,7 +93,7 @@ impl TransactionData {
         self.encode_data(stream)
     }
 
-    pub fn encode_auth_input(&self, stream: &mut Stream) {
+    pub fn encode_auth_input(&self, stream: &mut Writer) {
         stream.put_var_u32(self.get_actions().len() as u32);
         for action in self.get_actions() {
             action.write_auth_input(stream);

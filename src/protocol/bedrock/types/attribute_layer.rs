@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::attribute_environment::AttributeEnvironment;
 use crate::protocol::bedrock::types::attribute_layer_settings::AttributeLayerSettings;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct AttributeLayer {
@@ -17,7 +17,7 @@ impl AttributeLayer {
         AttributeLayer { name, noise_name, dimension, settings, attributes }
     }
 
-    pub fn read(stream: &mut Stream) -> AttributeLayer {
+    pub fn read(stream: &mut Reader) -> AttributeLayer {
         let name = PacketSerializer::get_string(stream);
         let noise_name = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
         let dimension = stream.get_var_u32();
@@ -31,7 +31,7 @@ impl AttributeLayer {
         AttributeLayer { name, noise_name, dimension, settings, attributes }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.name.clone());
         PacketSerializer::write_optional(stream, &self.noise_name, |s, v| PacketSerializer::put_string(s, v.clone()));
         stream.put_var_u32(self.dimension);

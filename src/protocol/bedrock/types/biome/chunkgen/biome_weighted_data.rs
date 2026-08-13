@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeWeightedData {
@@ -11,14 +11,14 @@ impl BiomeWeightedData {
         BiomeWeightedData { biome, weight }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeWeightedData {
+    pub fn read(stream: &mut Reader) -> BiomeWeightedData {
         let biome = stream.get_i16_le();
         let weight = stream.get_u32_le();
 
         BiomeWeightedData::new(biome, weight)
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_i16_le(self.biome);
         stream.put_u32_le(self.weight);
     }

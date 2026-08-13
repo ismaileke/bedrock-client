@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::types::inventory::network_inventory_action::NetworkInventoryAction;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct MismatchTransactionData {
@@ -21,11 +21,11 @@ impl MismatchTransactionData {
         self.actions.as_mut()
     }
 
-    pub fn decode_data(&mut self, _stream: &mut Stream) {
+    pub fn decode_data(&mut self, _stream: &mut Reader) {
         if self.actions.len() > 0 {
             panic!("Mismatch transaction type should not have any actions associated with it, but got {}", self.actions.len());
         }
     }
 
-    pub fn encode_data(&self, _stream: &mut Stream) {}
+    pub fn encode_data(&self, _stream: &mut Writer) {}
 }

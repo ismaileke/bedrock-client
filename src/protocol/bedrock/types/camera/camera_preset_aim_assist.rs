@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraPresetAimAssist {
@@ -10,10 +10,10 @@ pub struct CameraPresetAimAssist {
 }
 
 impl CameraPresetAimAssist {
-    pub fn read(stream: &mut Stream) -> CameraPresetAimAssist {
+    pub fn read(stream: &mut Reader) -> CameraPresetAimAssist {
         let preset_id =
             PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
-        let target_mode = PacketSerializer::read_optional(stream, |s| s.get_byte());
+        let target_mode = PacketSerializer::read_optional(stream, |s| s.get_u8());
         let view_angle =
             PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
         let distance = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
@@ -26,11 +26,11 @@ impl CameraPresetAimAssist {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::write_optional(stream, &self.preset_id, |s, v| {
             PacketSerializer::put_string(s, v.clone())
         });
-        PacketSerializer::write_optional(stream, &self.target_mode, |s, v| s.put_byte(*v));
+        PacketSerializer::write_optional(stream, &self.target_mode, |s, v| s.put_u8(*v));
         PacketSerializer::write_optional(stream, &self.view_angle, |s, v| {
             PacketSerializer::put_vector2(s, v.clone())
         });

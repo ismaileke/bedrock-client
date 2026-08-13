@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct MolangItemDescriptor {
@@ -15,9 +15,9 @@ impl MolangItemDescriptor {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> MolangItemDescriptor {
+    pub fn read(stream: &mut Reader) -> MolangItemDescriptor {
         let molang_expression = PacketSerializer::get_string(stream);
-        let version = stream.get_byte();
+        let version = stream.get_u8();
 
         MolangItemDescriptor {
             molang_expression,
@@ -25,8 +25,8 @@ impl MolangItemDescriptor {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.molang_expression.clone());
-        stream.put_byte(self.version);
+        stream.put_u8(self.version);
     }
 }

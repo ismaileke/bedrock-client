@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::stack_request::beacon_payment_stack_request_action::BeaconPaymentStackRequestAction;
 use crate::protocol::bedrock::types::inventory::stack_request::craft_recipe_auto_stack_request_action::CraftRecipeAutoStackRequestAction;
@@ -43,7 +43,7 @@ impl ItemStackRequestEntry {
         }
     }
 
-    fn read_action(stream: &mut Stream, type_id: u8) -> ItemStackRequestAction {
+    fn read_action(stream: &mut Reader, type_id: u8) -> ItemStackRequestAction {
         match type_id {
             ItemStackRequestActionType::TAKE => {
                 ItemStackRequestAction::Take(TakeStackRequestAction::read(stream))
@@ -114,12 +114,12 @@ impl ItemStackRequestEntry {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> ItemStackRequestEntry {
+    pub fn read(stream: &mut Reader) -> ItemStackRequestEntry {
         let request_id = PacketSerializer::read_item_stack_request_id(stream);
         let mut actions = Vec::new();
         let mut len = stream.get_var_u32();
         for _ in 0..len {
-            let type_id = stream.get_byte();
+            let type_id = stream.get_u8();
             actions.push(Self::read_action(stream, type_id));
         }
         let mut filter_strings = Vec::new();
@@ -137,11 +137,11 @@ impl ItemStackRequestEntry {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         PacketSerializer::write_item_stack_request_id(stream, self.request_id);
         stream.put_var_u32(self.actions.len() as u32);
         for action in self.actions.iter_mut() {
-            stream.put_byte(action.get_type_id());
+            stream.put_u8(action.get_type_id());
             action.write(stream);
         }
         stream.put_var_u32(self.filter_strings.len() as u32);

@@ -2,16 +2,12 @@
 pub struct SkinImage {
     height: u32,
     width: u32,
-    data: Vec<u8>,
+    data: Vec<u8>
 }
 
 impl SkinImage {
     pub fn new(height: u32, width: u32, data: Vec<u8>) -> SkinImage {
-        SkinImage {
-            height,
-            width,
-            data,
-        }
+        SkinImage { height, width, data }
     }
 
     pub fn height(&self) -> u32 {
@@ -22,7 +18,7 @@ impl SkinImage {
         self.width
     }
 
-    pub fn data(&self) -> Vec<u8> {
-        self.data.clone()
+    pub fn data(&self) -> &Vec<u8> {
+        &self.data
     }
 }

@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct DimensionDataEntry {
@@ -13,7 +13,7 @@ impl DimensionDataEntry {
         DimensionDataEntry { max_height, min_height, generator, dimension_type }
     }
 
-    pub fn read(stream: &mut Stream) -> DimensionDataEntry {
+    pub fn read(stream: &mut Reader) -> DimensionDataEntry {
         let max_height = stream.get_var_i32();
         let min_height = stream.get_var_i32();
         let generator = stream.get_var_i32();
@@ -22,7 +22,7 @@ impl DimensionDataEntry {
         DimensionDataEntry { max_height, min_height, generator, dimension_type }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_i32(self.max_height);
         stream.put_var_i32(self.min_height);
         stream.put_var_i32(self.generator);

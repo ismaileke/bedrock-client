@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct LoomStackRequestAction {
@@ -15,9 +15,9 @@ impl LoomStackRequestAction {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> LoomStackRequestAction {
+    pub fn read(stream: &mut Reader) -> LoomStackRequestAction {
         let pattern_id = PacketSerializer::get_string(stream);
-        let repetitions = stream.get_byte();
+        let repetitions = stream.get_u8();
 
         LoomStackRequestAction {
             pattern_id,
@@ -25,8 +25,8 @@ impl LoomStackRequestAction {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.pattern_id.clone());
-        stream.put_byte(self.repetitions);
+        stream.put_u8(self.repetitions);
     }
 }

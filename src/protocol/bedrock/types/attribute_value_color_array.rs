@@ -1,5 +1,5 @@
 use crate::utils::color::Color;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct AttributeValueColorArray {
@@ -12,7 +12,7 @@ impl AttributeValueColorArray {
         AttributeValueColorArray { value }
     }
 
-    pub fn read(stream: &mut Stream) -> AttributeValueColorArray {
+    pub fn read(stream: &mut Reader) -> AttributeValueColorArray {
         let r = stream.get_u32_le();
         let g = stream.get_u32_le();
         let b = stream.get_u32_le();
@@ -21,7 +21,7 @@ impl AttributeValueColorArray {
         AttributeValueColorArray { value: Color::new(r, g, b, a) }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_u32_le(self.value.r() as u32);
         stream.put_u32_le(self.value.g() as u32);
         stream.put_u32_le(self.value.b() as u32);

@@ -3,7 +3,7 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::command::command_output_message::CommandOutputMessage;
 use crate::protocol::bedrock::types::command::command_origin_data::CommandOriginData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CommandOutput {
@@ -16,30 +16,21 @@ pub struct CommandOutput {
 
 impl Packet for CommandOutput {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDCommandOutput.get_byte()
+        BedrockPacketType::IDCommandOutput.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_command_origin_data(&mut stream, &self.origin_data);
-        PacketSerializer::put_string(&mut stream, self.output_type.clone());
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_command_origin_data(stream, &self.origin_data);
+        PacketSerializer::put_string(stream, self.output_type.clone());
         stream.put_u32_le(self.success_count);
         stream.put_var_u32(self.messages.len() as u32);
         for message in &self.messages {
-            Self::put_command_message(message, &mut stream);
+            Self::put_command_message(message, stream);
         }
-        PacketSerializer::write_optional(&mut stream, &self.data, |s, v| PacketSerializer::put_string(s, v.clone()));
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        PacketSerializer::write_optional(stream, &self.data, |s, v| PacketSerializer::put_string(s, v.clone()));
     }
 
-    fn decode(stream: &mut Stream) -> CommandOutput {
+    fn decode(stream: &mut Reader) -> CommandOutput {
         let origin_data = PacketSerializer::get_command_origin_data(stream);
         let output_type = PacketSerializer::get_string(stream);
         let success_count = stream.get_u32_le();
@@ -60,7 +51,7 @@ impl CommandOutput {
     pub const TYPE_ALL: &'static str = "alloutput";
     pub const TYPE_DATA_SET: &'static str = "dataset";
 
-    fn get_command_message(stream: &mut Stream) -> CommandOutputMessage {
+    fn get_command_message(stream: &mut Reader) -> CommandOutputMessage {
         let message_id = PacketSerializer::get_string(stream);
         let is_internal = stream.get_bool();
         let size = stream.get_var_u32();
@@ -70,7 +61,7 @@ impl CommandOutput {
         }
         CommandOutputMessage { message_id, is_internal, parameters }
     }
-    fn put_command_message(message: &CommandOutputMessage, stream: &mut Stream) {
+    fn put_command_message(message: &CommandOutputMessage, stream: &mut Writer) {
         PacketSerializer::put_string(stream, message.message_id.clone());
         stream.put_bool(message.is_internal);
         stream.put_var_u32(message.parameters.len() as u32);

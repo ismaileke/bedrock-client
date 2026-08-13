@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::types::education_uri_resource::EducationUriResource;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct EduUriResource {
@@ -10,23 +10,14 @@ pub struct EduUriResource {
 
 impl Packet for EduUriResource {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDEduUriResource.get_byte()
+        BedrockPacketType::IDEduUriResource.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        self.resource.write(&mut stream);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+    fn encode(&mut self, stream: &mut Writer) {
+        self.resource.write(stream);
     }
 
-    fn decode(stream: &mut Stream) -> EduUriResource {
+    fn decode(stream: &mut Reader) -> EduUriResource {
         let resource = EducationUriResource::read(stream);
 
         EduUriResource { resource }

@@ -5,7 +5,7 @@ use crate::protocol::bedrock::types::attribute_update_environment::AttributeUpda
 use crate::protocol::bedrock::types::attribute_update_layer_settings::AttributeUpdateLayerSettings;
 use crate::protocol::bedrock::types::attribute_update_layers::AttributeUpdateLayers;
 use crate::protocol::bedrock::types::attribute_layer_sync_payload::AttributeLayerSyncPayload;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 
 #[derive(serde::Serialize, Debug)]
@@ -15,24 +15,15 @@ pub struct ClientBoundAttributeLayerSync {
 
 impl Packet for ClientBoundAttributeLayerSync {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDClientBoundAttributeLayerSync.get_byte()
+        BedrockPacketType::IDClientBoundAttributeLayerSync.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.payload.id());
-        self.payload.write(&mut stream);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        self.payload.write(stream);
     }
 
-    fn decode(stream: &mut Stream) -> ClientBoundAttributeLayerSync {
+    fn decode(stream: &mut Reader) -> ClientBoundAttributeLayerSync {
         let attribute_type = stream.get_var_u32();
         let payload = match attribute_type {
             AttributeLayerSyncPayload::UPDATE_LAYERS => AttributeLayerSyncPayload::UpdateLayers(AttributeUpdateLayers::read(stream)),

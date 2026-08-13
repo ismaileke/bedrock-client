@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::types::biome::chunkgen::biome_scatter_param_data::BiomeScatterParamData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeConsolidatedFeatureData {
@@ -27,7 +27,7 @@ impl BiomeConsolidatedFeatureData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeConsolidatedFeatureData {
+    pub fn read(stream: &mut Reader) -> BiomeConsolidatedFeatureData {
         let scatter = BiomeScatterParamData::read(stream);
         let feature = stream.get_i16_le();
         let identifier = stream.get_i16_le();
@@ -37,7 +37,7 @@ impl BiomeConsolidatedFeatureData {
         BiomeConsolidatedFeatureData::new(scatter, feature, identifier, pass, use_internal)
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         self.scatter.write(stream);
         stream.put_i16_le(self.feature);
         stream.put_i16_le(self.identifier);

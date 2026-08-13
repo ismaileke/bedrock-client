@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct TagItemDescriptor {
@@ -11,13 +11,13 @@ impl TagItemDescriptor {
         TagItemDescriptor { tag }
     }
 
-    pub fn read(stream: &mut Stream) -> TagItemDescriptor {
+    pub fn read(stream: &mut Reader) -> TagItemDescriptor {
         let tag = PacketSerializer::get_string(stream);
 
         TagItemDescriptor { tag }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.tag.clone());
     }
 }

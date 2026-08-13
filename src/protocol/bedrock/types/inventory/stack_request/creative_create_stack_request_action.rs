@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CreativeCreateStackRequestAction {
@@ -15,9 +15,9 @@ impl CreativeCreateStackRequestAction {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> CreativeCreateStackRequestAction {
+    pub fn read(stream: &mut Reader) -> CreativeCreateStackRequestAction {
         let creative_item_id = PacketSerializer::read_creative_item_net_id(stream);
-        let repetitions = stream.get_byte();
+        let repetitions = stream.get_u8();
 
         CreativeCreateStackRequestAction {
             creative_item_id,
@@ -25,8 +25,8 @@ impl CreativeCreateStackRequestAction {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         PacketSerializer::write_creative_item_net_id(stream, self.creative_item_id);
-        stream.put_byte(self.repetitions);
+        stream.put_u8(self.repetitions);
     }
 }

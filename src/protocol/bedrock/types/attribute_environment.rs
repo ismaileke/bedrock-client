@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::attribute_value::AttributeValue;
 
@@ -40,7 +40,7 @@ impl AttributeEnvironment {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> AttributeEnvironment {
+    pub fn read(stream: &mut Reader) -> AttributeEnvironment {
         let name = PacketSerializer::get_string(stream);
         let from_attribute = PacketSerializer::read_optional(stream, |s| AttributeValue::read(s));
         let attribute = AttributeValue::read(stream);
@@ -64,7 +64,7 @@ impl AttributeEnvironment {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.name.clone());
         PacketSerializer::write_optional(stream, &self.from_attribute, |s, v| v.write(s));
         self.attribute.write(stream);

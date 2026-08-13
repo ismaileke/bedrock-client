@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemStackResponseSlotInfo {
@@ -33,10 +33,10 @@ impl ItemStackResponseSlotInfo {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> ItemStackResponseSlotInfo {
-        let slot = stream.get_byte();
-        let hotbar_slot = stream.get_byte();
-        let count = stream.get_byte();
+    pub fn read(stream: &mut Reader) -> ItemStackResponseSlotInfo {
+        let slot = stream.get_u8();
+        let hotbar_slot = stream.get_u8();
+        let count = stream.get_u8();
         let item_stack_id = PacketSerializer::read_server_item_stack_id(stream);
         let custom_name = PacketSerializer::get_string(stream);
         let filtered_custom_name = PacketSerializer::get_string(stream);
@@ -53,10 +53,10 @@ impl ItemStackResponseSlotInfo {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
-        stream.put_byte(self.slot);
-        stream.put_byte(self.hotbar_slot);
-        stream.put_byte(self.count);
+    pub fn write(&self, stream: &mut Writer) {
+        stream.put_u8(self.slot);
+        stream.put_u8(self.hotbar_slot);
+        stream.put_u8(self.count);
         PacketSerializer::write_server_item_stack_id(stream, self.item_stack_id);
         PacketSerializer::put_string(stream, self.custom_name.clone());
         PacketSerializer::put_string(stream, self.filtered_custom_name.clone());

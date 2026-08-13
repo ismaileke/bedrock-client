@@ -8,7 +8,7 @@ use crate::protocol::bedrock::types::shape::primitive_shape_line_payload::Primit
 use crate::protocol::bedrock::types::shape::primitive_shape_pyramid_payload::PrimitiveShapePyramidPayload;
 use crate::protocol::bedrock::types::shape::primitive_shape_text_payload::PrimitiveShapeTextPayload;
 use crate::protocol::bedrock::types::shape::primitive_shape_type::PrimitiveShapeType;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -39,7 +39,7 @@ impl PrimitiveShapePayload {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> PrimitiveShapePayload {
+    pub fn read(stream: &mut Reader) -> PrimitiveShapePayload {
         let primitive_shape_type = stream.get_var_u32();
         match primitive_shape_type {
             PrimitiveShapeType::PAYLOAD_TYPE_LINE => PrimitiveShapePayload::Line(PrimitiveShapeLinePayload::read(stream)),
@@ -55,7 +55,7 @@ impl PrimitiveShapePayload {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         match self {
             PrimitiveShapePayload::Line(r) => r.write(stream),
             PrimitiveShapePayload::Box(r) => r.write(stream),

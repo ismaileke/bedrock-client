@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraFadeInstructionTime {
@@ -16,7 +16,7 @@ impl CameraFadeInstructionTime {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraFadeInstructionTime {
+    pub fn read(stream: &mut Reader) -> CameraFadeInstructionTime {
         let fade_in_time = stream.get_f32_le();
         let stay_time = stream.get_f32_le();
         let fade_out_time = stream.get_f32_le();
@@ -28,7 +28,7 @@ impl CameraFadeInstructionTime {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.fade_in_time);
         stream.put_f32_le(self.stay_time);
         stream.put_f32_le(self.fade_out_time);

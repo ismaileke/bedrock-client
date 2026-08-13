@@ -2,7 +2,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::parameter_keyframe_value::ParameterKeyframeValue;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct GraphicsOverrideParameter {
@@ -17,32 +17,23 @@ pub struct GraphicsOverrideParameter {
 
 impl Packet for GraphicsOverrideParameter {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDGraphicsOverrideParameter.get_byte()
+        BedrockPacketType::IDGraphicsOverrideParameter.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.values.len() as u32);
         for value in &self.values {
-            value.write(&mut stream);
+            value.write(stream);
         }
-        PacketSerializer::write_optional(&mut stream, &self.unknown_float, |s, v| s.put_f32_le(*v));
-        PacketSerializer::write_optional(&mut stream, &self.unknown_vector3, |s, v| PacketSerializer::put_vector3(s, v.clone()));
-        PacketSerializer::put_string(&mut stream, self.biome_identifier.clone());
-        PacketSerializer::write_optional(&mut stream, &self.player_identifier, |s, v| PacketSerializer::put_string(s, v.clone()));
-        stream.put_byte(self.parameter_type);
+        PacketSerializer::write_optional(stream, &self.unknown_float, |s, v| s.put_f32_le(*v));
+        PacketSerializer::write_optional(stream, &self.unknown_vector3, |s, v| PacketSerializer::put_vector3(s, v.clone()));
+        PacketSerializer::put_string(stream, self.biome_identifier.clone());
+        PacketSerializer::write_optional(stream, &self.player_identifier, |s, v| PacketSerializer::put_string(s, v.clone()));
+        stream.put_u8(self.parameter_type);
         stream.put_bool(self.reset);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> GraphicsOverrideParameter {
+    fn decode(stream: &mut Reader) -> GraphicsOverrideParameter {
         let count = stream.get_var_u32() as usize;
         let mut values = Vec::with_capacity(count);
         for _ in 0..count {
@@ -52,7 +43,7 @@ impl Packet for GraphicsOverrideParameter {
         let unknown_vector3 = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
         let biome_identifier = PacketSerializer::get_string(stream);
         let player_identifier = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
-        let parameter_type = stream.get_byte();
+        let parameter_type = stream.get_u8();
         let reset = stream.get_bool();
 
         GraphicsOverrideParameter { values, unknown_float, unknown_vector3, biome_identifier, player_identifier, parameter_type, reset }

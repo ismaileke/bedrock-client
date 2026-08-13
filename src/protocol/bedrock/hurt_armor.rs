@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct HurtArmor {
@@ -11,25 +11,16 @@ pub struct HurtArmor {
 
 impl Packet for HurtArmor {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDHurtArmor.get_byte()
+        BedrockPacketType::IDHurtArmor.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_i32(self.cause);
         stream.put_var_i32(self.health);
         stream.put_var_u64(self.armor_slot_flags);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> HurtArmor {
+    fn decode(stream: &mut Reader) -> HurtArmor {
         let cause = stream.get_var_i32();
         let health = stream.get_var_i32();
         let armor_slot_flags = stream.get_var_u64();

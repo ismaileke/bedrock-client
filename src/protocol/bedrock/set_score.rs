@@ -2,7 +2,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::score_entry::ScoreEntry;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetScore {
@@ -12,31 +12,28 @@ pub struct SetScore {
 
 impl Packet for SetScore {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDSetScore.get_byte()
+        BedrockPacketType::IDSetScore.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        stream.put_byte(self.action_type);
+    fn encode(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.action_type);
         stream.put_var_u32(self.entries.len() as u32);
         for entry in &self.entries {
             stream.put_var_i64(entry.scoreboard_id);
-            PacketSerializer::put_string(&mut stream, entry.objective_name.clone());
+            PacketSerializer::put_string(stream, entry.objective_name.clone());
             stream.put_i32_le(entry.score);
             if self.action_type != Self::TYPE_REMOVE {
-                stream.put_byte(entry.entity_type);
+                stream.put_u8(entry.entity_type);
                 match entry.entity_type {
                     ScoreEntry::TYPE_PLAYER | ScoreEntry::TYPE_ENTITY => {
                         PacketSerializer::put_actor_unique_id(
-                            &mut stream,
+                            stream,
                             entry.actor_unique_id.unwrap(),
                         );
                     }
                     ScoreEntry::TYPE_FAKE_PLAYER => {
                         PacketSerializer::put_string(
-                            &mut stream,
+                            stream,
                             entry.custom_name.clone().unwrap(),
                         );
                     }
@@ -46,16 +43,10 @@ impl Packet for SetScore {
                 }
             }
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> SetScore {
-        let action_type = stream.get_byte();
+    fn decode(stream: &mut Reader) -> SetScore {
+        let action_type = stream.get_u8();
         let count = stream.get_var_u32();
         let mut entries: Vec<ScoreEntry> = Vec::new();
         for _ in 0..count {
@@ -66,7 +57,7 @@ impl Packet for SetScore {
             let mut actor_unique_id = None;
             let mut custom_name = None;
             if action_type != Self::TYPE_REMOVE {
-                entity_type = stream.get_byte();
+                entity_type = stream.get_u8();
                 match entity_type {
                     ScoreEntry::TYPE_PLAYER | ScoreEntry::TYPE_ENTITY => {
                         actor_unique_id = Some(PacketSerializer::get_actor_unique_id(stream));

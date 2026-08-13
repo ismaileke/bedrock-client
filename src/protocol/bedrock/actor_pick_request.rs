@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ActorPickRequest {
@@ -12,33 +12,20 @@ pub struct ActorPickRequest {
 
 impl Packet for ActorPickRequest {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDActorPickRequest.get_byte()
+        BedrockPacketType::IDActorPickRequest.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_actor_unique_id(&mut stream, self.actor_unique_id);
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
         stream.put_bool(self.add_user_data);
-        stream.put_byte(self.hotbar_slot);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        stream.put_u8(self.hotbar_slot);
     }
 
-    fn decode(stream: &mut Stream) -> ActorPickRequest {
+    fn decode(stream: &mut Reader) -> ActorPickRequest {
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let add_user_data = stream.get_bool();
-        let hotbar_slot = stream.get_byte();
+        let hotbar_slot = stream.get_u8();
 
-        ActorPickRequest {
-            actor_unique_id,
-            add_user_data,
-            hotbar_slot,
-        }
+        ActorPickRequest { actor_unique_id, add_user_data, hotbar_slot }
     }
 }

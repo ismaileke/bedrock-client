@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::sync_world_clock_marker_data::SyncWorldClockMarkerData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SyncWorldClockData {
@@ -16,7 +16,7 @@ impl SyncWorldClockData {
         SyncWorldClockData { id, name, time, paused, markers }
     }
 
-    pub fn read(stream: &mut Stream) -> SyncWorldClockData {
+    pub fn read(stream: &mut Reader) -> SyncWorldClockData {
         let id = stream.get_var_u64();
         let name = PacketSerializer::get_string(stream);
         let time = stream.get_var_i32();
@@ -30,7 +30,7 @@ impl SyncWorldClockData {
         SyncWorldClockData { id, name, time, paused, markers }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u64(self.id);
         PacketSerializer::put_string(stream, self.name.clone());
         stream.put_var_i32(self.time);

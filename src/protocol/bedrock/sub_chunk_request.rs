@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::types::sub_chunk_position_offset::SubChunkPositionOffset;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::types::sub_chunk_position::SubChunkPosition;
 
 #[derive(serde::Serialize, Debug)]
@@ -13,28 +13,19 @@ pub struct SubChunkRequest {
 
 impl Packet for SubChunkRequest {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDSubChunkRequest.get_byte()
+        BedrockPacketType::IDSubChunkRequest.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_i32(self.dimension);
         stream.put_var_u32(self.entries.len() as u32);
         for entry in &self.entries {
-            entry.write(&mut stream);
+            entry.write(stream);
         }
-        self.base_position.write_fixed_ints(&mut stream);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        self.base_position.write_fixed_ints(stream);
     }
 
-    fn decode(stream: &mut Stream) -> SubChunkRequest {
+    fn decode(stream: &mut Reader) -> SubChunkRequest {
         let dimension = stream.get_var_i32();
         let len = stream.get_var_u32() as usize;
         let mut entries = vec![];

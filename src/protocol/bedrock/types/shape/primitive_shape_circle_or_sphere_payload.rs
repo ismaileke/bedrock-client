@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PrimitiveShapeCircleOrSpherePayload {
@@ -10,12 +10,12 @@ impl PrimitiveShapeCircleOrSpherePayload {
         PrimitiveShapeCircleOrSpherePayload { segments }
     }
 
-    pub fn read(stream: &mut Stream) -> PrimitiveShapeCircleOrSpherePayload {
-        let segments = stream.get_byte();
+    pub fn read(stream: &mut Reader) -> PrimitiveShapeCircleOrSpherePayload {
+        let segments = stream.get_u8();
         PrimitiveShapeCircleOrSpherePayload { segments }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
-        stream.put_byte(self.segments);
+    pub fn write(&self, stream: &mut Writer) {
+        stream.put_u8(self.segments);
     }
 }

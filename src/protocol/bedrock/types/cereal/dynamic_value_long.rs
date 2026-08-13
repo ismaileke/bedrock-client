@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct DynamicValueLong {
@@ -11,13 +11,13 @@ impl DynamicValueLong {
         DynamicValueLong { value }
     }
 
-    pub fn read(stream: &mut Stream) -> DynamicValueLong {
+    pub fn read(stream: &mut Reader) -> DynamicValueLong {
         let value = stream.get_i64_le();
 
         DynamicValueLong { value }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_i64_le(self.value);
     }
 }

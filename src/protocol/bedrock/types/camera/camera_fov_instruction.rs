@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(serde::Serialize, Debug)]
@@ -14,7 +14,7 @@ impl CameraFovInstruction {
         CameraFovInstruction { field_of_view, ease_time, ease_type, clear }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraFovInstruction {
+    pub fn read(stream: &mut Reader) -> CameraFovInstruction {
         let field_of_view = stream.get_f32_le();
         let ease_time = stream.get_f32_le();
         let ease_type = PacketSerializer::get_string(stream);
@@ -23,7 +23,7 @@ impl CameraFovInstruction {
         CameraFovInstruction { field_of_view, ease_time, ease_type, clear }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.field_of_view);
         stream.put_f32_le(self.ease_time);
         PacketSerializer::put_string(stream, self.ease_type.clone());

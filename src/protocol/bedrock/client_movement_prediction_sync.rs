@@ -3,7 +3,7 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::bit_set::BitSet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::entity_metadata_flags::EntityMetadataFlags;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientMovementPredictionSync {
@@ -30,14 +30,11 @@ impl ClientMovementPredictionSync {
 
 impl Packet for ClientMovementPredictionSync {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDClientMovementPredictionSync.get_byte()
+        BedrockPacketType::IDClientMovementPredictionSync.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        self.flags.write(&mut stream);
+    fn encode(&mut self, stream: &mut Writer) {
+        self.flags.write(stream);
         stream.put_f32_le(self.scale);
         stream.put_f32_le(self.width);
         stream.put_f32_le(self.height);
@@ -50,17 +47,11 @@ impl Packet for ClientMovementPredictionSync {
         stream.put_f32_le(self.friction_modifier);
         stream.put_f32_le(self.bounciness);
         stream.put_f32_le(self.air_drag_modifier);
-        PacketSerializer::put_actor_unique_id(&mut stream, self.actor_unique_id);
+        PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
         stream.put_bool(self.actor_flying_state);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> ClientMovementPredictionSync {
+    fn decode(stream: &mut Reader) -> ClientMovementPredictionSync {
         let flags = BitSet::read(stream, Self::FLAG_LENGTH as usize);
         let scale = stream.get_f32_le();
         let width = stream.get_f32_le();

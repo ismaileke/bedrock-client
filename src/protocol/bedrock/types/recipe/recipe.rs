@@ -3,7 +3,7 @@ use crate::protocol::bedrock::types::recipe::shaped_recipe::ShapedRecipe;
 use crate::protocol::bedrock::types::recipe::shapeless_recipe::ShapelessRecipe;
 use crate::protocol::bedrock::types::recipe::smithing_transform_recipe::SmithingTransformRecipe;
 use crate::protocol::bedrock::types::recipe::smithing_trim_recipe::SmithingTrimRecipe;
-use binary_utils::binary::Stream;
+use binary_utils::binary::Writer;
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -26,7 +26,7 @@ impl Recipe {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         match self {
             Recipe::Shaped(r) => r.write(stream),
             Recipe::Shapeless(r) => r.write(stream),

@@ -3,7 +3,7 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::education_settings_agent_capabilities::EducationSettingsAgentCapabilities;
 use crate::protocol::bedrock::types::education_settings_external_link_settings::EducationSettingsExternalLinkSettings;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct EducationSettings {
@@ -21,34 +21,25 @@ pub struct EducationSettings {
 
 impl Packet for EducationSettings {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDEducationSettings.get_byte()
+        BedrockPacketType::IDEducationSettings.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_string(&mut stream, self.code_builder_default_uri.clone());
-        PacketSerializer::put_string(&mut stream, self.code_builder_title.clone());
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_string(stream, self.code_builder_default_uri.clone());
+        PacketSerializer::put_string(stream, self.code_builder_title.clone());
         stream.put_bool(self.can_resize_code_builder);
         stream.put_bool(self.disable_legacy_title_bar);
-        PacketSerializer::put_string(&mut stream, self.post_process_filter.clone());
-        PacketSerializer::put_string(&mut stream, self.screenshot_border_resource_path.clone());
-        PacketSerializer::write_optional(&mut stream, &self.agent_capabilities, |s, v| v.write(s));
-        PacketSerializer::write_optional(&mut stream, &self.code_builder_override_uri, |s, v| {
+        PacketSerializer::put_string(stream, self.post_process_filter.clone());
+        PacketSerializer::put_string(stream, self.screenshot_border_resource_path.clone());
+        PacketSerializer::write_optional(stream, &self.agent_capabilities, |s, v| v.write(s));
+        PacketSerializer::write_optional(stream, &self.code_builder_override_uri, |s, v| {
             PacketSerializer::put_string(s, v.clone())
         });
         stream.put_bool(self.has_quiz);
-        PacketSerializer::write_optional(&mut stream, &self.link_settings, |s, v| v.write(s));
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        PacketSerializer::write_optional(stream, &self.link_settings, |s, v| v.write(s));
     }
 
-    fn decode(stream: &mut Stream) -> EducationSettings {
+    fn decode(stream: &mut Reader) -> EducationSettings {
         let code_builder_default_uri = PacketSerializer::get_string(stream);
         let code_builder_title = PacketSerializer::get_string(stream);
         let can_resize_code_builder = stream.get_bool();

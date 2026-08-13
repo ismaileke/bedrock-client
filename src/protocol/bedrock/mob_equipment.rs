@@ -2,7 +2,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct MobEquipment {
@@ -15,32 +15,23 @@ pub struct MobEquipment {
 
 impl Packet for MobEquipment {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDMobEquipment.get_byte()
+        BedrockPacketType::IDMobEquipment.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
-        PacketSerializer::put_network_item_stack_descriptor(&mut stream, self.item.clone());
-        stream.put_byte(self.inventory_slot);
-        stream.put_byte(self.hotbar_slot);
-        stream.put_byte(self.window_id);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
+        PacketSerializer::put_network_item_stack_descriptor(stream, self.item.clone());
+        stream.put_u8(self.inventory_slot);
+        stream.put_u8(self.hotbar_slot);
+        stream.put_u8(self.window_id);
     }
 
-    fn decode(stream: &mut Stream) -> MobEquipment {
+    fn decode(stream: &mut Reader) -> MobEquipment {
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let item = PacketSerializer::get_network_item_stack_descriptor(stream);
-        let inventory_slot = stream.get_byte();
-        let hotbar_slot = stream.get_byte();
-        let window_id = stream.get_byte();
+        let inventory_slot = stream.get_u8();
+        let hotbar_slot = stream.get_u8();
+        let window_id = stream.get_u8();
 
         MobEquipment { actor_runtime_id, item, inventory_slot, hotbar_slot, window_id }
     }

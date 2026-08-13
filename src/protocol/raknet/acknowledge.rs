@@ -1,7 +1,7 @@
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::raknet::packet_ids::PacketType;
 use crate::utils::color_format;
 use crate::utils::color_format::COLOR_WHITE;
-use binary_utils::binary::Stream;
 
 pub struct Acknowledge {
     pub packet_type: PacketType,
@@ -41,9 +41,9 @@ impl Acknowledge {
         }
     }
 
-    pub fn encode(&self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_byte(PacketType::get_byte(self.packet_type));
+    pub fn encode(&self, stream: &mut Writer) {
+        stream.clear();
+        stream.put_u8(PacketType::get_u8(self.packet_type));
         stream.put_u16_be(self.record_count);
         stream.put_bool(self.single_sequence_number);
         if self.single_sequence_number {
@@ -52,13 +52,12 @@ impl Acknowledge {
             stream.put_u24_le(self.start_sequence_number.unwrap());
             stream.put_u24_le(self.end_sequence_number.unwrap());
         }
-        Vec::from(stream.get_buffer())
     }
 
-    pub fn decode(bytes: Vec<u8>) -> Acknowledge {
-        let mut stream = Stream::new(bytes, 0);
+    pub fn decode(bytes: &[u8]) -> Acknowledge {
+        let mut stream = Reader::new(bytes);
 
-        let packet_id = stream.get_byte();
+        let packet_id = stream.get_u8();
         let packet_type = PacketType::from_byte(packet_id);
         let record_count = stream.get_u16_be();
         let single_sequence_number = stream.get_bool();

@@ -1,7 +1,6 @@
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::raknet::packet_ids::PacketType;
 use crate::utils::address::InternetAddress;
-use binary_utils::binary::Stream;
-use crate::utils::address;
 
 pub struct OpenConnReq2 {
     pub magic: [u8; 16],
@@ -28,38 +27,35 @@ impl OpenConnReq2 {
         OpenConnReq2 { magic, server_address, cookie, client_supports_security, mtu, client_guid }
     }
 
-    pub fn encode(&self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-
-        stream.put_byte(PacketType::get_byte(PacketType::OpenConnReq2));
-        stream.put(Vec::from(self.magic));
+    pub fn encode(&self, stream: &mut Writer) {
+        stream.clear();
+        stream.put_u8(PacketType::get_u8(PacketType::OpenConnReq2));
+        stream.put(&self.magic);
         if let Some(cookie) = self.cookie {
             stream.put_u32_be(cookie);
             stream.put_bool(self.client_supports_security);
         }
-        stream.put(self.server_address.put_address());
+        self.server_address.put_address(stream);
         stream.put_u16_be(self.mtu);
         stream.put_u64_be(self.client_guid);
-
-        Vec::from(stream.get_buffer())
     }
 
-    pub fn decode(bytes: Vec<u8>) -> OpenConnReq2 {
-        let mut stream = Stream::new(bytes, 0);
+    pub fn decode(bytes: &[u8]) -> OpenConnReq2 {
+        let mut stream = Reader::new(bytes);
 
-        let _ = stream.get_byte();
-        let magic: [u8; 16] = stream.get(16).try_into().expect("Invalid length for magic");
+        let _ = stream.get_u8();
+        let magic = stream.get(16).try_into().unwrap();
 
         let mut cookie: Option<u32> = None;
         let mut client_supports_security = false;
 
-        let remaining_len = stream.get_remaining().len() as u32;
+        let remaining_len = stream.remaining_byte_count() as u32;
         if remaining_len != OpenConnReq2::TAIL_FIELDS_SIZE_IPV4 && remaining_len != OpenConnReq2::TAIL_FIELDS_SIZE_IPV6 {
             cookie = Option::from(stream.get_u32_be());
             client_supports_security = stream.get_bool();
         }
-        let (server_address, offset) = address::get_address(stream.get_remaining().to_vec()).expect("Invalid address");
-        stream.set_offset(stream.get_offset() + offset);
+        let (server_address, offset) = InternetAddress::get_address(stream.remaining()).expect("Invalid address");
+        stream.set_offset(stream.offset() + offset);
         let mtu = stream.get_u16_be();
         let client_guid = stream.get_u64_be();
 

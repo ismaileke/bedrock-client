@@ -10,7 +10,7 @@ use crate::protocol::bedrock::types::recipe::shaped_recipe::ShapedRecipe;
 use crate::protocol::bedrock::types::recipe::shapeless_recipe::ShapelessRecipe;
 use crate::protocol::bedrock::types::recipe::smithing_transform_recipe::SmithingTransformRecipe;
 use crate::protocol::bedrock::types::recipe::smithing_trim_recipe::SmithingTrimRecipe;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CraftingData {
@@ -23,17 +23,14 @@ pub struct CraftingData {
 
 impl Packet for CraftingData {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDCraftingData.get_byte()
+        BedrockPacketType::IDCraftingData.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.recipes.len() as u32);
         for recipe in self.recipes.iter_mut() {
             stream.put_var_i32(recipe.get_selected_type_id());
-            recipe.write(&mut stream);
+            recipe.write(stream);
         }
         stream.put_var_u32(self.potion_type_recipes.len() as u32);
         for potion_type_recipe in &self.potion_type_recipes {
@@ -60,15 +57,9 @@ impl Packet for CraftingData {
             }
         }
         stream.put_bool(self.clean_recipes);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> CraftingData {
+    fn decode(stream: &mut Reader) -> CraftingData {
         let recipe_count = stream.get_var_u32();
         let mut previous_type = 100; // 100 = none (I made it up) FIX THAT LATER
         let mut recipes = Vec::new();

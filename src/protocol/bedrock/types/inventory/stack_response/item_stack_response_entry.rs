@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::stack_response::item_stack_response_container_info::ItemStackResponseContainerInfo;
 
@@ -29,8 +29,8 @@ impl ItemStackResponseEntry {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> ItemStackResponseEntry {
-        let result = stream.get_byte();
+    pub fn read(stream: &mut Reader) -> ItemStackResponseEntry {
+        let result = stream.get_u8();
         let request_id = PacketSerializer::read_item_stack_request_id(stream);
         let mut container_infos = Vec::new();
         if result == Self::RESULT_OK {
@@ -47,8 +47,8 @@ impl ItemStackResponseEntry {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
-        stream.put_byte(self.result);
+    pub fn write(&self, stream: &mut Writer) {
+        stream.put_u8(self.result);
         PacketSerializer::write_item_stack_request_id(stream, self.request_id);
         if self.result == Self::RESULT_OK {
             stream.put_var_u32(self.container_infos.len() as u32);

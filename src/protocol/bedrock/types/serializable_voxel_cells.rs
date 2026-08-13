@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SerializableVoxelCells {
@@ -9,26 +9,26 @@ pub struct SerializableVoxelCells {
 }
 
 impl SerializableVoxelCells {
-    pub fn read(stream: &mut Stream) -> SerializableVoxelCells {
-        let x_size = stream.get_byte();
-        let y_size = stream.get_byte();
-        let z_size = stream.get_byte();
+    pub fn read(stream: &mut Reader) -> SerializableVoxelCells {
+        let x_size = stream.get_u8();
+        let y_size = stream.get_u8();
+        let z_size = stream.get_u8();
         let mut storage = Vec::new();
         let storage_count = stream.get_var_u32();
         for _ in 0..storage_count {
-            storage.push(stream.get_byte());
+            storage.push(stream.get_u8());
         }
 
         SerializableVoxelCells { x_size, y_size, z_size, storage }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
-        stream.put_byte(self.x_size);
-        stream.put_byte(self.y_size);
-        stream.put_byte(self.z_size);
+    pub fn write(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.x_size);
+        stream.put_u8(self.y_size);
+        stream.put_u8(self.z_size);
         stream.put_var_u32(self.storage.len() as u32);
         for storage in &self.storage {
-            stream.put_byte(*storage);
+            stream.put_u8(*storage);
         }
     }
 }

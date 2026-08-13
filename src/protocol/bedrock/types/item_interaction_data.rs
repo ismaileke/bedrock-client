@@ -3,7 +3,7 @@ use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::types::inventory::transaction_data::TransactionData;
 use crate::protocol::bedrock::types::inventory::use_item_transaction_data::UseItemTransactionData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemInteractionData {
@@ -21,7 +21,7 @@ impl ItemInteractionData {
         ItemInteractionData { request_id, request_changed_slots, tr_data }
     }
 
-    pub fn read(stream: &mut Stream) -> ItemInteractionData {
+    pub fn read(stream: &mut Reader) -> ItemInteractionData {
         let request_id = stream.get_var_i32();
         let mut request_changed_slots = Vec::new();
         if request_id != 0 {
@@ -49,7 +49,7 @@ impl ItemInteractionData {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_i32(self.request_id);
         if self.request_id != 0 {
             stream.put_var_u32(self.request_changed_slots.len() as u32);

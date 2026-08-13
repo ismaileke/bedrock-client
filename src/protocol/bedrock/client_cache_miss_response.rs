@@ -2,7 +2,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::chunk_cache_blob::ChunkCacheBlob;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientCacheMissResponse {
@@ -11,27 +11,18 @@ pub struct ClientCacheMissResponse {
 
 impl Packet for ClientCacheMissResponse {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDClientCacheMissResponse.get_byte()
+        BedrockPacketType::IDClientCacheMissResponse.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.blobs.len() as u32);
         for blob in self.blobs.iter() {
             stream.put_u64_le(blob.get_hash());
-            PacketSerializer::put_string(&mut stream, blob.get_payload());
+            PacketSerializer::put_string(stream, blob.get_payload());
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> ClientCacheMissResponse {
+    fn decode(stream: &mut Reader) -> ClientCacheMissResponse {
         let blobs_count = stream.get_var_u32() as usize;
         let mut blobs = Vec::new();
         for _ in 0..blobs_count {

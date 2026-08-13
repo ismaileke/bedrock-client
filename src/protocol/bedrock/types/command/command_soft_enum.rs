@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CommandSoftEnum {
@@ -12,7 +12,7 @@ impl CommandSoftEnum {
         CommandSoftEnum { name, values }
     }
 
-    pub fn read(stream: &mut Stream) -> CommandSoftEnum {
+    pub fn read(stream: &mut Reader) -> CommandSoftEnum {
         let name = PacketSerializer::get_string(stream);
         let size = stream.get_var_u32();
         let mut values = Vec::with_capacity(size as usize);
@@ -23,7 +23,7 @@ impl CommandSoftEnum {
         CommandSoftEnum { name, values }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.name.clone());
         stream.put_var_u32(self.values.len() as u32);
         for value_index in &self.values {

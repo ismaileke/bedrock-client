@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SyncWorldClockStateData {
@@ -12,7 +12,7 @@ impl SyncWorldClockStateData {
         SyncWorldClockStateData { clock_id, time, paused }
     }
 
-    pub fn read(stream: &mut Stream) -> SyncWorldClockStateData {
+    pub fn read(stream: &mut Reader) -> SyncWorldClockStateData {
         let clock_id = stream.get_var_u64();
         let time = stream.get_var_i32();
         let paused = stream.get_bool();
@@ -20,7 +20,7 @@ impl SyncWorldClockStateData {
         SyncWorldClockStateData { clock_id, time, paused }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u64(self.clock_id);
         stream.put_i32_le(self.time);
         stream.put_bool(self.paused);

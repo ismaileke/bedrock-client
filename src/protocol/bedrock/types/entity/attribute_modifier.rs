@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct AttributeModifier {
@@ -30,7 +30,7 @@ pub fn new(
 }
 
 impl AttributeModifier {
-    pub fn read(stream: &mut Stream) -> AttributeModifier {
+    pub fn read(stream: &mut Reader) -> AttributeModifier {
         let id = PacketSerializer::get_string(stream);
         let name = PacketSerializer::get_string(stream);
         let amount = stream.get_f32_le();
@@ -48,7 +48,7 @@ impl AttributeModifier {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.id.clone());
         PacketSerializer::put_string(stream, self.name.clone());
         stream.put_f32_le(self.amount);

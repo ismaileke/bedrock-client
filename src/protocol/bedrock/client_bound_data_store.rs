@@ -5,7 +5,7 @@ use crate::protocol::bedrock::types::ddui::data_store_removal::DataStoreRemoval;
 use crate::protocol::bedrock::types::ddui::data_store_update::DataStoreUpdate;
 use crate::protocol::bedrock::types::ddui::data_store_operation::DataStoreOperation;
 use crate::protocol::bedrock::types::ddui::data_store_types::DataStoreOperationTypes;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientBoundDataStore {
@@ -14,27 +14,18 @@ pub struct ClientBoundDataStore {
 
 impl Packet for ClientBoundDataStore {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDClientBoundDataStore.get_byte()
+        BedrockPacketType::IDClientBoundDataStore.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.values.len() as u32);
         for value in self.values.iter_mut() {
             stream.put_var_u32(value.get_type_id());
-            value.write(&mut stream);
+            value.write(stream);
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> ClientBoundDataStore {
+    fn decode(stream: &mut Reader) -> ClientBoundDataStore {
         let mut values = Vec::new();
         let length = stream.get_var_u32();
         for _ in 0..length {

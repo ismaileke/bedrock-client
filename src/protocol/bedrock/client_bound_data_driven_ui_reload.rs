@@ -1,29 +1,20 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientBoundDataDrivenUIReload {}
 
 impl Packet for ClientBoundDataDrivenUIReload {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDClientBoundDataDrivenUIReload.get_byte()
+        BedrockPacketType::IDClientBoundDataDrivenUIReload.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, _stream: &mut Writer) {
         // NO PAYLOAD
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(_stream: &mut Stream) -> ClientBoundDataDrivenUIReload {
+    fn decode(_stream: &mut Reader) -> ClientBoundDataDrivenUIReload {
         // NO PAYLOAD
 
         ClientBoundDataDrivenUIReload {}

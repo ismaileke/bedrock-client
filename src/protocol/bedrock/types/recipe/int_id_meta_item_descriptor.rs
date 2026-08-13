@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct IntIdMetaItemDescriptor {
@@ -11,7 +11,7 @@ impl IntIdMetaItemDescriptor {
         IntIdMetaItemDescriptor { id, meta }
     }
 
-    pub fn read(stream: &mut Stream) -> IntIdMetaItemDescriptor {
+    pub fn read(stream: &mut Reader) -> IntIdMetaItemDescriptor {
         let id = stream.get_i16_le();
         let mut meta = 0;
         if id != 0 {
@@ -21,7 +21,7 @@ impl IntIdMetaItemDescriptor {
         IntIdMetaItemDescriptor { id, meta }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         stream.put_i16_le(self.id);
         if self.id != 0 {
             stream.put_i16_le(self.meta);

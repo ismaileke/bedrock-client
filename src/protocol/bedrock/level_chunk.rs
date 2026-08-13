@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct LevelChunk {
@@ -25,13 +25,10 @@ impl LevelChunk {
 
 impl Packet for LevelChunk {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDLevelChunk.get_byte()
+        BedrockPacketType::IDLevelChunk.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, _stream: &mut Writer) {
         /*stream.put_var_i32(self.chunk_x);
         stream.put_var_i32(self.chunk_z);
         stream.put_var_i32(self.dimension_id);
@@ -52,19 +49,13 @@ impl Packet for LevelChunk {
             for blob in self.used_blob_hashes.clone().unwrap() {
                 stream.put_u64_le(blob);
             }
-        }*/
+        }
 
         stream.put_var_u32(self.extra_payload.len() as u32);
-        stream.put(self.extra_payload.clone());
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        stream.put(&self.extra_payload);*/
     }
 
-    fn decode(stream: &mut Stream) -> LevelChunk {
+    fn decode(stream: &mut Reader) -> LevelChunk {
         let chunk_x = stream.get_var_i32();
         let chunk_z = stream.get_var_i32();
         let dimension_id = stream.get_var_i32();
@@ -95,7 +86,7 @@ impl Packet for LevelChunk {
         }
 
         let length = stream.get_var_u32();
-        let extra_payload = stream.get(length);
+        let extra_payload = stream.get(length as usize).to_vec();
 
         /*let sub_chunk_count: u32;
         let client_sub_chunk_requests_enabled: bool;
@@ -118,7 +109,7 @@ impl Packet for LevelChunk {
         if cache_enabled {
             let count = stream.get_var_u32();
             if count > LevelChunk::MAX_BLOB_HASHES {
-                eprintln!("Expected at most {} blob hashes, got {}", LevelChunk::MAX_BLOB_HASHES, count);
+                panic!("Expected at most {} blob hashes, got {}", LevelChunk::MAX_BLOB_HASHES, count);
             } else {
                 let mut blob_hashes = vec![];
                 for _ in 0..count {

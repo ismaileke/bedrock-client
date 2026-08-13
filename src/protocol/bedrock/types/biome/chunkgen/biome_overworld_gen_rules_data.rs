@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::types::biome::chunkgen::biome_conditional_transformation_data::BiomeConditionalTransformationData;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_weighted_data::BiomeWeightedData;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_weighted_temperature_data::BiomeWeightedTemperatureData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeOverworldGenRulesData {
@@ -35,7 +35,7 @@ impl BiomeOverworldGenRulesData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeOverworldGenRulesData {
+    pub fn read(stream: &mut Reader) -> BiomeOverworldGenRulesData {
         let mut hill_transformations = Vec::new();
         let mut count = stream.get_var_u32();
         for _ in 0..count {
@@ -83,7 +83,7 @@ impl BiomeOverworldGenRulesData {
         )
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.hill_transformations.len() as u32);
         for hill_transformation in &self.hill_transformations {
             hill_transformation.write(stream);

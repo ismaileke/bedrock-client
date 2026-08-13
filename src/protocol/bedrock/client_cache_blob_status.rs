@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientCacheBlobStatus {
@@ -10,13 +10,10 @@ pub struct ClientCacheBlobStatus {
 
 impl Packet for ClientCacheBlobStatus {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDClientCacheBlobStatus.get_byte()
+        BedrockPacketType::IDClientCacheBlobStatus.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.miss_hashes.len() as u32);
         for hash in self.miss_hashes.iter() {
             stream.put_u64_le(*hash);
@@ -25,15 +22,9 @@ impl Packet for ClientCacheBlobStatus {
         for hash in self.hit_hashes.iter() {
             stream.put_u64_le(*hash);
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> ClientCacheBlobStatus {
+    fn decode(stream: &mut Reader) -> ClientCacheBlobStatus {
         let miss_len = stream.get_var_u32() as usize;
         let mut miss_hashes = Vec::new();
         for _ in 0..miss_len {

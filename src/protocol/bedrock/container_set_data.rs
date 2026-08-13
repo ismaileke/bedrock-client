@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ContainerSetData {
@@ -11,26 +11,17 @@ pub struct ContainerSetData {
 
 impl Packet for ContainerSetData {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDContainerSetData.get_byte()
+        BedrockPacketType::IDContainerSetData.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        stream.put_byte(self.window_id);
+    fn encode(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.window_id);
         stream.put_var_i32(self.property);
         stream.put_var_i32(self.value);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> ContainerSetData {
-        let window_id = stream.get_byte();
+    fn decode(stream: &mut Reader) -> ContainerSetData {
+        let window_id = stream.get_u8();
         let property = stream.get_var_i32();
         let value = stream.get_var_i32();
 

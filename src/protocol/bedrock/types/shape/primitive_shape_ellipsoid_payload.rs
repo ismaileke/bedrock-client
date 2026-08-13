@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PrimitiveShapeEllipsoidPayload {
@@ -12,14 +12,14 @@ impl PrimitiveShapeEllipsoidPayload {
         PrimitiveShapeEllipsoidPayload { radii, segments_per_axis }
     }
 
-    pub fn read(stream: &mut Stream) -> PrimitiveShapeEllipsoidPayload {
+    pub fn read(stream: &mut Reader) -> PrimitiveShapeEllipsoidPayload {
         let radii = PacketSerializer::get_vector3(stream);
-        let segments_per_axis = stream.get_byte();
+        let segments_per_axis = stream.get_u8();
         PrimitiveShapeEllipsoidPayload { radii, segments_per_axis }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_vector3(stream, self.radii.clone());
-        stream.put_byte(self.segments_per_axis);
+        stream.put_u8(self.segments_per_axis);
     }
 }

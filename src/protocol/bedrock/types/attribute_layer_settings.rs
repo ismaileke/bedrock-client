@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::types::attribute_layer_settings_weight::AttributeLayerSettingsWeight;
 use crate::protocol::bedrock::types::attribute_layer_settings_weight_float::AttributeLayerSettingsWeightFloat;
 use crate::protocol::bedrock::types::attribute_layer_settings_weight_string::AttributeLayerSettingsWeightString;
@@ -16,7 +16,7 @@ impl AttributeLayerSettings {
         AttributeLayerSettings { priority, weight, enabled, transitions_paused }
     }
 
-    pub fn read(stream: &mut Stream) -> AttributeLayerSettings {
+    pub fn read(stream: &mut Reader) -> AttributeLayerSettings {
         let priority = stream.get_i32_le();
         let attribute_layer_settings_weight_type = stream.get_var_u32();
         let weight = match attribute_layer_settings_weight_type {
@@ -30,7 +30,7 @@ impl AttributeLayerSettings {
         AttributeLayerSettings { priority, weight, enabled, transitions_paused }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_i32_le(self.priority);
         stream.put_var_u32(self.weight.id());
         self.weight.write(stream);

@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct DataStoreUpdateValueBool {
@@ -10,13 +10,13 @@ impl DataStoreUpdateValueBool {
         DataStoreUpdateValueBool { value }
     }
 
-    pub fn read(stream: &mut Stream) -> DataStoreUpdateValueBool {
+    pub fn read(stream: &mut Reader) -> DataStoreUpdateValueBool {
         let value = stream.get_bool();
 
         DataStoreUpdateValueBool { value }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         stream.put_bool(self.value);
     }
 }

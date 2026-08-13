@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraAimAssistActorPriorityData {
@@ -13,7 +13,7 @@ impl CameraAimAssistActorPriorityData {
         CameraAimAssistActorPriorityData { preset_index, category_index, actor_index, priority }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraAimAssistActorPriorityData {
+    pub fn read(stream: &mut Reader) -> CameraAimAssistActorPriorityData {
         let preset_index = stream.get_i32_le();
         let category_index = stream.get_i32_le();
         let actor_index = stream.get_i32_le();
@@ -22,7 +22,7 @@ impl CameraAimAssistActorPriorityData {
         CameraAimAssistActorPriorityData { preset_index, category_index, actor_index, priority }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_i32_le(self.preset_index);
         stream.put_i32_le(self.category_index);
         stream.put_i32_le(self.actor_index);

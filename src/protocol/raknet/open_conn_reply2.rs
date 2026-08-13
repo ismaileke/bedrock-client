@@ -1,8 +1,8 @@
+use crate::protocol::raknet::packet_ids::PacketType;
 use crate::utils::address::InternetAddress;
 use crate::utils::color_format::COLOR_WHITE;
-use crate::utils::{address, color_format};
-use crate::protocol::raknet::packet_ids::PacketType;
-use binary_utils::binary::Stream;
+use crate::utils::color_format;
+use binary_utils::binary::{Reader, Writer};
 
 pub struct OpenConnReply2 {
     pub magic: [u8; 16],
@@ -13,27 +13,24 @@ pub struct OpenConnReply2 {
 }
 
 impl OpenConnReply2 {
-    pub fn encode(&self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-
-        stream.put_byte(PacketType::get_byte(PacketType::OpenConnReply2));
-        stream.put(Vec::from(self.magic));
+    pub fn encode(&self, stream: &mut Writer) {
+        stream.clear();
+        stream.put_u8(PacketType::get_u8(PacketType::OpenConnReply2));
+        stream.put(&self.magic);
         stream.put_u64_be(self.server_guid);
-        stream.put(self.client_address.put_address());
+        self.client_address.put_address(stream);
         stream.put_u16_be(self.mtu);
         stream.put_bool(self.encryption_enabled);
-
-        Vec::from(stream.get_buffer())
     }
 
-    pub fn decode(bytes: Vec<u8>) -> OpenConnReply2 {
-        let mut stream = Stream::new(bytes, 0);
+    pub fn decode(bytes: &[u8]) -> OpenConnReply2 {
+        let mut stream = Reader::new(bytes);
 
-        let _ = stream.get_byte();
-        let magic: [u8; 16] = stream.get(16).try_into().expect("Invalid length for magic");
+        let _ = stream.get_u8();
+        let magic = stream.get(16).try_into().unwrap();
         let server_guid = stream.get_u64_be();
-        let (client_address, offset) = address::get_address(stream.get_remaining()).unwrap();
-        stream.set_offset(stream.get_offset() + offset);
+        let (client_address, offset) = InternetAddress::get_address(stream.remaining()).unwrap();
+        stream.set_offset(stream.offset() + offset);
         let mtu = stream.get_u16_be();
         let encryption_enabled = stream.get_bool();
 

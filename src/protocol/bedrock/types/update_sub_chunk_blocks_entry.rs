@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::update_block::UpdateBlock;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct UpdateSubChunkBlocksEntry {
@@ -39,7 +39,7 @@ impl UpdateSubChunkBlocksEntry {
         )
     }
 
-    pub fn read(stream: &mut Stream) -> UpdateSubChunkBlocksEntry {
+    pub fn read(stream: &mut Reader) -> UpdateSubChunkBlocksEntry {
         let block_position = PacketSerializer::get_block_pos(stream);
         let block_runtime_id = stream.get_var_u32();
         let flags = stream.get_var_u32();
@@ -55,7 +55,7 @@ impl UpdateSubChunkBlocksEntry {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_block_pos(stream, self.block_position.clone());
         stream.put_var_u32(self.block_runtime_id);
         stream.put_var_u32(self.flags);

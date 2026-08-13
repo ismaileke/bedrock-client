@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::command::raw::command_overload_raw_data::CommandOverloadRawData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CommandRawData {
@@ -26,7 +26,7 @@ impl CommandRawData {
         CommandRawData { name, description, flags, permission, alias_enum_index, chained_sub_command_data_indexes, overloads }
     }
 
-    pub fn read(stream: &mut Stream) -> CommandRawData {
+    pub fn read(stream: &mut Reader) -> CommandRawData {
         let name = PacketSerializer::get_string(stream);
         let description = PacketSerializer::get_string(stream);
         let flags = stream.get_u16_le();
@@ -46,7 +46,7 @@ impl CommandRawData {
         CommandRawData { name, description, flags, permission, alias_enum_index, chained_sub_command_data_indexes, overloads }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.name.clone());
         PacketSerializer::put_string(stream, self.description.clone());
         stream.put_u16_le(self.flags);

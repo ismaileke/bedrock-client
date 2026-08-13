@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct Interact {
@@ -19,28 +19,19 @@ impl Interact {
 
 impl Packet for Interact {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDInteract.get_byte()
+        BedrockPacketType::IDInteract.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        stream.put_byte(self.action);
-        PacketSerializer::put_actor_runtime_id(&mut stream, self.target_actor_runtime_id);
-        PacketSerializer::write_optional(&mut stream, &self.position, |s, v| {
+    fn encode(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.action);
+        PacketSerializer::put_actor_runtime_id(stream, self.target_actor_runtime_id);
+        PacketSerializer::write_optional(stream, &self.position, |s, v| {
             PacketSerializer::put_vector3(s, v.clone())
         });
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> Interact {
-        let action = stream.get_byte();
+    fn decode(stream: &mut Reader) -> Interact {
+        let action = stream.get_u8();
         let target_actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let position = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
 

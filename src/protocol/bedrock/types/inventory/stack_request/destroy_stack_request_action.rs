@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct DestroyStackRequestAction {}
@@ -8,9 +8,9 @@ impl DestroyStackRequestAction {
         DestroyStackRequestAction {}
     }
 
-    pub fn read(_stream: &mut Stream) -> DestroyStackRequestAction {
+    pub fn read(_stream: &mut Reader) -> DestroyStackRequestAction {
         DestroyStackRequestAction {}
     }
 
-    pub fn write(&mut self, _stream: &mut Stream) {}
+    pub fn write(&mut self, _stream: &mut Writer) {}
 }

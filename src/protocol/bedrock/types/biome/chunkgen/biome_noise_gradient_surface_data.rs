@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_noise_block_specifier::BiomeNoiseBlockSpecifier;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeNoiseGradientSurfaceData {
@@ -22,7 +22,7 @@ impl BiomeNoiseGradientSurfaceData {
         BiomeNoiseGradientSurfaceData { non_replaceable_blocks, gradient_blocks, noise_seed, first_octave, amplitudes }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeNoiseGradientSurfaceData {
+    pub fn read(stream: &mut Reader) -> BiomeNoiseGradientSurfaceData {
         let mut count = stream.get_var_u32();
         let mut non_replaceable_blocks = Vec::new();
         for _ in 0..count {
@@ -44,7 +44,7 @@ impl BiomeNoiseGradientSurfaceData {
         BiomeNoiseGradientSurfaceData::new(non_replaceable_blocks, gradient_blocks, noise_seed, first_octave, amplitudes)
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.non_replaceable_blocks.len() as u32);
         for non_replaceable_block in &self.non_replaceable_blocks {
             stream.put_u32_le(*non_replaceable_block);

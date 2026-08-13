@@ -26,13 +26,11 @@ use crate::utils::{block, encryption};
 use crate::*;
 use base64::engine::general_purpose;
 use base64::Engine;
-use binary_utils::binary::Stream;
 use chrono::Utc;
 use flate2::read::GzDecoder;
 use linked_hash_map::LinkedHashMap;
 use minecraft_auth::bedrock;
 use mojang_nbt::nbt::NBT;
-use mojang_nbt::nbt_serializer::NBTSerializer;
 use mojang_nbt::tag::compound_tag::CompoundTag;
 use mojang_nbt::tag::tag::Tag;
 use mojang_nbt::tree_root::TreeRoot;
@@ -42,12 +40,14 @@ use std::io::{Cursor, Read};
 use std::net::{SocketAddr, ToSocketAddrs};
 use std::sync::{Arc, Mutex};
 use std::io;
+use binary_utils::binary::{Reader, Writer};
+use mojang_nbt::nbt_serializer::{NBTReader, NBTWriter};
 use tokio::net::UdpSocket;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 
 pub struct Client {
     // Network
-    network_sender: UnboundedSender<Vec<u8>>, // Game -> Network
+    network_sender: UnboundedSender<Box<dyn Packet>>, // Game -> Network
     network_receiver: UnboundedReceiver<ClientEvent>, // Network -> Game
     pub target_address: String,
     pub target_port: u16,
@@ -117,7 +117,7 @@ where
     bedrock.auth().await;
 
     // (Queue System)
-    let (tx_outbound, rx_outbound) = unbounded_channel::<Vec<u8>>(); // From game to network
+    let (tx_outbound, rx_outbound) = unbounded_channel::<Box<dyn Packet>>(); // From game to network
     let (tx_inbound, rx_inbound) = unbounded_channel::<ClientEvent>(); // From the Network to the Game
 
     let raknet_handler = RakNetPacketHandler::new();
@@ -166,7 +166,7 @@ where
 impl Client {
 
     /// When you call this function, the packet is passed to the background thread.
-    pub fn send_packet(&self, packet_data: Vec<u8>) {
+    pub fn send_packet(&self, packet_data: Box<dyn Packet>) {
         self.network_sender.send(packet_data).expect("Network thread closed, packet could not be sent.");
     }
 
@@ -192,7 +192,7 @@ impl Client {
         }
     }
 
-    pub fn get_sender(&self) -> UnboundedSender<Vec<u8>> {
+    pub fn get_sender(&self) -> UnboundedSender<Box<dyn Packet>> {
         self.network_sender.clone()
     }
 
@@ -252,52 +252,59 @@ async fn start_network_thread(
     debug: bool,
     mut raknet_handler: RakNetPacketHandler,
     mut bedrock_handler: BedrockPacketHandler,
-    mut rx_from_game: UnboundedReceiver<Vec<u8>>,
+    mut rx_from_game: UnboundedReceiver<Box<dyn Packet>>,
     tx_to_game: UnboundedSender<ClientEvent>
 ) {
     if debug { println!("Connecting to {}:{}...", target_address, target_port); }
     socket.connect(format!("{}:{}", target_address, target_port)).await.expect("Socket connect fail");
 
-    let req1 = OpenConnReq1::new(MAGIC, RAKNET_PROTOCOL_VERSION, 1492).encode();
-    socket.send(&req1).await.expect("Open Connection Request 1 packet could not be sent");
+    let mut req1 = Writer::new();
+    OpenConnReq1::new(MAGIC, RAKNET_PROTOCOL_VERSION, 1492).encode(&mut req1);
+    socket.send(req1.as_slice()).await.expect("Open Connection Request 1 packet could not be sent");
 
     let mut buffer = vec![0; 2048];
+    let mut raknet_out = Writer::with_capacity(1500);   // handle_packet çıktısı
+    let mut game_body = Writer::with_capacity(2048);   // paket gövdesi
+    let mut datagram_out = Writer::with_capacity(1500); // datagram
+    let mut ack_buf = Writer::with_capacity(64);       // ACK/NACK
+    let mut game_scratch = vec![0u8; 2 * 1024 * 1024]; // decompress
     let mut should_stop = false;
 
     loop {
         if should_stop { break; }
         tokio::select! {
             // ------------------------------------------------------------------
-        // A. OUTBOUND (Giden Paketler - Producer)
-        // Oyundan gelen paketleri al, RakNet ile paketle ve gönder
-        // ------------------------------------------------------------------
-            Some(packet_data) = rx_from_game.recv() => {
-                let game_packet = raknet_handler.game.encode(&packet_data);
-            let datagrams = Datagram::split_packet(game_packet, &mut raknet_handler.frame_number_cache);
-            for datagram in datagrams {
-                let _ = socket.send(&datagram.to_binary()).await;
-            }
+            // A. OUTBOUND (Giden Paketler - Producer)
+            // Oyundan gelen paketleri al, RakNet ile paketle ve gönder
+            // ------------------------------------------------------------------
+            Some(mut packet_data) = rx_from_game.recv() => {
+                raknet_handler.game.encode(&mut *packet_data, &mut game_body).expect("Something went wrong");
+                let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
+                for datagram in datagrams {
+                    datagram.to_binary(&mut datagram_out);
+                    let _ = socket.send(datagram_out.as_slice()).await;
+                }
             }
 
             // ------------------------------------------------------------------
-        // B. INBOUND (Gelen Paketler)
-        // ------------------------------------------------------------------
+            // B. INBOUND (Gelen Paketler)
+            // ------------------------------------------------------------------
             Ok((size, _addr)) = socket.recv_from(&mut buffer) => {
-                let mut stream = Stream::new(Vec::from(&buffer[..size]), 0);
+                let mut stream = Reader::new(&buffer[..size]);
 
-                let packet_id = stream.get_byte();
+                let packet_id = stream.get_u8();
                 let packet_type = PacketType::from_byte(packet_id);
 
-                let response_raknet_packet = raknet_handler.handle_packet(&mut should_stop, debug, target_address.clone(), target_port, packet_type, &mut stream);
-                socket.send(&response_raknet_packet).await.expect("RakNet Packet Error");
+                let response = raknet_handler.handle_packet(&mut should_stop, debug, target_address.clone(), target_port, packet_type, &mut stream, &mut raknet_out);
+                socket.send(response).await.expect("RakNet Packet Error");
 
                 if !frame_set::is_datagram(packet_id) { continue; }
 
-                let datagram = Datagram::from_binary(Vec::from(stream.get_buffer()));
+                let datagram = Datagram::from_binary(stream.get_buffer());
 
                 ////////////////// SENDING ACK
-                let ack = Acknowledge::create(PacketType::ACK, 1, true, Option::from(datagram.sequence_number.clone()), None, None);
-                socket.send(&ack.encode()).await.expect("ACK Send Error");
+                Acknowledge::create(PacketType::ACK, 1, true, Option::from(datagram.sequence_number.clone()), None, None).encode(&mut ack_buf);
+                socket.send(ack_buf.as_slice()).await.expect("ACK Send Error");
                 //////////////////
 
                 let seq = datagram.sequence_number;
@@ -308,11 +315,11 @@ async fn start_network_thread(
                         raknet_handler.last_received_packets.insert(reliable_frame_index, frame);
                     } else {
                         // UNRELIABLE PACKET + HANDLER
-                        let mut stream = Stream::new(frame.body, 0);
-                        let packet_id = stream.get_byte();
+                        let mut stream = Reader::new(frame.body.as_slice());
+                        let packet_id = stream.get_u8();
                         let packet_type = PacketType::from_byte(packet_id);
 
-                        let response_raknet_packet = raknet_handler.handle_packet(&mut should_stop, debug, target_address.clone(), target_port, packet_type, &mut stream);
+                        let response_raknet_packet = raknet_handler.handle_packet(&mut should_stop, debug, target_address.clone(), target_port, packet_type, &mut stream, &mut raknet_out);
                         socket.send(&response_raknet_packet).await.expect("RakNet Packet Error");
                     }
                 }
@@ -320,8 +327,9 @@ async fn start_network_thread(
                 // SENDING NACK
                 if (raknet_handler.last_received_sequence_number + 1) != (seq as i64) {
                     for seq_num in ((raknet_handler.last_received_sequence_number+1) as u32)..seq {
-                        let nack = Acknowledge::create(PacketType::NACK, 1, true, Option::from(seq_num), None, None);
-                        socket.send(&nack.encode()).await.expect("NACK Send Error");
+                        let mut nack = Writer::new();
+                        Acknowledge::create(PacketType::NACK, 1, true, Option::from(seq_num), None, None).encode(&mut nack);
+                        socket.send(nack.as_slice()).await.expect("NACK Send Error");
                     }
                 }
                 if (seq as i64) > raknet_handler.last_received_sequence_number {
@@ -340,11 +348,11 @@ async fn start_network_thread(
                     }
                     if (reliable_frame_index as i64) == raknet_handler.last_handled_reliable_frame_index + 1 {
                         if let Some(frame) = raknet_handler.last_received_packets.get(&reliable_frame_index) {
-                            let mut real_body = frame.body.clone();
+                            let mut real_body = frame.body.to_vec();
 
                             // FRAGMENT HANDLER
                             if let Some(fragment) = &frame.fragment {
-                                raknet_handler.last_received_fragment_packets.entry(fragment.compound_id).or_insert_with(HashMap::new).insert(fragment.index, frame.body.clone());
+                                raknet_handler.last_received_fragment_packets.entry(fragment.compound_id).or_insert_with(HashMap::new).insert(fragment.index, frame.body.to_vec());
                                 if let Some(fragment_data) = raknet_handler.last_received_fragment_packets.get(&fragment.compound_id) {
                                     if (fragment_data.len() as u32) == fragment.compound_size {
 
@@ -371,27 +379,29 @@ async fn start_network_thread(
                             }
 
                             // PACKET HANDLER
-                            let mut stream = Stream::new(real_body, 0);
-                            let packet_id = stream.get_byte();
+                            let mut stream = Reader::new(&real_body);
+                            let packet_id = stream.get_u8();
                             let packet_type = PacketType::from_byte(packet_id);
 
                             match packet_type {
                                 PacketType::NACK => {
-                                    let nack = Acknowledge::decode(Vec::from(stream.get_buffer()));
+                                    let nack = Acknowledge::decode(stream.get_buffer());
                                     if debug { nack.debug(true); }
                                 }
                                 PacketType::ConnectedPing => {
-                                    let connected_ping = ConnectedPing::decode(Vec::from(stream.get_buffer()));
+                                    let connected_ping = ConnectedPing::decode(stream.get_buffer());
                                     if debug { connected_ping.debug(); }
 
-                                    let connected_pong = ConnectedPong::create(connected_ping.ping_time, Utc::now().timestamp() as u64).encode();
-                                    let frame = Datagram::create_frame(connected_pong, UNRELIABLE, &raknet_handler.frame_number_cache, None);
-                                    let datagram = Datagram::create(vec![frame], &raknet_handler.frame_number_cache).to_binary();
+                                    let mut connected_pong = Writer::new();
+                                    ConnectedPong::create(connected_ping.ping_time, Utc::now().timestamp() as u64).encode(&mut connected_pong);
+                                    let frame = Datagram::create_frame(connected_pong.as_slice(), UNRELIABLE, &raknet_handler.frame_number_cache, None);
+                                    let mut datagram = Writer::new();
+                                    Datagram::create(vec![frame], &raknet_handler.frame_number_cache).to_binary(&mut datagram);
                                     raknet_handler.frame_number_cache.sequence_number += 1;
-                                    socket.send(&datagram).await.expect("ConnectedPong Packet could not be sent");
+                                    socket.send(datagram.as_slice()).await.expect("ConnectedPong Packet could not be sent");
                                 },
                                 PacketType::ConnectedPong => {
-                                    let connected_pong = ConnectedPong::decode(Vec::from(stream.get_buffer()));
+                                    let connected_pong = ConnectedPong::decode(stream.get_buffer());
                                     if debug { connected_pong.debug(); }
                                     /*let connected_ping = connected_ping::create(Utc::now().timestamp()).encode();
                                     let frame = Datagram::create_frame(connected_ping, UNRELIABLE, &frame_number_cache, None);
@@ -400,17 +410,18 @@ async fn start_network_thread(
                                     socket.send(&datagram).await.expect("ConnectedPing Packet could not be sent");*/
                                 },
                                 PacketType::ConnReqAccepted => {
-                                    let response = raknet_handler.handle_packet(&mut should_stop, debug, target_address.clone(), target_port, PacketType::ConnReqAccepted, &mut stream);
+                                    let response = raknet_handler.handle_packet(&mut should_stop, debug, target_address.clone(), target_port, PacketType::ConnReqAccepted, &mut stream, &mut raknet_out);
                                     socket.send(&response).await.expect("RakNet Packet Error");
                                 },
                                 PacketType::Game => {
                                     //println!("Encryption {}, Compression {}", encryption_enabled, compression_enabled);
-                                    raknet_handler.game.decode(&mut stream);
+                                    let mut body = stream.remaining().to_vec();
+                                    let mut stream = raknet_handler.game.decode(&mut body, &mut game_scratch).expect("GamePacket decode error");
                                     while !stream.feof() {
                                         let length = stream.get_var_u32();
 
-                                        let packet_vec = stream.get(length);
-                                        let mut packet_stream = Stream::new(packet_vec, 0);
+                                        let packet_vec = stream.get(length as usize);
+                                        let mut packet_stream = Reader::new(packet_vec);
 
                                         let packet_id = packet_stream.get_var_u32();
                                         //let packet_type = BedrockPacketType::from_byte(packet_id as u16);
@@ -424,16 +435,17 @@ async fn start_network_thread(
 
                                                 // LOGIN PACKET
                                                 let login_data_detail = login::convert_login_chain(&mut bedrock_handler.chain, &bedrock_handler.signing_key, bedrock_handler.signed_token.clone(), target_address.clone(), target_port, raknet_handler.client_guid, client_version.clone());
-                                                let login = Login { client_protocol: BEDROCK_PROTOCOL_VERSION, auth_info_json: login_data_detail[0].clone(), client_data_jwt: login_data_detail[1].clone() }.encode();
+                                                let mut login = Login { client_protocol: BEDROCK_PROTOCOL_VERSION, auth_info_json: login_data_detail[0].clone(), client_data_jwt: login_data_detail[1].clone() };
 
-                                                let game_packet = raknet_handler.game.encode(&login);
-                                                let datagrams = Datagram::split_packet(game_packet, &mut raknet_handler.frame_number_cache);
+                                                raknet_handler.game.encode(&mut login, &mut game_body).expect("Something went wrong");
+                                                let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
                                                 for datagram in datagrams {
-                                                    socket.send(&datagram.to_binary()).await.expect("C->S Packet could not be sent");
+                                                    datagram.to_binary(&mut datagram_out);
+                                                    socket.send(datagram_out.as_slice()).await.expect("C->S Packet could not be sent");
                                                 }
                                             },
-                                            BedrockPacket::ServerToClientHandshake(s_to_c_handshake) => {
-                                                let jwt = String::from_utf8(s_to_c_handshake.jwt.clone()).unwrap();
+                                            BedrockPacket::ServerToClientHandshake(s2c_handshake) => {
+                                                let jwt = String::from_utf8(s2c_handshake.jwt.clone()).unwrap();
 
                                                 let jwt_split: Vec<&str> = jwt.split('.').collect();
 
@@ -454,18 +466,19 @@ async fn start_network_thread(
 
                                                 let shared_secret = encryption::generate_shared_secret(&bedrock_handler.signing_key, &server_private);
                                                 let encryption_key = encryption::generate_key(&shared_secret, salt);
-                                                let encryption = Encryption::fake_gcm(encryption_key).expect("Encryption Fake GCM Error");
+                                                let encryption = Encryption::fake_gcm(&encryption_key).expect("Encryption Fake GCM Error");
 
                                                 raknet_handler.game = GamePacket::new(Option::from(encryption), bedrock_handler.compression_enabled, raknet_handler.game.compression_type);
                                                 bedrock_handler.encryption_enabled = true;
 
                                                 // CLIENT-TO-SERVER HANDSHAKE PACKET
-                                                let c2s_handshake = ClientToServerHandshake{}.encode();
+                                                let mut c2s_handshake = ClientToServerHandshake{};
 
-                                                let game_packet = raknet_handler.game.encode(&c2s_handshake);
-                                                let datagrams = Datagram::split_packet(game_packet, &mut raknet_handler.frame_number_cache);
+                                                raknet_handler.game.encode(&mut c2s_handshake, &mut game_body).expect("Something went wrong");
+                                                let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
                                                 for datagram in datagrams {
-                                                    socket.send(&datagram.to_binary()).await.expect("C->S Packet could not be sent");
+                                                    datagram.to_binary(&mut datagram_out);
+                                                    socket.send(datagram_out.as_slice()).await.expect("C->S Packet could not be sent");
                                                 }
                                             },
                                             BedrockPacket::ResourcePacksInfo(_resource_packs_info) => {
@@ -476,21 +489,23 @@ async fn start_network_thread(
                                                 }*/
 
                                                 // RESOURCE PACK CLIENT RESPONSE PACKET {HAVE ALL PACKS}
-                                                let rp_client_response = ResourcePackClientResponse{ status: ResourcePackClientResponse::HAVE_ALL_PACKS, pack_ids: vec![] }.encode();
+                                                let mut rp_client_response = ResourcePackClientResponse{ status: ResourcePackClientResponse::HAVE_ALL_PACKS, pack_ids: vec![] };
 
-                                                let game_packet = raknet_handler.game.encode(&rp_client_response);
-                                                let datagrams = Datagram::split_packet(game_packet, &mut raknet_handler.frame_number_cache);
+                                                raknet_handler.game.encode(&mut rp_client_response, &mut game_body).expect("Something went wrong");
+                                                let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
                                                 for datagram in datagrams {
-                                                    socket.send(&datagram.to_binary()).await.expect("C->S Packet could not be sent");
+                                                    datagram.to_binary(&mut datagram_out);
+                                                    socket.send(datagram_out.as_slice()).await.expect("C->S Packet could not be sent");
                                                 }
 
                                                 // CLIENT CACHE STATUS PACKET
-                                                let client_cache_status = ClientCacheStatus{ enabled: false }.encode();
+                                                let mut client_cache_status = ClientCacheStatus{ enabled: false };
 
-                                                let game_packet = raknet_handler.game.encode(&client_cache_status);
-                                                let datagrams = Datagram::split_packet(game_packet, &mut raknet_handler.frame_number_cache);
+                                                raknet_handler.game.encode(&mut client_cache_status, &mut game_body).expect("Something went wrong");
+                                                let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
                                                 for datagram in datagrams {
-                                                    socket.send(&datagram.to_binary()).await.expect("C->S Packet could not be sent");
+                                                    datagram.to_binary(&mut datagram_out);
+                                                    socket.send(datagram_out.as_slice()).await.expect("C->S Packet could not be sent");
                                                 }
                                             },
                                             BedrockPacket::ResourcePackStack(_resource_pack_stack) => {
@@ -501,23 +516,25 @@ async fn start_network_thread(
                                                 }*/
 
                                                 // RESOURCE PACK CLIENT RESPONSE PACKET {COMPLETED}
-                                                let rp_client_response = ResourcePackClientResponse{ status: ResourcePackClientResponse::COMPLETED, pack_ids: vec![] }.encode();
+                                                let mut rp_client_response = ResourcePackClientResponse{ status: ResourcePackClientResponse::COMPLETED, pack_ids: vec![] };
 
-                                                let game_packet = raknet_handler.game.encode(&rp_client_response);
-                                                let datagrams = Datagram::split_packet(game_packet, &mut raknet_handler.frame_number_cache);
+                                                raknet_handler.game.encode(&mut rp_client_response, &mut game_body).expect("Something went wrong");
+                                                let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
                                                 for datagram in datagrams {
-                                                    socket.send(&datagram.to_binary()).await.expect("C->S Packet could not be sent");
+                                                    datagram.to_binary(&mut datagram_out);
+                                                    socket.send(datagram_out.as_slice()).await.expect("C->S Packet could not be sent");
                                                 }
                                             },
                                             BedrockPacket::PlayStatus(play_status) => {
                                                 if play_status.status == 3 { // Player Spawn
                                                     // SET LOCAL PLAYER AS INITIALIZED PACKET
-                                                    let set_local_player_as_init = SetLocalPlayerAsInitializedPacket{ actor_runtime_id: 0 }.encode();
+                                                    let mut set_local_player_as_init = SetLocalPlayerAsInitializedPacket{ actor_runtime_id: 0 };
 
-                                                    let game_packet = raknet_handler.game.encode(&set_local_player_as_init);
-                                                    let datagrams = Datagram::split_packet(game_packet, &mut raknet_handler.frame_number_cache);
+                                                    raknet_handler.game.encode(&mut set_local_player_as_init, &mut game_body).expect("Something went wrong");
+                                                    let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
                                                     for datagram in datagrams {
-                                                        socket.send(&datagram.to_binary()).await.expect("C->S Packet could not be sent");
+                                                        datagram.to_binary(&mut datagram_out);
+                                                        socket.send(datagram_out.as_slice()).await.expect("C->S Packet could not be sent");
                                                     }
                                                 }
                                             },
@@ -638,11 +655,11 @@ async fn start_network_thread(
 
                                                 let mut contents = Vec::new();
                                                 decoder.read_to_end(&mut contents).unwrap();
-                                                let mut stream = Stream::new(contents, 0);
+                                                let mut stream = Reader::new(contents.as_slice());
 
-                                                let mut nbt_serializer = NBTSerializer::new_big_endian();
-                                                let mut offset = stream.get_offset();
-                                                let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
+                                                let mut nbt_serializer = NBTReader::new_big_endian();
+                                                let mut offset = stream.offset();
+                                                let nbt_root = nbt_serializer.read(stream.get_buffer(), &mut offset, 0);
                                                 stream.set_offset(offset);
 
                                                 let ct = nbt_root.must_get_compound_tag().unwrap();
@@ -678,31 +695,30 @@ async fn start_network_thread(
                                                             for (k, v) in &combo {
                                                                 match v {
                                                                     PropertyValue::Int(i) => {
-                                                                        state.set_int(k.clone(), *i);
+                                                                        state.set_int(k, *i);
                                                                     },
                                                                     PropertyValue::Str(s) => {
-                                                                        state.set_string(k.clone(), s.clone());
+                                                                        state.set_string(k, s.clone());
                                                                     },
                                                                     PropertyValue::Byte(b) => {
-                                                                        state.set_byte(k.clone(), *b);
+                                                                        state.set_byte(k, *b);
                                                                     }
                                                                 }
                                                             }
 
                                                             let mut custom_ct = CompoundTag::new(LinkedHashMap::new());
-                                                            custom_ct.set_string("name".to_string(), block_name.to_string());
-                                                            custom_ct.set_tag("states".to_string(), Tag::Compound(state.clone()));
+                                                            custom_ct.set_string("name", block_name.to_string());
+                                                            custom_ct.set_tag("states", Tag::Compound(state.clone()));
 
-                                                            let root = TreeRoot::new(Tag::Compound(custom_ct.clone()), "".to_string());
-                                                            let mut serializer = NBTSerializer::new_little_endian();
-                                                            let binding = serializer.write(root);
-                                                            let data = binding.as_slice();
+                                                            let root = TreeRoot::new(Tag::Compound(custom_ct.clone()), "");
+                                                            let mut serializer = NBTWriter::new_little_endian();
+                                                            let data = serializer.write(root);
 
                                                             //let hash_id = block::fnv1a_32(data);
                                                             //println!("Block Name: {}, Hash ID: {}", block_name.clone(), hash_id);
 
                                                             let mut custom_ct_list = custom_ct.clone();
-                                                            custom_ct_list.set_int("block_id".to_string(), block_id);
+                                                            custom_ct_list.set_int("block_id", block_id);
                                                             bedrock_handler.hashed_network_ids.insert(block::fnv1a_32(data), custom_ct_list.clone());
                                                         }
                                                     }
@@ -756,22 +772,22 @@ async fn start_network_thread(
                                                             for (k, v) in &combo {
                                                                 match v {
                                                                     PropertyValue::Int(i) => {
-                                                                        state.set_int(k.clone(), *i);
+                                                                        state.set_int(k, *i);
                                                                     },
                                                                     PropertyValue::Str(s) => {
-                                                                        state.set_string(k.clone(), s.clone());
+                                                                        state.set_string(k, s.clone());
                                                                     },
                                                                     PropertyValue::Byte(b) => {
-                                                                        state.set_byte(k.clone(), *b);
+                                                                        state.set_byte(k, *b);
                                                                     }
                                                                 }
                                                             }
 
                                                             let mut cct = CompoundTag::new(LinkedHashMap::new());
-                                                            cct.set_string("name".to_string(), block_name.clone());
-                                                            cct.set_long("name_hash".to_string(), block::fnv1_64(block_name.as_bytes()) as i64); ///////////////////////////
-                                                            cct.set_int("block_id".to_string(), block_id);
-                                                            cct.set_tag("states".to_string(), Tag::Compound(state.clone()));
+                                                            cct.set_string("name", block_name.clone());
+                                                            cct.set_long("name_hash", block::fnv1_64(block_name.as_bytes()) as i64); ///////////////////////////
+                                                            cct.set_int("block_id", block_id);
+                                                            cct.set_tag("states", Tag::Compound(state.clone()));
                                                             name_hashes.push(cct);
                                                         }
                                                     }
@@ -807,23 +823,24 @@ async fn start_network_thread(
                                                 tx_to_game.send(palette_event).expect("Main thread koptu");
 
                                                 // REQUEST CHUNK RADIUS PACKET
-                                                let req_chunk_radius = RequestChunkRadius { radius: 40, max_radius: 40 }.encode();
+                                                let mut req_chunk_radius = RequestChunkRadius { radius: 40, max_radius: 40 };
 
-                                                let game_packet = raknet_handler.game.encode(&req_chunk_radius);
-                                                let datagrams = Datagram::split_packet(game_packet, &mut raknet_handler.frame_number_cache);
+                                                raknet_handler.game.encode(&mut req_chunk_radius, &mut game_body).expect("Something went wrong");
+                                                let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
                                                 for datagram in datagrams {
-                                                    socket.send(&datagram.to_binary()).await.expect("C->S Packet could not be sent");
+                                                    datagram.to_binary(&mut datagram_out);
+                                                    socket.send(datagram_out.as_slice()).await.expect("C->S Packet could not be sent");
                                                 }
 
                                             },
                                             BedrockPacket::AvailableCommands(_available_commands) => {
                                                 // REQUEST CHUNK RADIUS PACKET
-                                                let req_chunk_radius = RequestChunkRadius { radius: 40, max_radius: 40 }.encode();
-
-                                                let game_packet = raknet_handler.game.encode(&req_chunk_radius);
-                                                let datagrams = Datagram::split_packet(game_packet, &mut raknet_handler.frame_number_cache);
+                                                let mut req_chunk_radius = RequestChunkRadius { radius: 40, max_radius: 40 };
+                                                raknet_handler.game.encode(&mut req_chunk_radius, &mut game_body).expect("Something went wrong");
+                                                let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
                                                 for datagram in datagrams {
-                                                    socket.send(&datagram.to_binary()).await.expect("C->S Packet could not be sent");
+                                                    datagram.to_binary(&mut datagram_out);
+                                                    socket.send(datagram_out.as_slice()).await.expect("C->S Packet could not be sent");
                                                 }
                                             },
                                             BedrockPacket::LevelChunk(_level_chunk) => {
@@ -839,23 +856,23 @@ async fn start_network_thread(
                                             BedrockPacket::NetworkStackLatency(network_stack_latency) => {
                                                 if network_stack_latency.need_response { // send
                                                     // NETWORK STACK LATENCY
-                                                    let network_stack_latency_response = NetworkStackLatency::response(network_stack_latency.timestamp).encode();
-
-                                                    let game_packet = raknet_handler.game.encode(&network_stack_latency_response);
-                                                    let datagrams = Datagram::split_packet(game_packet, &mut raknet_handler.frame_number_cache);
+                                                    raknet_handler.game.encode(&mut NetworkStackLatency::response(network_stack_latency.timestamp), &mut game_body).expect("Something went wrong");
+                                                    let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
                                                     for datagram in datagrams {
-                                                        socket.send(&datagram.to_binary()).await.expect("C->S Packet could not be sent");
+                                                        datagram.to_binary(&mut datagram_out);
+                                                        socket.send(datagram_out.as_slice()).await.expect("C->S Packet could not be sent");
                                                     }
                                                 }
                                             },
                                             BedrockPacket::Disconnect(_disconnect) => {
+                                                println!("Program sonlandı client.rs 868");
                                                 should_stop = true;
                                             }
                                             _ => {}
                                         }
 
                                         let packet_name = BedrockPacketType::get_packet_name(packet_id as u16).to_string();
-                                        if let Err(e) = tx_to_game.send(ClientEvent::Packet(packet_name, packet)) { continue };
+                                        if let Err(_e) = tx_to_game.send(ClientEvent::Packet(packet_name, packet)) { continue };
                                     }
                                 },
                                 PacketType::DisconnectionNotification => {

@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_set_instruction_ease::CameraSetInstructionEase;
 use crate::protocol::bedrock::types::camera::camera_set_instruction_rotation::CameraSetInstructionRotation;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraSetInstruction {
@@ -17,7 +17,7 @@ pub struct CameraSetInstruction {
 }
 
 impl CameraSetInstruction {
-    pub fn read(stream: &mut Stream) -> CameraSetInstruction {
+    pub fn read(stream: &mut Reader) -> CameraSetInstruction {
         let preset = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
         let ease = PacketSerializer::read_optional(stream, |s| CameraSetInstructionEase::read(s));
         let camera_position =
@@ -47,7 +47,7 @@ impl CameraSetInstruction {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::write_optional(stream, &self.preset, |s, v| s.put_u32_le(*v));
         PacketSerializer::write_optional(stream, &self.ease, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.camera_position, |s, v| {

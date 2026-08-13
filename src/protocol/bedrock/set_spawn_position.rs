@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetSpawnPosition {
@@ -37,26 +37,17 @@ impl SetSpawnPosition {
 
 impl Packet for SetSpawnPosition {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDSetSpawnPosition.get_byte()
+        BedrockPacketType::IDSetSpawnPosition.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_i32(self.spawn_type);
-        PacketSerializer::put_block_pos(&mut stream, self.spawn_position.clone());
+        PacketSerializer::put_block_pos(stream, self.spawn_position.clone());
         stream.put_var_i32(self.dimension);
-        PacketSerializer::put_block_pos(&mut stream, self.causing_block_position.clone());
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        PacketSerializer::put_block_pos(stream, self.causing_block_position.clone());
     }
 
-    fn decode(stream: &mut Stream) -> SetSpawnPosition {
+    fn decode(stream: &mut Reader) -> SetSpawnPosition {
         let spawn_type = stream.get_var_i32();
         let spawn_position = PacketSerializer::get_block_pos(stream);
         let dimension = stream.get_var_i32();

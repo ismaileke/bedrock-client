@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use std::collections::HashMap;
 use log::error;
 
@@ -58,7 +58,7 @@ impl AbilitiesLayer {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> AbilitiesLayer {
+    pub fn read(stream: &mut Reader) -> AbilitiesLayer {
         let layer_id = stream.get_u16_le();
         let set_abilities = stream.get_u32_le();
         let set_ability_values = stream.get_u32_le();
@@ -104,7 +104,7 @@ impl AbilitiesLayer {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_u16_le(self.layer_id);
 
         let mut set_abilities = 0;

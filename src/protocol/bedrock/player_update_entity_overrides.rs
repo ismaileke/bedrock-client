@@ -2,7 +2,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::override_update_type::OverrideUpdateType;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerUpdateEntityOverrides {
@@ -71,16 +71,13 @@ impl PlayerUpdateEntityOverrides {
 
 impl Packet for PlayerUpdateEntityOverrides {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDPlayerUpdateEntityOverrides.get_byte()
+        BedrockPacketType::IDPlayerUpdateEntityOverrides.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
         stream.put_var_u32(self.property_index);
-        stream.put_byte(self.update_type);
+        stream.put_u8(self.update_type);
         if self.update_type == OverrideUpdateType::SET_INT_OVERRIDE {
             if let Some(int_override_value) = self.int_override_value {
                 stream.put_i32_le(int_override_value);
@@ -94,18 +91,12 @@ impl Packet for PlayerUpdateEntityOverrides {
                 panic!("PlayerUpdateEntityOverridesPacket with type SET_FLOAT_OVERRIDE requires floatOverrideValue to be provided");
             }
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> PlayerUpdateEntityOverrides {
+    fn decode(stream: &mut Reader) -> PlayerUpdateEntityOverrides {
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let property_index = stream.get_var_u32();
-        let update_type = stream.get_byte();
+        let update_type = stream.get_u8();
         let mut int_override_value = None;
         let mut float_override_value = None;
         if update_type == OverrideUpdateType::SET_INT_OVERRIDE {

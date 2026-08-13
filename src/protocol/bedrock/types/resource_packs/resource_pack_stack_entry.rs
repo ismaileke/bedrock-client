@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ResourcePackStackEntry {
@@ -9,7 +9,7 @@ pub struct ResourcePackStackEntry {
 }
 
 impl ResourcePackStackEntry {
-    pub fn read(stream: &mut Stream) -> ResourcePackStackEntry {
+    pub fn read(stream: &mut Reader) -> ResourcePackStackEntry {
         let pack_id = PacketSerializer::get_string(stream);
         let version = PacketSerializer::get_string(stream);
         let sub_pack_name = PacketSerializer::get_string(stream);
@@ -17,7 +17,7 @@ impl ResourcePackStackEntry {
         ResourcePackStackEntry { pack_id, version, sub_pack_name }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.pack_id.clone());
         PacketSerializer::put_string(stream, self.version.clone());
         PacketSerializer::put_string(stream, self.sub_pack_name.clone());

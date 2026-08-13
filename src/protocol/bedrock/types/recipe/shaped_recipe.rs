@@ -3,7 +3,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
 use crate::protocol::bedrock::types::recipe::recipe_ingredient::RecipeIngredient;
 use crate::protocol::bedrock::types::recipe::recipe_unlocking_requirement::RecipeUnlockingRequirement;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ShapedRecipe {
@@ -69,7 +69,7 @@ impl ShapedRecipe {
         self.inputs.len()
     }
 
-    pub fn read(type_id: i32, stream: &mut Stream) -> ShapedRecipe {
+    pub fn read(type_id: i32, stream: &mut Reader) -> ShapedRecipe {
         let recipe_id = PacketSerializer::get_string(stream);
         let width = stream.get_var_i32();
         let height = stream.get_var_i32();
@@ -108,7 +108,7 @@ impl ShapedRecipe {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.recipe_id.clone());
         stream.put_var_i32(self.get_width() as i32);
         stream.put_var_i32(self.get_height() as i32);

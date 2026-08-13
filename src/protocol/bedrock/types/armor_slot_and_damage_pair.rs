@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ArmorSlotAndDamagePair {
@@ -11,15 +11,15 @@ impl ArmorSlotAndDamagePair {
         ArmorSlotAndDamagePair { slot, damage }
     }
 
-    pub fn read(stream: &mut Stream) -> ArmorSlotAndDamagePair {
-        let slot = stream.get_byte();
+    pub fn read(stream: &mut Reader) -> ArmorSlotAndDamagePair {
+        let slot = stream.get_u8();
         let damage = stream.get_u16_le();
 
         ArmorSlotAndDamagePair { slot, damage }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
-        stream.put_byte(self.slot);
+    pub fn write(&self, stream: &mut Writer) {
+        stream.put_u8(self.slot);
         stream.put_u16_le(self.damage);
     }
 }

@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::types::abilities_layer::AbilitiesLayer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct AbilitiesData {
@@ -24,12 +24,12 @@ impl AbilitiesData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> AbilitiesData {
+    pub fn read(stream: &mut Reader) -> AbilitiesData {
         let target_actor_unique_id = stream.get_i64_le();
-        let player_permission = stream.get_byte();
-        let command_permission = stream.get_byte();
+        let player_permission = stream.get_u8();
+        let command_permission = stream.get_u8();
 
-        let ability_layers_count = stream.get_byte();
+        let ability_layers_count = stream.get_u8();
         let mut ability_layers = Vec::new();
         for _ in 0..ability_layers_count {
             ability_layers.push(AbilitiesLayer::read(stream));
@@ -43,11 +43,11 @@ impl AbilitiesData {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_i64_le(self.target_actor_unique_id);
-        stream.put_byte(self.player_permission);
-        stream.put_byte(self.command_permission);
-        stream.put_byte(self.ability_layers.len() as u8);
+        stream.put_u8(self.player_permission);
+        stream.put_u8(self.command_permission);
+        stream.put_u8(self.ability_layers.len() as u8);
         for ability_layer in &self.ability_layers {
             ability_layer.write(stream);
         }

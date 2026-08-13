@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PrimitiveShapeConePayload {
@@ -13,16 +13,16 @@ impl PrimitiveShapeConePayload {
         PrimitiveShapeConePayload { radii, height, segments }
     }
 
-    pub fn read(stream: &mut Stream) -> PrimitiveShapeConePayload {
+    pub fn read(stream: &mut Reader) -> PrimitiveShapeConePayload {
         let radii = PacketSerializer::get_vector2(stream);
         let height = stream.get_f32_le();
-        let segments = stream.get_byte();
+        let segments = stream.get_u8();
         PrimitiveShapeConePayload { radii, height, segments }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_vector2(stream, self.radii.clone());
         stream.put_f32_le(self.height);
-        stream.put_byte(self.segments);
+        stream.put_u8(self.segments);
     }
 }

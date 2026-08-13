@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::types::player_action_types::PlayerActionTypes;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerBlockActionStopBreak {}
@@ -9,11 +9,11 @@ impl PlayerBlockActionStopBreak {
         PlayerActionTypes::STOP_BREAK
     }
 
-    pub fn read(_stream: &mut Stream, _action_type: i32) -> PlayerBlockActionStopBreak {
+    pub fn read(_stream: &mut Reader, _action_type: i32) -> PlayerBlockActionStopBreak {
         PlayerBlockActionStopBreak {}
     }
 
-    pub fn write(&mut self, _stream: &mut Stream) {
+    pub fn write(&mut self, _stream: &mut Writer) {
         //NOOP
     }
 }

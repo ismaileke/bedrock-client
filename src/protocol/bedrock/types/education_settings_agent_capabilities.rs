@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct EducationSettingsAgentCapabilities {
@@ -7,13 +7,13 @@ pub struct EducationSettingsAgentCapabilities {
 }
 
 impl EducationSettingsAgentCapabilities {
-    pub fn read(stream: &mut Stream) -> EducationSettingsAgentCapabilities {
+    pub fn read(stream: &mut Reader) -> EducationSettingsAgentCapabilities {
         let can_modify_blocks = PacketSerializer::read_optional(stream, |s| s.get_bool());
 
         EducationSettingsAgentCapabilities { can_modify_blocks }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::write_optional(stream, &self.can_modify_blocks, |s, v| s.put_bool(*v));
     }
 }

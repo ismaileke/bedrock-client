@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct GameTestResults {
@@ -12,25 +12,16 @@ pub struct GameTestResults {
 
 impl Packet for GameTestResults {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDGameTestResults.get_byte()
+        BedrockPacketType::IDGameTestResults.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_bool(self.success);
-        PacketSerializer::put_string(&mut stream, self.error.clone());
-        PacketSerializer::put_string(&mut stream, self.test_name.clone());
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        PacketSerializer::put_string(stream, self.error.clone());
+        PacketSerializer::put_string(stream, self.test_name.clone());
     }
 
-    fn decode(stream: &mut Stream) -> GameTestResults {
+    fn decode(stream: &mut Reader) -> GameTestResults {
         let success = stream.get_bool();
         let error = PacketSerializer::get_string(stream);
         let test_name = PacketSerializer::get_string(stream);

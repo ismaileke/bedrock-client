@@ -3,7 +3,7 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 use crate::protocol::bedrock::types::item_type_entry::ItemTypeEntry;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use mojang_nbt::tag::tag::Tag;
 
 #[derive(serde::Serialize, Debug)]
@@ -13,30 +13,21 @@ pub struct ItemRegistry {
 
 impl Packet for ItemRegistry {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDItemRegistry.get_byte()
+        BedrockPacketType::IDItemRegistry.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.entries.len() as u32);
         for entry in self.entries.iter_mut() {
-            PacketSerializer::put_string(&mut stream, entry.string_id.clone());
+            PacketSerializer::put_string(stream, entry.string_id.clone());
             stream.put_i16_le(entry.numeric_id);
             stream.put_bool(entry.component_based);
             stream.put_var_i32(entry.version);
             stream.put(entry.component_nbt.get_encoded_nbt());
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> ItemRegistry {
+    fn decode(stream: &mut Reader) -> ItemRegistry {
         let entries_len = stream.get_var_u32() as usize;
         let mut entries = Vec::new();
         for _ in 0..entries_len {

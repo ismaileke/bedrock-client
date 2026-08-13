@@ -3,7 +3,7 @@ use crate::protocol::bedrock::types::biome::chunkgen::biome_capped_surface_data:
 use crate::protocol::bedrock::types::biome::chunkgen::biome_mesa_surface_data::BiomeMesaSurfaceData;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_surface_material_data::BiomeSurfaceMaterialData;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_noise_gradient_surface_data::BiomeNoiseGradientSurfaceData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeSurfaceBuilderData {
@@ -30,7 +30,7 @@ impl BiomeSurfaceBuilderData {
         BiomeSurfaceBuilderData { surface_material, default_overworld_surface, swamp_surface, frozen_ocean_surface, the_end_surface, mesa_surface, capped_surface, noise_gradient_surface }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeSurfaceBuilderData {
+    pub fn read(stream: &mut Reader) -> BiomeSurfaceBuilderData {
         let surface_material = PacketSerializer::read_optional(stream, |s| BiomeSurfaceMaterialData::read(s));
         let default_overworld_surface = stream.get_bool();
         let swamp_surface = stream.get_bool();
@@ -43,7 +43,7 @@ impl BiomeSurfaceBuilderData {
         BiomeSurfaceBuilderData::new(surface_material, default_overworld_surface, swamp_surface, frozen_ocean_surface, the_end_surface, mesa_surface, capped_surface, noise_gradient_surface)
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::write_optional(stream, &self.surface_material, |s, v| v.write(s));
         stream.put_bool(self.default_overworld_surface);
         stream.put_bool(self.swamp_surface);

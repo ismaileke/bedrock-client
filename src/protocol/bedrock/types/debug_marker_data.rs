@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::utils::color::Color;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct DebugMarkerData {
@@ -25,7 +25,7 @@ impl DebugMarkerData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> DebugMarkerData {
+    pub fn read(stream: &mut Reader) -> DebugMarkerData {
         let text = PacketSerializer::get_string(stream);
         let position = PacketSerializer::get_vector3(stream);
         let color = Color::from_argb(stream.get_u32_le());
@@ -39,7 +39,7 @@ impl DebugMarkerData {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.text.clone());
         PacketSerializer::put_vector3(stream, self.position.clone());
         stream.put_u32_le(self.color.to_argb());

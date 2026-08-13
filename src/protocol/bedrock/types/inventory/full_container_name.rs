@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct FullContainerName {
@@ -15,8 +15,8 @@ impl FullContainerName {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> FullContainerName {
-        let container_id = stream.get_byte();
+    pub fn read(stream: &mut Reader) -> FullContainerName {
+        let container_id = stream.get_u8();
         let dynamic_id = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
 
         FullContainerName {
@@ -25,8 +25,8 @@ impl FullContainerName {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
-        stream.put_byte(self.container_id);
+    pub fn write(&self, stream: &mut Writer) {
+        stream.put_u8(self.container_id);
         PacketSerializer::write_optional(stream, &self.dynamic_id, |s, v| s.put_u32_le(*v));
     }
 }

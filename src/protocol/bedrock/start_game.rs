@@ -8,8 +8,8 @@ use crate::protocol::bedrock::types::network_permissions::NetworkPermissions;
 use crate::protocol::bedrock::types::player_movement_settings::PlayerMovementSettings;
 use crate::protocol::bedrock::types::server_join_information::ServerJoinInformation;
 use crate::protocol::bedrock::types::server_telemetry_data::ServerTelemetryData;
-use binary_utils::binary::Stream;
-use mojang_nbt::nbt_serializer::NBTSerializer;
+use binary_utils::binary::{Reader, Writer};
+use mojang_nbt::nbt_serializer::NBTReader;
 use mojang_nbt::tag::tag::Tag;
 
 #[derive(serde::Serialize, Debug)]
@@ -45,55 +45,46 @@ pub struct StartGame {
 
 impl Packet for StartGame {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDStartGame.get_byte()
+        BedrockPacketType::IDStartGame.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_actor_unique_id(&mut stream, self.actor_unique_id);
-        PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
+        PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
         stream.put_var_i32(self.player_game_mode);
-        PacketSerializer::put_vector3(&mut stream, self.player_position.clone());
+        PacketSerializer::put_vector3(stream, self.player_position.clone());
         stream.put_f32_le(self.pitch);
         stream.put_f32_le(self.yaw);
-        self.level_settings.write(&mut stream);
-        PacketSerializer::put_string(&mut stream, self.level_id.clone());
-        PacketSerializer::put_string(&mut stream, self.world_name.clone());
-        PacketSerializer::put_string(&mut stream, self.premium_world_template_id.clone());
+        self.level_settings.write(stream);
+        PacketSerializer::put_string(stream, self.level_id.clone());
+        PacketSerializer::put_string(stream, self.world_name.clone());
+        PacketSerializer::put_string(stream, self.premium_world_template_id.clone());
         stream.put_bool(self.is_trial);
-        self.player_movement_settings.write(&mut stream);
+        self.player_movement_settings.write(stream);
         stream.put_u64_le(self.current_tick);
         stream.put_var_i32(self.enchantment_seed);
         stream.put_var_u32(self.block_palette.len() as u32);
         for block_palette_entry in &self.block_palette {
-            PacketSerializer::put_string(&mut stream, block_palette_entry.get_name());
+            PacketSerializer::put_string(stream, block_palette_entry.get_name());
             //for now
             let mut states = block_palette_entry.get_states().clone();
             stream.put(states.get_encoded_nbt());
         }
-        PacketSerializer::put_string(&mut stream, self.multiplayer_correlation_id.clone());
+        PacketSerializer::put_string(stream, self.multiplayer_correlation_id.clone());
         stream.put_bool(self.enable_new_inventory_system);
-        PacketSerializer::put_string(&mut stream, self.server_software_version.clone());
+        PacketSerializer::put_string(stream, self.server_software_version.clone());
         stream.put(self.player_actor_properties.get_encoded_nbt());
         stream.put_u64_le(self.block_palette_checksum);
-        PacketSerializer::put_uuid(&mut stream, self.world_template_id.clone());
+        PacketSerializer::put_uuid(stream, self.world_template_id.clone());
         stream.put_bool(self.enable_client_side_chunk_generation);
         stream.put_bool(self.block_network_ids_are_hashes);
-        self.network_permissions.write(&mut stream);
+        self.network_permissions.write(stream);
         stream.put_bool(self.is_logging_chat);
-        PacketSerializer::write_optional(&mut stream, &mut self.server_join_information, |s, v| v.write(s));
-        self.server_telemetry_data.write(&mut stream);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        PacketSerializer::write_optional(stream, &mut self.server_join_information, |s, v| v.write(s));
+        self.server_telemetry_data.write(stream);
     }
 
-    fn decode(stream: &mut Stream) -> StartGame {
+    fn decode(stream: &mut Reader) -> StartGame {
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let player_game_mode = stream.get_var_i32();
@@ -114,9 +105,9 @@ impl Packet for StartGame {
         for _ in 0..palette_len {
             let block_name = PacketSerializer::get_string(stream);
 
-            let mut offset = stream.get_offset();
-            let mut nbt_serializer = NBTSerializer::new_network();
-            let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
+            let mut offset = stream.offset();
+            let mut nbt_serializer = NBTReader::new_network();
+            let nbt_root = nbt_serializer.read(stream.get_buffer(), &mut offset, 0);
             stream.set_offset(offset);
 
             let state = Tag::Compound(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error"), );
@@ -130,9 +121,9 @@ impl Packet for StartGame {
 
         let server_software_version = PacketSerializer::get_string(stream);
 
-        let mut offset = stream.get_offset();
-        let mut nbt_serializer = NBTSerializer::new_network();
-        let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
+        let mut offset = stream.offset();
+        let mut nbt_serializer = NBTReader::new_network();
+        let nbt_root = nbt_serializer.read(stream.get_buffer(), &mut offset, 0);
         stream.set_offset(offset);
         let player_actor_properties = CacheableNBT::new(Tag::Compound(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error"), ));
 

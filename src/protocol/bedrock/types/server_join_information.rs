@@ -2,7 +2,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::gathering_join_info::GatheringJoinInfo;
 use crate::protocol::bedrock::types::presence_info::PresenceInfo;
 use crate::protocol::bedrock::types::store_entry_point_info::StoreEntryPointInfo;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ServerJoinInformation {
@@ -12,7 +12,7 @@ pub struct ServerJoinInformation {
 }
 
 impl ServerJoinInformation {
-    pub fn read(stream: &mut Stream) -> ServerJoinInformation {
+    pub fn read(stream: &mut Reader) -> ServerJoinInformation {
         let gathering_join_info = PacketSerializer::read_optional(stream, |s| GatheringJoinInfo::read(s));
         let store_entry_point_info = PacketSerializer::read_optional(stream, |s| StoreEntryPointInfo::read(s));
         let presence_info = PacketSerializer::read_optional(stream, |s| PresenceInfo::read(s));
@@ -20,7 +20,7 @@ impl ServerJoinInformation {
         ServerJoinInformation { gathering_join_info, store_entry_point_info, presence_info }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::write_optional(stream, &self.gathering_join_info, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.store_entry_point_info, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.presence_info, |s, v| v.write(s));

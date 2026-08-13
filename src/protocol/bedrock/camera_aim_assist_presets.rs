@@ -2,7 +2,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_category::CameraAimAssistCategory;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_preset::CameraAimAssistPreset;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraAimAssistPresets {
@@ -13,31 +13,22 @@ pub struct CameraAimAssistPresets {
 
 impl Packet for CameraAimAssistPresets {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDCameraAimAssistPresets.get_byte()
+        BedrockPacketType::IDCameraAimAssistPresets.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.categories.len() as u32);
         for category in &self.categories {
-            category.write(&mut stream);
+            category.write(stream);
         }
         stream.put_var_u32(self.presets.len() as u32);
         for preset in &self.presets {
-            preset.write(&mut stream);
+            preset.write(stream);
         }
-        stream.put_byte(self.operation);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        stream.put_u8(self.operation);
     }
 
-    fn decode(stream: &mut Stream) -> CameraAimAssistPresets {
+    fn decode(stream: &mut Reader) -> CameraAimAssistPresets {
         let mut categories = Vec::new();
         let mut presets = Vec::new();
         let mut count = stream.get_var_u32();
@@ -48,7 +39,7 @@ impl Packet for CameraAimAssistPresets {
         for _ in 0..count {
             presets.push(CameraAimAssistPreset::read(stream));
         }
-        let operation = stream.get_byte();
+        let operation = stream.get_u8();
 
         CameraAimAssistPresets {
             categories,

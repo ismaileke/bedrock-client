@@ -25,8 +25,8 @@ use crate::protocol::bedrock::types::skin::skin_data::SkinData;
 use crate::protocol::bedrock::types::skin::skin_image::SkinImage;
 use crate::protocol::bedrock::types::structure_editor_data::StructureEditorData;
 use crate::protocol::bedrock::types::structure_settings::StructureSettings;
-use binary_utils::binary::Stream;
-use mojang_nbt::nbt_serializer::NBTSerializer;
+use binary_utils::binary::{Reader, Writer};
+use mojang_nbt::nbt_serializer::NBTReader;
 use mojang_nbt::tag::compound_tag::CompoundTag;
 use mojang_nbt::tag::tag::Tag;
 use mojang_nbt::tree_root::TreeRoot;
@@ -42,69 +42,70 @@ impl PacketSerializer {
         let bytes = stream.get(length);
         String::from_utf8(bytes).expect("Vec<u8> to String UTF8 conversion failed")
     }*/
-    pub fn get_string(stream: &mut Stream) -> String {
+    pub fn get_string(stream: &mut Reader) -> String {
         let length = stream.get_var_u32();
-        let bytes = stream.get(length);
+        let bytes = stream.get(length as usize);
 
-        if let Ok(s) = String::from_utf8(bytes.clone()) {
+        if let Ok(s) = String::from_utf8(Vec::from(bytes)) {
             return s;
         }
 
         String::from_utf8_lossy(&bytes).to_string()
     }
 
-    pub fn put_string(stream: &mut Stream, data: String) {
+    pub fn put_string(stream: &mut Writer, data: String) {
         stream.put_var_u32(data.len() as u32);
-        stream.put(data.into_bytes());
+        stream.put(data.as_bytes());
     }
 
-    pub fn get_uuid(stream: &mut Stream) -> String {
-        let mut p1 = stream.get(8);
-        let mut p2 = stream.get(8);
-        p1.reverse();
-        p2.reverse();
-        let mut bytes = Vec::with_capacity(16);
-        bytes.extend_from_slice(&p1);
-        bytes.extend_from_slice(&p2);
-        let uuid = Uuid::from_bytes(bytes.try_into().expect("slice with incorrect length"));
-        uuid.to_string()
+    pub fn get_uuid(stream: &mut Reader) -> String {
+        let mut bytes = [0u8; 16];
+
+        let p1 = stream.get(8);
+        let p2 = stream.get(8);
+        bytes[..8].copy_from_slice(p1);
+        bytes[..8].reverse();
+        bytes[8..].copy_from_slice(p2);
+        bytes[8..].reverse();
+
+        Uuid::from_bytes(bytes).to_string()
     }
 
-    pub fn put_uuid(stream: &mut Stream, data: String) {
+    pub fn put_uuid(stream: &mut Writer, data: String) {
         stream.put_var_u32(data.len() as u32);
-        stream.put(data.into_bytes());
+        stream.put(data.as_bytes());
     }
 
-    pub fn get_actor_unique_id(stream: &mut Stream) -> i64 {
+    pub fn get_actor_unique_id(stream: &mut Reader) -> i64 {
         stream.get_var_i64()
     }
 
-    pub fn put_actor_unique_id(stream: &mut Stream, data: i64) {
+    pub fn put_actor_unique_id(stream: &mut Writer, data: i64) {
         stream.put_var_i64(data);
     }
 
-    pub fn get_actor_runtime_id(stream: &mut Stream) -> u64 {
+    pub fn get_actor_runtime_id(stream: &mut Reader) -> u64 {
         stream.get_var_u64()
     }
 
-    pub fn put_actor_runtime_id(stream: &mut Stream, data: u64) {
+    pub fn put_actor_runtime_id(stream: &mut Writer, data: u64) {
         stream.put_var_u64(data);
     }
 
-    pub fn get_vector3(stream: &mut Stream) -> Vec<f32> {
+    pub fn get_vector3(stream: &mut Reader) -> Vec<f32> {
         let x = stream.get_f32_le();
         let y = stream.get_f32_le();
         let z = stream.get_f32_le();
         vec![x, y, z]
     }
 
-    pub fn put_vector3(stream: &mut Stream, data: Vec<f32>) {
+    pub fn put_vector3(stream: &mut Writer, data: Vec<f32>) {
         stream.put_f32_le(data[0]);
         stream.put_f32_le(data[1]);
         stream.put_f32_le(data[2]);
     }
 
-    pub fn put_vector3_nullable(stream: &mut Stream, data: Option<Vec<f32>>) {
+    pub fn put_vector3_nullable(stream: &mut Writer, data: Option<Vec<f32>>) {
         if data.is_some() {
             PacketSerializer::put_vector3(stream, data.unwrap());
         } else {
@@ -114,42 +115,42 @@ impl PacketSerializer {
         }
     }
 
-    pub fn get_vector2(stream: &mut Stream) -> Vec<f32> {
+    pub fn get_vector2(stream: &mut Reader) -> Vec<f32> {
         let x = stream.get_f32_le();
         let y = stream.get_f32_le();
         vec![x, y]
     }
 
-    pub fn put_vector2(stream: &mut Stream, data: Vec<f32>) {
+    pub fn put_vector2(stream: &mut Writer, data: Vec<f32>) {
         stream.put_f32_le(data[0]);
         stream.put_f32_le(data[1]);
     }
 
-    pub fn get_block_pos(stream: &mut Stream) -> Vec<i32> {
+    pub fn get_block_pos(stream: &mut Reader) -> Vec<i32> {
         let x = stream.get_var_i32();
         let y = stream.get_var_i32();
         let z = stream.get_var_i32();
         vec![x, y, z]
     }
 
-    pub fn put_block_pos(stream: &mut Stream, data: Vec<i32>) {
+    pub fn put_block_pos(stream: &mut Writer, data: Vec<i32>) {
         stream.put_var_i32(data[0]);
         stream.put_var_i32(data[1]);
         stream.put_var_i32(data[2]);
     }
 
-    pub fn get_rotation_byte(stream: &mut Stream) -> f32 {
-        (stream.get_byte() as f32) * (360f32 / 256f32)
+    pub fn get_rotation_byte(stream: &mut Reader) -> f32 {
+        (stream.get_u8() as f32) * (360f32 / 256f32)
     }
 
-    pub fn put_rotation_byte(stream: &mut Stream, data: f32) {
-        stream.put_byte((data / (360f32 / 256f32)) as u8);
+    pub fn put_rotation_byte(stream: &mut Writer, data: f32) {
+        stream.put_u8((data / (360f32 / 256f32)) as u8);
     }
 
-    pub fn get_entity_link(stream: &mut Stream) -> EntityLink {
+    pub fn get_entity_link(stream: &mut Reader) -> EntityLink {
         let from_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let to_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
-        let action_type = stream.get_byte();
+        let action_type = stream.get_u8();
         let immediate = stream.get_bool();
         let caused_by_rider = stream.get_bool();
         let vehicle_angular_velocity = stream.get_f32_le();
@@ -163,29 +164,29 @@ impl PacketSerializer {
         )
     }
 
-    pub fn put_entity_link(stream: &mut Stream, data: EntityLink) {
+    pub fn put_entity_link(stream: &mut Writer, data: EntityLink) {
         PacketSerializer::put_actor_unique_id(stream, data.from_actor_unique_id);
         PacketSerializer::put_actor_unique_id(stream, data.to_actor_unique_id);
-        stream.put_byte(data.action_type);
+        stream.put_u8(data.action_type);
         stream.put_bool(data.immediate);
         stream.put_bool(data.caused_by_rider);
         stream.put_f32_le(data.vehicle_angular_velocity);
     }
 
-    pub fn get_nbt_root(stream: &mut Stream) -> TreeRoot {
-        let mut offset = stream.get_offset();
-        let mut nbt_serializer = NBTSerializer::new_network();
-        let nbt_root = nbt_serializer.read(Vec::from(stream.get_buffer()), &mut offset, 0);
+    pub fn get_nbt_root<'a>(stream: &mut Reader<'a>) -> TreeRoot<'a> {
+        let mut offset = stream.offset();
+        let mut nbt_serializer = NBTReader::new_network();
+        let nbt_root = nbt_serializer.read(stream.get_buffer(), &mut offset, 0);
         stream.set_offset(offset);
         nbt_root
     }
 
-    pub fn get_nbt_compound_root(stream: &mut Stream) -> CompoundTag {
+    pub fn get_nbt_compound_root(stream: &mut Reader) -> CompoundTag {
         let ct = PacketSerializer::get_nbt_root(stream).must_get_compound_tag().expect("get_nbt_compound_root() error");
         ct
     }
 
-    pub fn get_entity_metadata(stream: &mut Stream) -> HashMap<u32, MetadataProperty> {
+    pub fn get_entity_metadata(stream: &mut Reader) -> HashMap<u32, MetadataProperty> {
         let count = stream.get_var_u32() as usize;
         let mut data = HashMap::new();
         for _ in 0..count {
@@ -197,9 +198,9 @@ impl PacketSerializer {
         data
     }
 
-    fn read_metadata_property(stream: &mut Stream, metadata_type: u32) -> MetadataProperty {
+    fn read_metadata_property(stream: &mut Reader, metadata_type: u32) -> MetadataProperty {
         match metadata_type {
-            EntityMetadataTypes::BYTE => MetadataProperty::Byte(stream.get_byte()),
+            EntityMetadataTypes::BYTE => MetadataProperty::Byte(stream.get_u8()),
             EntityMetadataTypes::SHORT => MetadataProperty::Short(stream.get_i16_le()),
             EntityMetadataTypes::INT => MetadataProperty::Int(stream.get_var_i32()),
             EntityMetadataTypes::FLOAT => MetadataProperty::Float(stream.get_f32_le()),
@@ -212,7 +213,7 @@ impl PacketSerializer {
         }
     }
 
-    pub fn put_entity_metadata(stream: &mut Stream, data: &mut HashMap<u32, MetadataProperty>) {
+    pub fn put_entity_metadata(stream: &mut Writer, data: &mut HashMap<u32, MetadataProperty>) {
         stream.put_var_u32(data.len() as u32);
         for (key, value) in data.iter_mut() {
             stream.put_var_u32(*key);
@@ -221,19 +222,19 @@ impl PacketSerializer {
         }
     }
 
-    pub fn read_recipe_net_id(stream: &mut Stream) -> u32 {
+    pub fn read_recipe_net_id(stream: &mut Reader) -> u32 {
         stream.get_var_u32()
     }
 
-    pub fn write_recipe_net_id(stream: &mut Stream, id: u32) {
+    pub fn write_recipe_net_id(stream: &mut Writer, id: u32) {
         stream.put_var_u32(id);
     }
 
-    pub fn read_creative_item_net_id(stream: &mut Stream) -> u32 {
+    pub fn read_creative_item_net_id(stream: &mut Reader) -> u32 {
         stream.get_var_u32()
     }
 
-    pub fn write_creative_item_net_id(stream: &mut Stream, id: u32) {
+    pub fn write_creative_item_net_id(stream: &mut Writer, id: u32) {
         stream.put_var_u32(id);
     }
 
@@ -247,7 +248,7 @@ impl PacketSerializer {
      * - ItemStackRequest request ID is negative, and odd
      * - 0 refers to an empty item stack (air)
      */
-    pub fn read_item_stack_net_id_variant(stream: &mut Stream) -> i32 {
+    pub fn read_item_stack_net_id_variant(stream: &mut Reader) -> i32 {
         stream.get_var_i32()
     }
 
@@ -256,35 +257,35 @@ impl PacketSerializer {
      * packets to allow the client to refer to server-known items, or items which may have been modified by a previous
      * as-yet unacknowledged request from the client.
      */
-    pub fn write_item_stack_net_id_variant(stream: &mut Stream, id: i32) {
+    pub fn write_item_stack_net_id_variant(stream: &mut Writer, id: i32) {
         stream.put_var_i32(id);
     }
 
-    pub fn read_item_stack_request_id(stream: &mut Stream) -> i32 {
+    pub fn read_item_stack_request_id(stream: &mut Reader) -> i32 {
         stream.get_var_i32()
     }
 
-    pub fn write_item_stack_request_id(stream: &mut Stream, id: i32) {
+    pub fn write_item_stack_request_id(stream: &mut Writer, id: i32) {
         stream.put_var_i32(id);
     }
 
-    pub fn read_legacy_item_stack_request_id(stream: &mut Stream) -> i32 {
+    pub fn read_legacy_item_stack_request_id(stream: &mut Reader) -> i32 {
         stream.get_var_i32()
     }
 
-    pub fn write_legacy_item_stack_request_id(stream: &mut Stream, id: i32) {
+    pub fn write_legacy_item_stack_request_id(stream: &mut Writer, id: i32) {
         stream.put_var_i32(id);
     }
 
-    pub fn read_server_item_stack_id(stream: &mut Stream) -> i32 {
+    pub fn read_server_item_stack_id(stream: &mut Reader) -> i32 {
         stream.get_var_i32()
     }
 
-    pub fn write_server_item_stack_id(stream: &mut Stream, id: i32) {
+    pub fn write_server_item_stack_id(stream: &mut Writer, id: i32) {
         stream.put_var_i32(id);
     }
 
-    fn get_item_stack_header(stream: &mut Stream) -> Vec<Item> {
+    fn get_item_stack_header(stream: &mut Reader) -> Vec<Item> {
         let id = stream.get_var_i32();
         if id == 0 {
             return vec![Item::Id(0), Item::Meta(0), Item::Count(0)];
@@ -295,7 +296,7 @@ impl PacketSerializer {
         vec![Item::Id(id), Item::Meta(meta), Item::Count(count)]
     }
 
-    fn put_item_stack_header(stream: &mut Stream, stack: &ItemStack) -> bool {
+    fn put_item_stack_header(stream: &mut Writer, stack: &ItemStack) -> bool {
         if stack.id == 0 {
             stream.put_var_i32(0);
             return false;
@@ -306,19 +307,19 @@ impl PacketSerializer {
         true
     }
 
-    fn get_item_stack_footer(stream: &mut Stream, id: i32, meta: u32, count: u16) -> ItemStack {
+    fn get_item_stack_footer(stream: &mut Reader, id: i32, meta: u32, count: u16) -> ItemStack {
         let block_runtime_id = stream.get_var_i32();
         let raw_extra_data = PacketSerializer::get_string(stream);
 
         ItemStack::new(id, meta, count, block_runtime_id, raw_extra_data)
     }
 
-    fn put_item_stack_footer(stream: &mut Stream, stack: &ItemStack) {
+    fn put_item_stack_footer(stream: &mut Writer, stack: &ItemStack) {
         stream.put_var_i32(stack.block_runtime_id);
         PacketSerializer::put_string(stream, stack.raw_extra_data.clone());
     }
 
-    pub fn get_item_stack_without_stack_id(stream: &mut Stream) -> ItemStack {
+    pub fn get_item_stack_without_stack_id(stream: &mut Reader) -> ItemStack {
         let stack_header = Self::get_item_stack_header(stream);
         if let Item::Id(id) = &stack_header[0] {
             if *id == 0 {
@@ -333,13 +334,13 @@ impl PacketSerializer {
         )
     }
 
-    pub fn put_item_stack_without_stack_id(stream: &mut Stream, stack: &ItemStack) {
+    pub fn put_item_stack_without_stack_id(stream: &mut Writer, stack: &ItemStack) {
         if Self::put_item_stack_header(stream, &stack) {
             Self::put_item_stack_footer(stream, &stack);
         }
     }
 
-    pub fn get_item_stack_wrapper(stream: &mut Stream) -> ItemStackWrapper {
+    pub fn get_item_stack_wrapper(stream: &mut Reader) -> ItemStackWrapper {
         let stack_header = Self::get_item_stack_header(stream);
         if stack_header[0].unwrap_id() == 0 {
             return ItemStackWrapper {
@@ -366,7 +367,7 @@ impl PacketSerializer {
         ItemStackWrapper { stack_id, item_stack, variant: 0 }
     }
 
-    pub fn put_item_stack_wrapper(stream: &mut Stream, wrapper: ItemStackWrapper) {
+    pub fn put_item_stack_wrapper(stream: &mut Writer, wrapper: ItemStackWrapper) {
         let item_stack = wrapper.item_stack;
         if Self::put_item_stack_header(stream, &item_stack) {
             let has_net_id = wrapper.stack_id != 0;
@@ -378,7 +379,7 @@ impl PacketSerializer {
         }
     }
 
-    pub fn get_network_item_stack_descriptor(stream: &mut Stream) -> ItemStackWrapper {
+    pub fn get_network_item_stack_descriptor(stream: &mut Reader) -> ItemStackWrapper {
         let id = stream.get_i16_le();
         let count = stream.get_u16_le();
         let meta = stream.get_var_u32();
@@ -407,7 +408,7 @@ impl PacketSerializer {
         }, variant }
     }
 
-    pub fn put_network_item_stack_descriptor(stream: &mut Stream, wrapper: ItemStackWrapper) {
+    pub fn put_network_item_stack_descriptor(stream: &mut Writer, wrapper: ItemStackWrapper) {
         stream.put_i16_le(wrapper.item_stack.id as i16);
         stream.put_u16_le(wrapper.item_stack.count);
         stream.put_var_u32(wrapper.item_stack.meta);
@@ -422,8 +423,8 @@ impl PacketSerializer {
         PacketSerializer::put_string(stream, wrapper.item_stack.raw_extra_data.clone());
     }
 
-    pub fn get_recipe_ingredient(stream: &mut Stream) -> RecipeIngredient {
-        let descriptor_type = stream.get_byte();
+    pub fn get_recipe_ingredient(stream: &mut Reader) -> RecipeIngredient {
+        let descriptor_type = stream.get_u8();
         let descriptor = match descriptor_type {
             ItemDescriptorType::INT_ID_META => Some(ItemDescriptor::IntIDMeta(IntIdMetaItemDescriptor::read(stream))),
             ItemDescriptorType::STRING_ID_META => Some(ItemDescriptor::StringIDMeta(StringIdMetaItemDescriptor::read(stream))),
@@ -437,18 +438,18 @@ impl PacketSerializer {
         RecipeIngredient { descriptor, count }
     }
 
-    pub fn put_recipe_ingredient(stream: &mut Stream, ingredient: &mut RecipeIngredient) {
+    pub fn put_recipe_ingredient(stream: &mut Writer, ingredient: &mut RecipeIngredient) {
         if let Some(ref mut descriptor) = ingredient.descriptor {
-            stream.put_byte(descriptor.type_id());
+            stream.put_u8(descriptor.type_id());
             descriptor.write(stream);
         } else {
-            stream.put_byte(0);
+            stream.put_u8(0);
         }
         stream.put_var_i32(ingredient.count);
     }
 
     fn read_game_rule(
-        stream: &mut Stream,
+        stream: &mut Reader,
         rule_type: u32,
         is_player_modifiable: bool,
         is_start_game: bool,
@@ -469,7 +470,7 @@ impl PacketSerializer {
         }
     }
 
-    pub fn get_game_rules(stream: &mut Stream, is_start_game: bool) -> HashMap<String, GameRule> {
+    pub fn get_game_rules(stream: &mut Reader, is_start_game: bool) -> HashMap<String, GameRule> {
         let count = stream.get_var_u32() as usize;
         let mut rules = HashMap::new();
         for _ in 0..count {
@@ -481,7 +482,7 @@ impl PacketSerializer {
         rules
     }
 
-    pub fn put_game_rules(stream: &mut Stream, rules: &mut HashMap<String, GameRule>, is_start_game: bool) {
+    pub fn put_game_rules(stream: &mut Writer, rules: &mut HashMap<String, GameRule>, is_start_game: bool) {
         stream.put_var_u32(rules.len() as u32);
         for (name, rule) in rules {
             PacketSerializer::put_string(stream, name.clone());
@@ -491,7 +492,7 @@ impl PacketSerializer {
         }
     }
 
-    pub fn get_command_origin_data(stream: &mut Stream) -> CommandOriginData {
+    pub fn get_command_origin_data(stream: &mut Reader) -> CommandOriginData {
         let origin_type = PacketSerializer::get_string(stream);
         let uuid = PacketSerializer::get_uuid(stream);
         let request_id = PacketSerializer::get_string(stream);
@@ -505,14 +506,14 @@ impl PacketSerializer {
         }
     }
 
-    pub fn put_command_origin_data(stream: &mut Stream, data: &CommandOriginData) {
+    pub fn put_command_origin_data(stream: &mut Writer, data: &CommandOriginData) {
         PacketSerializer::put_string(stream, data.origin_type.clone());
         PacketSerializer::put_uuid(stream, data.uuid.clone());
         PacketSerializer::put_string(stream, data.request_id.clone());
         stream.put_i64_le(data.player_actor_unique_id);
     }
 
-    pub fn get_skin(stream: &mut Stream) -> SkinData {
+    pub fn get_skin(stream: &mut Reader) -> SkinData {
         let skin_id = PacketSerializer::get_string(stream);
         let play_fab_id = PacketSerializer::get_string(stream);
         let resource_patch = PacketSerializer::get_string(stream);
@@ -597,7 +598,7 @@ impl PacketSerializer {
         }
     }
 
-    pub fn put_skin(stream: &mut Stream, skin: &SkinData) {
+    pub fn put_skin(stream: &mut Writer, skin: &SkinData) {
         PacketSerializer::put_string(stream, skin.skin_id.clone());
         PacketSerializer::put_string(stream, skin.play_fab_id.clone());
         PacketSerializer::put_string(stream, skin.resource_patch.clone());
@@ -644,19 +645,19 @@ impl PacketSerializer {
         stream.put_bool(skin.is_override);
     }
 
-    fn get_skin_image(stream: &mut Stream) -> SkinImage {
+    fn get_skin_image(stream: &mut Reader) -> SkinImage {
         let width = stream.get_u32_le();
         let height = stream.get_u32_le();
 
         // check later (improve get string func)
         let length = stream.get_var_u32();
-        let data = stream.get(length);
+        let data = stream.get(length as usize).to_vec();
         //let data = PacketSerializer::get_string(stream);
 
         SkinImage::new(width, height, data)
     }
 
-    fn put_skin_image(stream: &mut Stream, skin_image: &SkinImage) {
+    fn put_skin_image(stream: &mut Writer, skin_image: &SkinImage) {
         stream.put_u32_le(skin_image.width());
         stream.put_u32_le(skin_image.height());
         // check later (improve get string func)
@@ -665,7 +666,7 @@ impl PacketSerializer {
         //PacketSerializer::put_string(stream, skin_image.data());
     }
 
-    pub fn get_structure_settings(stream: &mut Stream) -> StructureSettings {
+    pub fn get_structure_settings(stream: &mut Reader) -> StructureSettings {
         let palette_name = PacketSerializer::get_string(stream);
         let ignore_entities = stream.get_bool();
         let ignore_blocks = stream.get_bool();
@@ -673,9 +674,9 @@ impl PacketSerializer {
         let dimensions = PacketSerializer::get_block_pos(stream);
         let offset = PacketSerializer::get_block_pos(stream);
         let last_touched_by_player_id = PacketSerializer::get_actor_unique_id(stream);
-        let rotation = stream.get_byte();
-        let mirror = stream.get_byte();
-        let animation_mode = stream.get_byte();
+        let rotation = stream.get_u8();
+        let mirror = stream.get_u8();
+        let animation_mode = stream.get_u8();
         let animation_seconds = stream.get_f32_le();
         let integrity_value = stream.get_f32_le();
         let integrity_seed = stream.get_u32_le();
@@ -699,7 +700,7 @@ impl PacketSerializer {
         }
     }
 
-    pub fn put_structure_settings(stream: &mut Stream, structure_settings: &StructureSettings) {
+    pub fn put_structure_settings(stream: &mut Writer, structure_settings: &StructureSettings) {
         PacketSerializer::put_string(stream, structure_settings.palette_name.clone());
         stream.put_bool(structure_settings.ignore_entities);
         stream.put_bool(structure_settings.ignore_blocks);
@@ -707,16 +708,16 @@ impl PacketSerializer {
         PacketSerializer::put_block_pos(stream, structure_settings.dimensions.clone());
         PacketSerializer::put_block_pos(stream, structure_settings.offset.clone());
         PacketSerializer::put_actor_unique_id(stream, structure_settings.last_touched_by_player_id);
-        stream.put_byte(structure_settings.rotation);
-        stream.put_byte(structure_settings.mirror);
-        stream.put_byte(structure_settings.animation_mode);
+        stream.put_u8(structure_settings.rotation);
+        stream.put_u8(structure_settings.mirror);
+        stream.put_u8(structure_settings.animation_mode);
         stream.put_f32_le(structure_settings.animation_seconds);
         stream.put_f32_le(structure_settings.integrity_value);
         stream.put_u32_le(structure_settings.integrity_seed);
         PacketSerializer::put_vector3(stream, structure_settings.pivot.clone());
     }
 
-    pub fn get_structure_editor_data(stream: &mut Stream) -> StructureEditorData {
+    pub fn get_structure_editor_data(stream: &mut Reader) -> StructureEditorData {
         let structure_name = PacketSerializer::get_string(stream);
         let filtered_structure_name = PacketSerializer::get_string(stream);
         let structure_data_field = PacketSerializer::get_string(stream);
@@ -739,7 +740,7 @@ impl PacketSerializer {
     }
 
     pub fn put_structure_editor_data(
-        stream: &mut Stream,
+        stream: &mut Writer,
         structure_editor_data: &StructureEditorData,
     ) {
         PacketSerializer::put_string(stream, structure_editor_data.structure_name.clone());
@@ -755,9 +756,9 @@ impl PacketSerializer {
         stream.put_var_i32(structure_editor_data.structure_redstone_save_mode);
     }
 
-    pub fn read_optional<T, F>(stream: &mut Stream, read_fn: F) -> Option<T>
+    pub fn read_optional<T, F>(stream: &mut Reader, read_fn: F) -> Option<T>
     where
-        F: FnOnce(&mut Stream) -> T,
+        F: FnOnce(&mut Reader) -> T,
     {
         let optional = stream.get_bool();
         if optional {
@@ -767,9 +768,9 @@ impl PacketSerializer {
         }
     }
 
-    pub fn write_optional<T, F>(stream: &mut Stream, value: &Option<T>, write_fn: F)
+    pub fn write_optional<T, F>(stream: &mut Writer, value: &Option<T>, write_fn: F)
     where
-        F: FnOnce(&mut Stream, &T),
+        F: FnOnce(&mut Writer, &T),
     {
         if let Some(v) = value {
             stream.put_bool(true);

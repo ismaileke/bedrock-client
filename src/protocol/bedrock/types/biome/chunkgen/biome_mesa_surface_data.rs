@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeMesaSurfaceData {
@@ -23,7 +23,7 @@ impl BiomeMesaSurfaceData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeMesaSurfaceData {
+    pub fn read(stream: &mut Reader) -> BiomeMesaSurfaceData {
         let clay_material = stream.get_u32_le();
         let hard_clay_material = stream.get_u32_le();
         let bryce_pillars = stream.get_bool();
@@ -32,7 +32,7 @@ impl BiomeMesaSurfaceData {
         BiomeMesaSurfaceData::new(clay_material, hard_clay_material, bryce_pillars, forest)
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_u32_le(self.clay_material);
         stream.put_u32_le(self.hard_clay_material);
         stream.put_bool(self.bryce_pillars);

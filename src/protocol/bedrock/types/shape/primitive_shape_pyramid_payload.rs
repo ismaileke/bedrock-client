@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PrimitiveShapePyramidPayload {
@@ -13,14 +13,14 @@ impl PrimitiveShapePyramidPayload {
         PrimitiveShapePyramidPayload { width, depth, height }
     }
 
-    pub fn read(stream: &mut Stream) -> PrimitiveShapePyramidPayload {
+    pub fn read(stream: &mut Reader) -> PrimitiveShapePyramidPayload {
         let width = stream.get_f32_le();
         let depth = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let height = stream.get_f32_le();
         PrimitiveShapePyramidPayload { width, depth, height }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.width);
         PacketSerializer::write_optional(stream, &self.depth, |s, v| s.put_f32_le(*v));
         stream.put_f32_le(self.height);

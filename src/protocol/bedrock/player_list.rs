@@ -3,7 +3,7 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::player_list_entry::PlayerListEntry;
 use crate::utils::color::Color;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerList {
@@ -23,30 +23,27 @@ impl PlayerList {
 
 impl Packet for PlayerList {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDPlayerList.get_byte()
+        BedrockPacketType::IDPlayerList.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        stream.put_byte(self.list_type);
+    fn encode(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.list_type);
         stream.put_var_u32(self.entries.len() as u32);
         for entry in self.entries.iter() {
             if self.list_type == Self::TYPE_ADD {
-                PacketSerializer::put_uuid(&mut stream, entry.uuid.clone());
-                PacketSerializer::put_actor_unique_id(&mut stream, entry.actor_unique_id);
-                PacketSerializer::put_string(&mut stream, entry.username.clone());
-                PacketSerializer::put_string(&mut stream, entry.xbox_user_id.clone());
-                PacketSerializer::put_string(&mut stream, entry.platform_chat_id.clone());
+                PacketSerializer::put_uuid(stream, entry.uuid.clone());
+                PacketSerializer::put_actor_unique_id(stream, entry.actor_unique_id);
+                PacketSerializer::put_string(stream, entry.username.clone());
+                PacketSerializer::put_string(stream, entry.xbox_user_id.clone());
+                PacketSerializer::put_string(stream, entry.platform_chat_id.clone());
                 stream.put_i32_le(entry.build_platform);
-                PacketSerializer::put_skin(&mut stream, &entry.skin_data);
+                PacketSerializer::put_skin(stream, &entry.skin_data);
                 stream.put_bool(entry.is_teacher);
                 stream.put_bool(entry.is_host);
                 stream.put_bool(entry.is_sub_client);
                 stream.put_u32_le(entry.color.unwrap_or(Color::new(255, 255, 255, 255)).to_argb());
             } else {
-                PacketSerializer::put_uuid(&mut stream, entry.uuid.clone());
+                PacketSerializer::put_uuid(stream, entry.uuid.clone());
             }
         }
         if self.list_type == Self::TYPE_ADD {
@@ -54,16 +51,10 @@ impl Packet for PlayerList {
                 stream.put_bool(entry.skin_data.is_verified);
             }
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> PlayerList {
-        let list_type = stream.get_byte();
+    fn decode(stream: &mut Reader) -> PlayerList {
+        let list_type = stream.get_u8();
         let count = stream.get_var_u32();
         let mut entries: Vec<PlayerListEntry> = Vec::with_capacity(count as usize);
         for _ in 0..count {

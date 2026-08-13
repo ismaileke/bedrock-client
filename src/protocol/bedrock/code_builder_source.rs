@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CodeBuilderSource {
@@ -11,28 +11,19 @@ pub struct CodeBuilderSource {
 
 impl Packet for CodeBuilderSource {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDCodeBuilderSource.get_byte()
+        BedrockPacketType::IDCodeBuilderSource.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        stream.put_byte(self.operation);
-        stream.put_byte(self.category);
-        stream.put_byte(self.code_status);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+    fn encode(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.operation);
+        stream.put_u8(self.category);
+        stream.put_u8(self.code_status);
     }
 
-    fn decode(stream: &mut Stream) -> CodeBuilderSource {
-        let operation = stream.get_byte();
-        let category = stream.get_byte();
-        let code_status = stream.get_byte();
+    fn decode(stream: &mut Reader) -> CodeBuilderSource {
+        let operation = stream.get_u8();
+        let category = stream.get_u8();
+        let code_status = stream.get_u8();
 
         CodeBuilderSource { operation, category, code_status }
     }

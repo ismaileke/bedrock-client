@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PhotoTransfer {
@@ -16,34 +16,25 @@ pub struct PhotoTransfer {
 
 impl Packet for PhotoTransfer {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDPhotoTransfer.get_byte()
+        BedrockPacketType::IDPhotoTransfer.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_string(&mut stream, self.photo_name.clone());
-        PacketSerializer::put_string(&mut stream, self.photo_data.clone());
-        PacketSerializer::put_string(&mut stream, self.book_id.clone());
-        stream.put_byte(self.photo_type);
-        stream.put_byte(self.source_type);
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_string(stream, self.photo_name.clone());
+        PacketSerializer::put_string(stream, self.photo_data.clone());
+        PacketSerializer::put_string(stream, self.book_id.clone());
+        stream.put_u8(self.photo_type);
+        stream.put_u8(self.source_type);
         stream.put_i64_le(self.owner_actor_unique_id);
-        PacketSerializer::put_string(&mut stream, self.new_photo_name.clone());
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        PacketSerializer::put_string(stream, self.new_photo_name.clone());
     }
 
-    fn decode(stream: &mut Stream) -> PhotoTransfer {
+    fn decode(stream: &mut Reader) -> PhotoTransfer {
         let photo_name = PacketSerializer::get_string(stream);
         let photo_data = PacketSerializer::get_string(stream);
         let book_id = PacketSerializer::get_string(stream);
-        let photo_type = stream.get_byte();
-        let source_type = stream.get_byte();
+        let photo_type = stream.get_u8();
+        let source_type = stream.get_u8();
         let owner_actor_unique_id = stream.get_i64_le();
         let new_photo_name = PacketSerializer::get_string(stream);
 

@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
@@ -18,7 +18,7 @@ impl PropertySyncData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> PropertySyncData {
+    pub fn read(stream: &mut Reader) -> PropertySyncData {
         let mut int_properties = HashMap::new();
         let mut float_properties = HashMap::new();
 
@@ -41,7 +41,7 @@ impl PropertySyncData {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.int_properties.len() as u32);
         for (key, value) in self.int_properties.iter() {
             stream.put_var_u32(*key);

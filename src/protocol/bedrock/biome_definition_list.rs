@@ -2,7 +2,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::biome::biome_definition_data::BiomeDefinitionData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeDefinitionList {
@@ -12,30 +12,21 @@ pub struct BiomeDefinitionList {
 
 impl Packet for BiomeDefinitionList {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDBiomeDefinitionList.get_byte()
+        BedrockPacketType::IDBiomeDefinitionList.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.definition_data.len() as u32);
         for definition_data in &self.definition_data {
-            definition_data.write(&mut stream);
+            definition_data.write(stream);
         }
         stream.put_var_u32(self.strings.len() as u32);
         for string in &self.strings {
-            PacketSerializer::put_string(&mut stream, string.clone());
+            PacketSerializer::put_string(stream, string.clone());
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> BiomeDefinitionList {
+    fn decode(stream: &mut Reader) -> BiomeDefinitionList {
         let mut definition_data = Vec::new();
         let mut strings = Vec::new();
         let mut count = stream.get_var_u32();

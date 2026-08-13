@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct DataStoreUpdateValueString {
@@ -11,13 +11,13 @@ impl DataStoreUpdateValueString {
         DataStoreUpdateValueString { value }
     }
 
-    pub fn read(stream: &mut Stream) -> DataStoreUpdateValueString {
+    pub fn read(stream: &mut Reader) -> DataStoreUpdateValueString {
         let value = PacketSerializer::get_string(stream);
 
         DataStoreUpdateValueString { value }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.value.clone());
     }
 }

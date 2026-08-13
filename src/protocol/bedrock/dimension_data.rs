@@ -3,7 +3,7 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::dimension_data_entry::DimensionDataEntry;
 use crate::protocol::bedrock::types::dimension_name_ids::DimensionNameIds;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
@@ -13,27 +13,18 @@ pub struct DimensionData {
 
 impl Packet for DimensionData {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDDimensionData.get_byte()
+        BedrockPacketType::IDDimensionData.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.definitions.len() as u32);
         for (dimension_name_id, dimension_data) in &self.definitions {
-            PacketSerializer::put_string(&mut stream, dimension_name_id.to_string());
-            dimension_data.write(&mut stream);
+            PacketSerializer::put_string(stream, dimension_name_id.to_string());
+            dimension_data.write(stream);
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> DimensionData {
+    fn decode(stream: &mut Reader) -> DimensionData {
         let mut definitions = HashMap::new();
         let count = stream.get_var_u32();
         for _ in 0..count {

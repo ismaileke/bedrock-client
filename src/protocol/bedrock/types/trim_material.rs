@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct TrimMaterial {
@@ -17,7 +17,7 @@ impl TrimMaterial {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> TrimMaterial {
+    pub fn read(stream: &mut Reader) -> TrimMaterial {
         let material_id = PacketSerializer::get_string(stream);
         let color = PacketSerializer::get_string(stream);
         let item_id = PacketSerializer::get_string(stream);
@@ -29,7 +29,7 @@ impl TrimMaterial {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.material_id.clone());
         PacketSerializer::put_string(stream, self.color.clone());
         PacketSerializer::put_string(stream, self.item_id.clone());

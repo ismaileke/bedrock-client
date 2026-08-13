@@ -1,5 +1,5 @@
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::raknet::packet_ids::PacketType;
-use binary_utils::binary::Stream;
 
 pub struct OpenConnReq1 {
     pub magic: [u8; 16],
@@ -12,25 +12,25 @@ impl OpenConnReq1 {
         OpenConnReq1 { magic, protocol, mtu_size }
     }
 
-    pub fn encode(&self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
+    pub fn encode(&self, stream: &mut Writer) {
+        stream.clear();
+        stream.put_u8(PacketType::get_u8(PacketType::OpenConnReq1));
+        stream.put(&self.magic);
+        stream.put_u8(self.protocol);
 
-        stream.put_byte(PacketType::get_byte(PacketType::OpenConnReq1));
-        stream.put(Vec::from(self.magic));
-        stream.put_byte(self.protocol);
-        let mtu_padding_size = (self.mtu_size as usize) - stream.get_buffer().len() - 28;
-        stream.put(vec![0x00; mtu_padding_size]);
-
-        Vec::from(stream.get_buffer())
+        let target = (self.mtu_size as usize).saturating_sub(28);
+        if target > stream.len() {
+            stream.resize(target, 0);
+        }
     }
 
-    pub fn decode(bytes: Vec<u8>) -> OpenConnReq1 {
-        let mut stream = Stream::new(bytes, 0);
+    pub fn decode(bytes: &[u8]) -> OpenConnReq1 {
+        let mut stream = Reader::new(bytes);
 
-        let _ = stream.get_byte();
-        let magic: [u8; 16] = stream.get(16).try_into().expect("Invalid length for magic");
-        let protocol = stream.get_byte();
-        let mtu_size = stream.get_remaining().len() as u16;
+        let _ = stream.get_u8();
+        let magic = stream.get(16).try_into().unwrap();
+        let protocol = stream.get_u8();
+        let mtu_size = stream.remaining_byte_count() as u16;
 
         OpenConnReq1 { magic, protocol, mtu_size }
     }

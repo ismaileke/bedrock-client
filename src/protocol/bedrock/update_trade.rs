@@ -2,7 +2,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use mojang_nbt::tag::tag::Tag;
 
 #[derive(serde::Serialize, Debug)]
@@ -21,34 +21,25 @@ pub struct UpdateTrade {
 
 impl Packet for UpdateTrade {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDUpdateTrade.get_byte()
+        BedrockPacketType::IDUpdateTrade.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        stream.put_byte(self.window_id);
-        stream.put_byte(self.window_type);
+    fn encode(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.window_id);
+        stream.put_u8(self.window_type);
         stream.put_var_i32(self.window_slot_count);
         stream.put_var_i32(self.trade_tier);
-        PacketSerializer::put_actor_unique_id(&mut stream, self.trader_actor_unique_id);
-        PacketSerializer::put_actor_unique_id(&mut stream, self.player_actor_unique_id);
-        PacketSerializer::put_string(&mut stream, self.display_name.clone());
+        PacketSerializer::put_actor_unique_id(stream, self.trader_actor_unique_id);
+        PacketSerializer::put_actor_unique_id(stream, self.player_actor_unique_id);
+        PacketSerializer::put_string(stream, self.display_name.clone());
         stream.put_bool(self.is_v2_trading);
         stream.put_bool(self.is_economy_trading);
         stream.put(self.offers.get_encoded_nbt());
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> UpdateTrade {
-        let window_id = stream.get_byte();
-        let window_type = stream.get_byte();
+    fn decode(stream: &mut Reader) -> UpdateTrade {
+        let window_id = stream.get_u8();
+        let window_type = stream.get_u8();
         let window_slot_count = stream.get_var_i32();
         let trade_tier = stream.get_var_i32();
         let trader_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);

@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::types::attribute_layer_settings_weight_float::AttributeLayerSettingsWeightFloat;
 use crate::protocol::bedrock::types::attribute_layer_settings_weight_string::AttributeLayerSettingsWeightString;
-use binary_utils::binary::Stream;
+use binary_utils::binary::Writer;
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -20,7 +20,7 @@ impl AttributeLayerSettingsWeight {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         match self {
             AttributeLayerSettingsWeight::String(r) => r.write(stream),
             AttributeLayerSettingsWeight::Float(r) => r.write(stream),

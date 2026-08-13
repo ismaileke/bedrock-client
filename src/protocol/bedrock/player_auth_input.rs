@@ -10,7 +10,7 @@ use crate::protocol::bedrock::types::player_auth_input_vehicle_info::PlayerAuthI
 use crate::protocol::bedrock::types::player_block_action::PlayerBlockAction;
 use crate::protocol::bedrock::types::player_block_action_stop_break::PlayerBlockActionStopBreak;
 use crate::protocol::bedrock::types::player_block_action_with_block_info::PlayerBlockActionWithBlockInfo;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerAuthInput {
@@ -99,54 +99,45 @@ impl PlayerAuthInput {
 
 impl Packet for PlayerAuthInput {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDPlayerAuthInput.get_byte()
+        BedrockPacketType::IDPlayerAuthInput.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_f32_le(self.pitch);
         stream.put_f32_le(self.yaw);
-        PacketSerializer::put_vector3(&mut stream, self.position.clone());
+        PacketSerializer::put_vector3(stream, self.position.clone());
         stream.put_f32_le(self.move_vec_x);
         stream.put_f32_le(self.move_vec_z);
         stream.put_f32_le(self.head_yaw);
-        self.input_flags.write(&mut stream);
+        self.input_flags.write(stream);
         stream.put_var_u32(self.input_mode);
         stream.put_var_u32(self.play_mode);
         stream.put_var_u32(self.interaction_mode);
-        PacketSerializer::put_vector2(&mut stream, self.interact_rotation.clone());
+        PacketSerializer::put_vector2(stream, self.interact_rotation.clone());
         stream.put_var_u64(self.tick);
-        PacketSerializer::put_vector3(&mut stream, self.delta.clone());
+        PacketSerializer::put_vector3(stream, self.delta.clone());
         if let Some(item_interaction_data) = &self.item_interaction_data {
-            item_interaction_data.write(&mut stream);
+            item_interaction_data.write(stream);
         }
         if let Some(item_stack_request) = &mut self.item_stack_request {
-            item_stack_request.write(&mut stream);
+            item_stack_request.write(stream);
         }
         if let Some(block_actions) = &mut self.block_actions {
             stream.put_var_i32(block_actions.len() as i32);
             for block_action in block_actions {
-                block_action.write(&mut stream);
+                block_action.write(stream);
             }
         }
         if let Some(vehicle_info) = &mut self.vehicle_info {
-            vehicle_info.write(&mut stream);
+            vehicle_info.write(stream);
         }
         stream.put_f32_le(self.analog_move_vec_x);
         stream.put_f32_le(self.analog_move_vec_z);
-        PacketSerializer::put_vector3(&mut stream, self.camera_orientation.clone());
-        PacketSerializer::put_vector2(&mut stream, self.raw_move.clone());
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        PacketSerializer::put_vector3(stream, self.camera_orientation.clone());
+        PacketSerializer::put_vector2(stream, self.raw_move.clone());
     }
 
-    fn decode(stream: &mut Stream) -> PlayerAuthInput {
+    fn decode(stream: &mut Reader) -> PlayerAuthInput {
         let pitch = stream.get_f32_le();
         let yaw = stream.get_f32_le();
         let position = PacketSerializer::get_vector3(stream);

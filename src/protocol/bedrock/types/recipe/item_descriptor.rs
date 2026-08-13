@@ -4,7 +4,7 @@ use crate::protocol::bedrock::types::recipe::item_descriptor_type::ItemDescripto
 use crate::protocol::bedrock::types::recipe::molang_item_descriptor::MolangItemDescriptor;
 use crate::protocol::bedrock::types::recipe::string_id_meta_item_descriptor::StringIdMetaItemDescriptor;
 use crate::protocol::bedrock::types::recipe::tag_item_descriptor::TagItemDescriptor;
-use binary_utils::binary::Stream;
+use binary_utils::binary::Writer;
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -27,7 +27,7 @@ impl ItemDescriptor {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         match self {
             ItemDescriptor::IntIDMeta(d) => d.write(stream),
             ItemDescriptor::Molang(d) => d.write(stream),

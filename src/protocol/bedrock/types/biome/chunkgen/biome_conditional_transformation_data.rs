@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::types::biome::chunkgen::biome_weighted_data::BiomeWeightedData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeConditionalTransformationData {
@@ -20,7 +20,7 @@ impl BiomeConditionalTransformationData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeConditionalTransformationData {
+    pub fn read(stream: &mut Reader) -> BiomeConditionalTransformationData {
         let mut weighted_biomes = Vec::new();
         let count = stream.get_var_u32();
         for _ in 0..count {
@@ -36,7 +36,7 @@ impl BiomeConditionalTransformationData {
         )
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.weighted_biomes.len() as u32);
         for biome in &self.weighted_biomes {
             biome.write(stream);

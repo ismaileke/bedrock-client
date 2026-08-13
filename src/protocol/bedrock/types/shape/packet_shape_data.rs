@@ -2,7 +2,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::shape::primitive_shape_type::PrimitiveShapeType;
 use crate::protocol::bedrock::types::shape::primitive_shape_payload::PrimitiveShapePayload;
 use crate::utils::color::Color;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::types::shape::primitive_shape_arrow_payload::PrimitiveShapeArrowPayload;
 use crate::protocol::bedrock::types::shape::primitive_shape_box_payload::PrimitiveShapeBoxPayload;
 use crate::protocol::bedrock::types::shape::primitive_shape_circle_or_sphere_payload::PrimitiveShapeCircleOrSpherePayload;
@@ -206,9 +206,9 @@ impl PacketShapeData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> PacketShapeData {
+    pub fn read(stream: &mut Reader) -> PacketShapeData {
         let network_id = stream.get_var_u64();
-        let shape_type = PacketSerializer::read_optional(stream, |s| s.get_byte());
+        let shape_type = PacketSerializer::read_optional(stream, |s| s.get_u8());
         let location = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
         let scale = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let rotation = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
@@ -254,9 +254,9 @@ impl PacketShapeData {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u64(self.network_id);
-        PacketSerializer::write_optional(stream, &self.shape_type, |s, v| s.put_byte(*v));
+        PacketSerializer::write_optional(stream, &self.shape_type, |s, v| s.put_u8(*v));
         PacketSerializer::write_optional(stream, &self.location, |s, v| PacketSerializer::put_vector3(s, v.clone()));
         PacketSerializer::write_optional(stream, &self.scale, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.rotation, |s, v| PacketSerializer::put_vector3(s, v.clone()));

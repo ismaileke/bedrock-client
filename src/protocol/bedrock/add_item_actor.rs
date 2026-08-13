@@ -3,7 +3,7 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
@@ -19,29 +19,20 @@ pub struct AddItemActor {
 
 impl Packet for AddItemActor {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDAddItemActor.get_byte()
+        BedrockPacketType::IDAddItemActor.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_actor_unique_id(&mut stream, self.actor_unique_id);
-        PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
-        PacketSerializer::put_item_stack_wrapper(&mut stream, self.item.clone());
-        PacketSerializer::put_vector3(&mut stream, self.position.clone());
-        PacketSerializer::put_vector3_nullable(&mut stream, Option::from(self.motion.clone()));
-        PacketSerializer::put_entity_metadata(&mut stream, &mut self.metadata);
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
+        PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
+        PacketSerializer::put_item_stack_wrapper(stream, self.item.clone());
+        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_vector3_nullable(stream, Option::from(self.motion.clone()));
+        PacketSerializer::put_entity_metadata(stream, &mut self.metadata);
         stream.put_bool(self.is_from_fishing);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> AddItemActor {
+    fn decode(stream: &mut Reader) -> AddItemActor {
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let item = PacketSerializer::get_item_stack_wrapper(stream);

@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct IntGameRule {
@@ -18,11 +18,7 @@ impl IntGameRule {
         }
     }
 
-    pub fn read(
-        stream: &mut Stream,
-        is_player_modifiable: bool,
-        is_start_game: bool,
-    ) -> IntGameRule {
+    pub fn read(stream: &mut Reader, is_player_modifiable: bool, is_start_game: bool) -> IntGameRule {
         IntGameRule {
             value: if is_start_game {
                 stream.get_var_u32()
@@ -33,7 +29,7 @@ impl IntGameRule {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream, is_start_game: bool) {
+    pub fn write(&mut self, stream: &mut Writer, is_start_game: bool) {
         if is_start_game {
             stream.put_var_u32(self.value);
         } else {

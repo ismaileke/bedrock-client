@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(serde::Serialize, Debug)]
@@ -14,7 +14,7 @@ pub struct GatheringJoinInfo {
 }
 
 impl GatheringJoinInfo {
-    pub fn read(stream: &mut Stream) -> GatheringJoinInfo {
+    pub fn read(stream: &mut Reader) -> GatheringJoinInfo {
         let experience_id = PacketSerializer::get_uuid(stream);
         let experience_name = PacketSerializer::get_string(stream);
         let experience_world_id = PacketSerializer::get_uuid(stream);
@@ -27,7 +27,7 @@ impl GatheringJoinInfo {
         GatheringJoinInfo { experience_id, experience_name, experience_world_id, experience_world_name, creator_id, target_id, scenario_id, server_id }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_uuid(stream, self.experience_id.clone());
         PacketSerializer::put_string(stream, self.experience_name.clone());
         PacketSerializer::put_uuid(stream, self.experience_world_id.clone());

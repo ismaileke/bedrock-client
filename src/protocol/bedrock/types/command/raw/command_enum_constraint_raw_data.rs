@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CommandEnumConstraintRawData {
@@ -12,25 +12,25 @@ impl CommandEnumConstraintRawData {
         CommandEnumConstraintRawData { affected_value_index, enum_index, constraints }
     }
 
-    pub fn read(stream: &mut Stream) -> CommandEnumConstraintRawData {
+    pub fn read(stream: &mut Reader) -> CommandEnumConstraintRawData {
         let affected_value_index = stream.get_var_u32();
         let enum_index = stream.get_var_u32();
         let constraints_size = stream.get_var_u32();
         let mut constraints = Vec::with_capacity(constraints_size as usize);
         for _ in 0..constraints_size {
-            let constraint = stream.get_byte();
+            let constraint = stream.get_u8();
             constraints.push(constraint);
         }
 
         CommandEnumConstraintRawData { affected_value_index, enum_index, constraints }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.affected_value_index);
         stream.put_var_u32(self.enum_index);
         stream.put_var_u32(self.constraints.len() as u32);
         for constraint in &self.constraints {
-            stream.put_byte(*constraint);
+            stream.put_u8(*constraint);
         }
     }
 }

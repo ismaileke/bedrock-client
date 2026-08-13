@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 pub const BITFLAG_VALID: u8 = 0x80;
 pub const BITFLAG_ACK: u8 = 0x40;
@@ -73,7 +73,7 @@ pub struct FrameNumberCache {
 
 impl Datagram {
     pub fn create_frame(
-        body: Vec<u8>,
+        body: &[u8],
         reliability: u8,
         frame_number_cache: &FrameNumberCache,
         fragment: Option<Fragment>,
@@ -86,7 +86,7 @@ impl Datagram {
                 sequenced_frame_index: None,
                 order: None,
                 fragment: None,
-                body,
+                body: body.to_vec(),
             },
             RELIABLE => Frame {
                 flags: reliability << 5,
@@ -95,7 +95,7 @@ impl Datagram {
                 sequenced_frame_index: None,
                 order: None,
                 fragment: None,
-                body,
+                body: body.to_vec(),
             },
             RELIABLE_ORDERED => {
                 // devam et buraya... fragment olarak gönderme sorunu var
@@ -110,7 +110,7 @@ impl Datagram {
                         order_channel: frame_number_cache.order_channel,
                     }),
                     fragment,
-                    body,
+                    body: body.to_vec(),
                 }
             }
             _ => Frame {
@@ -125,7 +125,7 @@ impl Datagram {
         }
     }
 
-    pub fn create(frames: Vec<Frame>, frame_number_cache: &FrameNumberCache) -> Datagram {
+    pub fn create<'a>(frames: Vec<Frame>, frame_number_cache: &FrameNumberCache) -> Datagram {
         Datagram {
             packet_id: 0x84,
             sequence_number: frame_number_cache.sequence_number,
@@ -133,7 +133,7 @@ impl Datagram {
         }
     }
 
-    pub fn split_packet(body: Vec<u8>, frame_number_cache: &mut FrameNumberCache) -> Vec<Datagram> {
+    pub fn split_packet<'a>(body: &[u8], frame_number_cache: &mut FrameNumberCache) -> Vec<Datagram> {
         let mut datagrams: Vec<Datagram> = Vec::new();
         if body.len() > 1300 {
             let multiple = body.len() / 1300;
@@ -141,9 +141,9 @@ impl Datagram {
 
             for i in 0..=multiple {
                 let range = if i == multiple {
-                    body[(i * 1300)..].to_vec()
+                    &body[(i * 1300)..]
                 } else {
-                    body[(i * 1300)..((i + 1) * 1300)].to_vec()
+                    &body[(i * 1300)..((i + 1) * 1300)]
                 };
                 let frame = Datagram::create_frame(
                     range,
@@ -171,14 +171,14 @@ impl Datagram {
         datagrams
     }
 
-    pub fn from_binary(frame_packet: Vec<u8>) -> Datagram {
+    pub fn from_binary(frame_packet: &[u8]) -> Datagram {
         // fragment handler kısmı yok - belki burda sunucunun sequenceini kontrol ederiz ona göre nack gönderirirz
-        let mut stream = Stream::new(frame_packet, 0);
-        let packet_id = stream.get_byte();
+        let mut stream = Reader::new(frame_packet);
+        let packet_id = stream.get_u8();
         let sequence_number = stream.get_u24_le();
         let mut frames: Vec<Frame> = Vec::new();
         while !stream.feof() {
-            let flags = stream.get_byte();
+            let flags = stream.get_u8();
             let reliability = (flags & RELIABILITY_FLAGS) >> RELIABILITY_SHIFT;
             let has_split = (flags & SPLIT_FLAG) != 0;
             let length_in_bits = stream.get_u16_be();
@@ -195,7 +195,7 @@ impl Datagram {
             if is_sequenced_or_ordered(reliability) {
                 order = Option::from(Order {
                     ordered_frame_index: stream.get_u24_le(),
-                    order_channel: stream.get_byte(),
+                    order_channel: stream.get_u8(),
                 })
             }
 
@@ -207,7 +207,7 @@ impl Datagram {
                 })
             }
 
-            let body = stream.get(((length_in_bits as f64) / 8.0).ceil() as u32);
+            let body = stream.get(((length_in_bits as f64) / 8.0).ceil() as usize);
 
             frames.push(Frame {
                 flags,
@@ -216,24 +216,19 @@ impl Datagram {
                 sequenced_frame_index,
                 order,
                 fragment,
-                body,
+                body: body.to_vec(),
             });
         }
 
-        Datagram {
-            packet_id,
-            sequence_number,
-            frames,
-        }
+        Datagram { packet_id, sequence_number, frames }
     }
 
-    pub fn to_binary(&self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_byte(self.packet_id);
+    pub fn to_binary(&self, stream: &mut Writer) {
+        stream.clear();
+        stream.put_u8(self.packet_id);
         stream.put_u24_le(self.sequence_number);
-
         for frame in &self.frames {
-            stream.put_byte(frame.flags);
+            stream.put_u8(frame.flags);
             stream.put_u16_be(frame.length_in_bits);
             if frame.reliable_frame_index.is_some() {
                 stream.put_u24_le(frame.reliable_frame_index.unwrap());
@@ -246,7 +241,7 @@ impl Datagram {
             if frame.order.is_some() {
                 let order = frame.order.as_ref().unwrap();
                 stream.put_u24_le(order.ordered_frame_index);
-                stream.put_byte(order.order_channel);
+                stream.put_u8(order.order_channel);
             }
 
             if frame.fragment.is_some() {
@@ -255,10 +250,8 @@ impl Datagram {
                 stream.put_u16_be(fragment.compound_id);
                 stream.put_u32_be(fragment.index);
             }
-            stream.put(frame.body.to_vec());
+            stream.put(frame.body.as_slice());
         }
-
-        Vec::from(stream.get_buffer())
     }
 }
 

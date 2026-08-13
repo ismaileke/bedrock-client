@@ -6,7 +6,7 @@ use crate::protocol::bedrock::types::float_pack_setting::FloatPackSetting;
 use crate::protocol::bedrock::types::pack_setting::PackSetting;
 use crate::protocol::bedrock::types::pack_setting_type::PackSettingType;
 use crate::protocol::bedrock::types::string_pack_setting::StringPackSetting;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ServerBoundPackSettingChange {
@@ -16,26 +16,17 @@ pub struct ServerBoundPackSettingChange {
 
 impl Packet for ServerBoundPackSettingChange {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDServerBoundPackSettingChange.get_byte()
+        BedrockPacketType::IDServerBoundPackSettingChange.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_uuid(&mut stream, self.pack_id.clone());
-        PacketSerializer::put_string(&mut stream, self.pack_setting.name().to_string());
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_uuid(stream, self.pack_id.clone());
+        PacketSerializer::put_string(stream, self.pack_setting.name().to_string());
         stream.put_var_u32(self.pack_setting.id());
-        self.pack_setting.write(&mut stream);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        self.pack_setting.write(stream);
     }
 
-    fn decode(stream: &mut Stream) -> ServerBoundPackSettingChange {
+    fn decode(stream: &mut Reader) -> ServerBoundPackSettingChange {
         let pack_id = PacketSerializer::get_uuid(stream);
         let name = PacketSerializer::get_string(stream);
         let id = stream.get_var_u32();

@@ -1,5 +1,3 @@
-use std::fmt::Debug;
-use binary_utils::binary::Stream;
 use crate::protocol::bedrock::types::inventory::stack_request::beacon_payment_stack_request_action::BeaconPaymentStackRequestAction;
 use crate::protocol::bedrock::types::inventory::stack_request::craft_recipe_auto_stack_request_action::CraftRecipeAutoStackRequestAction;
 use crate::protocol::bedrock::types::inventory::stack_request::craft_recipe_optional_stack_request_action::CraftRecipeOptionalStackRequestAction;
@@ -18,6 +16,8 @@ use crate::protocol::bedrock::types::inventory::stack_request::mine_block_stack_
 use crate::protocol::bedrock::types::inventory::stack_request::place_stack_request_action::PlaceStackRequestAction;
 use crate::protocol::bedrock::types::inventory::stack_request::swap_stack_request_action::SwapStackRequestAction;
 use crate::protocol::bedrock::types::inventory::stack_request::take_stack_request_action::TakeStackRequestAction;
+use binary_utils::binary::Writer;
+use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
 pub enum ItemStackRequestAction {
@@ -79,7 +79,7 @@ impl ItemStackRequestAction {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         match self {
             ItemStackRequestAction::Take(r) => r.write(stream),
             ItemStackRequestAction::Place(r) => r.write(stream),

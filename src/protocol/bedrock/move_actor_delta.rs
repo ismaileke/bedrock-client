@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct MoveActorDelta {
@@ -17,31 +17,22 @@ pub struct MoveActorDelta {
 
 impl Packet for MoveActorDelta {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDMoveActorDelta.get_byte()
+        BedrockPacketType::IDMoveActorDelta.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
         stream.put_u16_le(self.flags);
 
-        MoveActorDelta::maybe_write_coord(self.flags, Self::FLAG_HAS_X, self.x_pos, &mut stream);
-        MoveActorDelta::maybe_write_coord(self.flags, Self::FLAG_HAS_Y, self.y_pos, &mut stream);
-        MoveActorDelta::maybe_write_coord(self.flags, Self::FLAG_HAS_Z, self.z_pos, &mut stream);
-        MoveActorDelta::maybe_write_rotation(self.flags, Self::FLAG_HAS_PITCH, self.pitch, &mut stream);
-        MoveActorDelta::maybe_write_rotation(self.flags, Self::FLAG_HAS_YAW, self.yaw, &mut stream);
-        MoveActorDelta::maybe_write_rotation(self.flags, Self::FLAG_HAS_HEAD_YAW, self.head_yaw, &mut stream);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        MoveActorDelta::maybe_write_coord(self.flags, Self::FLAG_HAS_X, self.x_pos, stream);
+        MoveActorDelta::maybe_write_coord(self.flags, Self::FLAG_HAS_Y, self.y_pos, stream);
+        MoveActorDelta::maybe_write_coord(self.flags, Self::FLAG_HAS_Z, self.z_pos, stream);
+        MoveActorDelta::maybe_write_rotation(self.flags, Self::FLAG_HAS_PITCH, self.pitch, stream);
+        MoveActorDelta::maybe_write_rotation(self.flags, Self::FLAG_HAS_YAW, self.yaw, stream);
+        MoveActorDelta::maybe_write_rotation(self.flags, Self::FLAG_HAS_HEAD_YAW, self.head_yaw, stream);
     }
 
-    fn decode(stream: &mut Stream) -> MoveActorDelta {
+    fn decode(stream: &mut Reader) -> MoveActorDelta {
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let flags = stream.get_u16_le();
         let x_pos = MoveActorDelta::maybe_read_coord(flags, Self::FLAG_HAS_X, stream);
@@ -75,7 +66,7 @@ impl MoveActorDelta {
     pub const FLAG_TELEPORT: u16 = 0x80;
     pub const FLAG_FORCE_MOVE_LOCAL_ENTITY: u16 = 0x100;
 
-    pub fn maybe_read_coord(flags: u16, flag: u16, stream: &mut Stream) -> f32 {
+    pub fn maybe_read_coord(flags: u16, flag: u16, stream: &mut Reader) -> f32 {
         if flags & flag != 0 {
             stream.get_f32_le()
         } else {
@@ -83,13 +74,13 @@ impl MoveActorDelta {
         }
     }
 
-    pub fn maybe_write_coord(flags: u16, flag: u16, float_val: f32, stream: &mut Stream) {
+    pub fn maybe_write_coord(flags: u16, flag: u16, float_val: f32, stream: &mut Writer) {
         if flags & flag != 0 {
             stream.put_f32_le(float_val);
         }
     }
 
-    pub fn maybe_read_rotation(flags: u16, flag: u16, stream: &mut Stream) -> f32 {
+    pub fn maybe_read_rotation(flags: u16, flag: u16, stream: &mut Reader) -> f32 {
         if flags & flag != 0 {
             PacketSerializer::get_rotation_byte(stream)
         } else {
@@ -97,7 +88,7 @@ impl MoveActorDelta {
         }
     }
 
-    pub fn maybe_write_rotation(flags: u16, flag: u16, float_val: f32, stream: &mut Stream) {
+    pub fn maybe_write_rotation(flags: u16, flag: u16, float_val: f32, stream: &mut Writer) {
         if flags & flag != 0 {
             PacketSerializer::put_rotation_byte(stream, float_val);
         }

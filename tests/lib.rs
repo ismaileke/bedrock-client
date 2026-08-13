@@ -5,13 +5,13 @@ mod tests {
 
     use bedrock_client::protocol::bedrock::bedrock_packet_ids::BedrockPacket;
     use bedrock_client::protocol::bedrock::packet::Packet;
-    use bedrock_client::protocol::bedrock::player_auth_input::PlayerAuthInput;
-    use bedrock_client::protocol::bedrock::serializer::bit_set::BitSet;
+    //use bedrock_client::protocol::bedrock::player_auth_input::PlayerAuthInput;
+    //use bedrock_client::protocol::bedrock::serializer::bit_set::BitSet;
     use bedrock_client::protocol::bedrock::text::Text;
     use bedrock_client::utils::chunk::{get_dimension_chunk_bounds, network_decode};
     use bedrock_client::utils::color_format;
     use bedrock_client::client;
-    use std::time::{Duration, Instant};
+    //use std::time::{Duration, Instant};
 
     #[tokio::test]
     async fn test_client() {
@@ -19,18 +19,20 @@ mod tests {
             "127.0.0.1".to_string(),
             19132,
             "1.26.30".to_string(),
-            true,
+            false,
             |code, url| { println!("Microsoft Auth: {} {}", code, url); }
         ).await.unwrap();
 
-        let mut is_logged_in = false;
-        let mut last_auth_input_time = Instant::now();
+        //let mut is_logged_in = false;
+        //let mut last_auth_input_time = Instant::now();
 
-        let tick_interval = Duration::from_millis(50);
+        //let tick_interval = Duration::from_millis(50);
 
         while let Some((packet_name, packet)) = client.next_event().await {
             println!("{}[{}Packet{}] {}{}{}", color_format::COLOR_GRAY, color_format::COLOR_MINECOIN_GOLD, color_format::COLOR_GRAY, color_format::COLOR_BLUE, packet_name, color_format::COLOR_GRAY);
 
+            //let packet_json = serde_json::to_string_pretty(&packet).unwrap();
+            //println!("{}", packet_json);
             match packet {
                 BedrockPacket::StartGame(start_game) => {
                     client.player_position = start_game.player_position.clone();
@@ -55,27 +57,27 @@ mod tests {
                 },
                 BedrockPacket::PlayStatus(play_status) => {
                     if play_status.status == 3 {
-                        is_logged_in = true;
+                        //is_logged_in = true;
                         println!("Login Successful! Joined the game.");
                         let my_text = Text {
                             text_type: Text::TYPE_CHAT,
                             needs_translation: false,
-                            source_name: Some("oyunkons1234".to_string()),
+                            source_name: Some("thronplo".to_string()),
                             message: "Hello server!".to_string(),
                             parameters: None,
                             xbox_uid: "".to_string(),
                             platform_chat_id: "".to_string(),
                             filtered_message: None,
-                        }.encode();
+                        };
 
-                        client.send_packet(my_text);
+                        client.send_packet(Box::new(my_text) as Box<dyn Packet>);
                     }
                 },
                 BedrockPacket::LevelChunk(level_chunk) => {
                     if level_chunk.sub_chunk_count != u32::MAX-1 { // 4294967294 = u32Max - 1
                         let decoded_chunk = network_decode(
                             client.chunk_air_id,
-                            level_chunk.extra_payload.clone(),
+                            level_chunk.extra_payload.as_slice(),
                             level_chunk.sub_chunk_count,
                             get_dimension_chunk_bounds(0)
                         );
@@ -97,7 +99,7 @@ mod tests {
             }
         }
 
-        if is_logged_in && last_auth_input_time.elapsed() >= tick_interval {
+        /*if is_logged_in && last_auth_input_time.elapsed() >= tick_interval {
             //println!("Current Tick: {}", client.current_tick);
             client.current_tick += 1;
             let auth_input = PlayerAuthInput {
@@ -122,10 +124,9 @@ mod tests {
                 analog_move_vec_z: 0.0,
                 camera_orientation: vec![0.0, 0.0, 0.0],
                 raw_move: vec![0.0, 0.0],
-            }.encode();
-            client.send_packet(auth_input);
+            };
+            client.send_packet(Box::new(auth_input) as Box<dyn Packet>);
             last_auth_input_time = Instant::now();
-        }
-
+        }*/
     }
 }

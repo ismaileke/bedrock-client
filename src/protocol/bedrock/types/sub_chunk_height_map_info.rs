@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct SubChunkHeightMapInfo {
@@ -41,17 +41,17 @@ impl SubChunkHeightMapInfo {
         self.heights.iter().all(|&h| h > 15)
     }
 
-    pub fn read(stream: &mut Stream) -> SubChunkHeightMapInfo {
+    pub fn read(stream: &mut Reader) -> SubChunkHeightMapInfo {
         let mut heights = Vec::with_capacity(256);
         for _ in 0..256 {
-            heights.push(stream.get_byte() as i8);
+            heights.push(stream.get_u8() as i8);
         }
         SubChunkHeightMapInfo { heights }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         for &height in &self.heights {
-            stream.put_byte(height as u8);
+            stream.put_u8(height as u8);
         }
     }
 }

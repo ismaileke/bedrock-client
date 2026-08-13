@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(serde::Serialize, Debug)]
@@ -13,7 +13,7 @@ impl CameraProgressOption {
         CameraProgressOption { value, time, ease_type }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraProgressOption {
+    pub fn read(stream: &mut Reader) -> CameraProgressOption {
         let value = stream.get_f32_le();
         let time = stream.get_f32_le();
         let ease_type = PacketSerializer::get_string(stream);
@@ -21,7 +21,7 @@ impl CameraProgressOption {
         CameraProgressOption { value, time, ease_type }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.value);
         stream.put_f32_le(self.time);
         PacketSerializer::put_string(stream, self.ease_type.clone());

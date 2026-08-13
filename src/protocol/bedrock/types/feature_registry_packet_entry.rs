@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct FeatureRegistryPacketEntry {
@@ -8,7 +8,7 @@ pub struct FeatureRegistryPacketEntry {
 }
 
 impl FeatureRegistryPacketEntry {
-    pub fn read(stream: &mut Stream) -> FeatureRegistryPacketEntry {
+    pub fn read(stream: &mut Reader) -> FeatureRegistryPacketEntry {
         let feature_name = PacketSerializer::get_string(stream);
         let feature_json = PacketSerializer::get_string(stream);
 
@@ -18,7 +18,7 @@ impl FeatureRegistryPacketEntry {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.feature_name.clone());
         PacketSerializer::put_string(stream, self.feature_json.clone());
     }

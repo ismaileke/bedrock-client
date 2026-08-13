@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_rotation_option::CameraRotationOption;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::types::camera::camera_progress_option::CameraProgressOption;
 
 #[derive(serde::Serialize, Debug)]
@@ -35,9 +35,9 @@ impl CameraSplineInstruction {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraSplineInstruction {
+    pub fn read(stream: &mut Reader) -> CameraSplineInstruction {
         let total_time = stream.get_f32_le();
-        let ease_type = stream.get_byte();
+        let ease_type = stream.get_u8();
 
         let mut curve = Vec::new();
         let curve_count = stream.get_var_u32();
@@ -63,9 +63,9 @@ impl CameraSplineInstruction {
         CameraSplineInstruction { total_time, ease_type, curve, progress_key_frames, rotation_options, spline_identifier, load_from_json }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.total_time);
-        stream.put_byte(self.ease_type);
+        stream.put_u8(self.ease_type);
 
         stream.put_var_u32(self.curve.len() as u32);
         for curve in &self.curve {

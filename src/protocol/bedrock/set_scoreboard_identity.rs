@@ -2,7 +2,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::scoreboard_identity_entry::ScoreboardIdentityEntry;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetScoreboardIdentity {
@@ -12,31 +12,22 @@ pub struct SetScoreboardIdentity {
 
 impl Packet for SetScoreboardIdentity {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDSetScoreboardIdentity.get_byte()
+        BedrockPacketType::IDSetScoreboardIdentity.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        stream.put_byte(self.action_type);
+    fn encode(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.action_type);
         stream.put_var_u32(self.entries.len() as u32);
         for entry in &self.entries {
             stream.put_var_i64(entry.scoreboard_id);
             if self.action_type == SetScoreboardIdentity::TYPE_REGISTER_IDENTITY {
-                PacketSerializer::put_actor_unique_id(&mut stream, entry.actor_unique_id.unwrap());
+                PacketSerializer::put_actor_unique_id(stream, entry.actor_unique_id.unwrap());
             }
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> SetScoreboardIdentity {
-        let action_type = stream.get_byte();
+    fn decode(stream: &mut Reader) -> SetScoreboardIdentity {
+        let action_type = stream.get_u8();
         let mut entries: Vec<ScoreboardIdentityEntry> = Vec::new();
         let count = stream.get_var_u32();
         for _ in 0..count {

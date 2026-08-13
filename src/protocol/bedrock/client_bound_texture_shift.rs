@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(serde::Serialize, Debug)]
@@ -25,34 +25,25 @@ impl ClientBoundTextureShift {
 
 impl Packet for ClientBoundTextureShift {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDClientBoundTextureShift.get_byte()
+        BedrockPacketType::IDClientBoundTextureShift.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        stream.put_byte(self.action_id);
-        PacketSerializer::put_string(&mut stream, self.collection_name.clone());
-        PacketSerializer::put_string(&mut stream, self.from_step.clone());
-        PacketSerializer::put_string(&mut stream, self.to_step.clone());
+    fn encode(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.action_id);
+        PacketSerializer::put_string(stream, self.collection_name.clone());
+        PacketSerializer::put_string(stream, self.from_step.clone());
+        PacketSerializer::put_string(stream, self.to_step.clone());
         stream.put_var_u32(self.all_steps.len() as u32);
         for all_step in &self.all_steps {
-            PacketSerializer::put_string(&mut stream, all_step.clone());
+            PacketSerializer::put_string(stream, all_step.clone());
         }
         stream.put_var_u64(self.current_length_ticks);
         stream.put_var_u64(self.total_length_ticks);
         stream.put_bool(self.enabled);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> ClientBoundTextureShift {
-        let action_id = stream.get_byte();
+    fn decode(stream: &mut Reader) -> ClientBoundTextureShift {
+        let action_id = stream.get_u8();
         let collection_name = PacketSerializer::get_string(stream);
         let from_step = PacketSerializer::get_string(stream);
         let to_step = PacketSerializer::get_string(stream);

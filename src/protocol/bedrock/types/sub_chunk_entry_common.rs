@@ -3,7 +3,7 @@ use crate::protocol::bedrock::types::sub_chunk_height_map_info::SubChunkHeightMa
 use crate::protocol::bedrock::types::sub_chunk_height_map_type::SubChunkHeightMapType;
 use crate::protocol::bedrock::types::sub_chunk_position_offset::SubChunkPositionOffset;
 use crate::protocol::bedrock::types::sub_chunk_request_result::SubChunkRequestResult;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SubChunkEntryCommon {
@@ -31,9 +31,9 @@ impl SubChunkEntryCommon {
         }
     }
 
-    pub fn read(stream: &mut Stream, cache_enabled: bool) -> SubChunkEntryCommon {
+    pub fn read(stream: &mut Reader, cache_enabled: bool) -> SubChunkEntryCommon {
         let offset = SubChunkPositionOffset::read(stream);
-        let request_result = stream.get_byte();
+        let request_result = stream.get_u8();
         let terrain_data =
             if !cache_enabled || request_result != SubChunkRequestResult::SUCCESS_ALL_AIR {
                 PacketSerializer::get_string(stream)
@@ -41,7 +41,7 @@ impl SubChunkEntryCommon {
                 String::new()
             };
 
-        let height_map_data_type = stream.get_byte();
+        let height_map_data_type = stream.get_u8();
         let height_map = match height_map_data_type {
             SubChunkHeightMapType::NO_DATA => None,
             SubChunkHeightMapType::DATA => Some(SubChunkHeightMapInfo::read(stream)),
@@ -50,7 +50,7 @@ impl SubChunkEntryCommon {
             _ => panic!("Unknown heightmap data type {}", height_map_data_type),
         };
 
-        let render_height_map_data_type = stream.get_byte();
+        let render_height_map_data_type = stream.get_u8();
         let render_height_map = match render_height_map_data_type {
             SubChunkHeightMapType::NO_DATA => None,
             SubChunkHeightMapType::DATA => Some(SubChunkHeightMapInfo::read(stream)),
@@ -72,9 +72,9 @@ impl SubChunkEntryCommon {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream, cache_enabled: bool) {
+    pub fn write(&self, stream: &mut Writer, cache_enabled: bool) {
         self.offset.write(stream);
-        stream.put_byte(self.request_result);
+        stream.put_u8(self.request_result);
 
         if !cache_enabled || self.request_result != SubChunkRequestResult::SUCCESS_ALL_AIR {
             PacketSerializer::put_string(stream, self.terrain_data.clone());
@@ -82,28 +82,28 @@ impl SubChunkEntryCommon {
 
         if let Some(height_map) = &self.height_map {
             if height_map.is_all_too_low() {
-                stream.put_byte(SubChunkHeightMapType::ALL_TOO_LOW);
+                stream.put_u8(SubChunkHeightMapType::ALL_TOO_LOW);
             } else if height_map.is_all_too_high() {
-                stream.put_byte(SubChunkHeightMapType::ALL_TOO_HIGH);
+                stream.put_u8(SubChunkHeightMapType::ALL_TOO_HIGH);
             } else {
-                stream.put_byte(SubChunkHeightMapType::DATA);
+                stream.put_u8(SubChunkHeightMapType::DATA);
                 height_map.write(stream);
             }
         } else {
-            stream.put_byte(SubChunkHeightMapType::NO_DATA);
+            stream.put_u8(SubChunkHeightMapType::NO_DATA);
         }
 
         if let Some(render_height_map) = &self.render_height_map {
             if render_height_map.is_all_too_low() {
-                stream.put_byte(SubChunkHeightMapType::ALL_TOO_LOW);
+                stream.put_u8(SubChunkHeightMapType::ALL_TOO_LOW);
             } else if render_height_map.is_all_too_high() {
-                stream.put_byte(SubChunkHeightMapType::ALL_TOO_HIGH);
+                stream.put_u8(SubChunkHeightMapType::ALL_TOO_HIGH);
             } else {
-                stream.put_byte(SubChunkHeightMapType::DATA);
+                stream.put_u8(SubChunkHeightMapType::DATA);
                 render_height_map.write(stream);
             }
         } else {
-            stream.put_byte(SubChunkHeightMapType::ALL_COPIED);
+            stream.put_u8(SubChunkHeightMapType::ALL_COPIED);
         }
     }
 }

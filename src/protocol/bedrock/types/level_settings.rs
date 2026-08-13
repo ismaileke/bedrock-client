@@ -3,7 +3,7 @@ use crate::protocol::bedrock::types::education_uri_resource::EducationUriResourc
 use crate::protocol::bedrock::types::experiments::Experiments;
 use crate::protocol::bedrock::types::game_rule::GameRule;
 use crate::protocol::bedrock::types::spawn_settings::SpawnSettings;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
@@ -61,7 +61,7 @@ pub struct LevelSettings {
 }
 
 impl LevelSettings {
-    pub fn read(stream: &mut Stream) -> LevelSettings {
+    pub fn read(stream: &mut Reader) -> LevelSettings {
         let seed = stream.get_u64_le();
         let spawn_settings = SpawnSettings::read(stream);
         let generator = stream.get_var_i32();
@@ -108,7 +108,7 @@ impl LevelSettings {
         let is_new_nether = stream.get_bool();
         let edu_shared_uri_resource = EducationUriResource::read(stream);
         let experimental_gameplay_override = stream.get_bool();
-        let chat_restriction_level = stream.get_byte();
+        let chat_restriction_level = stream.get_u8();
         let disable_player_interactions = stream.get_bool();
         let server_editor_connection_policy = stream.get_var_i32();
         let allow_anonymous_block_drops_in_editor_worlds = stream.get_bool();
@@ -167,7 +167,7 @@ impl LevelSettings {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         stream.put_u64_le(self.seed);
         self.spawn_settings.write(stream);
         stream.put_var_i32(self.generator);
@@ -214,7 +214,7 @@ impl LevelSettings {
         stream.put_bool(self.is_new_nether);
         self.edu_shared_uri_resource.write(stream);
         stream.put_bool(self.experimental_gameplay_override);
-        stream.put_byte(self.chat_restriction_level);
+        stream.put_u8(self.chat_restriction_level);
         stream.put_bool(self.disable_player_interactions);
         stream.put_var_i32(self.server_editor_connection_policy);
         stream.put_bool(self.allow_anonymous_block_drops_in_editor_worlds);

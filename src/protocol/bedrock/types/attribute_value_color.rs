@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::types::attribute_value_color_array::AttributeValueColorArray;
 use crate::protocol::bedrock::types::attribute_value_color_string::AttributeValueColorString;
 use crate::protocol::bedrock::types::attribute_value_color_value::AttributeValueColorValue;
@@ -21,7 +21,7 @@ impl AttributeValueColor {
         AttributeValueColor { value, operation }
     }
 
-    pub fn read(stream: &mut Stream) -> AttributeValueColor {
+    pub fn read(stream: &mut Reader) -> AttributeValueColor {
         let value_type = stream.get_var_u32();
         let value = match value_type {
             AttributeValueColorValue::STRING => AttributeValueColorValue::String(AttributeValueColorString::read(stream)),
@@ -33,7 +33,7 @@ impl AttributeValueColor {
         AttributeValueColor { value, operation }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.value.id());
         self.value.write(stream);
         PacketSerializer::put_string(stream, self.operation.clone());

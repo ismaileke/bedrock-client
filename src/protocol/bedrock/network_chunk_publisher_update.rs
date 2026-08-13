@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use log::error;
 
 const MAX_SAVED_CHUNKS: u32 = 9216;
@@ -15,14 +15,11 @@ pub struct NetworkChunkPublisherUpdate {
 
 impl Packet for NetworkChunkPublisherUpdate {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDNetworkChunkPublisherUpdate.get_byte()
+        BedrockPacketType::IDNetworkChunkPublisherUpdate.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_block_pos(&mut stream, self.block_pos.clone());
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_block_pos(stream, self.block_pos.clone());
 
         stream.put_var_u32(self.radius);
 
@@ -31,15 +28,9 @@ impl Packet for NetworkChunkPublisherUpdate {
             stream.put_var_i32(chunk[0]);
             stream.put_var_i32(chunk[1]);
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> NetworkChunkPublisherUpdate {
+    fn decode(stream: &mut Reader) -> NetworkChunkPublisherUpdate {
         let block_pos = PacketSerializer::get_block_pos(stream);
         let radius = stream.get_var_u32();
         let count = stream.get_u32_le();

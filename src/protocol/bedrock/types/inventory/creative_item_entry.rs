@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CreativeItemEntry {
@@ -18,7 +18,7 @@ impl CreativeItemEntry {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> CreativeItemEntry {
+    pub fn read(stream: &mut Reader) -> CreativeItemEntry {
         let entry_id = PacketSerializer::read_creative_item_net_id(stream);
         let item = PacketSerializer::get_item_stack_without_stack_id(stream);
         let group_id = stream.get_var_u32();
@@ -30,7 +30,7 @@ impl CreativeItemEntry {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::write_creative_item_net_id(stream, self.entry_id);
         PacketSerializer::put_item_stack_without_stack_id(stream, &self.item);
         stream.put_var_u32(self.group_id);

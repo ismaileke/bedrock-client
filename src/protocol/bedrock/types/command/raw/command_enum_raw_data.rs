@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CommandEnumRawData {
@@ -12,7 +12,7 @@ impl CommandEnumRawData {
         CommandEnumRawData { name, value_indexes }
     }
 
-    pub fn read(stream: &mut Stream) -> CommandEnumRawData {
+    pub fn read(stream: &mut Reader) -> CommandEnumRawData {
         let name = PacketSerializer::get_string(stream);
         let size = stream.get_var_u32();
         let mut value_indexes = Vec::with_capacity(size as usize);
@@ -23,7 +23,7 @@ impl CommandEnumRawData {
         CommandEnumRawData { name, value_indexes }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.name.clone());
         stream.put_var_u32(self.value_indexes.len() as u32);
         for value_index in &self.value_indexes {

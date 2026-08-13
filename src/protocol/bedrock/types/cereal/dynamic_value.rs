@@ -4,7 +4,7 @@ use crate::protocol::bedrock::types::cereal::dynamic_value_list::DynamicValueLis
 use crate::protocol::bedrock::types::cereal::dynamic_value_long::DynamicValueLong;
 use crate::protocol::bedrock::types::cereal::dynamic_value_map::DynamicValueMap;
 use crate::protocol::bedrock::types::cereal::dynamic_value_string::DynamicValueString;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -39,7 +39,7 @@ impl DynamicValue {
         }
     }
 
-    pub fn read(stream: &mut Stream, dynamic_value_type: u32) -> DynamicValue {
+    pub fn read(stream: &mut Reader, dynamic_value_type: u32) -> DynamicValue {
         match dynamic_value_type {
             DynamicValue::NULL => DynamicValue::Null(),
             DynamicValue::BOOL => DynamicValue::Bool(DynamicValueBool::read(stream)),
@@ -52,7 +52,7 @@ impl DynamicValue {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         match self {
             DynamicValue::Null() => (),
             DynamicValue::Bool(r) => r.write(stream),

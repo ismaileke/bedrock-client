@@ -1,5 +1,5 @@
 use crate::utils::color::Color;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::client_bound_map_item_data::ClientBoundMapItemData;
 
 #[derive(serde::Serialize, Debug)]
@@ -47,7 +47,7 @@ impl MapImage {
         }
     }
 
-    pub fn read(stream: &mut Stream, height: i32, width: i32) -> MapImage {
+    pub fn read(stream: &mut Reader, height: i32, width: i32) -> MapImage {
         if width > Self::MAX_WIDTH {
             panic!("Image width must be at most {} pixels wide", Self::MAX_WIDTH);
         }
@@ -67,19 +67,19 @@ impl MapImage {
         MapImage::new(pixels)
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         if self.encoded_pixel_cache.is_none() {
-            let mut buffer = Stream::new(Vec::new(), 0);
+            let mut buffer = Writer::new();
             for y in 0..self.height {
                 for x in 0..self.width {
                     buffer.put_var_u32(ClientBoundMapItemData::flip_int_endianness(self.pixels[y as usize][x as usize].to_rgba()));
                 }
             }
-            self.encoded_pixel_cache = Some(buffer.get_buffer().to_vec());
+            self.encoded_pixel_cache = Some(buffer.as_slice().to_vec());
         }
 
         if let Some(data) = self.encoded_pixel_cache.as_ref() {
-            stream.put(data.to_vec());
+            stream.put(data);
         }
     }
 }

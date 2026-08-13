@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeCoordinateData {
@@ -32,7 +32,7 @@ impl BiomeCoordinateData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeCoordinateData {
+    pub fn read(stream: &mut Reader) -> BiomeCoordinateData {
         let min_value_type = stream.get_var_i32();
         let min_value = stream.get_i16_le();
         let max_value_type = stream.get_var_i32();
@@ -52,7 +52,7 @@ impl BiomeCoordinateData {
         )
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_i32(self.min_value_type);
         stream.put_i16_le(self.min_value);
         stream.put_var_i32(self.max_value_type);

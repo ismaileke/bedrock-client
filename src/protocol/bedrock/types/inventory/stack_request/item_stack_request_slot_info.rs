@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::full_container_name::FullContainerName;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemStackRequestSlotInfo {
@@ -22,9 +22,9 @@ impl ItemStackRequestSlotInfo {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> ItemStackRequestSlotInfo {
+    pub fn read(stream: &mut Reader) -> ItemStackRequestSlotInfo {
         let container_name = FullContainerName::read(stream);
-        let slot_id = stream.get_byte();
+        let slot_id = stream.get_u8();
         let stack_id = PacketSerializer::read_item_stack_net_id_variant(stream);
 
         ItemStackRequestSlotInfo {
@@ -34,9 +34,9 @@ impl ItemStackRequestSlotInfo {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         self.container_name.write(stream);
-        stream.put_byte(self.slot_id);
+        stream.put_u8(self.slot_id);
         PacketSerializer::write_item_stack_net_id_variant(stream, self.stack_id);
     }
 }

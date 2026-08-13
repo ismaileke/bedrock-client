@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct LevelSoundEvent {
@@ -17,30 +17,21 @@ pub struct LevelSoundEvent {
 
 impl Packet for LevelSoundEvent {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDLevelSoundEvent.get_byte()
+        BedrockPacketType::IDLevelSoundEvent.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_string(&mut stream, self.sound.clone());
-        PacketSerializer::put_vector3(&mut stream, self.position.clone());
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_string(stream, self.sound.clone());
+        PacketSerializer::put_vector3(stream, self.position.clone());
         stream.put_var_i32(self.extra_data);
-        PacketSerializer::put_string(&mut stream, self.entity_type.clone());
+        PacketSerializer::put_string(stream, self.entity_type.clone());
         stream.put_bool(self.is_baby_mob);
         stream.put_bool(self.disable_relative_volume);
         stream.put_i64_le(self.actor_unique_id);
-        PacketSerializer::write_optional(&mut stream, &self.fire_position, |s, v| PacketSerializer::put_vector3(s, v.clone()));
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        PacketSerializer::write_optional(stream, &self.fire_position, |s, v| PacketSerializer::put_vector3(s, v.clone()));
     }
 
-    fn decode(stream: &mut Stream) -> LevelSoundEvent {
+    fn decode(stream: &mut Reader) -> LevelSoundEvent {
         let sound = PacketSerializer::get_string(stream);
         let position = PacketSerializer::get_vector3(stream);
         let extra_data = stream.get_var_i32();

@@ -6,7 +6,7 @@ use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty
 use crate::protocol::bedrock::types::entity::property_sync_data::PropertySyncData;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::update_abilities::UpdateAbilities;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
@@ -32,42 +32,33 @@ pub struct AddPlayer {
 
 impl Packet for AddPlayer {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDAddPlayer.get_byte()
+        BedrockPacketType::IDAddPlayer.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_uuid(&mut stream, self.uuid.clone());
-        PacketSerializer::put_string(&mut stream, self.username.clone());
-        PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
-        PacketSerializer::put_string(&mut stream, self.platform_chat_id.clone());
-        PacketSerializer::put_vector3(&mut stream, self.position.clone());
-        PacketSerializer::put_vector3_nullable(&mut stream, Option::from(self.motion.clone()));
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_uuid(stream, self.uuid.clone());
+        PacketSerializer::put_string(stream, self.username.clone());
+        PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
+        PacketSerializer::put_string(stream, self.platform_chat_id.clone());
+        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_vector3_nullable(stream, Option::from(self.motion.clone()));
         stream.put_f32_le(self.pitch);
         stream.put_f32_le(self.yaw);
         stream.put_f32_le(self.head_yaw);
-        PacketSerializer::put_item_stack_wrapper(&mut stream, self.item.clone());
+        PacketSerializer::put_item_stack_wrapper(stream, self.item.clone());
         stream.put_var_i32(self.game_mode);
-        PacketSerializer::put_entity_metadata(&mut stream, &mut self.metadata);
-        self.synced_properties.write(&mut stream);
-        stream.put(self.abilities_packet.encode());
+        PacketSerializer::put_entity_metadata(stream, &mut self.metadata);
+        self.synced_properties.write(stream);
+        self.abilities_packet.encode(stream);
         stream.put_var_u32(self.links.len() as u32);
         for link in &self.links {
-            PacketSerializer::put_entity_link(&mut stream, link.clone());
+            PacketSerializer::put_entity_link(stream, link.clone());
         }
-        PacketSerializer::put_string(&mut stream, self.device_id.clone());
+        PacketSerializer::put_string(stream, self.device_id.clone());
         stream.put_i32_le(self.build_platform);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> AddPlayer {
+    fn decode(stream: &mut Reader) -> AddPlayer {
         let uuid = PacketSerializer::get_uuid(stream);
         let username = PacketSerializer::get_string(stream);
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);

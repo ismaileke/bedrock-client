@@ -1,10 +1,10 @@
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::raknet::packet_ids::PacketType;
 use crate::utils::color_format;
 use crate::utils::color_format::COLOR_WHITE;
-use binary_utils::binary::Stream;
 
 pub struct ConnectedPing {
-    pub ping_time: u64,
+    pub ping_time: u64
 }
 
 impl ConnectedPing {
@@ -12,17 +12,16 @@ impl ConnectedPing {
         ConnectedPing { ping_time }
     }
 
-    pub fn encode(&self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_byte(PacketType::get_byte(PacketType::ConnectedPing));
+    pub fn encode(&self, stream: &mut Writer) {
+        stream.clear();
+        stream.put_u8(PacketType::get_u8(PacketType::ConnectedPing));
         stream.put_u64_be(self.ping_time);
-        Vec::from(stream.get_buffer())
     }
 
-    pub fn decode(bytes: Vec<u8>) -> ConnectedPing {
-        let mut stream = Stream::new(bytes, 0);
+    pub fn decode(bytes: &[u8]) -> ConnectedPing {
+        let mut stream = Reader::new(bytes);
 
-        let _ = stream.get_byte();
+        let _ = stream.get_u8();
         let ping_time = stream.get_u64_be();
         ConnectedPing { ping_time }
     }

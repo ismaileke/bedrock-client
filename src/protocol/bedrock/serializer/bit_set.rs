@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BitSet {
@@ -49,14 +49,14 @@ impl BitSet {
         (length + Self::INT_BITS - 1) / Self::INT_BITS
     }
 
-    pub fn read(stream: &mut Stream, length: usize) -> Self {
+    pub fn read(stream: &mut Reader, length: usize) -> Self {
         let mut result: Vec<u64> = vec![0];
         let mut current_index = 0;
         let mut current_shift = 0;
 
         let mut i = 0;
         while i < length {
-            let b = stream.get_byte() as u64;
+            let b = stream.get_u8() as u64;
             let bits = b & 0x7f;
 
             result[current_index] |= bits << current_shift;
@@ -89,7 +89,7 @@ impl BitSet {
         )
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         let mut current_index = 0;
         let mut current_shift = 0;
 
@@ -113,7 +113,7 @@ impl BitSet {
                 bits |= 0x80;
             }
 
-            stream.put_byte(bits as u8);
+            stream.put_u8(bits as u8);
             if last {
                 break;
             }

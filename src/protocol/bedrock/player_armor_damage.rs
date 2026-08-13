@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::types::armor_slot_and_damage_pair::ArmorSlotAndDamagePair;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerArmorDamage {
@@ -10,26 +10,17 @@ pub struct PlayerArmorDamage {
 
 impl Packet for PlayerArmorDamage {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDPlayerArmorDamage.get_byte()
+        BedrockPacketType::IDPlayerArmorDamage.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.armor_slot_and_damage_pairs.len() as u32);
         for pair in &self.armor_slot_and_damage_pairs {
-            pair.write(&mut stream);
+            pair.write(stream);
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> PlayerArmorDamage {
+    fn decode(stream: &mut Reader) -> PlayerArmorDamage {
         let mut armor_slot_and_damage_pairs = Vec::new();
         let count = stream.get_var_u32();
         for _ in 0..count {

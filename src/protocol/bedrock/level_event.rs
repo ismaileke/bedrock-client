@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct LevelEvent {
@@ -12,25 +12,16 @@ pub struct LevelEvent {
 
 impl Packet for LevelEvent {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDLevelEvent.get_byte()
+        BedrockPacketType::IDLevelEvent.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_i32(self.event_id);
-        PacketSerializer::put_vector3(&mut stream, self.position.clone());
+        PacketSerializer::put_vector3(stream, self.position.clone());
         stream.put_var_i32(self.event_data);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> LevelEvent {
+    fn decode(stream: &mut Reader) -> LevelEvent {
         let event_id = stream.get_var_i32();
         let position = PacketSerializer::get_vector3(stream);
         let event_data = stream.get_var_i32();

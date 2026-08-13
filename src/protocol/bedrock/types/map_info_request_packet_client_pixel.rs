@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 /*use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::attribute_value::AttributeValue;*/
 use crate::utils::color::Color;
@@ -17,7 +17,7 @@ impl MapInfoRequestPacketClientPixel {
         MapInfoRequestPacketClientPixel { color, x, y }
     }
 
-    pub fn read(stream: &mut Stream) -> MapInfoRequestPacketClientPixel {
+    pub fn read(stream: &mut Reader) -> MapInfoRequestPacketClientPixel {
         let color = stream.get_u32_le();
         let index = stream.get_u16_le();
 
@@ -27,7 +27,7 @@ impl MapInfoRequestPacketClientPixel {
         MapInfoRequestPacketClientPixel { color: Color::from_rgba(color), x, y }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_u32_le(self.color.to_rgba());
         stream.put_u16_le(self.x + (self.y * Self::Y_INDEX_MULTIPLIER));
     }

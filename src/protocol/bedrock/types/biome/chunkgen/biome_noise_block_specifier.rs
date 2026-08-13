@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(serde::Serialize, Debug)]
@@ -21,7 +21,7 @@ impl BiomeNoiseBlockSpecifier {
         BiomeNoiseBlockSpecifier { noise, threshold, min, max, block }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeNoiseBlockSpecifier {
+    pub fn read(stream: &mut Reader) -> BiomeNoiseBlockSpecifier {
         let noise = PacketSerializer::get_string(stream);
         let threshold = stream.get_f32_le();
         let min = stream.get_f32_le();
@@ -31,7 +31,7 @@ impl BiomeNoiseBlockSpecifier {
         BiomeNoiseBlockSpecifier::new(noise, threshold, min, max, block)
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.noise.clone());
         stream.put_f32_le(self.threshold);
         stream.put_f32_le(self.min);

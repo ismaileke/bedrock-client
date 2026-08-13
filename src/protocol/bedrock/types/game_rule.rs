@@ -2,7 +2,7 @@ use crate::protocol::bedrock::types::bool_game_rule::BoolGameRule;
 use crate::protocol::bedrock::types::float_game_rule::FloatGameRule;
 use crate::protocol::bedrock::types::game_rule_types::GameRuleTypes;
 use crate::protocol::bedrock::types::int_game_rule::IntGameRule;
-use binary_utils::binary::Stream;
+use binary_utils::binary::Writer;
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -29,7 +29,7 @@ impl GameRule {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream, is_start_game: bool) {
+    pub fn write(&mut self, stream: &mut Writer, is_start_game: bool) {
         match self {
             GameRule::Bool(r) => r.write(stream, is_start_game),
             GameRule::Int(r) => r.write(stream, is_start_game),

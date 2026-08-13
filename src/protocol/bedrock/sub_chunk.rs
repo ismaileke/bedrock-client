@@ -5,7 +5,7 @@ use crate::protocol::bedrock::types::sub_chunk_entry_with_cache_list::SubChunkEn
 use crate::protocol::bedrock::types::sub_chunk_entry_without_cache::SubChunkEntryWithoutCache;
 use crate::protocol::bedrock::types::sub_chunk_entry_without_cache_list::SubChunkEntryWithoutCacheList;
 use crate::protocol::bedrock::types::sub_chunk_position::SubChunkPosition;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SubChunk {
@@ -22,44 +22,35 @@ pub enum SubChunkEntries {
 
 impl Packet for SubChunk {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDSubChunk.get_byte()
+        BedrockPacketType::IDSubChunk.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         let cache_enabled = matches!(self.entries, SubChunkEntries::ListWithCache(_));
         stream.put_bool(cache_enabled);
         stream.put_var_i32(self.dimension);
-        self.base_sub_chunk_position.write_var_ints(&mut stream);
+        self.base_sub_chunk_position.write_var_ints(stream);
         match &self.entries {
             SubChunkEntries::ListWithCache(list) => {
                 stream.put_u32_le(list.get_entries().len() as u32);
                 for entry in list.get_entries() {
-                    entry.write(&mut stream);
+                    entry.write(stream);
                 }
             }
             SubChunkEntries::ListWithoutCache(list) => {
                 stream.put_u32_le(list.get_entries().len() as u32);
                 for entry in list.get_entries() {
-                    entry.write(&mut stream);
+                    entry.write(stream);
                 }
             }
         }; // check later
            /*stream.put_u32_le(self.entries.len() as u32);
            for entry in self.entries {
-               entry.write(&mut stream);
+               entry.write(stream);
            }*/
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> SubChunk {
+    fn decode(stream: &mut Reader) -> SubChunk {
         let cache_enabled = stream.get_bool();
         let dimension = stream.get_var_i32();
         let base_sub_chunk_position = SubChunkPosition::read_var_ints(stream);

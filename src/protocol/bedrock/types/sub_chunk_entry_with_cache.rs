@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::types::sub_chunk_entry_common::SubChunkEntryCommon;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SubChunkEntryWithCache {
@@ -23,7 +23,7 @@ impl SubChunkEntryWithCache {
         self.used_blob_hash
     }
 
-    pub fn read(stream: &mut Stream) -> SubChunkEntryWithCache {
+    pub fn read(stream: &mut Reader) -> SubChunkEntryWithCache {
         let base = SubChunkEntryCommon::read(stream, true);
         let used_blob_hash = stream.get_u64_le();
 
@@ -33,7 +33,7 @@ impl SubChunkEntryWithCache {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         self.base.write(stream, true);
         stream.put_u64_le(self.used_blob_hash);
     }

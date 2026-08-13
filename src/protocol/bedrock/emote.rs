@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct Emote {
@@ -20,34 +20,25 @@ impl Emote {
 
 impl Packet for Emote {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDEmote.get_byte()
+        BedrockPacketType::IDEmote.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
-        PacketSerializer::put_string(&mut stream, self.emote_id.clone());
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
+        PacketSerializer::put_string(stream, self.emote_id.clone());
         stream.put_var_u32(self.emote_length_ticks);
-        PacketSerializer::put_string(&mut stream, self.xbox_user_id.clone());
-        PacketSerializer::put_string(&mut stream, self.platform_chat_id.clone());
-        stream.put_byte(self.flags);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        PacketSerializer::put_string(stream, self.xbox_user_id.clone());
+        PacketSerializer::put_string(stream, self.platform_chat_id.clone());
+        stream.put_u8(self.flags);
     }
 
-    fn decode(stream: &mut Stream) -> Emote {
+    fn decode(stream: &mut Reader) -> Emote {
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let emote_id = PacketSerializer::get_string(stream);
         let emote_length_ticks = stream.get_var_u32();
         let xbox_user_id = PacketSerializer::get_string(stream);
         let platform_chat_id = PacketSerializer::get_string(stream);
-        let flags = stream.get_byte();
+        let flags = stream.get_u8();
 
         Emote {
             actor_runtime_id,

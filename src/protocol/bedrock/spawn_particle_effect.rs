@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SpawnParticleEffect {
@@ -14,30 +14,21 @@ pub struct SpawnParticleEffect {
 
 impl Packet for SpawnParticleEffect {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDSpawnParticleEffect.get_byte()
+        BedrockPacketType::IDSpawnParticleEffect.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        stream.put_byte(self.dimension_id);
-        PacketSerializer::put_actor_unique_id(&mut stream, self.actor_unique_id);
-        PacketSerializer::put_vector3(&mut stream, self.position.clone());
-        PacketSerializer::put_string(&mut stream, self.particle_name.clone());
-        PacketSerializer::write_optional(&mut stream, &self.molang_variables_json, |s, v| {
+    fn encode(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.dimension_id);
+        PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
+        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_string(stream, self.particle_name.clone());
+        PacketSerializer::write_optional(stream, &self.molang_variables_json, |s, v| {
             PacketSerializer::put_string(s, v.clone())
         });
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> SpawnParticleEffect {
-        let dimension_id = stream.get_byte();
+    fn decode(stream: &mut Reader) -> SpawnParticleEffect {
+        let dimension_id = stream.get_u8();
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let position = PacketSerializer::get_vector3(stream);
         let particle_name = PacketSerializer::get_string(stream);

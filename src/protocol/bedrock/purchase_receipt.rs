@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PurchaseReceipt {
@@ -10,26 +10,17 @@ pub struct PurchaseReceipt {
 
 impl Packet for PurchaseReceipt {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDPurchaseReceipt.get_byte()
+        BedrockPacketType::IDPurchaseReceipt.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.entries.len() as u32);
         for entry in self.entries.iter() {
-            PacketSerializer::put_string(&mut stream, entry.to_string());
+            PacketSerializer::put_string(stream, entry.to_string());
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> PurchaseReceipt {
+    fn decode(stream: &mut Reader) -> PurchaseReceipt {
         let mut entries = Vec::new();
         let count = stream.get_var_u32();
         for _ in 0..count {

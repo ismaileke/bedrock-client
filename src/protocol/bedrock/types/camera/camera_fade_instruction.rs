@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_fade_instruction_color::CameraFadeInstructionColor;
 use crate::protocol::bedrock::types::camera::camera_fade_instruction_time::CameraFadeInstructionTime;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraFadeInstruction {
@@ -17,7 +17,7 @@ impl CameraFadeInstruction {
         CameraFadeInstruction { time, color }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraFadeInstruction {
+    pub fn read(stream: &mut Reader) -> CameraFadeInstruction {
         let time = PacketSerializer::read_optional(stream, |s| CameraFadeInstructionTime::read(s));
         let color =
             PacketSerializer::read_optional(stream, |s| CameraFadeInstructionColor::read(s));
@@ -25,7 +25,7 @@ impl CameraFadeInstruction {
         CameraFadeInstruction { time, color }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::write_optional(stream, &self.time, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.color, |s, v| v.write(s));
     }

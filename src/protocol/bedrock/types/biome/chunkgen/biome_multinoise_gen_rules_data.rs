@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeMultinoiseGenRulesData {
@@ -26,7 +26,7 @@ impl BiomeMultinoiseGenRulesData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeMultinoiseGenRulesData {
+    pub fn read(stream: &mut Reader) -> BiomeMultinoiseGenRulesData {
         let temperature = stream.get_f32_le();
         let humidity = stream.get_f32_le();
         let altitude = stream.get_f32_le();
@@ -36,7 +36,7 @@ impl BiomeMultinoiseGenRulesData {
         BiomeMultinoiseGenRulesData::new(temperature, humidity, altitude, weirdness, weight)
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.temperature);
         stream.put_f32_le(self.humidity);
         stream.put_f32_le(self.altitude);

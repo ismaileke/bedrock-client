@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::types::biome::chunkgen::biome_conditional_transformation_data::BiomeConditionalTransformationData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeLegacyWorldGenRulesData {
@@ -11,7 +11,7 @@ impl BiomeLegacyWorldGenRulesData {
         BiomeLegacyWorldGenRulesData { legacy_pre_hills }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeLegacyWorldGenRulesData {
+    pub fn read(stream: &mut Reader) -> BiomeLegacyWorldGenRulesData {
         let mut legacy_pre_hills = Vec::new();
         let count = stream.get_var_u32();
         for _ in 0..count {
@@ -21,7 +21,7 @@ impl BiomeLegacyWorldGenRulesData {
         BiomeLegacyWorldGenRulesData::new(legacy_pre_hills)
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.legacy_pre_hills.len() as u32);
         for legacy_pre_hill in &self.legacy_pre_hills {
             legacy_pre_hill.write(stream);

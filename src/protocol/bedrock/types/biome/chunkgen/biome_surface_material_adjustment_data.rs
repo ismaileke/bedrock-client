@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::types::biome::chunkgen::biome_element_data::BiomeElementData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeSurfaceMaterialAdjustmentData {
@@ -11,7 +11,7 @@ impl BiomeSurfaceMaterialAdjustmentData {
         BiomeSurfaceMaterialAdjustmentData { adjustments }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeSurfaceMaterialAdjustmentData {
+    pub fn read(stream: &mut Reader) -> BiomeSurfaceMaterialAdjustmentData {
         let mut adjustments = Vec::new();
         let count = stream.get_var_u32();
         for _ in 0..count {
@@ -21,7 +21,7 @@ impl BiomeSurfaceMaterialAdjustmentData {
         BiomeSurfaceMaterialAdjustmentData::new(adjustments)
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.adjustments.len() as u32);
         for adjustment in &self.adjustments {
             adjustment.write(stream);

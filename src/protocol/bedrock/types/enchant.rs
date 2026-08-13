@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct Enchant {
@@ -19,15 +19,15 @@ impl Enchant {
         self.level
     }
 
-    pub fn read(stream: &mut Stream) -> Enchant {
+    pub fn read(stream: &mut Reader) -> Enchant {
         let id = stream.get_var_u32();
-        let level = stream.get_byte();
+        let level = stream.get_u8();
 
         Enchant { id, level }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.id);
-        stream.put_byte(self.level);
+        stream.put_u8(self.level);
     }
 }

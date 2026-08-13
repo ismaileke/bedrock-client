@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeCappedSurfaceData {
@@ -27,7 +27,7 @@ impl BiomeCappedSurfaceData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeCappedSurfaceData {
+    pub fn read(stream: &mut Reader) -> BiomeCappedSurfaceData {
         let mut floor_blocks = Vec::new();
         let mut ceiling_blocks = Vec::new();
 
@@ -52,7 +52,7 @@ impl BiomeCappedSurfaceData {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.floor_blocks.len() as u32);
         for floor_block in &self.floor_blocks {
             stream.put_u32_le(*floor_block);

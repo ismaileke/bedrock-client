@@ -1,8 +1,8 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use mojang_nbt::nbt::NBT;
-use mojang_nbt::nbt_serializer::NBTSerializer;
+use mojang_nbt::nbt_serializer::{NBTReader, NBTWriter};
 use mojang_nbt::tag::tag::Tag;
 
 #[derive(serde::Serialize, Debug)]
@@ -13,30 +13,21 @@ pub struct LevelEventGeneric {
 
 impl Packet for LevelEventGeneric {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDLevelEventGeneric.get_byte()
+        BedrockPacketType::IDLevelEventGeneric.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_i32(self.event_id);
-        let mut nbt_serializer = NBTSerializer::new_network();
+        let mut nbt_serializer = NBTWriter::new_network();
         let data = nbt_serializer.write_headless(self.event_data.clone());
         stream.put(data);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> LevelEventGeneric {
+    fn decode(stream: &mut Reader) -> LevelEventGeneric {
         let event_id = stream.get_var_i32();
-        let mut offset = stream.get_offset();
-        let mut nbt_serializer = NBTSerializer::new_network();
-        let event_data = nbt_serializer.read_headless(Vec::from(stream.get_buffer()), &mut offset, NBT::TAG_COMPOUND, 0);
+        let mut offset = stream.offset();
+        let mut nbt_serializer = NBTReader::new_network();
+        let event_data = nbt_serializer.read_headless(stream.get_buffer(), &mut offset, NBT::TAG_COMPOUND, 0);
         stream.set_offset(offset);
 
         LevelEventGeneric { event_id, event_data }

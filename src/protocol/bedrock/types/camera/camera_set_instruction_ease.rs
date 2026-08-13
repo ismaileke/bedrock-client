@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraSetInstructionEase {
@@ -14,8 +14,8 @@ impl CameraSetInstructionEase {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraSetInstructionEase {
-        let ease_type = stream.get_byte();
+    pub fn read(stream: &mut Reader) -> CameraSetInstructionEase {
+        let ease_type = stream.get_u8();
         let duration = stream.get_f32_le();
 
         CameraSetInstructionEase {
@@ -24,8 +24,8 @@ impl CameraSetInstructionEase {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
-        stream.put_byte(self.ease_type);
+    pub fn write(&self, stream: &mut Writer) {
+        stream.put_u8(self.ease_type);
         stream.put_f32_le(self.duration);
     }
 }

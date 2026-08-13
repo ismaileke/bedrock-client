@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetDifficulty {
@@ -9,23 +9,14 @@ pub struct SetDifficulty {
 
 impl Packet for SetDifficulty {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDSetDifficulty.get_byte()
+        BedrockPacketType::IDSetDifficulty.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.difficulty);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> SetDifficulty {
+    fn decode(stream: &mut Reader) -> SetDifficulty {
         let difficulty = stream.get_var_u32();
 
         SetDifficulty { difficulty }

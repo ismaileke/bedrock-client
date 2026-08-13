@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct FloatGameRule {
@@ -18,14 +18,14 @@ impl FloatGameRule {
         }
     }
 
-    pub fn read(stream: &mut Stream, is_player_modifiable: bool) -> FloatGameRule {
+    pub fn read(stream: &mut Reader, is_player_modifiable: bool) -> FloatGameRule {
         FloatGameRule {
             value: stream.get_f32_le(),
             is_player_modifiable,
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream, _is_start_game: bool) {
+    pub fn write(&mut self, stream: &mut Writer, _is_start_game: bool) {
         stream.put_f32_le(self.value);
     }
 }

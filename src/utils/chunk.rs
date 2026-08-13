@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::Reader;
 
 #[derive(Clone)]
 pub struct PaletteSize(pub u8);
@@ -146,9 +146,9 @@ impl Palette {
     }
 }
 
-pub fn network_decode(air: u32, data: Vec<u8>, sub_chunk_count: u32, range: (isize, isize)) -> Result<Chunk, String> {
+pub fn network_decode(air: u32, data: &[u8], sub_chunk_count: u32, range: (isize, isize)) -> Result<Chunk, String> {
     let mut chunk = Chunk::new(air, range);
-    let mut buf = Stream::new(data, 0);
+    let mut buf = Reader::new(data);
     let n = (((range.1 - range.0) >> 4) + 1) as u8;
 
     for i in 0..sub_chunk_count {
@@ -184,8 +184,8 @@ pub fn network_decode(air: u32, data: Vec<u8>, sub_chunk_count: u32, range: (isi
     Ok(chunk)
 }
 
-pub fn decode_sub_chunk(buf: &mut Stream, chunk: &Chunk, index: &mut u8) -> Result<SubChunk, String> {
-    let version = buf.get_byte();
+pub fn decode_sub_chunk(buf: &mut Reader, chunk: &Chunk, index: &mut u8) -> Result<SubChunk, String> {
+    let version = buf.get_u8();
 
     let mut sub_chunk = SubChunk::new(chunk.air);
 
@@ -200,10 +200,10 @@ pub fn decode_sub_chunk(buf: &mut Stream, chunk: &Chunk, index: &mut u8) -> Resu
         },
         8 | 9 => {
             // Version 8 allows up to 256 layers for one sub chunk.
-            let storage_count = buf.get_byte();
+            let storage_count = buf.get_u8();
 
             if version == 9 {
-                let y_index = buf.get_byte();
+                let y_index = buf.get_u8();
 
                 *index = (y_index as i8 - (chunk.r.0 >> 4) as i8) as u8;
             }
@@ -223,8 +223,8 @@ pub fn decode_sub_chunk(buf: &mut Stream, chunk: &Chunk, index: &mut u8) -> Resu
     Ok(sub_chunk)
 }
 
-pub fn decode_paletted_storage(buf: &mut Stream) -> Result<Option<PalettedStorage>, String> {
-    let raw_block_size = buf.get_byte();
+pub fn decode_paletted_storage(buf: &mut Reader) -> Result<Option<PalettedStorage>, String> {
+    let raw_block_size = buf.get_u8();
 
     let block_size = raw_block_size >> 1;
 
@@ -245,7 +245,7 @@ pub fn decode_paletted_storage(buf: &mut Stream) -> Result<Option<PalettedStorag
     let mut uint32s = Vec::<u32>::with_capacity(uin32_count as usize);
     let byte_count = uin32_count * 4;
 
-    let data = buf.get(byte_count as u32);
+    let data = buf.get(byte_count as usize);
 
     if data.len() != byte_count as usize {
         return Err(format!("Cannot read paletted storage (size={}): not enough block data present: expected {} bytes, got {}", block_size, byte_count, data.len()));
@@ -269,7 +269,7 @@ pub fn decode_paletted_storage(buf: &mut Stream) -> Result<Option<PalettedStorag
     Ok(Some(PalettedStorage::new(uint32s, palette)))
 }
 
-pub fn decode_palette_network(buf: &mut Stream, palette_size: PaletteSize) -> Result<Palette, String> {
+pub fn decode_palette_network(buf: &mut Reader, palette_size: PaletteSize) -> Result<Palette, String> {
     let mut palette_count: i32 = 1;
     if palette_size.0 != 0 {
         palette_count = buf.get_var_i32();
@@ -291,7 +291,7 @@ pub fn decode_palette_network(buf: &mut Stream, palette_size: PaletteSize) -> Re
     })
 }
 
-pub fn decode_palette_disk(buf: &mut Stream, palette_size: PaletteSize) -> Result<Palette, String> {
+pub fn decode_palette_disk(buf: &mut Reader, palette_size: PaletteSize) -> Result<Palette, String> {
     let mut palette_count: u32 = 1;
     if palette_size.0 != 0 {
         palette_count = buf.get_u32_le();
@@ -306,12 +306,12 @@ pub fn decode_palette_disk(buf: &mut Stream, palette_size: PaletteSize) -> Resul
 
     let mut blocks = Vec::<u32>::with_capacity(palette_count as usize);
     for _ in 0..palette_count {
-  /*      let mut offset = buf.get_offset();
+        /*let mut offset = buf.get_offset();
         let mut nbt_serializer = NBTSerializer::new_network();
         let nbt_root = nbt_serializer.read(Vec::from(buf.get_buffer()), &mut offset, 0);
         buf.set_offset(offset);
         let test = CacheableNBT::new(Tag::Compound(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error"), ));
-*/
+        */
 
         let runtime_id = 0; // Gerçek implementasyonda NBT'den çevrilmiş ID olacak
         blocks.push(runtime_id);

@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::types::serializable_voxel_cells::SerializableVoxelCells;
 
 #[derive(serde::Serialize, Debug)]
@@ -10,7 +10,7 @@ pub struct SerializableVoxelShape {
 }
 
 impl SerializableVoxelShape {
-    pub fn read(stream: &mut Stream) -> SerializableVoxelShape {
+    pub fn read(stream: &mut Reader) -> SerializableVoxelShape {
         let cells = SerializableVoxelCells::read(stream);
 
         let mut x_coordinates = Vec::new();
@@ -34,7 +34,7 @@ impl SerializableVoxelShape {
         SerializableVoxelShape { cells, x_coordinates, y_coordinates, z_coordinates }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         self.cells.write(stream);
 
         stream.put_var_u32(self.x_coordinates.len() as u32);

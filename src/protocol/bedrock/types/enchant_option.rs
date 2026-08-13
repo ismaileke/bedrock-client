@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::enchant::Enchant;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct EnchantOption {
@@ -34,7 +34,7 @@ impl EnchantOption {
         }
     }
 
-    fn read_enchant_list(stream: &mut Stream) -> Vec<Enchant> {
+    fn read_enchant_list(stream: &mut Reader) -> Vec<Enchant> {
         let mut result = Vec::new();
         let len = stream.get_var_u32();
         for _ in 0..len {
@@ -43,15 +43,15 @@ impl EnchantOption {
         result
     }
 
-    fn write_enchant_list(stream: &mut Stream, list: Vec<Enchant>) {
+    fn write_enchant_list(stream: &mut Writer, list: Vec<Enchant>) {
         stream.put_var_u32(list.len() as u32);
         for item in &list {
             item.write(stream);
         }
     }
 
-    pub fn read(stream: &mut Stream) -> EnchantOption {
-        let cost = stream.get_byte();
+    pub fn read(stream: &mut Reader) -> EnchantOption {
+        let cost = stream.get_u8();
         let slot_flags = stream.get_u32_le();
         let equip_activated_enchantments = Self::read_enchant_list(stream);
         let held_activated_enchantments = Self::read_enchant_list(stream);
@@ -70,8 +70,8 @@ impl EnchantOption {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
-        stream.put_byte(self.cost);
+    pub fn write(&self, stream: &mut Writer) {
+        stream.put_u8(self.cost);
         stream.put_u32_le(self.slot_flags);
         Self::write_enchant_list(stream, self.equip_activated_enchantments.clone());
         Self::write_enchant_list(stream, self.held_activated_enchantments.clone());

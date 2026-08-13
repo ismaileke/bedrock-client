@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BossEvent {
@@ -47,38 +47,29 @@ impl BossEvent {
 
 impl Packet for BossEvent {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDBossEvent.get_byte()
+        BedrockPacketType::IDBossEvent.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_actor_unique_id(&mut stream, self.boss_actor_unique_id);
-        PacketSerializer::put_actor_unique_id(&mut stream, self.player_actor_unique_id);
-        stream.put_byte(self.event_type);
-        PacketSerializer::put_string(&mut stream, self.title.clone());
-        PacketSerializer::put_string(&mut stream, self.filtered_title.clone());
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_actor_unique_id(stream, self.boss_actor_unique_id);
+        PacketSerializer::put_actor_unique_id(stream, self.player_actor_unique_id);
+        stream.put_u8(self.event_type);
+        PacketSerializer::put_string(stream, self.title.clone());
+        PacketSerializer::put_string(stream, self.filtered_title.clone());
         stream.put_f32_le(self.health_percent);
-        stream.put_byte(self.color);
-        stream.put_byte(self.overlay);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        stream.put_u8(self.color);
+        stream.put_u8(self.overlay);
     }
 
-    fn decode(stream: &mut Stream) -> BossEvent {
+    fn decode(stream: &mut Reader) -> BossEvent {
         let boss_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let player_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
-        let event_type = stream.get_byte();
+        let event_type = stream.get_u8();
         let title = PacketSerializer::get_string(stream);
         let filtered_title = PacketSerializer::get_string(stream);
         let health_percent = stream.get_f32_le();
-        let color = stream.get_byte();
-        let overlay = stream.get_byte();
+        let color = stream.get_u8();
+        let overlay = stream.get_u8();
 
         BossEvent {
             boss_actor_unique_id,

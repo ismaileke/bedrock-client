@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::types::sub_chunk_entry_common::SubChunkEntryCommon;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SubChunkEntryWithoutCache {
@@ -15,13 +15,13 @@ impl SubChunkEntryWithoutCache {
         &self.base
     }
 
-    pub fn read(stream: &mut Stream) -> SubChunkEntryWithoutCache {
+    pub fn read(stream: &mut Reader) -> SubChunkEntryWithoutCache {
         let base = SubChunkEntryCommon::read(stream, false);
 
         SubChunkEntryWithoutCache { base }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         self.base.write(stream, false);
     }
 }

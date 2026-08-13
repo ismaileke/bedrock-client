@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::attribute_modifier::AttributeModifier;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct UpdateAttribute {
@@ -37,7 +37,7 @@ pub fn new(
 }
 
 impl UpdateAttribute {
-    pub fn read(stream: &mut Stream) -> UpdateAttribute {
+    pub fn read(stream: &mut Reader) -> UpdateAttribute {
         let min = stream.get_f32_le();
         let max = stream.get_f32_le();
         let current = stream.get_f32_le();
@@ -64,7 +64,7 @@ impl UpdateAttribute {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.min);
         stream.put_f32_le(self.max);
         stream.put_f32_le(self.current);

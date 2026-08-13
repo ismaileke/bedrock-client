@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::types::inventory::network_inventory_action::NetworkInventoryAction;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct UseItemTransactionData {
@@ -63,31 +63,31 @@ impl UseItemTransactionData {
         self.actions.as_mut()
     }
 
-    pub fn decode_data(&mut self, stream: &mut Stream) {
+    pub fn decode_data(&mut self, stream: &mut Reader) {
         self.action_type = stream.get_var_i32();
-        self.trigger_type = stream.get_byte();
+        self.trigger_type = stream.get_u8();
         self.block_position = PacketSerializer::get_block_pos(stream);
-        self.face = stream.get_byte();
+        self.face = stream.get_u8();
         self.hotbar_slot = stream.get_var_i32();
         self.item_in_hand = PacketSerializer::get_network_item_stack_descriptor(stream);
         self.player_position = PacketSerializer::get_vector3(stream);
         self.click_position = PacketSerializer::get_vector3(stream);
         self.block_runtime_id = stream.get_var_u32();
-        self.client_interact_prediction = stream.get_byte();
-        self.client_cooldown_state = stream.get_byte();
+        self.client_interact_prediction = stream.get_u8();
+        self.client_cooldown_state = stream.get_u8();
     }
 
-    pub fn encode_data(&self, stream: &mut Stream) {
+    pub fn encode_data(&self, stream: &mut Writer) {
         stream.put_var_i32(self.action_type);
-        stream.put_byte(self.trigger_type);
+        stream.put_u8(self.trigger_type);
         PacketSerializer::put_block_pos(stream, self.block_position.clone());
-        stream.put_byte(self.face);
+        stream.put_u8(self.face);
         stream.put_var_i32(self.hotbar_slot);
         PacketSerializer::put_network_item_stack_descriptor(stream, self.item_in_hand.clone());
         PacketSerializer::put_vector3(stream, self.player_position.clone());
         PacketSerializer::put_vector3(stream, self.click_position.clone());
         stream.put_var_u32(self.block_runtime_id);
-        stream.put_byte(self.client_interact_prediction);
-        stream.put_byte(self.client_cooldown_state);
+        stream.put_u8(self.client_interact_prediction);
+        stream.put_u8(self.client_cooldown_state);
     }
 }

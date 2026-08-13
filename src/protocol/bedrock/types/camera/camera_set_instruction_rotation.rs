@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraSetInstructionRotation {
@@ -11,14 +11,14 @@ impl CameraSetInstructionRotation {
         CameraSetInstructionRotation { pitch, yaw }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraSetInstructionRotation {
+    pub fn read(stream: &mut Reader) -> CameraSetInstructionRotation {
         let pitch = stream.get_f32_le();
         let yaw = stream.get_f32_le();
 
         CameraSetInstructionRotation { pitch, yaw }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.pitch);
         stream.put_f32_le(self.yaw);
     }

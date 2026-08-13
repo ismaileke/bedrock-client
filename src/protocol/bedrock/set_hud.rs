@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SetHud {
@@ -10,27 +10,18 @@ pub struct SetHud {
 
 impl Packet for SetHud {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDSetHud.get_byte()
+        BedrockPacketType::IDSetHud.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.hud_elements.len() as u32);
         for hud_element in self.hud_elements.iter() {
             stream.put_var_i32(*hud_element);
         }
         stream.put_var_i32(self.visibility);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> SetHud {
+    fn decode(stream: &mut Reader) -> SetHud {
         let count = stream.get_var_u32() as usize;
         let mut hud_elements = Vec::new();
         for _ in 0..count {

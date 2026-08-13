@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use std::convert::TryFrom;
 
 #[repr(u32)]
@@ -44,23 +44,14 @@ pub struct PlayStatus {
 
 impl Packet for PlayStatus {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDPlayStatus.get_byte()
+        BedrockPacketType::IDPlayStatus.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_u32_be(self.status);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> PlayStatus {
+    fn decode(stream: &mut Reader) -> PlayStatus {
         PlayStatus { status: stream.get_u32_be(), }
     }
 }

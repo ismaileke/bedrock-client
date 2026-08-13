@@ -2,7 +2,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::structure_editor_data::StructureEditorData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct StructureBlockUpdate {
@@ -14,26 +14,17 @@ pub struct StructureBlockUpdate {
 
 impl Packet for StructureBlockUpdate {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDStructureBlockUpdate.get_byte()
+        BedrockPacketType::IDStructureBlockUpdate.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_block_pos(&mut stream, self.block_position.clone());
-        PacketSerializer::put_structure_editor_data(&mut stream, &self.structure_editor_data);
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_block_pos(stream, self.block_position.clone());
+        PacketSerializer::put_structure_editor_data(stream, &self.structure_editor_data);
         stream.put_bool(self.is_powered);
         stream.put_bool(self.water_logged);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> StructureBlockUpdate {
+    fn decode(stream: &mut Reader) -> StructureBlockUpdate {
         let block_position = PacketSerializer::get_block_pos(stream);
         let structure_editor_data = PacketSerializer::get_structure_editor_data(stream);
         let is_powered = stream.get_bool();

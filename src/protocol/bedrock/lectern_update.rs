@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct LecternUpdate {
@@ -12,27 +12,18 @@ pub struct LecternUpdate {
 
 impl Packet for LecternUpdate {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDLecternUpdate.get_byte()
+        BedrockPacketType::IDLecternUpdate.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        stream.put_byte(self.page);
-        stream.put_byte(self.total_pages);
-        PacketSerializer::put_block_pos(&mut stream, self.block_position.clone());
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+    fn encode(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.page);
+        stream.put_u8(self.total_pages);
+        PacketSerializer::put_block_pos(stream, self.block_position.clone());
     }
 
-    fn decode(stream: &mut Stream) -> LecternUpdate {
-        let page = stream.get_byte();
-        let total_pages = stream.get_byte();
+    fn decode(stream: &mut Reader) -> LecternUpdate {
+        let page = stream.get_u8();
+        let total_pages = stream.get_u8();
         let block_position = PacketSerializer::get_block_pos(stream);
 
         LecternUpdate { page, total_pages, block_position }

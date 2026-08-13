@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_preset_aim_assist::CameraPresetAimAssist;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraPreset {
@@ -82,7 +82,7 @@ impl CameraPreset {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraPreset {
+    pub fn read(stream: &mut Reader) -> CameraPreset {
         let name = PacketSerializer::get_string(stream);
         let parent = PacketSerializer::get_string(stream);
         let x_position = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
@@ -105,11 +105,11 @@ impl CameraPreset {
         let radius = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let yaw_limit_min = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let yaw_limit_max = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
-        let audio_listener_type = PacketSerializer::read_optional(stream, |s| s.get_byte());
+        let audio_listener_type = PacketSerializer::read_optional(stream, |s| s.get_u8());
         let player_effects = PacketSerializer::read_optional(stream, |s| s.get_bool());
         let aim_assist =
             PacketSerializer::read_optional(stream, |s| CameraPresetAimAssist::read(s));
-        let control_scheme = PacketSerializer::read_optional(stream, |s| s.get_byte());
+        let control_scheme = PacketSerializer::read_optional(stream, |s| s.get_u8());
 
         CameraPreset {
             name,
@@ -137,7 +137,7 @@ impl CameraPreset {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.name.clone());
         PacketSerializer::put_string(stream, self.parent.clone());
         PacketSerializer::write_optional(stream, &self.x_position, |s, v| s.put_f32_le(*v));
@@ -166,9 +166,9 @@ impl CameraPreset {
         PacketSerializer::write_optional(stream, &self.radius, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.yaw_limit_min, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.yaw_limit_max, |s, v| s.put_f32_le(*v));
-        PacketSerializer::write_optional(stream, &self.audio_listener_type, |s, v| s.put_byte(*v));
+        PacketSerializer::write_optional(stream, &self.audio_listener_type, |s, v| s.put_u8(*v));
         PacketSerializer::write_optional(stream, &self.player_effects, |s, v| s.put_bool(*v));
         PacketSerializer::write_optional(stream, &self.aim_assist, |s, v| v.write(s));
-        PacketSerializer::write_optional(stream, &self.control_scheme, |s, v| s.put_byte(*v));
+        PacketSerializer::write_optional(stream, &self.control_scheme, |s, v| s.put_u8(*v));
     }
 }

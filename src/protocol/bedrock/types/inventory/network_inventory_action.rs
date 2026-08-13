@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct NetworkInventoryAction {
@@ -42,7 +42,7 @@ impl NetworkInventoryAction {
         }
     }
 
-    pub fn read_auth_input(stream: &mut Stream) -> NetworkInventoryAction {
+    pub fn read_auth_input(stream: &mut Reader) -> NetworkInventoryAction {
         let source_type = stream.get_var_u32();
 
         let mut window_id = None;
@@ -77,7 +77,7 @@ impl NetworkInventoryAction {
         }
     }
 
-    pub fn write_auth_input(&self, stream: &mut Stream) {
+    pub fn write_auth_input(&self, stream: &mut Writer) {
         stream.put_var_u32(self.source_type);
 
         match self.source_type {
@@ -113,17 +113,17 @@ impl NetworkInventoryAction {
         PacketSerializer::put_item_stack_wrapper(stream, self.new_item.clone());
     }
 
-    pub fn read_transaction(stream: &mut Stream) -> NetworkInventoryAction {
+    pub fn read_transaction(stream: &mut Reader) -> NetworkInventoryAction {
         let source_type = stream.get_var_u32();
 
-        let mut byte = stream.get_byte();
+        let mut byte = stream.get_u8();
         if byte != 1 {
             panic!("Inconsistent optional state for windowId");
         }
 
-        let window_id = PacketSerializer::read_optional(stream, |s| (s.get_byte() as i8) as i32);
+        let window_id = PacketSerializer::read_optional(stream, |s| (s.get_u8() as i8) as i32);
 
-        byte = stream.get_byte();
+        byte = stream.get_u8();
         if byte != 1 {
             panic!("Inconsistent optional state for sourceFlags");
         }
@@ -144,13 +144,13 @@ impl NetworkInventoryAction {
         }
     }
 
-    pub fn write_transaction(&self, stream: &mut Stream) {
+    pub fn write_transaction(&self, stream: &mut Writer) {
         stream.put_var_u32(self.source_type);
 
-        stream.put_byte(1);
-        PacketSerializer::write_optional(stream, &self.window_id, |s, v| s.put_byte(*v as u8)); // check later u8/i8 conversion
+        stream.put_u8(1);
+        PacketSerializer::write_optional(stream, &self.window_id, |s, v| s.put_u8(*v as u8)); // check later u8/i8 conversion
 
-        stream.put_byte(1);
+        stream.put_u8(1);
         PacketSerializer::write_optional(stream, &self.source_flags, |s, v| s.put_var_u32(*v));
 
         stream.put_var_u32(self.inventory_slot);

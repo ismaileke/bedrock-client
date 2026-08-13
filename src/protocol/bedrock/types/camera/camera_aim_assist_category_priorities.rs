@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_category_priority::CameraAimAssistCategoryPriority;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraAimAssistCategoryPriorities {
@@ -31,7 +31,7 @@ impl CameraAimAssistCategoryPriorities {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraAimAssistCategoryPriorities {
+    pub fn read(stream: &mut Reader) -> CameraAimAssistCategoryPriorities {
         let mut entities = Vec::new();
 
         let mut len = stream.get_var_u32();
@@ -69,7 +69,7 @@ impl CameraAimAssistCategoryPriorities {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.entities.len() as u32);
         for entity in &self.entities {
             entity.write(stream);

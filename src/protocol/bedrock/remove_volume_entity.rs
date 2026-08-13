@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct RemoveVolumeEntity {
@@ -10,24 +10,15 @@ pub struct RemoveVolumeEntity {
 
 impl Packet for RemoveVolumeEntity {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDRemoveVolumeEntity.get_byte()
+        BedrockPacketType::IDRemoveVolumeEntity.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.entity_net_id);
         stream.put_var_i32(self.dimension);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> RemoveVolumeEntity {
+    fn decode(stream: &mut Reader) -> RemoveVolumeEntity {
         let entity_net_id = stream.get_var_u32();
         let dimension = stream.get_var_i32();
 

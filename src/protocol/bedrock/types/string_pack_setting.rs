@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::pack_setting_type::PackSettingType;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct StringPackSetting {
@@ -21,14 +21,14 @@ impl StringPackSetting {
         StringPackSetting { name, value }
     }
 
-    pub fn read(stream: &mut Stream, name: String) -> StringPackSetting {
+    pub fn read(stream: &mut Reader, name: String) -> StringPackSetting {
         StringPackSetting {
             name,
             value: PacketSerializer::get_string(stream),
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.value.clone());
     }
 }

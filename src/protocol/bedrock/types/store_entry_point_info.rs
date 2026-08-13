@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct StoreEntryPointInfo {
@@ -12,13 +12,13 @@ impl StoreEntryPointInfo {
         StoreEntryPointInfo { id, name }
     }
 
-    pub fn read(stream: &mut Stream) -> StoreEntryPointInfo {
+    pub fn read(stream: &mut Reader) -> StoreEntryPointInfo {
         let id = PacketSerializer::get_string(stream);
         let name = PacketSerializer::get_string(stream);
         StoreEntryPointInfo { id, name }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.id.clone());
         PacketSerializer::put_string(stream, self.name.clone());
     }

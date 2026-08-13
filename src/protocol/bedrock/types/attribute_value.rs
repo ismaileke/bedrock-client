@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::types::attribute_value_bool::AttributeValueBool;
 use crate::protocol::bedrock::types::attribute_value_color::AttributeValueColor;
 use crate::protocol::bedrock::types::attribute_value_float::AttributeValueFloat;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -24,7 +24,7 @@ impl AttributeValue {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> AttributeValue {
+    pub fn read(stream: &mut Reader) -> AttributeValue {
         let attribute_value_type = stream.get_var_u32();
         match attribute_value_type {
             AttributeValue::BOOL => AttributeValue::Bool(AttributeValueBool::read(stream)),
@@ -34,7 +34,7 @@ impl AttributeValue {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         match self {
             AttributeValue::Bool(r) => r.write(stream),
             AttributeValue::Float(r) => r.write(stream),

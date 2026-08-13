@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::types::biome::chunkgen::biome_surface_material_data::BiomeSurfaceMaterialData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeElementData {
@@ -36,7 +36,7 @@ impl BiomeElementData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeElementData {
+    pub fn read(stream: &mut Reader) -> BiomeElementData {
         let noise_frequency_scale = stream.get_f32_le();
         let noise_lower_bound = stream.get_f32_le();
         let noise_upper_bound = stream.get_f32_le();
@@ -58,7 +58,7 @@ impl BiomeElementData {
         )
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.noise_frequency_scale);
         stream.put_f32_le(self.noise_lower_bound);
         stream.put_f32_le(self.noise_upper_bound);

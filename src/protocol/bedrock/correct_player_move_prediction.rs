@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CorrectPlayerMovePrediction {
@@ -22,33 +22,24 @@ impl CorrectPlayerMovePrediction {
 
 impl Packet for CorrectPlayerMovePrediction {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDCorrectPlayerMovePrediction.get_byte()
+        BedrockPacketType::IDCorrectPlayerMovePrediction.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        stream.put_byte(self.prediction_type);
-        PacketSerializer::put_vector3(&mut stream, self.position.clone());
-        PacketSerializer::put_vector3(&mut stream, self.delta.clone());
+    fn encode(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.prediction_type);
+        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_vector3(stream, self.delta.clone());
         stream.put_f32_le(self.vehicle_rotation_x);
         stream.put_f32_le(self.vehicle_rotation_y);
-        PacketSerializer::write_optional(&mut stream, &self.vehicle_angular_velocity, |s, v| {
+        PacketSerializer::write_optional(stream, &self.vehicle_angular_velocity, |s, v| {
             s.put_f32_le(*v)
         });
         stream.put_bool(self.on_ground);
         stream.put_var_u64(self.tick);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> CorrectPlayerMovePrediction {
-        let prediction_type = stream.get_byte();
+    fn decode(stream: &mut Reader) -> CorrectPlayerMovePrediction {
+        let prediction_type = stream.get_u8();
         let position = PacketSerializer::get_vector3(stream);
         let delta = PacketSerializer::get_vector3(stream);
         let vehicle_rotation_x = stream.get_f32_le();

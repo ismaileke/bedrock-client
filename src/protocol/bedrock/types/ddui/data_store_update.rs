@@ -4,7 +4,7 @@ use crate::protocol::bedrock::types::ddui::update::data_store_value_bool::DataSt
 use crate::protocol::bedrock::types::ddui::update::data_store_value_double::DataStoreUpdateValueDouble;
 use crate::protocol::bedrock::types::ddui::update::data_store_value_string::DataStoreUpdateValueString;
 use crate::protocol::bedrock::types::ddui::update::data_store_value_types::DataStoreUpdateValueTypes;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct DataStoreUpdate {
@@ -21,7 +21,7 @@ impl DataStoreUpdate {
         DataStoreUpdate { name, property, path, data, update_count, path_update_count }
     }
 
-    pub fn read(stream: &mut Stream) -> DataStoreUpdate {
+    pub fn read(stream: &mut Reader) -> DataStoreUpdate {
         let name = PacketSerializer::get_string(stream);
         let property = PacketSerializer::get_string(stream);
         let path = PacketSerializer::get_string(stream);
@@ -42,7 +42,7 @@ impl DataStoreUpdate {
         DataStoreUpdate { name, property, path, data, update_count, path_update_count }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.name.clone());
         PacketSerializer::put_string(stream, self.property.clone());
         PacketSerializer::put_string(stream, self.path.clone());

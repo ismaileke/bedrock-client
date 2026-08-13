@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ResourcePacksInfo {
@@ -30,41 +30,32 @@ pub struct ResourcePack {
 
 impl Packet for ResourcePacksInfo {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDResourcePacksInfo.get_byte()
+        BedrockPacketType::IDResourcePacksInfo.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_bool(self.must_accept);
         stream.put_bool(self.has_addons);
         stream.put_bool(self.has_scripts);
         stream.put_bool(self.force_disable_vibrant_visuals);
-        PacketSerializer::put_uuid(&mut stream, self.world_template_id.clone());
-        PacketSerializer::put_string(&mut stream, self.world_template_version.clone());
+        PacketSerializer::put_uuid(stream, self.world_template_id.clone());
+        PacketSerializer::put_string(stream, self.world_template_version.clone());
         stream.put_u16_le(self.resource_packs.len() as u16);
         for resource_pack in &self.resource_packs {
-            PacketSerializer::put_uuid(&mut stream, resource_pack.uuid.clone());
-            PacketSerializer::put_string(&mut stream, resource_pack.version.clone());
+            PacketSerializer::put_uuid(stream, resource_pack.uuid.clone());
+            PacketSerializer::put_string(stream, resource_pack.version.clone());
             stream.put_u64_le(resource_pack.size_bytes);
-            PacketSerializer::put_string(&mut stream, resource_pack.encryption_key.clone());
-            PacketSerializer::put_string(&mut stream, resource_pack.sub_pack_name.clone());
-            PacketSerializer::put_string(&mut stream, resource_pack.content_id.clone());
+            PacketSerializer::put_string(stream, resource_pack.encryption_key.clone());
+            PacketSerializer::put_string(stream, resource_pack.sub_pack_name.clone());
+            PacketSerializer::put_string(stream, resource_pack.content_id.clone());
             stream.put_bool(resource_pack.has_scripts);
             stream.put_bool(resource_pack.is_addon_pack);
             stream.put_bool(resource_pack.is_rtx_capable);
-            PacketSerializer::put_string(&mut stream, resource_pack.cdn_url.clone());
+            PacketSerializer::put_string(stream, resource_pack.cdn_url.clone());
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> ResourcePacksInfo {
+    fn decode(stream: &mut Reader) -> ResourcePacksInfo {
         let must_accept = stream.get_bool();
         let has_addons = stream.get_bool();
         let has_scripts = stream.get_bool();

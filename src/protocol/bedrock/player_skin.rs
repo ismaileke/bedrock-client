@@ -2,7 +2,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::skin::skin_data::SkinData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerSkin {
@@ -14,27 +14,18 @@ pub struct PlayerSkin {
 
 impl Packet for PlayerSkin {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDPlayerSkin.get_byte()
+        BedrockPacketType::IDPlayerSkin.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_uuid(&mut stream, self.uuid.clone());
-        PacketSerializer::put_skin(&mut stream, &self.skin);
-        PacketSerializer::put_string(&mut stream, self.new_skin_name.clone());
-        PacketSerializer::put_string(&mut stream, self.old_skin_name.clone());
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_uuid(stream, self.uuid.clone());
+        PacketSerializer::put_skin(stream, &self.skin);
+        PacketSerializer::put_string(stream, self.new_skin_name.clone());
+        PacketSerializer::put_string(stream, self.old_skin_name.clone());
         stream.put_bool(self.skin.is_verified);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> PlayerSkin {
+    fn decode(stream: &mut Reader) -> PlayerSkin {
         let uuid = PacketSerializer::get_uuid(stream);
         let mut skin = PacketSerializer::get_skin(stream);
         let new_skin_name = PacketSerializer::get_string(stream);

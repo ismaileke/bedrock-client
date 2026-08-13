@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PresenceInfo {
@@ -13,14 +13,14 @@ impl PresenceInfo {
         PresenceInfo { experience_name, world_name, rich_presence_id }
     }
 
-    pub fn read(stream: &mut Stream) -> PresenceInfo {
+    pub fn read(stream: &mut Reader) -> PresenceInfo {
         let experience_name = PacketSerializer::read_optional(stream, |stream| PacketSerializer::get_string(stream));
         let world_name = PacketSerializer::read_optional(stream, |stream| PacketSerializer::get_string(stream));
         let rich_presence_id = PacketSerializer::get_string(stream);
         PresenceInfo { experience_name, world_name, rich_presence_id }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::write_optional(stream, &self.experience_name, |stream, value| PacketSerializer::put_string(stream, value.clone()));
         PacketSerializer::write_optional(stream, &self.world_name, |stream, value| PacketSerializer::put_string(stream, value.clone()));
         PacketSerializer::put_string(stream, self.rich_presence_id.clone());

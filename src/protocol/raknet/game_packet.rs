@@ -1,9 +1,12 @@
-use crate::utils::encryption::Encryption;
-use crate::protocol::bedrock::network_settings::{SNAPPY, ZLIB};
-use binary_utils::binary::Stream;
+use std::error::Error;
+use binary_utils::binary::{Reader, Writer};
 use libdeflater::{CompressionLvl, Compressor};
-use miniz_oxide::inflate::decompress_to_vec;
-use snap::raw::{Decoder, Encoder};
+use miniz_oxide::inflate::{decompress_slice_iter_to_slice, TINFLStatus};
+use snap::raw::{max_compress_len, Decoder, Encoder};
+use crate::protocol::bedrock::network_settings::{SNAPPY, ZLIB};
+use crate::protocol::bedrock::packet::Packet;
+use crate::protocol::raknet::packet_ids::PacketType;
+use crate::utils::encryption::Encryption;
 
 pub struct GamePacket {
     pub encryption: Option<Encryption>,
@@ -16,42 +19,57 @@ impl GamePacket {
         GamePacket { encryption, compress_enabled, compression_type }
     }
 
-    pub fn encode(&mut self, payload: &Vec<u8>) -> Vec<u8> {
-        let mut main_stream = Stream::new(vec![0xfe], 0);
+    pub fn encode(&mut self, pk: &mut dyn Packet, out: &mut Writer) -> Result<(), Box<dyn Error>> {
+        // encrypt/not [ 0xfe + compress/not [ packet_total_length + [ packet_id + packet_content ] ] ] (iirc)
+        let mut pk_encoded = Writer::new();
 
-        let mut compressed = payload.clone();
+        pk_encoded.put_var_u32(pk.id() as u32);
+        pk.encode(&mut pk_encoded);
+
+        let mut payload = Writer::new();
+        payload.put_var_u32(pk_encoded.len() as u32);
+        payload.put(pk_encoded.as_slice());
+
+
+        out.clear();
+        out.put_u8(PacketType::Game.get_u8());
+
         if self.compress_enabled {
-            if self.compression_type == ZLIB {
-                compressed = GamePacket::compress_zlib(payload);
-            } else if self.compression_type == SNAPPY {
-                compressed = GamePacket::compress_snappy(payload);
+            match self.compression_type {
+                ZLIB   => Self::compress_zlib(payload.as_slice(), out),
+                SNAPPY => Self::compress_snappy(payload.as_slice(), out),
+                _      => out.put(payload.as_slice()),
             }
+        } else {
+            out.put(payload.as_slice());
         }
 
-        let mut encrypted = compressed.clone();
-        if let Some(ref mut encryption) = self.encryption {
-            encrypted = encryption.encrypt(&compressed).expect("Game Packet Encrypt Error");
+        if let Some(ref mut enc) = self.encryption {
+            enc.encrypt_in_place(out, 1)?;
         }
 
-        main_stream.put(encrypted);
-        Vec::from(main_stream.get_buffer())
+        Ok(())
     }
 
-    pub fn decode(&mut self, stream: &mut Stream) {
-        if self.encryption.is_some() {
-            *stream = Stream::new(self.decrypt(&stream.get_remaining()), 0);
+    pub fn decode<'a>(&mut self, payload: &'a mut [u8], scratch: &'a mut [u8]) -> Result<Reader<'a>, Box<dyn Error>> {
+        let data: &'a [u8] = match self.encryption {
+            Some(ref mut e) => e.decrypt(payload)?,
+            None => payload,
+        };
+
+        if !self.compress_enabled {
+            return Ok(Reader::new(data));
         }
 
-        if self.compress_enabled {
-            let compression_type = stream.get_byte();
-            //println!("Compression Type: {}", if compression_type == 0 { "ZLIB".to_string() } else if compression_type == 1 { "SNAPPY".to_string() } else { "NONE".to_string() });
-            if compression_type == ZLIB { // ZLIB
-                *stream = Stream::new(GamePacket::decompress_zlib(&stream.get_remaining()), 0);
-            }
-            if compression_type == SNAPPY { // Snappy
-                *stream = Stream::new(GamePacket::decompress_snappy(&stream.get_remaining()), 0);
-            }
-        }
+        let (&kind, body) = data.split_first().ok_or("empty packet")?;
+
+        let out: &'a [u8] = match kind {
+            ZLIB   => Self::decompress_zlib(body, scratch),
+            SNAPPY => Self::decompress_snappy(body, scratch),
+            _      => body,
+        };
+
+        Ok(Reader::new(out))
     }
 
     /*pub fn encrypt(&mut self, payload: &Vec<u8>) -> Vec<u8> {
@@ -62,48 +80,46 @@ impl GamePacket {
         main_stream.get_buffer()
     }*/
 
-    pub fn decrypt(&mut self, payload: &Vec<u8>) -> Vec<u8> {
+    pub fn decrypt<'a>(&mut self, payload: &'a mut [u8]) -> &'a [u8] {
         if let Some(ref mut encryption) = self.encryption {
             return encryption.decrypt(payload).expect("Decrypt Error GamePacket");
         }
-        payload.clone()
+        payload
     }
 
-    pub fn compress_zlib(payload: &Vec<u8>) -> Vec<u8> {
-        let compression_level = 7;
-        let min_compression_size = 256;
-        let compressible = payload.len() >= min_compression_size;
-        let level = if compressible { compression_level } else { 0 };
+    pub fn compress_zlib<'a>(payload: &[u8], out: &mut Writer) {
+        let level = if payload.len() >= 256 { 7 } else { 0 };
+        let mut compressor = Compressor::new(CompressionLvl::new(level).expect("Invalid level"));
 
-        let compression_level = CompressionLvl::new(level).expect("Invalid compression level");
-        let mut compressor = Compressor::new(compression_level);
+        out.put_u8(0x00); // ZLIB
+        let start = out.len();
+        out.resize(start + payload.len() + 64, 0);
 
-        let mut compressed_data = vec![0u8; compressor.deflate_compress_bound(payload.len())];
-
-        let _compressed_size = compressor.deflate_compress(payload.as_slice(), &mut compressed_data).expect("Compression failed");
-
-        let mut result = vec![0x00]; // 0x00 = ZLIB
-        result.extend(compressed_data);
-
-        result
+        let n = compressor.deflate_compress(payload, &mut out.as_mut_slice()[start..]).expect("Compression failed");
+        out.truncate(start + n);
     }
 
-    pub fn compress_snappy(payload: &Vec<u8>) -> Vec<u8> {
-        let mut encoder = Encoder::new();
-        let compressed_data = encoder.compress_vec(payload.as_slice()).expect("Snappy Compression failed");
+    pub fn compress_snappy<'a>(payload: &[u8], out: &mut Writer) {
+        out.put_u8(0x01); // SNAPPY
+        let start = out.len();
+        out.resize(start + max_compress_len(payload.len()), 0);
 
-        let mut result = vec![0x01]; // 0x01 = Snappy
-        result.extend(compressed_data);
-        result
+        let n = Encoder::new().compress(payload, &mut out.as_mut_slice()[start..])
+            .expect("Snappy Compress Error");
+        out.truncate(start + n);
     }
 
-    pub fn decompress_zlib(payload: &Vec<u8>) -> Vec<u8> {
-        let decompressed_data = decompress_to_vec(payload.as_slice()).expect("ZLIB Decompress Error");
-        decompressed_data
+    pub fn decompress_zlib<'a>(payload: &[u8], out: &'a mut [u8]) -> &'a[u8] {
+        Self::decompress(payload, out).expect("ZLIB Decompress Error")
     }
 
-    pub fn decompress_snappy(payload: &Vec<u8>) -> Vec<u8> {
-        let mut decoder = Decoder::new();
-        decoder.decompress_vec(payload.as_slice()).expect("Snappy Decompress Error")
+    pub fn decompress_snappy<'a>(payload: &[u8], out: &'a mut [u8]) -> &'a [u8] {
+        let n = Decoder::new().decompress(payload, out).expect("Snappy Decompress Error");
+        &out[..n]
+    }
+
+    fn decompress<'a>(payload: &[u8], out: &'a mut [u8]) -> Result<&'a [u8], TINFLStatus> {
+        let n = decompress_slice_iter_to_slice(out, std::iter::once(payload), false, true)?;
+        Ok(&out[..n])
     }
 }

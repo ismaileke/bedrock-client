@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CommandParameterRawData {
@@ -14,19 +14,19 @@ impl CommandParameterRawData {
         CommandParameterRawData { name, type_info, optional, flags }
     }
 
-    pub fn read(stream: &mut Stream) -> CommandParameterRawData {
+    pub fn read(stream: &mut Reader) -> CommandParameterRawData {
         let name = PacketSerializer::get_string(stream);
         let type_info = stream.get_u32_le();
         let optional = stream.get_bool();
-        let flags = stream.get_byte();
+        let flags = stream.get_u8();
 
         CommandParameterRawData { name, type_info, optional, flags }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.name.clone());
         stream.put_u32_le(self.type_info);
         stream.put_bool(self.optional);
-        stream.put_byte(self.flags);
+        stream.put_u8(self.flags);
     }
 }

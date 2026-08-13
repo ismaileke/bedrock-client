@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SubChunkPositionOffset {
@@ -28,10 +28,10 @@ fn clamp_offset(offset: u8) -> u8 {
 }
 
 impl SubChunkPositionOffset {
-    pub fn read(stream: &mut Stream) -> SubChunkPositionOffset {
-        let x_offset = stream.get_byte();
-        let y_offset = stream.get_byte();
-        let z_offset = stream.get_byte();
+    pub fn read(stream: &mut Reader) -> SubChunkPositionOffset {
+        let x_offset = stream.get_u8();
+        let y_offset = stream.get_u8();
+        let z_offset = stream.get_u8();
 
         SubChunkPositionOffset {
             x_offset,
@@ -40,9 +40,9 @@ impl SubChunkPositionOffset {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
-        stream.put_byte(self.x_offset);
-        stream.put_byte(self.y_offset);
-        stream.put_byte(self.z_offset);
+    pub fn write(&self, stream: &mut Writer) {
+        stream.put_u8(self.x_offset);
+        stream.put_u8(self.y_offset);
+        stream.put_u8(self.z_offset);
     }
 }

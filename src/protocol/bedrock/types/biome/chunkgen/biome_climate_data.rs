@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeClimateData {
@@ -23,7 +23,7 @@ impl BiomeClimateData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeClimateData {
+    pub fn read(stream: &mut Reader) -> BiomeClimateData {
         let temperature = stream.get_f32_le();
         let downfall = stream.get_f32_le();
         let snow_accumulation_min = stream.get_f32_le();
@@ -37,7 +37,7 @@ impl BiomeClimateData {
         )
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.temperature);
         stream.put_f32_le(self.downfall);
         stream.put_f32_le(self.snow_accumulation_min);

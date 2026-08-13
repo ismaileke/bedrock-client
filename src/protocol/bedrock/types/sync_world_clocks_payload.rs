@@ -2,7 +2,7 @@ use crate::protocol::bedrock::types::sync_world_clocks_add_time_marker::SyncWorl
 use crate::protocol::bedrock::types::sync_world_clocks_initialize_registry::SyncWorldClocksInitializeRegistry;
 use crate::protocol::bedrock::types::sync_world_clocks_remove_time_marker::SyncWorldClocksRemoveTimeMarker;
 use crate::protocol::bedrock::types::sync_world_clocks_sync_state::SyncWorldClocksSyncState;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -28,7 +28,7 @@ impl SyncWorldClocksPayload {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> SyncWorldClocksPayload {
+    pub fn read(stream: &mut Reader) -> SyncWorldClocksPayload {
         let payload_type = stream.get_var_u32();
         match payload_type {
             SyncWorldClocksPayload::SYNC_STATE => SyncWorldClocksPayload::SyncState(SyncWorldClocksSyncState::read(stream)),
@@ -39,7 +39,7 @@ impl SyncWorldClocksPayload {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         match self {
             SyncWorldClocksPayload::SyncState(r) => r.write(stream),
             SyncWorldClocksPayload::InitializeRegistry(r) => r.write(stream),

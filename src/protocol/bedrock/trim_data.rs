@@ -2,7 +2,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::types::trim_material::TrimMaterial;
 use crate::protocol::bedrock::types::trim_pattern::TrimPattern;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct TrimData {
@@ -12,30 +12,21 @@ pub struct TrimData {
 
 impl Packet for TrimData {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDTrimData.get_byte()
+        BedrockPacketType::IDTrimData.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.trim_patterns.len() as u32);
         for trim_pattern in &self.trim_patterns {
-            trim_pattern.write(&mut stream);
+            trim_pattern.write(stream);
         }
         stream.put_var_u32(self.trim_materials.len() as u32);
         for trim_material in &self.trim_materials {
-            trim_material.write(&mut stream);
+            trim_material.write(stream);
         }
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> TrimData {
+    fn decode(stream: &mut Reader) -> TrimData {
         let trim_patterns_count = stream.get_var_u32() as usize;
         let mut trim_patterns = Vec::new();
         for _ in 0..trim_patterns_count {

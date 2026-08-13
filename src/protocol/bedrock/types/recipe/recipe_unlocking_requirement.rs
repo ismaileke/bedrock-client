@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::recipe::recipe_ingredient::RecipeIngredient;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct RecipeUnlockingRequirement {
@@ -14,7 +14,7 @@ impl RecipeUnlockingRequirement {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> RecipeUnlockingRequirement {
+    pub fn read(stream: &mut Reader) -> RecipeUnlockingRequirement {
         //I don't know what the point of this structure is. It could easily have been a list<RecipeIngredient> instead.
         //It's basically just an optional list, which could have been done by an empty list wherever it's not needed.
         let unlocking_context = stream.get_bool();
@@ -33,7 +33,7 @@ impl RecipeUnlockingRequirement {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         stream.put_bool(self.unlocking_ingredients.is_none());
         if let Some(unlocking_ingredients) = self.unlocking_ingredients.as_mut() {
             stream.put_var_u32(unlocking_ingredients.len() as u32);

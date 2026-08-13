@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct NetworkStackLatency {
@@ -26,24 +26,15 @@ impl NetworkStackLatency {
 
 impl Packet for NetworkStackLatency {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDNetworkStackLatency.get_byte()
+        BedrockPacketType::IDNetworkStackLatency.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_u64_le(self.timestamp);
         stream.put_bool(self.need_response);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> NetworkStackLatency {
+    fn decode(stream: &mut Reader) -> NetworkStackLatency {
         let timestamp = stream.get_u64_le();
         let need_response = stream.get_bool();
 

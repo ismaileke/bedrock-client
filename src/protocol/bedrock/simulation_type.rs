@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SimulationType {
@@ -9,24 +9,15 @@ pub struct SimulationType {
 
 impl Packet for SimulationType {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDSimulationType.get_byte()
+        BedrockPacketType::IDSimulationType.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        stream.put_byte(self.simulation_type);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+    fn encode(&mut self, stream: &mut Writer) {
+        stream.put_u8(self.simulation_type);
     }
 
-    fn decode(stream: &mut Stream) -> SimulationType {
-        let simulation_type = stream.get_byte();
+    fn decode(stream: &mut Reader) -> SimulationType {
+        let simulation_type = stream.get_u8();
 
         SimulationType { simulation_type }
     }

@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::camera::camera_aim_assist_preset_item_settings::CameraAimAssistPresetItemSettings;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::types::camera::camera_aim_assist_preset_exclusion_definition::CameraAimAssistPresetExclusionDefinition;
 
 #[derive(serde::Serialize, Debug)]
@@ -32,7 +32,7 @@ impl CameraAimAssistPreset {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraAimAssistPreset {
+    pub fn read(stream: &mut Reader) -> CameraAimAssistPreset {
         let identifier = PacketSerializer::get_string(stream);
         let exclusion_settings = CameraAimAssistPresetExclusionDefinition::read(stream);
         let mut liquid_targeting_list = Vec::new();
@@ -60,7 +60,7 @@ impl CameraAimAssistPreset {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.identifier.clone());
         self.exclusion_settings.write(stream);
         stream.put_var_u32(self.liquid_targeting_list.len() as u32);

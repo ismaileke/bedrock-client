@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 use crate::protocol::bedrock::types::entity::entity_metadata_types::EntityMetadataTypes;
-use binary_utils::binary::Stream;
+use binary_utils::binary::Writer;
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -32,9 +32,9 @@ impl MetadataProperty {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         match self {
-            MetadataProperty::Byte(v) => stream.put_byte(*v),
+            MetadataProperty::Byte(v) => stream.put_u8(*v),
             MetadataProperty::Short(v) => stream.put_i16_le(*v),
             MetadataProperty::Int(v) => stream.put_var_i32(*v),
             MetadataProperty::Float(v) => stream.put_f32_le(*v),

@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::types::sync_world_clock_marker_data::SyncWorldClockMarkerData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SyncWorldClocksRemoveTimeMarker {
@@ -12,7 +12,7 @@ impl SyncWorldClocksRemoveTimeMarker {
         SyncWorldClocksRemoveTimeMarker  { clock_id, markers }
     }
 
-    pub fn read(stream: &mut Stream) -> SyncWorldClocksRemoveTimeMarker {
+    pub fn read(stream: &mut Reader) -> SyncWorldClocksRemoveTimeMarker {
         let clock_id = stream.get_var_u64();
         let len = stream.get_var_u32();
         let mut markers: Vec<SyncWorldClockMarkerData> = Vec::with_capacity(len as usize);
@@ -23,7 +23,7 @@ impl SyncWorldClocksRemoveTimeMarker {
         SyncWorldClocksRemoveTimeMarker { clock_id, markers }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u64(self.clock_id);
         stream.put_var_u32(self.markers.len() as u32);
         for marker in &self.markers {

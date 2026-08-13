@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerAuthInputVehicleInfo {
@@ -21,7 +21,7 @@ impl PlayerAuthInputVehicleInfo {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> PlayerAuthInputVehicleInfo {
+    pub fn read(stream: &mut Reader) -> PlayerAuthInputVehicleInfo {
         let vehicle_rotation_x = stream.get_f32_le();
         let vehicle_rotation_z = stream.get_f32_le();
         let predicted_vehicle_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
@@ -33,7 +33,7 @@ impl PlayerAuthInputVehicleInfo {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.vehicle_rotation_x);
         stream.put_f32_le(self.vehicle_rotation_z);
         PacketSerializer::put_actor_unique_id(stream, self.predicted_vehicle_actor_unique_id);

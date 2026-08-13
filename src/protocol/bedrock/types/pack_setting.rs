@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::types::bool_pack_setting::BoolPackSetting;
 use crate::protocol::bedrock::types::float_pack_setting::FloatPackSetting;
 use crate::protocol::bedrock::types::string_pack_setting::StringPackSetting;
-use binary_utils::binary::Stream;
+use binary_utils::binary::Writer;
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -28,7 +28,7 @@ impl PackSetting {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         match self {
             PackSetting::Float(r) => r.write(stream),
             PackSetting::Bool(r) => r.write(stream),

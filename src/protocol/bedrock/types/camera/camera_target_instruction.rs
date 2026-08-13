@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraTargetInstruction {
@@ -18,7 +18,7 @@ impl CameraTargetInstruction {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraTargetInstruction {
+    pub fn read(stream: &mut Reader) -> CameraTargetInstruction {
         let target_center_offset =
             PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
         let actor_unique_id = stream.get_i64_le();
@@ -29,7 +29,7 @@ impl CameraTargetInstruction {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::write_optional(stream, &self.target_center_offset, |s, v| {
             PacketSerializer::put_vector3(s, v.clone())
         });

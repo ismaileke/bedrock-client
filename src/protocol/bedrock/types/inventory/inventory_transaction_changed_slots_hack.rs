@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct InventoryTransactionChangedSlotsHack {
@@ -17,12 +17,12 @@ impl InventoryTransactionChangedSlotsHack {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> InventoryTransactionChangedSlotsHack {
-        let container_id = stream.get_byte();
+    pub fn read(stream: &mut Reader) -> InventoryTransactionChangedSlotsHack {
+        let container_id = stream.get_u8();
         let slot_count = stream.get_var_u32();
         let mut changed_slot_indexes = Vec::new();
         for _ in 0..slot_count {
-            changed_slot_indexes.push(stream.get_byte());
+            changed_slot_indexes.push(stream.get_u8());
         }
 
         InventoryTransactionChangedSlotsHack {
@@ -31,11 +31,11 @@ impl InventoryTransactionChangedSlotsHack {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
-        stream.put_byte(self.container_id);
+    pub fn write(&self, stream: &mut Writer) {
+        stream.put_u8(self.container_id);
         stream.put_var_u32(self.changed_slot_indexes.len() as u32);
         for i in self.changed_slot_indexes.iter() {
-            stream.put_byte(*i);
+            stream.put_u8(*i);
         }
     }
 }

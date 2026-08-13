@@ -6,7 +6,7 @@ use crate::protocol::bedrock::types::camera::camera_fov_instruction::CameraFovIn
 use crate::protocol::bedrock::types::camera::camera_set_instruction::CameraSetInstruction;
 use crate::protocol::bedrock::types::camera::camera_spline_instruction::CameraSplineInstruction;
 use crate::protocol::bedrock::types::camera::camera_target_instruction::CameraTargetInstruction;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraInstruction {
@@ -23,31 +23,22 @@ pub struct CameraInstruction {
 
 impl Packet for CameraInstruction {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDCameraInstruction.get_byte()
+        BedrockPacketType::IDCameraInstruction.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::write_optional(&mut stream, &self.set, |s, v| v.write(s));
-        PacketSerializer::write_optional(&mut stream, &self.clear, |s, v| s.put_bool(*v));
-        PacketSerializer::write_optional(&mut stream, &self.fade, |s, v| v.write(s));
-        PacketSerializer::write_optional(&mut stream, &self.target, |s, v| v.write(s));
-        PacketSerializer::write_optional(&mut stream, &self.remove_target, |s, v| s.put_bool(*v));
-        PacketSerializer::write_optional(&mut stream, &self.field_of_view, |s, v| v.write(s));
-        PacketSerializer::write_optional(&mut stream, &self.spline, |s, v| v.write(s));
-        PacketSerializer::write_optional(&mut stream, &self.attach_to_entity, |s, v| s.put_i64_le(*v));
-        PacketSerializer::write_optional(&mut stream, &self.detach_from_entity, |s, v| s.put_bool(*v));
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::write_optional(stream, &self.set, |s, v| v.write(s));
+        PacketSerializer::write_optional(stream, &self.clear, |s, v| s.put_bool(*v));
+        PacketSerializer::write_optional(stream, &self.fade, |s, v| v.write(s));
+        PacketSerializer::write_optional(stream, &self.target, |s, v| v.write(s));
+        PacketSerializer::write_optional(stream, &self.remove_target, |s, v| s.put_bool(*v));
+        PacketSerializer::write_optional(stream, &self.field_of_view, |s, v| v.write(s));
+        PacketSerializer::write_optional(stream, &self.spline, |s, v| v.write(s));
+        PacketSerializer::write_optional(stream, &self.attach_to_entity, |s, v| s.put_i64_le(*v));
+        PacketSerializer::write_optional(stream, &self.detach_from_entity, |s, v| s.put_bool(*v));
     }
 
-    fn decode(stream: &mut Stream) -> CameraInstruction {
+    fn decode(stream: &mut Reader) -> CameraInstruction {
         let set = PacketSerializer::read_optional(stream, |s| CameraSetInstruction::read(s));
         let clear = PacketSerializer::read_optional(stream, |s| s.get_bool());
         let fade = PacketSerializer::read_optional(stream, |s| CameraFadeInstruction::read(s));

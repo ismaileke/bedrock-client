@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct AwardAchievement {
@@ -9,23 +9,14 @@ pub struct AwardAchievement {
 
 impl Packet for AwardAchievement {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDAwardAchievement.get_byte()
+        BedrockPacketType::IDAwardAchievement.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
+    fn encode(&mut self, stream: &mut Writer) {
         stream.put_i32_le(self.achievement_id);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> AwardAchievement {
+    fn decode(stream: &mut Reader) -> AwardAchievement {
         let achievement_id = stream.get_i32_le();
 
         AwardAchievement { achievement_id }

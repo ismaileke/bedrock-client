@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct WhiskerScopeDataSummary {
@@ -21,7 +21,7 @@ impl WhiskerScopeDataSummary {
         WhiskerScopeDataSummary { label, indentation, total_high_cost_ns, total_mid_cost_ns, total_low_cost_ns }
     }
 
-    pub fn read(stream: &mut Stream) -> WhiskerScopeDataSummary {
+    pub fn read(stream: &mut Reader) -> WhiskerScopeDataSummary {
         let label = PacketSerializer::get_string(stream);
         let indentation = PacketSerializer::get_string(stream);
         let total_high_cost_ns = stream.get_u64_le();
@@ -30,7 +30,7 @@ impl WhiskerScopeDataSummary {
         WhiskerScopeDataSummary { label, indentation, total_high_cost_ns, total_mid_cost_ns, total_low_cost_ns }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.label.clone());
         PacketSerializer::put_string(stream, self.indentation.clone());
         stream.put_u64_le(self.total_high_cost_ns);

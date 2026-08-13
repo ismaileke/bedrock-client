@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::biome::chunkgen::biome_definition_chunk_gen_data::BiomeDefinitionChunkGenData;
 use crate::utils::color::Color;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeDefinitionData {
@@ -47,7 +47,7 @@ impl BiomeDefinitionData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeDefinitionData {
+    pub fn read(stream: &mut Reader) -> BiomeDefinitionData {
         let name_index = stream.get_u16_le();
         let id = stream.get_u16_le();
         let temperature = stream.get_f32_le();
@@ -83,7 +83,7 @@ impl BiomeDefinitionData {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_u16_le(self.name_index);
         stream.put_u16_le(self.id);
         stream.put_f32_le(self.temperature);

@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::types::biome::chunkgen::biome_coordinate_data::BiomeCoordinateData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeScatterParamData {
@@ -36,7 +36,7 @@ impl BiomeScatterParamData {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> BiomeScatterParamData {
+    pub fn read(stream: &mut Reader) -> BiomeScatterParamData {
         let mut coordinates = Vec::<BiomeCoordinateData>::new();
         let count = stream.get_var_u32();
         for _ in 0..count {
@@ -62,7 +62,7 @@ impl BiomeScatterParamData {
         )
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.coordinates.len() as u32);
         for coord in &self.coordinates {
             coord.write(stream);

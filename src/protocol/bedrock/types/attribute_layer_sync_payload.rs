@@ -1,8 +1,8 @@
-use crate::protocol::bedrock::types::attribute_update_layer_settings::AttributeUpdateLayerSettings;
 use crate::protocol::bedrock::types::attribute_remove_environment::AttributeRemoveEnvironment;
 use crate::protocol::bedrock::types::attribute_update_environment::AttributeUpdateEnvironment;
+use crate::protocol::bedrock::types::attribute_update_layer_settings::AttributeUpdateLayerSettings;
 use crate::protocol::bedrock::types::attribute_update_layers::AttributeUpdateLayers;
-use binary_utils::binary::Stream;
+use binary_utils::binary::Writer;
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -28,7 +28,7 @@ impl AttributeLayerSyncPayload {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         match self {
             AttributeLayerSyncPayload::UpdateLayers(r) => r.write(stream),
             AttributeLayerSyncPayload::UpdateLayerSettings(r) => r.write(stream),

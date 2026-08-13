@@ -3,7 +3,7 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty;
 use crate::protocol::bedrock::types::entity::property_sync_data::PropertySyncData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
@@ -16,26 +16,17 @@ pub struct SetActorData {
 
 impl Packet for SetActorData {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDSetActorData.get_byte()
+        BedrockPacketType::IDSetActorData.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_actor_runtime_id(&mut stream, self.actor_runtime_id);
-        PacketSerializer::put_entity_metadata(&mut stream, &mut self.metadata);
-        self.synced_properties.write(&mut stream);
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
+        PacketSerializer::put_entity_metadata(stream, &mut self.metadata);
+        self.synced_properties.write(stream);
         stream.put_var_u64(self.tick);
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
     }
 
-    fn decode(stream: &mut Stream) -> SetActorData {
+    fn decode(stream: &mut Reader) -> SetActorData {
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let metadata = PacketSerializer::get_entity_metadata(stream);
         let synced_properties = PropertySyncData::read(stream);

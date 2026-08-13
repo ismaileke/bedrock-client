@@ -1,5 +1,5 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraAimAssistCategoryPriority {
@@ -15,7 +15,7 @@ impl CameraAimAssistCategoryPriority {
         }
     }
 
-    pub fn read(stream: &mut Stream) -> CameraAimAssistCategoryPriority {
+    pub fn read(stream: &mut Reader) -> CameraAimAssistCategoryPriority {
         let identifier = PacketSerializer::get_string(stream);
         let priority = stream.get_i32_le();
 
@@ -25,7 +25,7 @@ impl CameraAimAssistCategoryPriority {
         }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.identifier.clone());
         stream.put_i32_le(self.priority);
     }

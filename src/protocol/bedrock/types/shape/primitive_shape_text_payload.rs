@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::utils::color::Color;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PrimitiveShapeTextPayload {
@@ -24,7 +24,7 @@ impl PrimitiveShapeTextPayload {
         PrimitiveShapeTextPayload { text, use_rotation, background_color, depth_test, show_backface, show_text_backface }
     }
 
-    pub fn read(stream: &mut Stream) -> PrimitiveShapeTextPayload {
+    pub fn read(stream: &mut Reader) -> PrimitiveShapeTextPayload {
         let text = PacketSerializer::get_string(stream);
         let use_rotation = stream.get_bool();
         let background_color = PacketSerializer::read_optional(stream, |s| Color::from_argb(s.get_u32_le()));
@@ -35,7 +35,7 @@ impl PrimitiveShapeTextPayload {
         PrimitiveShapeTextPayload { text, use_rotation, background_color, depth_test, show_backface, show_text_backface }
     }
 
-    pub fn write(&self, stream: &mut Stream) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, self.text.clone());
         stream.put_bool(self.use_rotation);
         PacketSerializer::write_optional(stream, &self.background_color, |s, v| s.put_u32_le(v.to_argb()));

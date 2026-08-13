@@ -1,8 +1,8 @@
 use crate::protocol::bedrock::types::ddui::data_store_change::DataStoreChange;
 use crate::protocol::bedrock::types::ddui::data_store_removal::DataStoreRemoval;
-use crate::protocol::bedrock::types::ddui::data_store_update::DataStoreUpdate;
 use crate::protocol::bedrock::types::ddui::data_store_types::DataStoreOperationTypes;
-use binary_utils::binary::Stream;
+use crate::protocol::bedrock::types::ddui::data_store_update::DataStoreUpdate;
+use binary_utils::binary::Writer;
 use std::fmt::Debug;
 
 #[derive(serde::Serialize, Debug)]
@@ -21,7 +21,7 @@ impl DataStoreOperation {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Stream) {
+    pub fn write(&mut self, stream: &mut Writer) {
         match self {
             DataStoreOperation::Update(r) => r.write(stream),
             DataStoreOperation::Change(r) => r.write(stream),

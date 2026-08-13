@@ -2,7 +2,7 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::command::command_origin_data::CommandOriginData;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CommandRequest {
@@ -14,26 +14,17 @@ pub struct CommandRequest {
 
 impl Packet for CommandRequest {
     fn id(&self) -> u16 {
-        BedrockPacketType::IDCommandRequest.get_byte()
+        BedrockPacketType::IDCommandRequest.get_u8()
     }
 
-    fn encode(&mut self) -> Vec<u8> {
-        let mut stream = Stream::new(Vec::new(), 0);
-        stream.put_var_u32(self.id() as u32);
-
-        PacketSerializer::put_string(&mut stream, self.command.clone());
-        PacketSerializer::put_command_origin_data(&mut stream, &self.origin_data);
+    fn encode(&mut self, stream: &mut Writer) {
+        PacketSerializer::put_string(stream, self.command.clone());
+        PacketSerializer::put_command_origin_data(stream, &self.origin_data);
         stream.put_bool(self.is_internal);
-        PacketSerializer::put_string(&mut stream, self.version.clone());
-
-        let mut compress_stream = Stream::new(Vec::new(), 0);
-        compress_stream.put_var_u32(stream.get_buffer().len() as u32);
-        compress_stream.put(Vec::from(stream.get_buffer()));
-
-        Vec::from(compress_stream.get_buffer())
+        PacketSerializer::put_string(stream, self.version.clone());
     }
 
-    fn decode(stream: &mut Stream) -> CommandRequest {
+    fn decode(stream: &mut Reader) -> CommandRequest {
         let command = PacketSerializer::get_string(stream);
         let origin_data = PacketSerializer::get_command_origin_data(stream);
         let is_internal = stream.get_bool();

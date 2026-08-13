@@ -229,7 +229,7 @@ use crate::protocol::bedrock::server_store_info::ServerStoreInfo;
 use crate::protocol::bedrock::client_bound_update_sound_data::ClientBoundUpdateSoundData;
 use crate::protocol::bedrock::send_party_destination_cookie::SendPartyDestinationCookie;
 use crate::protocol::bedrock::party_destination_cookie_response::PartyDestinationCookieResponse;
-use binary_utils::binary::Stream;
+use binary_utils::binary::Reader;
 use serde::Serialize;
 
 #[repr(u16)]
@@ -702,7 +702,7 @@ impl BedrockPacketType {
             _ => BedrockPacketType::IDUnknown,
         }
     }
-    pub fn get_byte(self) -> u16 {
+    pub fn get_u8(self) -> u16 {
         match self {
             BedrockPacketType::IDLogin => 0x01,
             BedrockPacketType::IDPlayStatus => 0x02,
@@ -1171,7 +1171,7 @@ impl BedrockPacketType {
         }
     }
 
-    pub fn get_packet_from_id(id: u16, stream: &mut Stream) -> BedrockPacket {
+    pub fn get_packet_from_id(id: u16, stream: &mut Reader) -> BedrockPacket {
         match id {
             0x01 => BedrockPacket::Login(Login::decode(stream)),
             0x02 => BedrockPacket::PlayStatus(PlayStatus::decode(stream)),

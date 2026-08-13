@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::types::inventory::network_inventory_action::NetworkInventoryAction;
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct UseItemOnEntityTransactionData {
@@ -47,7 +47,7 @@ impl UseItemOnEntityTransactionData {
         self.actions.as_mut()
     }
 
-    pub fn decode_data(&mut self, stream: &mut Stream) {
+    pub fn decode_data(&mut self, stream: &mut Reader) {
         self.actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         self.action_type = stream.get_var_i32();
         self.hotbar_slot = stream.get_var_i32();
@@ -56,7 +56,7 @@ impl UseItemOnEntityTransactionData {
         self.click_position = PacketSerializer::get_vector3(stream);
     }
 
-    pub fn encode_data(&self, stream: &mut Stream) {
+    pub fn encode_data(&self, stream: &mut Writer) {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
         stream.put_var_i32(self.action_type);
         stream.put_var_i32(self.hotbar_slot);

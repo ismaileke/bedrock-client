@@ -1,4 +1,4 @@
-use binary_utils::binary::Stream;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct TakeStackRequestAction {}
@@ -8,9 +8,9 @@ impl TakeStackRequestAction {
         TakeStackRequestAction {}
     }
 
-    pub fn read(_stream: &mut Stream) -> TakeStackRequestAction {
+    pub fn read(_stream: &mut Reader) -> TakeStackRequestAction {
         TakeStackRequestAction {}
     }
 
-    pub fn write(&mut self, _stream: &mut Stream) {}
+    pub fn write(&mut self, _stream: &mut Writer) {}
 }
