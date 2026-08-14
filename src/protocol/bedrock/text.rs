@@ -39,16 +39,16 @@ impl Packet for Text {
                 if let Some(source_name) = &self.source_name {
                     PacketSerializer::put_string(stream, if source_name == "" { " " } else { source_name });
                 }
-                PacketSerializer::put_string(stream, if self.message.clone() == "" { " " } else { &self.message });
+                PacketSerializer::put_string(stream, if self.message == "" { " " } else { &self.message });
             }
             Text::TYPE_RAW | Text::TYPE_TIP | Text::TYPE_SYSTEM | Text::TYPE_JSON | Text::TYPE_JSON_WHISPER | Text::TYPE_JSON_ANNOUNCEMENT => {
-                PacketSerializer::put_string(stream, if self.message.clone() == "" { " " } else { &self.message });
+                PacketSerializer::put_string(stream, if self.message == "" { " " } else { &self.message });
             }
             Text::TYPE_TRANSLATION | Text::TYPE_POPUP | Text::TYPE_JUKEBOX_POPUP => {
-                PacketSerializer::put_string(stream, if self.message.clone() == "" { " " } else { &self.message });
-                if let Some(parameters) = self.parameters.clone() {
+                PacketSerializer::put_string(stream, if self.message == "" { " " } else { &self.message });
+                if let Some(parameters) = &self.parameters {
                     stream.put_var_u32(parameters.len() as u32);
-                    for parameter in &parameters {
+                    for parameter in parameters {
                         PacketSerializer::put_string(stream, parameter);
                     }
                 }

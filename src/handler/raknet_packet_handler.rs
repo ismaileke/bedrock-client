@@ -1,5 +1,4 @@
 use crate::protocol::bedrock::network_settings::NONE;
-use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::req_network_settings::RequestNetworkSettings;
 use crate::protocol::raknet::conn_req::ConnReq;
 use crate::protocol::raknet::conn_req_accepted::ConnReqAccepted;

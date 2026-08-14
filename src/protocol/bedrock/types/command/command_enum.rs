@@ -17,8 +17,8 @@ impl CommandEnum {
         &self.enum_name
     }
 
-    pub fn get_enum_values(&self) -> Vec<String> {
-        self.enum_values.clone()
+    pub fn get_enum_values(&self) -> &Vec<String> {
+        &self.enum_values
     }
 
     pub fn get_is_soft(&self) -> bool {

@@ -25,7 +25,7 @@ impl CommandEnumConstraint {
         &self.constraints
     }
 
-    pub fn get_affected_value(&self) -> String {
-        self.command_enum.get_enum_values()[self.get_value_offset() as usize].clone()
+    pub fn get_affected_value(&self) -> &String {
+        &self.command_enum.get_enum_values()[self.get_value_offset() as usize]
     }
 }
