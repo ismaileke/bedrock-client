@@ -24,10 +24,10 @@ impl CommandSoftEnum {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.name.clone());
+        PacketSerializer::put_string(stream, &self.name);
         stream.put_var_u32(self.values.len() as u32);
         for value_index in &self.values {
-            PacketSerializer::put_string(stream, value_index.clone());
+            PacketSerializer::put_string(stream, value_index);
         }
     }
 }

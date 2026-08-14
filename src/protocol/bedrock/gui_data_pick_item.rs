@@ -16,8 +16,8 @@ impl Packet for GUIDataPickItem {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.item_description.clone());
-        PacketSerializer::put_string(stream, self.item_effects.clone());
+        PacketSerializer::put_string(stream, &self.item_description);
+        PacketSerializer::put_string(stream, &self.item_effects);
         stream.put_i32_le(self.hotbar_slot);
     }
 

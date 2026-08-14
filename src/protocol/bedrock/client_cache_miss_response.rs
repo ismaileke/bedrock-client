@@ -18,7 +18,7 @@ impl Packet for ClientCacheMissResponse {
         stream.put_var_u32(self.blobs.len() as u32);
         for blob in self.blobs.iter() {
             stream.put_u64_le(blob.get_hash());
-            PacketSerializer::put_string(stream, blob.get_payload());
+            PacketSerializer::put_string(stream, &blob.get_payload());
         }
     }
 

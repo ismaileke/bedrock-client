@@ -26,7 +26,7 @@ impl CameraAimAssistCategoryPriority {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.identifier.clone());
+        PacketSerializer::put_string(stream, &self.identifier);
         stream.put_i32_le(self.priority);
     }
 }

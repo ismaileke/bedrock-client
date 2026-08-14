@@ -65,13 +65,13 @@ impl AttributeEnvironment {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.name.clone());
+        PacketSerializer::put_string(stream, &self.name);
         PacketSerializer::write_optional(stream, &self.from_attribute, |s, v| v.write(s));
         self.attribute.write(stream);
         PacketSerializer::write_optional(stream, &self.to_attribute, |s, v| v.write(s));
         stream.put_u32_le(self.current_transition_ticks);
         stream.put_u32_le(self.total_transition_ticks);
-        PacketSerializer::put_string(stream, self.ease_type.clone());
+        PacketSerializer::put_string(stream, &self.ease_type);
         stream.put_u32_le(self.local_transition_ticks);
         stream.put_bool(self.noise_transition);
     }

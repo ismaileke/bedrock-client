@@ -15,7 +15,7 @@ impl Packet for PartyDestinationCookieResponse {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.cookie.clone());
+        PacketSerializer::put_string(stream, &self.cookie);
         stream.put_bool(self.accepted);
     }
 

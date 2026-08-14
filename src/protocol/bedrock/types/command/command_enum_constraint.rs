@@ -21,8 +21,8 @@ impl CommandEnumConstraint {
         self.value_offset
     }
 
-    pub fn get_constraints(&self) -> Vec<u8> {
-        self.constraints.clone()
+    pub fn get_constraints(&self) -> &Vec<u8> {
+        &self.constraints
     }
 
     pub fn get_affected_value(&self) -> String {

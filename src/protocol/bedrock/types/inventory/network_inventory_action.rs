@@ -109,8 +109,8 @@ impl NetworkInventoryAction {
         }
 
         stream.put_var_u32(self.inventory_slot);
-        PacketSerializer::put_item_stack_wrapper(stream, self.old_item.clone());
-        PacketSerializer::put_item_stack_wrapper(stream, self.new_item.clone());
+        PacketSerializer::put_item_stack_wrapper(stream, &self.old_item);
+        PacketSerializer::put_item_stack_wrapper(stream, &self.new_item);
     }
 
     pub fn read_transaction(stream: &mut Reader) -> NetworkInventoryAction {
@@ -154,7 +154,7 @@ impl NetworkInventoryAction {
         PacketSerializer::write_optional(stream, &self.source_flags, |s, v| s.put_var_u32(*v));
 
         stream.put_var_u32(self.inventory_slot);
-        PacketSerializer::put_network_item_stack_descriptor(stream, self.old_item.clone());
-        PacketSerializer::put_network_item_stack_descriptor(stream, self.new_item.clone());
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.old_item);
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.new_item);
     }
 }

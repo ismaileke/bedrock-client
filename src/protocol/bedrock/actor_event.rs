@@ -20,7 +20,7 @@ impl Packet for ActorEvent {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
         stream.put_u8(self.event_id);
         stream.put_var_i32(self.event_data);
-        PacketSerializer::write_optional(stream, &self.fire_position, |s, v| PacketSerializer::put_vector3(s, v.clone()));
+        PacketSerializer::write_optional(stream, &self.fire_position, |s, v| PacketSerializer::put_vector3(s, v));
     }
 
     fn decode(stream: &mut Reader) -> ActorEvent {

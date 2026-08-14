@@ -47,10 +47,10 @@ impl CommandRawData {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.name.clone());
-        PacketSerializer::put_string(stream, self.description.clone());
+        PacketSerializer::put_string(stream, &self.name);
+        PacketSerializer::put_string(stream, &self.description);
         stream.put_u16_le(self.flags);
-        PacketSerializer::put_string(stream, self.permission.clone());
+        PacketSerializer::put_string(stream, &self.permission);
         stream.put_i32_le(self.alias_enum_index);
         stream.put_var_u32(self.chained_sub_command_data_indexes.len() as u32);
         for index in &self.chained_sub_command_data_indexes {

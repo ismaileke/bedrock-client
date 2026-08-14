@@ -174,7 +174,7 @@ impl LevelSettings {
         stream.put_var_i32(self.world_game_mode);
         stream.put_bool(self.hardcore);
         stream.put_var_i32(self.difficulty);
-        PacketSerializer::put_block_pos(stream, self.spawn_position.clone());
+        PacketSerializer::put_block_pos(stream, &self.spawn_position);
         stream.put_bool(self.has_achievements_disabled);
         stream.put_var_i32(self.editor_world_type);
         stream.put_bool(self.created_in_editor_mode);
@@ -182,7 +182,7 @@ impl LevelSettings {
         stream.put_var_i32(self.time);
         stream.put_var_i32(self.edu_edition_offer);
         stream.put_bool(self.has_edu_features_enabled);
-        PacketSerializer::put_string(stream, self.edu_product_uuid.clone());
+        PacketSerializer::put_string(stream, &self.edu_product_uuid);
         stream.put_f32_le(self.rain_level);
         stream.put_f32_le(self.lightning_level);
         stream.put_bool(self.has_confirmed_platform_locked_content);
@@ -208,7 +208,7 @@ impl LevelSettings {
         stream.put_bool(self.disable_persona);
         stream.put_bool(self.disable_custom_skins);
         stream.put_bool(self.mute_emote_announcements);
-        PacketSerializer::put_string(stream, self.vanilla_version.clone());
+        PacketSerializer::put_string(stream, &self.vanilla_version);
         stream.put_i32_le(self.limited_world_width);
         stream.put_i32_le(self.limited_world_length);
         stream.put_bool(self.is_new_nether);

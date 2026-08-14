@@ -29,7 +29,7 @@ impl DynamicValueMap {
     pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.values.len() as u32);
         for (key, value) in &self.values {
-            PacketSerializer::put_string(stream, key.to_string());
+            PacketSerializer::put_string(stream, key);
             stream.put_u32_le(value.id());
             value.write(stream);
         }

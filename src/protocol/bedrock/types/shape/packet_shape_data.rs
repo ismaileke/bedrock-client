@@ -257,9 +257,9 @@ impl PacketShapeData {
     pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u64(self.network_id);
         PacketSerializer::write_optional(stream, &self.shape_type, |s, v| s.put_u8(*v));
-        PacketSerializer::write_optional(stream, &self.location, |s, v| PacketSerializer::put_vector3(s, v.clone()));
+        PacketSerializer::write_optional(stream, &self.location, |s, v| PacketSerializer::put_vector3(s, v));
         PacketSerializer::write_optional(stream, &self.scale, |s, v| s.put_f32_le(*v));
-        PacketSerializer::write_optional(stream, &self.rotation, |s, v| PacketSerializer::put_vector3(s, v.clone()));
+        PacketSerializer::write_optional(stream, &self.rotation, |s, v| PacketSerializer::put_vector3(s, v));
         PacketSerializer::write_optional(stream, &self.total_time_left, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.maximum_render_distance, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.color, |s, v| s.put_u32_le(v.to_argb()));

@@ -17,6 +17,6 @@ impl PrimitiveShapeLinePayload {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_vector3(stream, self.line_end_location.clone());
+        PacketSerializer::put_vector3(stream, &self.line_end_location);
     }
 }

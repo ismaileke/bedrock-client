@@ -18,7 +18,7 @@ impl Packet for UnlockedRecipes {
         stream.put_u32_le(self.unlock_type);
         stream.put_var_u32(self.recipes.len() as u32);
         for recipe in self.recipes.iter() {
-            PacketSerializer::put_string(stream, recipe.clone());
+            PacketSerializer::put_string(stream, recipe);
         }
     }
 

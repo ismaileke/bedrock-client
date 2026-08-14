@@ -16,7 +16,7 @@ impl Packet for Respawn {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_vector3(stream, &self.position);
         stream.put_u8(self.respawn_state);
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
     }

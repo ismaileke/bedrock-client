@@ -36,25 +36,25 @@ impl Packet for AddPlayer {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_uuid(stream, self.uuid.clone());
-        PacketSerializer::put_string(stream, self.username.clone());
+        PacketSerializer::put_uuid(stream, &self.uuid);
+        PacketSerializer::put_string(stream, &self.username);
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
-        PacketSerializer::put_string(stream, self.platform_chat_id.clone());
-        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_string(stream, &self.platform_chat_id);
+        PacketSerializer::put_vector3(stream, &self.position);
         PacketSerializer::put_vector3_nullable(stream, Option::from(self.motion.clone()));
         stream.put_f32_le(self.pitch);
         stream.put_f32_le(self.yaw);
         stream.put_f32_le(self.head_yaw);
-        PacketSerializer::put_item_stack_wrapper(stream, self.item.clone());
+        PacketSerializer::put_item_stack_wrapper(stream, &self.item);
         stream.put_var_i32(self.game_mode);
         PacketSerializer::put_entity_metadata(stream, &mut self.metadata);
         self.synced_properties.write(stream);
         self.abilities_packet.encode(stream);
         stream.put_var_u32(self.links.len() as u32);
         for link in &self.links {
-            PacketSerializer::put_entity_link(stream, link.clone());
+            PacketSerializer::put_entity_link(stream, &link);
         }
-        PacketSerializer::put_string(stream, self.device_id.clone());
+        PacketSerializer::put_string(stream, &self.device_id);
         stream.put_i32_le(self.build_platform);
     }
 

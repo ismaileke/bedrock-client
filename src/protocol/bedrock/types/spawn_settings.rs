@@ -22,7 +22,7 @@ impl SpawnSettings {
 
     pub fn write(&self, stream: &mut Writer) {
         stream.put_u16_le(self.biome_type);
-        PacketSerializer::put_string(stream, self.biome_name.clone());
+        PacketSerializer::put_string(stream, &self.biome_name);
         stream.put_var_i32(self.dimension_id);
     }
 }

@@ -20,11 +20,11 @@ impl Packet for ResourcePackDataInfo {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.pack_id.clone());
+        PacketSerializer::put_string(stream, &self.pack_id);
         stream.put_u32_le(self.max_chunk_size);
         stream.put_u32_le(self.chunk_count);
         stream.put_u64_le(self.compressed_pack_size);
-        PacketSerializer::put_string(stream, self.sha256.clone());
+        PacketSerializer::put_string(stream, &self.sha256);
         stream.put_bool(self.is_premium);
         stream.put_u8(self.pack_type);
     }

@@ -36,6 +36,6 @@ impl AttributeValueColor {
     pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.value.id());
         self.value.write(stream);
-        PacketSerializer::put_string(stream, self.operation.clone());
+        PacketSerializer::put_string(stream, &self.operation);
     }
 }

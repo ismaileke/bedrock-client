@@ -30,9 +30,7 @@ impl CameraTargetInstruction {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::write_optional(stream, &self.target_center_offset, |s, v| {
-            PacketSerializer::put_vector3(s, v.clone())
-        });
+        PacketSerializer::write_optional(stream, &self.target_center_offset, |s, v| PacketSerializer::put_vector3(s, v));
         stream.put_i64_le(self.actor_unique_id);
     }
 }

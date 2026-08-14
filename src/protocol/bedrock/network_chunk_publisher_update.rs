@@ -19,7 +19,7 @@ impl Packet for NetworkChunkPublisherUpdate {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_block_pos(stream, self.block_pos.clone());
+        PacketSerializer::put_block_pos(stream, &self.block_pos);
 
         stream.put_var_u32(self.radius);
 

@@ -33,8 +33,8 @@ impl Packet for AddActor {
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
-        PacketSerializer::put_string(stream, self.entity_type.clone());
-        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_string(stream, &self.entity_type);
+        PacketSerializer::put_vector3(stream, &self.position);
         PacketSerializer::put_vector3_nullable(stream, self.motion.clone());
         stream.put_f32_le(self.pitch);
         stream.put_f32_le(self.yaw);
@@ -42,7 +42,7 @@ impl Packet for AddActor {
         stream.put_f32_le(self.body_yaw);
         stream.put_var_u32(self.attributes.len() as u32);
         for attribute in self.attributes.iter() {
-            PacketSerializer::put_string(stream, attribute.id.clone());
+            PacketSerializer::put_string(stream, &attribute.id);
             stream.put_f32_le(attribute.min);
             stream.put_f32_le(attribute.current);
             stream.put_f32_le(attribute.max);
@@ -51,7 +51,7 @@ impl Packet for AddActor {
         self.synced_properties.write(stream);
         stream.put_var_u32(self.links.len() as u32);
         for link in self.links.iter() {
-            PacketSerializer::put_entity_link(stream, link.clone());
+            PacketSerializer::put_entity_link(stream, link);
         }
     }
 

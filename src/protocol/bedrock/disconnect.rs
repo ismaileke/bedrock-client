@@ -19,9 +19,13 @@ impl Packet for Disconnect {
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_i32(self.reason);
         stream.put_var_u32(self.message_type);
-        if self.message_type == 0 && self.message.is_some() && self.filtered_message.is_some() {
-            PacketSerializer::put_string(stream, self.message.clone().unwrap());
-            PacketSerializer::put_string(stream, self.filtered_message.clone().unwrap());
+        if self.message_type == 0 {
+            if let Some(message) = &self.message {
+                PacketSerializer::put_string(stream, message);
+            }
+            if let Some(filtered_message) = &self.filtered_message {
+                PacketSerializer::put_string(stream, filtered_message);
+            }
         }
     }
 

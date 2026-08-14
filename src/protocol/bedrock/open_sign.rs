@@ -15,7 +15,7 @@ impl Packet for OpenSign {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_block_pos(stream, self.block_position.clone());
+        PacketSerializer::put_block_pos(stream, &self.block_position);
         stream.put_bool(self.front);
     }
 

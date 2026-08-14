@@ -109,7 +109,7 @@ impl ShapedRecipe {
     }
 
     pub fn write(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.recipe_id.clone());
+        PacketSerializer::put_string(stream, &self.recipe_id);
         stream.put_var_i32(self.get_width() as i32);
         stream.put_var_i32(self.get_height() as i32);
         for row in self.inputs.iter_mut() {
@@ -121,8 +121,8 @@ impl ShapedRecipe {
         for output in &self.outputs {
             PacketSerializer::put_item_stack_without_stack_id(stream, output);
         }
-        PacketSerializer::put_uuid(stream, self.uuid.clone());
-        PacketSerializer::put_string(stream, self.block_name.clone());
+        PacketSerializer::put_uuid(stream, &self.uuid);
+        PacketSerializer::put_string(stream, &self.block_name);
         stream.put_var_i32(self.priority);
         stream.put_bool(self.symmetric);
         self.unlocking_requirement.write(stream);

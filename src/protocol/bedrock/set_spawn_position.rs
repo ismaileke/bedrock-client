@@ -42,9 +42,9 @@ impl Packet for SetSpawnPosition {
 
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_i32(self.spawn_type);
-        PacketSerializer::put_block_pos(stream, self.spawn_position.clone());
+        PacketSerializer::put_block_pos(stream, &self.spawn_position);
         stream.put_var_i32(self.dimension);
-        PacketSerializer::put_block_pos(stream, self.causing_block_position.clone());
+        PacketSerializer::put_block_pos(stream, &self.causing_block_position);
     }
 
     fn decode(stream: &mut Reader) -> SetSpawnPosition {

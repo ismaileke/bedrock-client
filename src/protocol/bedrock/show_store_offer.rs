@@ -15,7 +15,7 @@ impl Packet for ShowStoreOffer {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_uuid(stream, self.offer_id.clone());
+        PacketSerializer::put_uuid(stream, &self.offer_id);
         stream.put_u8(self.redirect_type);
     }
 

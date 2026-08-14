@@ -16,7 +16,7 @@ impl Packet for ClientBoundUpdateSoundData {
 
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_u64_le(self.server_sound_handle);
-        PacketSerializer::put_string(stream, self.sound_event.clone());
+        PacketSerializer::put_string(stream, &self.sound_event);
     }
 
     fn decode(stream: &mut Reader) -> ClientBoundUpdateSoundData {

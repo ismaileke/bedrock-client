@@ -87,7 +87,7 @@ impl ShapelessRecipe {
     }
 
     pub fn write(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.recipe_id.clone());
+        PacketSerializer::put_string(stream, &self.recipe_id);
         stream.put_var_u32(self.inputs.len() as u32);
         for input in self.inputs.iter_mut() {
             PacketSerializer::put_recipe_ingredient(stream, input);
@@ -96,8 +96,8 @@ impl ShapelessRecipe {
         for output in &self.outputs {
             PacketSerializer::put_item_stack_without_stack_id(stream, output);
         }
-        PacketSerializer::put_uuid(stream, self.uuid.clone());
-        PacketSerializer::put_string(stream, self.block_name.clone());
+        PacketSerializer::put_uuid(stream, &self.uuid);
+        PacketSerializer::put_string(stream, &self.block_name);
         stream.put_var_i32(self.priority);
         self.unlocking_requirement.write(stream);
         PacketSerializer::write_recipe_net_id(stream, self.recipe_net_id);

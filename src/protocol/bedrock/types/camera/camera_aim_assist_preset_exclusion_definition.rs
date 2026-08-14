@@ -61,22 +61,22 @@ impl CameraAimAssistPresetExclusionDefinition {
     pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.blocks.len() as u32);
         for block in &self.blocks {
-            PacketSerializer::put_string(stream, block.clone());
+            PacketSerializer::put_string(stream, block);
         }
 
         stream.put_var_u32(self.entities.len() as u32);
         for entity in &self.entities {
-            PacketSerializer::put_string(stream, entity.clone());
+            PacketSerializer::put_string(stream, entity);
         }
 
         stream.put_var_u32(self.block_tags.len() as u32);
         for block_tag in &self.block_tags {
-            PacketSerializer::put_string(stream, block_tag.clone());
+            PacketSerializer::put_string(stream, block_tag);
         }
 
         stream.put_var_u32(self.entity_type_families.len() as u32);
         for entity_type in &self.entity_type_families {
-            PacketSerializer::put_string(stream, entity_type.clone());
+            PacketSerializer::put_string(stream, entity_type);
         }
     }
 }

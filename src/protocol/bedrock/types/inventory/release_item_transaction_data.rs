@@ -50,7 +50,7 @@ impl ReleaseItemTransactionData {
     pub fn encode_data(&self, stream: &mut Writer) {
         stream.put_var_i32(self.action_type);
         stream.put_var_i32(self.hotbar_slot);
-        PacketSerializer::put_network_item_stack_descriptor(stream, self.item_in_hand.clone());
-        PacketSerializer::put_vector3(stream, self.head_position.clone());
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.item_in_hand);
+        PacketSerializer::put_vector3(stream, &self.head_position);
     }
 }

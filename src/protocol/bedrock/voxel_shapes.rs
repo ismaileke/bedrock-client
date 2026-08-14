@@ -24,7 +24,7 @@ impl Packet for VoxelShapes {
         }
         stream.put_var_u32(self.name_map.len() as u32);
         for (name, id) in &self.name_map {
-            PacketSerializer::put_string(stream, name.clone());
+            PacketSerializer::put_string(stream, name);
             stream.put_u16_le(*id);
         }
         stream.put_u16_le(self.custom_shape_count);

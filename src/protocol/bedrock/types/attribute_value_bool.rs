@@ -30,6 +30,6 @@ impl AttributeValueBool {
 
     pub fn write(&self, stream: &mut Writer) {
         stream.put_bool(self.value);
-        PacketSerializer::put_string(stream, self.operation.clone());
+        PacketSerializer::put_string(stream, &self.operation);
     }
 }

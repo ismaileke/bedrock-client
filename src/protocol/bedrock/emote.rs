@@ -25,10 +25,10 @@ impl Packet for Emote {
 
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
-        PacketSerializer::put_string(stream, self.emote_id.clone());
+        PacketSerializer::put_string(stream, &self.emote_id);
         stream.put_var_u32(self.emote_length_ticks);
-        PacketSerializer::put_string(stream, self.xbox_user_id.clone());
-        PacketSerializer::put_string(stream, self.platform_chat_id.clone());
+        PacketSerializer::put_string(stream, &self.xbox_user_id);
+        PacketSerializer::put_string(stream, &self.platform_chat_id);
         stream.put_u8(self.flags);
     }
 

@@ -45,7 +45,7 @@ impl Packet for ClientBoundMapItemData {
         stream.put_var_u32(map_type);
         stream.put_u8(self.dimension_id);
         stream.put_bool(self.is_locked);
-        PacketSerializer::put_block_pos(stream, self.origin.clone());
+        PacketSerializer::put_block_pos(stream, &self.origin);
         if (map_type & Self::BITFLAG_MAP_CREATION) != 0 {
             stream.put_var_u32(parent_map_ids_count);
             for parent_map_id in &self.parent_map_ids {
@@ -60,9 +60,13 @@ impl Packet for ClientBoundMapItemData {
             for tracked_entity in &self.tracked_entities {
                 stream.put_var_u32(tracked_entity.object_type);
                 if tracked_entity.object_type == MapTrackedObject::TYPE_BLOCK {
-                    PacketSerializer::put_block_pos(stream, tracked_entity.block_position.clone().unwrap());
+                    if let Some(block_position) = &tracked_entity.block_position {
+                        PacketSerializer::put_block_pos(stream, block_position);
+                    }
                 } else if tracked_entity.object_type == MapTrackedObject::TYPE_ENTITY {
-                    PacketSerializer::put_actor_unique_id(stream, tracked_entity.actor_unique_id.clone().unwrap());
+                    if let Some(actor_unique_id) = &tracked_entity.actor_unique_id {
+                        PacketSerializer::put_actor_unique_id(stream, *actor_unique_id);
+                    }
                 } else {
                     panic!("Unknown map object type {}", tracked_entity.object_type);
                 }
@@ -73,7 +77,7 @@ impl Packet for ClientBoundMapItemData {
                 stream.put_u8(decoration.rotation);
                 stream.put_u8(decoration.x_offset);
                 stream.put_u8(decoration.y_offset);
-                PacketSerializer::put_string(stream, decoration.label.clone());
+                PacketSerializer::put_string(stream, &decoration.label);
                 stream.put_var_u32(Self::flip_int_endianness(decoration.color.to_rgba()));
             }
         }

@@ -21,7 +21,7 @@ impl Packet for MoveActorAbsolute {
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
         stream.put_u8(self.flags);
-        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_vector3(stream, &self.position);
         PacketSerializer::put_rotation_byte(stream, self.pitch);
         PacketSerializer::put_rotation_byte(stream, self.yaw);
         PacketSerializer::put_rotation_byte(stream, self.head_yaw);

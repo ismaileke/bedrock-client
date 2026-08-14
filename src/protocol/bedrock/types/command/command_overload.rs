@@ -11,7 +11,7 @@ impl CommandOverload {
         self.chaining
     }
 
-    pub fn get_parameters(&self) -> Vec<CommandParameter> {
-        self.parameters.clone()
+    pub fn get_parameters(&self) -> &Vec<CommandParameter> {
+        &self.parameters
     }
 }

@@ -15,7 +15,7 @@ impl Packet for CodeBuilder {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.url.clone());
+        PacketSerializer::put_string(stream, &self.url);
         stream.put_bool(self.open_code_builder);
     }
 

@@ -17,7 +17,7 @@ impl Packet for SetActorMotion {
 
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
-        PacketSerializer::put_vector3(stream, self.motion.clone());
+        PacketSerializer::put_vector3(stream, &self.motion);
         stream.put_var_u64(self.tick);
     }
 

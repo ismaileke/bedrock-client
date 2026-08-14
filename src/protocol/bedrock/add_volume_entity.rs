@@ -25,12 +25,12 @@ impl Packet for AddVolumeEntity {
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.entity_net_id);
         stream.put(self.data.get_encoded_nbt());
-        PacketSerializer::put_string(stream, self.json_identifier.clone());
-        PacketSerializer::put_string(stream, self.instance_name.clone());
-        PacketSerializer::put_block_pos(stream, self.min_bound.clone());
-        PacketSerializer::put_block_pos(stream, self.max_bound.clone());
+        PacketSerializer::put_string(stream, &self.json_identifier);
+        PacketSerializer::put_string(stream, &self.instance_name);
+        PacketSerializer::put_block_pos(stream, &self.min_bound);
+        PacketSerializer::put_block_pos(stream, &self.max_bound);
         stream.put_var_i32(self.dimension);
-        PacketSerializer::put_string(stream, self.engine_version.clone());
+        PacketSerializer::put_string(stream, &self.engine_version);
     }
 
     fn decode(stream: &mut Reader) -> AddVolumeEntity {

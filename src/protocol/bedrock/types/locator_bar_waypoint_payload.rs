@@ -23,7 +23,7 @@ impl LocatorBarWaypointPayload {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_uuid(stream, self.group.clone());
+        PacketSerializer::put_uuid(stream, &self.group);
         self.waypoint.write(stream);
         stream.put_u8(self.action);
     }

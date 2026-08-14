@@ -36,28 +36,28 @@ impl Packet for Text {
         stream.put_u8(self.text_type);
         match self.text_type {
             Text::TYPE_CHAT | Text::TYPE_WHISPER | Text::TYPE_ANNOUNCEMENT => {
-                if let Some(source_name) = self.source_name.clone() {
-                    PacketSerializer::put_string(stream, if source_name == "" { String::from(" ") } else { source_name });
+                if let Some(source_name) = &self.source_name {
+                    PacketSerializer::put_string(stream, if source_name == "" { " " } else { source_name });
                 }
-                PacketSerializer::put_string(stream, if self.message.clone() == "" { String::from(" ") } else { self.message.clone() });
+                PacketSerializer::put_string(stream, if self.message.clone() == "" { " " } else { &self.message });
             }
             Text::TYPE_RAW | Text::TYPE_TIP | Text::TYPE_SYSTEM | Text::TYPE_JSON | Text::TYPE_JSON_WHISPER | Text::TYPE_JSON_ANNOUNCEMENT => {
-                PacketSerializer::put_string(stream, if self.message.clone() == "" { String::from(" ") } else { self.message.clone() });
+                PacketSerializer::put_string(stream, if self.message.clone() == "" { " " } else { &self.message });
             }
             Text::TYPE_TRANSLATION | Text::TYPE_POPUP | Text::TYPE_JUKEBOX_POPUP => {
-                PacketSerializer::put_string(stream, if self.message.clone() == "" { String::from(" ") } else { self.message.clone() });
+                PacketSerializer::put_string(stream, if self.message.clone() == "" { " " } else { &self.message });
                 if let Some(parameters) = self.parameters.clone() {
                     stream.put_var_u32(parameters.len() as u32);
-                    for parameter in parameters {
+                    for parameter in &parameters {
                         PacketSerializer::put_string(stream, parameter);
                     }
                 }
             }
             _ => {}
         }
-        PacketSerializer::put_string(stream, self.xbox_uid.clone());
-        PacketSerializer::put_string(stream, self.platform_chat_id.clone());
-        PacketSerializer::write_optional(stream, &self.filtered_message, |s, v| PacketSerializer::put_string(s, v.clone()));
+        PacketSerializer::put_string(stream, &self.xbox_uid);
+        PacketSerializer::put_string(stream, &self.platform_chat_id);
+        PacketSerializer::write_optional(stream, &self.filtered_message, |s, v| PacketSerializer::put_string(s, v));
     }
 
     fn decode(stream: &mut Reader) -> Text {

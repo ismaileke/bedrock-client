@@ -29,6 +29,6 @@ impl AttributeValueFloat {
 
     pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.value);
-        PacketSerializer::put_string(stream, self.operation.clone());
+        PacketSerializer::put_string(stream, &self.operation);
     }
 }

@@ -22,7 +22,7 @@ impl Packet for BiomeDefinitionList {
         }
         stream.put_var_u32(self.strings.len() as u32);
         for string in &self.strings {
-            PacketSerializer::put_string(stream, string.clone());
+            PacketSerializer::put_string(stream, string);
         }
     }
 

@@ -16,7 +16,7 @@ impl Packet for PlayerFog {
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.fog_layers.len() as u32);
         for fog_layer in self.fog_layers.iter() {
-            PacketSerializer::put_string(stream, fog_layer.clone());
+            PacketSerializer::put_string(stream, fog_layer);
         }
     }
 

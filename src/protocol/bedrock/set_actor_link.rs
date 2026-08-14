@@ -15,7 +15,7 @@ impl Packet for SetActorLink {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_entity_link(stream, self.link.clone());
+        PacketSerializer::put_entity_link(stream, &self.link);
     }
 
     fn decode(stream: &mut Reader) -> SetActorLink {

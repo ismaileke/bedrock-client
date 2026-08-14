@@ -26,7 +26,7 @@ impl LoomStackRequestAction {
     }
 
     pub fn write(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.pattern_id.clone());
+        PacketSerializer::put_string(stream, &self.pattern_id);
         stream.put_u8(self.repetitions);
     }
 }

@@ -18,7 +18,7 @@ impl Packet for StructureBlockUpdate {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_block_pos(stream, self.block_position.clone());
+        PacketSerializer::put_block_pos(stream, &self.block_position);
         PacketSerializer::put_structure_editor_data(stream, &self.structure_editor_data);
         stream.put_bool(self.is_powered);
         stream.put_bool(self.water_logged);

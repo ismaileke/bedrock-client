@@ -18,6 +18,6 @@ impl ComplexAliasItemDescriptor {
     }
 
     pub fn write(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.alias.clone());
+        PacketSerializer::put_string(stream, &self.alias);
     }
 }

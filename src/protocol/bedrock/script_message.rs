@@ -15,8 +15,8 @@ impl Packet for ScriptMessage {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.message_id.clone());
-        PacketSerializer::put_string(stream, self.value.clone());
+        PacketSerializer::put_string(stream, &self.message_id);
+        PacketSerializer::put_string(stream, &self.value);
     }
 
     fn decode(stream: &mut Reader) -> ScriptMessage {

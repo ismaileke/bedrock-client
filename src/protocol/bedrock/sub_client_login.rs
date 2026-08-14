@@ -14,7 +14,7 @@ impl Packet for SubClientLogin {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.connection_request_data.clone());
+        PacketSerializer::put_string(stream, &self.connection_request_data);
     }
 
     fn decode(stream: &mut Reader) -> SubClientLogin {

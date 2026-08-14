@@ -64,8 +64,8 @@ impl LocatorBarWaypoint {
         stream.put_u32_le(self.update_flag);
         PacketSerializer::write_optional(stream, &self.visible, |s, v| s.put_bool(*v));
         PacketSerializer::write_optional(stream, &self.world_position, |s, v| v.write(s));
-        PacketSerializer::write_optional(stream, &self.texture_path, |s, v| PacketSerializer::put_string(s, v.clone()));
-        PacketSerializer::write_optional(stream, &self.icon_size, |s, v| PacketSerializer::put_vector2(s, v.clone()));
+        PacketSerializer::write_optional(stream, &self.texture_path, |s, v| PacketSerializer::put_string(s, v));
+        PacketSerializer::write_optional(stream, &self.icon_size, |s, v| PacketSerializer::put_vector2(s, v));
         PacketSerializer::write_optional(stream, &self.color, |s, v| s.put_u32_le(v.to_argb()));
         PacketSerializer::write_optional(stream, &self.client_position_authority, |s, v| s.put_bool(*v));
         PacketSerializer::write_optional(stream, &self.actor_unique_id, |s, v| PacketSerializer::put_actor_unique_id(s, *v));

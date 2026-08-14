@@ -16,7 +16,7 @@ impl EducationSettingsExternalLinkSettings {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.url.clone());
-        PacketSerializer::put_string(stream, self.display_name.clone());
+        PacketSerializer::put_string(stream, &self.url);
+        PacketSerializer::put_string(stream, &self.display_name);
     }
 }

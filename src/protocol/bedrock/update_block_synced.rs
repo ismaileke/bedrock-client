@@ -19,7 +19,7 @@ impl Packet for UpdateBlockSynced {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_block_pos(stream, self.block_position.clone());
+        PacketSerializer::put_block_pos(stream, &self.block_position);
         stream.put_var_u32(self.block_runtime_id);
         stream.put_var_u32(self.flags);
         stream.put_var_u32(self.layer);

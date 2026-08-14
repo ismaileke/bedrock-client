@@ -20,13 +20,13 @@ impl Packet for PhotoTransfer {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.photo_name.clone());
-        PacketSerializer::put_string(stream, self.photo_data.clone());
-        PacketSerializer::put_string(stream, self.book_id.clone());
+        PacketSerializer::put_string(stream, &self.photo_name);
+        PacketSerializer::put_string(stream, &self.photo_data);
+        PacketSerializer::put_string(stream, &self.book_id);
         stream.put_u8(self.photo_type);
         stream.put_u8(self.source_type);
         stream.put_i64_le(self.owner_actor_unique_id);
-        PacketSerializer::put_string(stream, self.new_photo_name.clone());
+        PacketSerializer::put_string(stream, &self.new_photo_name);
     }
 
     fn decode(stream: &mut Reader) -> PhotoTransfer {

@@ -17,10 +17,10 @@ impl Packet for ResourcePackChunkData {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.pack_id.clone());
+        PacketSerializer::put_string(stream, &self.pack_id);
         stream.put_u32_le(self.chunk_index);
         stream.put_u64_le(self.offset);
-        PacketSerializer::put_string(stream, self.data.clone());
+        PacketSerializer::put_string(stream, &self.data);
     }
 
     fn decode(stream: &mut Reader) -> ResourcePackChunkData {

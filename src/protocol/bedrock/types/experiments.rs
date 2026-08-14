@@ -25,8 +25,8 @@ impl Experiments {
     pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.experiments.len() as u32);
         for experiment in self.experiments.iter() {
-            PacketSerializer::put_string(stream, experiment.0.clone());
-            stream.put_bool(experiment.1.clone());
+            PacketSerializer::put_string(stream, experiment.0);
+            stream.put_bool(*experiment.1);
         }
         stream.put_bool(self.has_previously_used_experiments);
     }

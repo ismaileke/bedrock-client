@@ -146,7 +146,7 @@ impl ItemStackRequestEntry {
         }
         stream.put_var_u32(self.filter_strings.len() as u32);
         for filter_string in &self.filter_strings {
-            PacketSerializer::put_string(stream, filter_string.clone());
+            PacketSerializer::put_string(stream, filter_string);
         }
         stream.put_i32_le(self.filter_string_cause);
     }

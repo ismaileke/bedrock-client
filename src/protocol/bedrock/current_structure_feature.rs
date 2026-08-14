@@ -14,7 +14,7 @@ impl Packet for CurrentStructureFeature {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.current_structure_feature.clone());
+        PacketSerializer::put_string(stream, &self.current_structure_feature);
     }
 
     fn decode(stream: &mut Reader) -> CurrentStructureFeature {

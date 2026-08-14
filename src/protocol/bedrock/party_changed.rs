@@ -15,7 +15,7 @@ impl Packet for PartyChanged {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.party_id.clone());
+        PacketSerializer::put_string(stream, &self.party_id);
         stream.put_bool(self.party_leader);
     }
 

@@ -46,15 +46,15 @@ impl Packet for AvailableCommands {
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.enum_values.len() as u32);
         for value in &self.enum_values {
-            PacketSerializer::put_string(stream, value.clone());
+            PacketSerializer::put_string(stream, value);
         }
         stream.put_var_u32(self.chained_sub_command_values.len() as u32);
         for value in &self.chained_sub_command_values {
-            PacketSerializer::put_string(stream, value.clone());
+            PacketSerializer::put_string(stream, value);
         }
         stream.put_var_u32(self.postfixes.len() as u32);
         for value in &self.postfixes {
-            PacketSerializer::put_string(stream, value.clone());
+            PacketSerializer::put_string(stream, value);
         }
         stream.put_var_u32(self.enums.len() as u32);
         for value in &self.enums {

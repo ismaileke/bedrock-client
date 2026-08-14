@@ -18,7 +18,7 @@ impl Packet for ChangeDimension {
 
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_i32(self.dimension);
-        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_vector3(stream, &self.position);
         stream.put_bool(self.respawn);
         PacketSerializer::write_optional(stream, &self.loading_screen_id, |s, v| s.put_u32_le(*v));
     }

@@ -14,7 +14,7 @@ impl Packet for AutomationClientConnect {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.server_uri.clone());
+        PacketSerializer::put_string(stream, &self.server_uri);
     }
 
     fn decode(stream: &mut Reader) -> AutomationClientConnect {

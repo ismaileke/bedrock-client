@@ -25,9 +25,7 @@ impl Packet for Interact {
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_u8(self.action);
         PacketSerializer::put_actor_runtime_id(stream, self.target_actor_runtime_id);
-        PacketSerializer::write_optional(stream, &self.position, |s, v| {
-            PacketSerializer::put_vector3(s, v.clone())
-        });
+        PacketSerializer::write_optional(stream, &self.position, |s, v| PacketSerializer::put_vector3(s, v));
     }
 
     fn decode(stream: &mut Reader) -> Interact {

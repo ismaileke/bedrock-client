@@ -22,16 +22,12 @@ impl TrimMaterial {
         let color = PacketSerializer::get_string(stream);
         let item_id = PacketSerializer::get_string(stream);
 
-        TrimMaterial {
-            material_id,
-            color,
-            item_id,
-        }
+        TrimMaterial { material_id, color, item_id }
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.material_id.clone());
-        PacketSerializer::put_string(stream, self.color.clone());
-        PacketSerializer::put_string(stream, self.item_id.clone());
+        PacketSerializer::put_string(stream, &self.material_id);
+        PacketSerializer::put_string(stream, &self.color);
+        PacketSerializer::put_string(stream, &self.item_id);
     }
 }

@@ -20,11 +20,11 @@ impl Packet for AnimateEntity {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.animation.clone());
-        PacketSerializer::put_string(stream, self.next_state.clone());
-        PacketSerializer::put_string(stream, self.stop_expression.clone());
+        PacketSerializer::put_string(stream, &self.animation);
+        PacketSerializer::put_string(stream, &self.next_state);
+        PacketSerializer::put_string(stream, &self.stop_expression);
         stream.put_i32_le(self.stop_expression_version);
-        PacketSerializer::put_string(stream, self.controller.clone());
+        PacketSerializer::put_string(stream, &self.controller);
         stream.put_f32_le(self.blend_out_time);
         stream.put_var_u32(self.actor_runtime_ids.len() as u32);
         for actor_runtime_id in self.actor_runtime_ids.iter() {

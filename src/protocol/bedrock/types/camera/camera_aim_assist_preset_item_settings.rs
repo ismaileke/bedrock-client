@@ -29,7 +29,7 @@ impl CameraAimAssistPresetItemSettings {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.item_identifier.clone());
-        PacketSerializer::put_string(stream, self.category_name.clone());
+        PacketSerializer::put_string(stream, &self.item_identifier);
+        PacketSerializer::put_string(stream, &self.category_name);
     }
 }

@@ -71,7 +71,7 @@ impl UpdateAttribute {
         stream.put_f32_le(self.default_min);
         stream.put_f32_le(self.default_max);
         stream.put_f32_le(self.default);
-        PacketSerializer::put_string(stream, self.id.clone());
+        PacketSerializer::put_string(stream, &self.id);
         stream.put_var_u32(self.modifiers.len() as u32);
         for modifier in self.modifiers.iter() {
             modifier.write(stream);

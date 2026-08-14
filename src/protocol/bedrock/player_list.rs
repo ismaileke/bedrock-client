@@ -31,11 +31,11 @@ impl Packet for PlayerList {
         stream.put_var_u32(self.entries.len() as u32);
         for entry in self.entries.iter() {
             if self.list_type == Self::TYPE_ADD {
-                PacketSerializer::put_uuid(stream, entry.uuid.clone());
+                PacketSerializer::put_uuid(stream, &entry.uuid);
                 PacketSerializer::put_actor_unique_id(stream, entry.actor_unique_id);
-                PacketSerializer::put_string(stream, entry.username.clone());
-                PacketSerializer::put_string(stream, entry.xbox_user_id.clone());
-                PacketSerializer::put_string(stream, entry.platform_chat_id.clone());
+                PacketSerializer::put_string(stream, &entry.username);
+                PacketSerializer::put_string(stream, &entry.xbox_user_id);
+                PacketSerializer::put_string(stream, &entry.platform_chat_id);
                 stream.put_i32_le(entry.build_platform);
                 PacketSerializer::put_skin(stream, &entry.skin_data);
                 stream.put_bool(entry.is_teacher);
@@ -43,7 +43,7 @@ impl Packet for PlayerList {
                 stream.put_bool(entry.is_sub_client);
                 stream.put_u32_le(entry.color.unwrap_or(Color::new(255, 255, 255, 255)).to_argb());
             } else {
-                PacketSerializer::put_uuid(stream, entry.uuid.clone());
+                PacketSerializer::put_uuid(stream, &entry.uuid);
             }
         }
         if self.list_type == Self::TYPE_ADD {

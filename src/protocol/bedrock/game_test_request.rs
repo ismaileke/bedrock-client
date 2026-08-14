@@ -31,9 +31,9 @@ impl Packet for GameTestRequest {
         stream.put_var_i32(self.repeat_count);
         stream.put_u8(self.rotation);
         stream.put_bool(self.stop_on_failure);
-        PacketSerializer::put_block_pos(stream, self.test_position.clone());
+        PacketSerializer::put_block_pos(stream, &self.test_position);
         stream.put_var_i32(self.tests_per_row);
-        PacketSerializer::put_string(stream, self.test_name.clone());
+        PacketSerializer::put_string(stream, &self.test_name);
     }
 
     fn decode(stream: &mut Reader) -> GameTestRequest {

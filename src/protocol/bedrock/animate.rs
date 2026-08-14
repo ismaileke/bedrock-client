@@ -27,9 +27,7 @@ impl Packet for Animate {
         stream.put_u8(self.action);
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
         stream.put_f32_le(self.data);
-        PacketSerializer::write_optional(stream, &self.swing_source, |s, v| {
-            PacketSerializer::put_string(s, v.clone())
-        });
+        PacketSerializer::write_optional(stream, &self.swing_source, |s, v| PacketSerializer::put_string(s, v));
     }
 
     fn decode(stream: &mut Reader) -> Animate {

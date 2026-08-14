@@ -26,9 +26,9 @@ impl Packet for GraphicsOverrideParameter {
             value.write(stream);
         }
         PacketSerializer::write_optional(stream, &self.unknown_float, |s, v| s.put_f32_le(*v));
-        PacketSerializer::write_optional(stream, &self.unknown_vector3, |s, v| PacketSerializer::put_vector3(s, v.clone()));
-        PacketSerializer::put_string(stream, self.biome_identifier.clone());
-        PacketSerializer::write_optional(stream, &self.player_identifier, |s, v| PacketSerializer::put_string(s, v.clone()));
+        PacketSerializer::write_optional(stream, &self.unknown_vector3, |s, v| PacketSerializer::put_vector3(s, v));
+        PacketSerializer::put_string(stream, &self.biome_identifier);
+        PacketSerializer::write_optional(stream, &self.player_identifier, |s, v| PacketSerializer::put_string(s, v));
         stream.put_u8(self.parameter_type);
         stream.put_bool(self.reset);
     }

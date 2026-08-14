@@ -22,10 +22,10 @@ impl Packet for InventoryContent {
         stream.put_var_u32(self.window_id);
         stream.put_var_u32(self.items.len() as u32);
         for item in &self.items {
-            PacketSerializer::put_network_item_stack_descriptor(stream, item.clone());
+            PacketSerializer::put_network_item_stack_descriptor(stream, &item);
         }
         self.container_name.write(stream);
-        PacketSerializer::put_network_item_stack_descriptor(stream, self.storage.clone());
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.storage);
     }
 
     fn decode(stream: &mut Reader) -> InventoryContent {

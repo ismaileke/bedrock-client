@@ -16,10 +16,10 @@ impl Packet for UpdateSoftEnum {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.enum_name.clone());
+        PacketSerializer::put_string(stream, &self.enum_name);
         stream.put_var_u32(self.values.len() as u32);
         for value in self.values.iter() {
-            PacketSerializer::put_string(stream, value.clone());
+            PacketSerializer::put_string(stream, value);
         }
         stream.put_u8(self.action_type);
     }

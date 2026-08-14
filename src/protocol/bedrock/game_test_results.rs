@@ -17,8 +17,8 @@ impl Packet for GameTestResults {
 
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_bool(self.success);
-        PacketSerializer::put_string(stream, self.error.clone());
-        PacketSerializer::put_string(stream, self.test_name.clone());
+        PacketSerializer::put_string(stream, &self.error);
+        PacketSerializer::put_string(stream, &self.test_name);
     }
 
     fn decode(stream: &mut Reader) -> GameTestResults {

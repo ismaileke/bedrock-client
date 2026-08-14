@@ -40,8 +40,8 @@ impl DebugMarkerData {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.text.clone());
-        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_string(stream, &self.text);
+        PacketSerializer::put_vector3(stream, &self.position);
         stream.put_u32_le(self.color.to_argb());
         stream.put_u64_le(self.duration_millis);
     }

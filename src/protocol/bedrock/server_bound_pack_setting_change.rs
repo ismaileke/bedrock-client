@@ -20,8 +20,8 @@ impl Packet for ServerBoundPackSettingChange {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_uuid(stream, self.pack_id.clone());
-        PacketSerializer::put_string(stream, self.pack_setting.name().to_string());
+        PacketSerializer::put_uuid(stream, &self.pack_id);
+        PacketSerializer::put_string(stream, &self.pack_setting.name());
         stream.put_var_u32(self.pack_setting.id());
         self.pack_setting.write(stream);
     }

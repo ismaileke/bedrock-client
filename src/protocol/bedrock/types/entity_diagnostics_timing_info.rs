@@ -23,8 +23,8 @@ impl EntityDiagnosticTimingInfo {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.display_name.clone());
-        PacketSerializer::put_string(stream, self.entity.clone());
+        PacketSerializer::put_string(stream, &self.display_name);
+        PacketSerializer::put_string(stream, &self.entity);
         stream.put_u64_le(self.time_in_ns);
         stream.put_u8(self.percent_of_total);
     }

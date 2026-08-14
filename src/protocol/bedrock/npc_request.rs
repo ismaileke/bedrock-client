@@ -20,9 +20,9 @@ impl Packet for NPCRequest {
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
         stream.put_u8(self.request_type);
-        PacketSerializer::put_string(stream, self.command_string.clone());
+        PacketSerializer::put_string(stream, &self.command_string);
         stream.put_u8(self.action_index);
-        PacketSerializer::put_string(stream, self.scene_name.clone());
+        PacketSerializer::put_string(stream, &self.scene_name);
     }
 
     fn decode(stream: &mut Reader) -> NPCRequest {

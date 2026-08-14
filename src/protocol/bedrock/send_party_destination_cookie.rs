@@ -16,9 +16,9 @@ impl Packet for SendPartyDestinationCookie {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.cookie.clone());
-        PacketSerializer::put_string(stream, self.intent.clone());
-        PacketSerializer::put_string(stream, self.destination_name.clone());
+        PacketSerializer::put_string(stream, &self.cookie);
+        PacketSerializer::put_string(stream, &self.intent);
+        PacketSerializer::put_string(stream, &self.destination_name);
     }
 
     fn decode(stream: &mut Reader) -> SendPartyDestinationCookie {

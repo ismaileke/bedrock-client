@@ -20,7 +20,7 @@ impl WorldPosition {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_vector3(stream, self.position.to_vec());
+        PacketSerializer::put_vector3(stream, &self.position);
         stream.put_var_i32(self.dimension);
     }
 }

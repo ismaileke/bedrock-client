@@ -15,7 +15,7 @@ impl Packet for PlayerStartItemCooldown {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.item_category.clone());
+        PacketSerializer::put_string(stream, &self.item_category);
         stream.put_var_i32(self.cooldown_ticks);
     }
 

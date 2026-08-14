@@ -20,7 +20,7 @@ impl StringIdMetaItemDescriptor {
     }
 
     pub fn write(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.id.clone());
+        PacketSerializer::put_string(stream, &self.id);
         stream.put_u16_le(self.meta);
     }
 }

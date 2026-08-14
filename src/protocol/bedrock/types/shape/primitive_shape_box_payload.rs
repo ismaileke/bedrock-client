@@ -17,6 +17,6 @@ impl PrimitiveShapeBoxPayload {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_vector3(stream, self.box_bound.clone());
+        PacketSerializer::put_vector3(stream, &self.box_bound);
     }
 }

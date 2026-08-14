@@ -16,7 +16,7 @@ impl Packet for ModalFormRequest {
 
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.form_id);
-        PacketSerializer::put_string(stream, self.form_data.clone());
+        PacketSerializer::put_string(stream, &self.form_data);
     }
 
     fn decode(stream: &mut Reader) -> ModalFormRequest {

@@ -21,7 +21,7 @@ impl Packet for ClientBoundDebugRenderer {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.debug_type.to_string());
+        PacketSerializer::put_string(stream, &self.debug_type);
         PacketSerializer::write_optional(stream, &self.debug_marker_data, |s, v| v.write(s));
     }
 

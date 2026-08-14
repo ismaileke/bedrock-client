@@ -15,8 +15,8 @@ impl Packet for ToastRequest {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.title.clone());
-        PacketSerializer::put_string(stream, self.body.clone());
+        PacketSerializer::put_string(stream, &self.title);
+        PacketSerializer::put_string(stream, &self.body);
     }
 
     fn decode(stream: &mut Reader) -> ToastRequest {

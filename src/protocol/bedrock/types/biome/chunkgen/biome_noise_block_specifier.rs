@@ -32,7 +32,7 @@ impl BiomeNoiseBlockSpecifier {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.noise.clone());
+        PacketSerializer::put_string(stream, &self.noise);
         stream.put_f32_le(self.threshold);
         stream.put_f32_le(self.min);
         stream.put_f32_le(self.max);

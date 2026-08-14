@@ -14,7 +14,7 @@ impl Packet for RemoveObjective {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.objective_name.clone());
+        PacketSerializer::put_string(stream, &self.objective_name);
     }
 
     fn decode(stream: &mut Reader) -> RemoveObjective {

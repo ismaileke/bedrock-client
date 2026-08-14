@@ -57,10 +57,7 @@ impl SubChunkEntryCommon {
             SubChunkHeightMapType::ALL_TOO_HIGH => Some(SubChunkHeightMapInfo::all_too_high()),
             SubChunkHeightMapType::ALL_TOO_LOW => Some(SubChunkHeightMapInfo::all_too_low()),
             SubChunkHeightMapType::ALL_COPIED => height_map.clone(),
-            _ => panic!(
-                "Unknown render heightmap data type {}",
-                height_map_data_type
-            ),
+            _ => panic!("Unknown render heightmap data type {}", height_map_data_type),
         };
 
         SubChunkEntryCommon {
@@ -77,7 +74,7 @@ impl SubChunkEntryCommon {
         stream.put_u8(self.request_result);
 
         if !cache_enabled || self.request_result != SubChunkRequestResult::SUCCESS_ALL_AIR {
-            PacketSerializer::put_string(stream, self.terrain_data.clone());
+            PacketSerializer::put_string(stream, &self.terrain_data);
         }
 
         if let Some(height_map) = &self.height_map {

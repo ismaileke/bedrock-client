@@ -26,19 +26,19 @@ impl CommandData {
         self.flags
     }
 
-    pub fn get_permission(&self) -> String {
-        self.permission.clone()
+    pub fn get_permission(&self) -> &String {
+        &self.permission
     }
 
-    pub fn get_aliases(&self) -> Option<CommandEnum> {
-        self.aliases.clone()
+    pub fn get_aliases(&self) -> &Option<CommandEnum> {
+        &self.aliases
     }
 
-    pub fn get_overloads(&self) -> Vec<CommandOverload> {
-        self.overloads.clone()
+    pub fn get_overloads(&self) -> &Vec<CommandOverload> {
+        &self.overloads
     }
 
-    pub fn get_chained_sub_command_data(&self) -> Vec<ChainedSubCommandData> {
-        self.chained_sub_command_data.clone()
+    pub fn get_chained_sub_command_data(&self) -> &Vec<ChainedSubCommandData> {
+        &self.chained_sub_command_data
     }
 }

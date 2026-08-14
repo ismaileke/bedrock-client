@@ -20,10 +20,10 @@ impl Packet for PlaySound {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.sound_name.clone());
+        PacketSerializer::put_string(stream, &self.sound_name);
         PacketSerializer::put_block_pos(
             stream,
-            vec![
+            &vec![
                 (self.x * 8.0) as i32,
                 (self.y * 8.0) as i32,
                 (self.z * 8.0) as i32,

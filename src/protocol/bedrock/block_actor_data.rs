@@ -17,7 +17,7 @@ impl Packet for BlockActorData {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_block_pos(stream, self.block_position.clone());
+        PacketSerializer::put_block_pos(stream, &self.block_position);
         stream.put(self.nbt.get_encoded_nbt());
     }
 

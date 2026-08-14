@@ -16,7 +16,7 @@ impl Packet for DebugInfo {
 
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
-        PacketSerializer::put_string(stream, self.data.clone());
+        PacketSerializer::put_string(stream, &self.data);
     }
 
     fn decode(stream: &mut Reader) -> DebugInfo {

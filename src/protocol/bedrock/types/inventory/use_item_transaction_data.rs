@@ -80,12 +80,12 @@ impl UseItemTransactionData {
     pub fn encode_data(&self, stream: &mut Writer) {
         stream.put_var_i32(self.action_type);
         stream.put_u8(self.trigger_type);
-        PacketSerializer::put_block_pos(stream, self.block_position.clone());
+        PacketSerializer::put_block_pos(stream, &self.block_position);
         stream.put_u8(self.face);
         stream.put_var_i32(self.hotbar_slot);
-        PacketSerializer::put_network_item_stack_descriptor(stream, self.item_in_hand.clone());
-        PacketSerializer::put_vector3(stream, self.player_position.clone());
-        PacketSerializer::put_vector3(stream, self.click_position.clone());
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.item_in_hand);
+        PacketSerializer::put_vector3(stream, &self.player_position);
+        PacketSerializer::put_vector3(stream, &self.click_position);
         stream.put_var_u32(self.block_runtime_id);
         stream.put_u8(self.client_interact_prediction);
         stream.put_u8(self.client_cooldown_state);

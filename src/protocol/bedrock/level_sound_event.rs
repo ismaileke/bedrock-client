@@ -21,14 +21,14 @@ impl Packet for LevelSoundEvent {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.sound.clone());
-        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_string(stream, &self.sound);
+        PacketSerializer::put_vector3(stream, &self.position);
         stream.put_var_i32(self.extra_data);
-        PacketSerializer::put_string(stream, self.entity_type.clone());
+        PacketSerializer::put_string(stream, &self.entity_type);
         stream.put_bool(self.is_baby_mob);
         stream.put_bool(self.disable_relative_volume);
         stream.put_i64_le(self.actor_unique_id);
-        PacketSerializer::write_optional(stream, &self.fire_position, |s, v| PacketSerializer::put_vector3(s, v.clone()));
+        PacketSerializer::write_optional(stream, &self.fire_position, |s, v| PacketSerializer::put_vector3(s, v));
     }
 
     fn decode(stream: &mut Reader) -> LevelSoundEvent {

@@ -21,10 +21,10 @@ impl Packet for NPCDialogue {
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_i64_le(self.npc_actor_unique_id); // WHY??
         stream.put_var_i32(self.action_type);
-        PacketSerializer::put_string(stream, self.dialogue.clone());
-        PacketSerializer::put_string(stream, self.scene_name.clone());
-        PacketSerializer::put_string(stream, self.npc_name.clone());
-        PacketSerializer::put_string(stream, self.action_json.clone());
+        PacketSerializer::put_string(stream, &self.dialogue);
+        PacketSerializer::put_string(stream, &self.scene_name);
+        PacketSerializer::put_string(stream, &self.npc_name);
+        PacketSerializer::put_string(stream, &self.action_json);
     }
 
     fn decode(stream: &mut Reader) -> NPCDialogue {

@@ -19,7 +19,7 @@ impl EducationUriResource {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.button_name.clone());
-        PacketSerializer::put_string(stream, self.link_uri.clone());
+        PacketSerializer::put_string(stream, &self.button_name);
+        PacketSerializer::put_string(stream, &self.link_uri);
     }
 }

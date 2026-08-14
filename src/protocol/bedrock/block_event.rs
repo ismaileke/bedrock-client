@@ -16,7 +16,7 @@ impl Packet for BlockEvent {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_block_pos(stream, self.block_position.clone());
+        PacketSerializer::put_block_pos(stream, &self.block_position);
         stream.put_var_i32(self.event_type);
         stream.put_var_i32(self.event_data);
     }

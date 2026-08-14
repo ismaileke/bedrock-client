@@ -25,7 +25,7 @@ impl ChainedSubCommandRawData {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.name.clone());
+        PacketSerializer::put_string(stream, &self.name);
         stream.put_var_u32(self.value_data.len() as u32);
         for value_datum in &self.value_data {
             value_datum.write(stream);

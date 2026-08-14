@@ -25,7 +25,7 @@ impl SyncWorldClockMarkerData {
 
     pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u64(self.id);
-        PacketSerializer::put_string(stream, self.name.clone());
+        PacketSerializer::put_string(stream, &self.name);
         stream.put_var_i32(self.time);
         PacketSerializer::write_optional(stream, &self.period, |s, v| s.put_i32_le(*v));
     }

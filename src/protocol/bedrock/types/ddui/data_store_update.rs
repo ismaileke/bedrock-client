@@ -27,12 +27,8 @@ impl DataStoreUpdate {
         let path = PacketSerializer::get_string(stream);
         let data_type = stream.get_var_u32();
         let data = match data_type {
-            DataStoreUpdateValueTypes::DOUBLE => {
-                DataStoreUpdateValue::Double(DataStoreUpdateValueDouble::read(stream))
-            }
-            DataStoreUpdateValueTypes::STRING => {
-                DataStoreUpdateValue::String(DataStoreUpdateValueString::read(stream))
-            }
+            DataStoreUpdateValueTypes::DOUBLE => { DataStoreUpdateValue::Double(DataStoreUpdateValueDouble::read(stream)) }
+            DataStoreUpdateValueTypes::STRING => { DataStoreUpdateValue::String(DataStoreUpdateValueString::read(stream)) }
             DataStoreUpdateValueTypes::BOOL => DataStoreUpdateValue::Bool(DataStoreUpdateValueBool::read(stream)),
             _ => panic!("Unknown update data store value type: {}", data_type),
         };
@@ -43,9 +39,9 @@ impl DataStoreUpdate {
     }
 
     pub fn write(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.name.clone());
-        PacketSerializer::put_string(stream, self.property.clone());
-        PacketSerializer::put_string(stream, self.path.clone());
+        PacketSerializer::put_string(stream, &self.name);
+        PacketSerializer::put_string(stream, &self.property);
+        PacketSerializer::put_string(stream, &self.path);
         stream.put_var_u32(self.data.get_type_id());
         self.data.write(stream);
         stream.put_u32_le(self.update_count);

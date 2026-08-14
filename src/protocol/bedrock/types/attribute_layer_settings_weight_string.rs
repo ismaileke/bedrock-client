@@ -17,6 +17,6 @@ impl AttributeLayerSettingsWeightString {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.value.clone());
+        PacketSerializer::put_string(stream, &self.value);
     }
 }

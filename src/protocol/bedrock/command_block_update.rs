@@ -27,21 +27,18 @@ impl Packet for CommandBlockUpdate {
 
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_bool(self.is_block);
-        if self.is_block {
-            PacketSerializer::put_block_pos(stream, self.block_position.clone().unwrap());
+        if let Some(block_position) = &self.block_position {
+            PacketSerializer::put_block_pos(stream, block_position);
             stream.put_var_u32(self.command_block_mode.unwrap());
             stream.put_bool(self.is_redstone_mode.unwrap());
             stream.put_bool(self.is_conditional.unwrap());
         } else {
-            PacketSerializer::put_actor_runtime_id(
-                stream,
-                self.minecart_actor_runtime_id.unwrap(),
-            );
+            PacketSerializer::put_actor_runtime_id(stream, self.minecart_actor_runtime_id.unwrap());
         }
-        PacketSerializer::put_string(stream, self.command.clone());
-        PacketSerializer::put_string(stream, self.last_output.clone());
-        PacketSerializer::put_string(stream, self.name.clone());
-        PacketSerializer::put_string(stream, self.filtered_name.clone());
+        PacketSerializer::put_string(stream, &self.command);
+        PacketSerializer::put_string(stream, &self.last_output);
+        PacketSerializer::put_string(stream, &self.name);
+        PacketSerializer::put_string(stream, &self.filtered_name);
         stream.put_bool(self.should_track_output);
         stream.put_u32_le(self.tick_delay);
         stream.put_bool(self.execute_on_first_tick);

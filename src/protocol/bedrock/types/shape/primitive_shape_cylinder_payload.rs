@@ -23,8 +23,8 @@ impl PrimitiveShapeCylinderPayload {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_vector2(stream, self.radius_x.clone());
-        PacketSerializer::put_vector2(stream, self.radius_z.clone());
+        PacketSerializer::put_vector2(stream, &self.radius_x);
+        PacketSerializer::put_vector2(stream, &self.radius_z);
         stream.put_f32_le(self.height);
         stream.put_u8(self.segments);
     }

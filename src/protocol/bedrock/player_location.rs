@@ -37,10 +37,12 @@ impl Packet for PlayerLocation {
         stream.put_u32_le(self.location_type);
         PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
         if self.location_type == PlayerLocationType::PLAYER_LOCATION_COORDINATES {
-            if self.position.is_none() {
+            if let Some(position) = &self.position {
+                PacketSerializer::put_vector3(stream, position);
+            } else {
                 panic!("PlayerLocationPacket with type PLAYER_LOCATION_COORDINATES require a position to be provided");
             }
-            PacketSerializer::put_vector3(stream, self.position.clone().unwrap());
+
         }
     }
 

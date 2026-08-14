@@ -15,7 +15,7 @@ impl Packet for SpawnExperienceOrb {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_vector3(stream, &self.position);
         stream.put_var_i32(self.amount);
     }
 

@@ -16,7 +16,7 @@ impl Packet for ClientCameraAimAssist {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.preset_id.clone());
+        PacketSerializer::put_string(stream, &self.preset_id);
         stream.put_u8(self.action_type);
         stream.put_bool(self.allow_aim_assist);
     }

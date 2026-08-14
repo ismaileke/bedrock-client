@@ -53,7 +53,7 @@ impl PacketSerializer {
         String::from_utf8_lossy(&bytes).to_string()
     }
 
-    pub fn put_string(stream: &mut Writer, data: String) {
+    pub fn put_string(stream: &mut Writer, data: &str) {
         stream.put_var_u32(data.len() as u32);
         stream.put(data.as_bytes());
     }
@@ -71,7 +71,7 @@ impl PacketSerializer {
         Uuid::from_bytes(bytes).to_string()
     }
 
-    pub fn put_uuid(stream: &mut Writer, data: String) {
+    pub fn put_uuid(stream: &mut Writer, data: &str) {
         stream.put_var_u32(data.len() as u32);
         stream.put(data.as_bytes());
     }
@@ -99,15 +99,15 @@ impl PacketSerializer {
         vec![x, y, z]
     }
 
-    pub fn put_vector3(stream: &mut Writer, data: Vec<f32>) {
+    pub fn put_vector3(stream: &mut Writer, data: &Vec<f32>) {
         stream.put_f32_le(data[0]);
         stream.put_f32_le(data[1]);
         stream.put_f32_le(data[2]);
     }
 
     pub fn put_vector3_nullable(stream: &mut Writer, data: Option<Vec<f32>>) {
-        if data.is_some() {
-            PacketSerializer::put_vector3(stream, data.unwrap());
+        if let Some(data) = &data {
+            PacketSerializer::put_vector3(stream, data);
         } else {
             stream.put_f32_le(0.0);
             stream.put_f32_le(0.0);
@@ -121,7 +121,7 @@ impl PacketSerializer {
         vec![x, y]
     }
 
-    pub fn put_vector2(stream: &mut Writer, data: Vec<f32>) {
+    pub fn put_vector2(stream: &mut Writer, data: &Vec<f32>) {
         stream.put_f32_le(data[0]);
         stream.put_f32_le(data[1]);
     }
@@ -133,7 +133,7 @@ impl PacketSerializer {
         vec![x, y, z]
     }
 
-    pub fn put_block_pos(stream: &mut Writer, data: Vec<i32>) {
+    pub fn put_block_pos(stream: &mut Writer, data: &Vec<i32>) {
         stream.put_var_i32(data[0]);
         stream.put_var_i32(data[1]);
         stream.put_var_i32(data[2]);
@@ -164,7 +164,7 @@ impl PacketSerializer {
         )
     }
 
-    pub fn put_entity_link(stream: &mut Writer, data: EntityLink) {
+    pub fn put_entity_link(stream: &mut Writer, data: &EntityLink) {
         PacketSerializer::put_actor_unique_id(stream, data.from_actor_unique_id);
         PacketSerializer::put_actor_unique_id(stream, data.to_actor_unique_id);
         stream.put_u8(data.action_type);
@@ -316,7 +316,7 @@ impl PacketSerializer {
 
     fn put_item_stack_footer(stream: &mut Writer, stack: &ItemStack) {
         stream.put_var_i32(stack.block_runtime_id);
-        PacketSerializer::put_string(stream, stack.raw_extra_data.clone());
+        PacketSerializer::put_string(stream, &stack.raw_extra_data);
     }
 
     pub fn get_item_stack_without_stack_id(stream: &mut Reader) -> ItemStack {
@@ -367,15 +367,15 @@ impl PacketSerializer {
         ItemStackWrapper { stack_id, item_stack, variant: 0 }
     }
 
-    pub fn put_item_stack_wrapper(stream: &mut Writer, wrapper: ItemStackWrapper) {
-        let item_stack = wrapper.item_stack;
-        if Self::put_item_stack_header(stream, &item_stack) {
+    pub fn put_item_stack_wrapper(stream: &mut Writer, wrapper: &ItemStackWrapper) {
+        let item_stack = &wrapper.item_stack;
+        if Self::put_item_stack_header(stream, item_stack) {
             let has_net_id = wrapper.stack_id != 0;
             stream.put_bool(has_net_id);
             if has_net_id {
                 Self::write_server_item_stack_id(stream, wrapper.stack_id);
             }
-            Self::put_item_stack_footer(stream, &item_stack);
+            Self::put_item_stack_footer(stream, item_stack);
         }
     }
 
@@ -408,7 +408,7 @@ impl PacketSerializer {
         }, variant }
     }
 
-    pub fn put_network_item_stack_descriptor(stream: &mut Writer, wrapper: ItemStackWrapper) {
+    pub fn put_network_item_stack_descriptor(stream: &mut Writer, wrapper: &ItemStackWrapper) {
         stream.put_i16_le(wrapper.item_stack.id as i16);
         stream.put_u16_le(wrapper.item_stack.count);
         stream.put_var_u32(wrapper.item_stack.meta);
@@ -420,7 +420,7 @@ impl PacketSerializer {
             stream.put_var_i32(wrapper.stack_id);
         }
         stream.put_var_u32(wrapper.item_stack.block_runtime_id as u32);
-        PacketSerializer::put_string(stream, wrapper.item_stack.raw_extra_data.clone());
+        PacketSerializer::put_string(stream, &wrapper.item_stack.raw_extra_data);
     }
 
     pub fn get_recipe_ingredient(stream: &mut Reader) -> RecipeIngredient {
@@ -485,7 +485,7 @@ impl PacketSerializer {
     pub fn put_game_rules(stream: &mut Writer, rules: &mut HashMap<String, GameRule>, is_start_game: bool) {
         stream.put_var_u32(rules.len() as u32);
         for (name, rule) in rules {
-            PacketSerializer::put_string(stream, name.clone());
+            PacketSerializer::put_string(stream, name);
             stream.put_bool(rule.is_player_modifiable());
             stream.put_var_u32(rule.id());
             rule.write(stream, is_start_game);
@@ -507,9 +507,9 @@ impl PacketSerializer {
     }
 
     pub fn put_command_origin_data(stream: &mut Writer, data: &CommandOriginData) {
-        PacketSerializer::put_string(stream, data.origin_type.clone());
-        PacketSerializer::put_uuid(stream, data.uuid.clone());
-        PacketSerializer::put_string(stream, data.request_id.clone());
+        PacketSerializer::put_string(stream, &data.origin_type);
+        PacketSerializer::put_uuid(stream, &data.uuid);
+        PacketSerializer::put_string(stream, &data.request_id);
         stream.put_i64_le(data.player_actor_unique_id);
     }
 
@@ -599,9 +599,9 @@ impl PacketSerializer {
     }
 
     pub fn put_skin(stream: &mut Writer, skin: &SkinData) {
-        PacketSerializer::put_string(stream, skin.skin_id.clone());
-        PacketSerializer::put_string(stream, skin.play_fab_id.clone());
-        PacketSerializer::put_string(stream, skin.resource_patch.clone());
+        PacketSerializer::put_string(stream, &skin.skin_id);
+        PacketSerializer::put_string(stream, &skin.play_fab_id);
+        PacketSerializer::put_string(stream, &skin.resource_patch);
         PacketSerializer::put_skin_image(stream, &skin.skin_image);
         stream.put_u32_le(skin.animations.len() as u32);
         for animation in skin.animations.iter() {
@@ -613,29 +613,29 @@ impl PacketSerializer {
         if let Some(cape) = skin.cape_image.as_ref() {
             Self::put_skin_image(stream, cape);
         }
-        PacketSerializer::put_string(stream, skin.geometry_data.clone());
-        PacketSerializer::put_string(stream, skin.geometry_data_engine_version.clone());
-        PacketSerializer::put_string(stream, skin.animation_data.clone());
-        PacketSerializer::put_string(stream, skin.cape_id.clone());
+        PacketSerializer::put_string(stream, &skin.geometry_data);
+        PacketSerializer::put_string(stream, &skin.geometry_data_engine_version);
+        PacketSerializer::put_string(stream, &skin.animation_data);
+        PacketSerializer::put_string(stream, &skin.cape_id);
         if let Some(full_skin_id) = skin.full_skin_id.as_ref() {
-            PacketSerializer::put_string(stream, full_skin_id.clone());
+            PacketSerializer::put_string(stream, full_skin_id);
         }
-        PacketSerializer::put_string(stream, skin.arm_size.clone());
-        PacketSerializer::put_string(stream, skin.skin_color.clone());
+        PacketSerializer::put_string(stream, &skin.arm_size);
+        PacketSerializer::put_string(stream, &skin.skin_color);
         stream.put_u32_le(skin.persona_pieces.len() as u32);
         for piece in skin.persona_pieces.iter() {
-            PacketSerializer::put_string(stream, piece.piece_id());
-            PacketSerializer::put_string(stream, piece.piece_type());
-            PacketSerializer::put_string(stream, piece.pack_id());
+            PacketSerializer::put_string(stream, &piece.piece_id());
+            PacketSerializer::put_string(stream, &piece.piece_type());
+            PacketSerializer::put_string(stream, &piece.pack_id());
             stream.put_bool(piece.is_default_piece());
-            PacketSerializer::put_string(stream, piece.product_id());
+            PacketSerializer::put_string(stream, &piece.product_id());
         }
         stream.put_u32_le(skin.piece_tint_colors.len() as u32);
         for piece_tint_color in skin.piece_tint_colors.iter() {
-            PacketSerializer::put_string(stream, piece_tint_color.piece_type());
+            PacketSerializer::put_string(stream, &piece_tint_color.piece_type());
             stream.put_u32_le(piece_tint_color.colors().len() as u32);
             for color in piece_tint_color.colors().iter() {
-                PacketSerializer::put_string(stream, color.clone());
+                PacketSerializer::put_string(stream, color);
             }
         }
         stream.put_bool(skin.premium);
@@ -701,12 +701,12 @@ impl PacketSerializer {
     }
 
     pub fn put_structure_settings(stream: &mut Writer, structure_settings: &StructureSettings) {
-        PacketSerializer::put_string(stream, structure_settings.palette_name.clone());
+        PacketSerializer::put_string(stream, &structure_settings.palette_name);
         stream.put_bool(structure_settings.ignore_entities);
         stream.put_bool(structure_settings.ignore_blocks);
         stream.put_bool(structure_settings.allow_non_ticking_chunks);
-        PacketSerializer::put_block_pos(stream, structure_settings.dimensions.clone());
-        PacketSerializer::put_block_pos(stream, structure_settings.offset.clone());
+        PacketSerializer::put_block_pos(stream, &structure_settings.dimensions);
+        PacketSerializer::put_block_pos(stream, &structure_settings.offset);
         PacketSerializer::put_actor_unique_id(stream, structure_settings.last_touched_by_player_id);
         stream.put_u8(structure_settings.rotation);
         stream.put_u8(structure_settings.mirror);
@@ -714,7 +714,7 @@ impl PacketSerializer {
         stream.put_f32_le(structure_settings.animation_seconds);
         stream.put_f32_le(structure_settings.integrity_value);
         stream.put_u32_le(structure_settings.integrity_seed);
-        PacketSerializer::put_vector3(stream, structure_settings.pivot.clone());
+        PacketSerializer::put_vector3(stream, &structure_settings.pivot);
     }
 
     pub fn get_structure_editor_data(stream: &mut Reader) -> StructureEditorData {
@@ -739,16 +739,10 @@ impl PacketSerializer {
         }
     }
 
-    pub fn put_structure_editor_data(
-        stream: &mut Writer,
-        structure_editor_data: &StructureEditorData,
-    ) {
-        PacketSerializer::put_string(stream, structure_editor_data.structure_name.clone());
-        PacketSerializer::put_string(
-            stream,
-            structure_editor_data.filtered_structure_name.clone(),
-        );
-        PacketSerializer::put_string(stream, structure_editor_data.structure_data_field.clone());
+    pub fn put_structure_editor_data(stream: &mut Writer, structure_editor_data: &StructureEditorData) {
+        PacketSerializer::put_string(stream, &structure_editor_data.structure_name);
+        PacketSerializer::put_string(stream, &structure_editor_data.filtered_structure_name);
+        PacketSerializer::put_string(stream, &structure_editor_data.structure_data_field);
         stream.put_bool(structure_editor_data.include_players);
         stream.put_bool(structure_editor_data.show_bounding_box);
         stream.put_var_i32(structure_editor_data.structure_block_type);

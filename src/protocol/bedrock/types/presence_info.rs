@@ -21,8 +21,8 @@ impl PresenceInfo {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::write_optional(stream, &self.experience_name, |stream, value| PacketSerializer::put_string(stream, value.clone()));
-        PacketSerializer::write_optional(stream, &self.world_name, |stream, value| PacketSerializer::put_string(stream, value.clone()));
-        PacketSerializer::put_string(stream, self.rich_presence_id.clone());
+        PacketSerializer::write_optional(stream, &self.experience_name, |stream, value| PacketSerializer::put_string(stream, value));
+        PacketSerializer::write_optional(stream, &self.world_name, |stream, value| PacketSerializer::put_string(stream, value));
+        PacketSerializer::put_string(stream, &self.rich_presence_id);
     }
 }

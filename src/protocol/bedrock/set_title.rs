@@ -22,13 +22,13 @@ impl Packet for SetTitle {
 
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_i32(self.title_type);
-        PacketSerializer::put_string(stream, self.text.clone());
+        PacketSerializer::put_string(stream, &self.text);
         stream.put_var_i32(self.fade_in_time);
         stream.put_var_i32(self.stay_time);
         stream.put_var_i32(self.fade_out_time);
-        PacketSerializer::put_string(stream, self.xuid.clone());
-        PacketSerializer::put_string(stream, self.platform_online_id.clone());
-        PacketSerializer::put_string(stream, self.filtered_title_text.clone());
+        PacketSerializer::put_string(stream, &self.xuid);
+        PacketSerializer::put_string(stream, &self.platform_online_id);
+        PacketSerializer::put_string(stream, &self.filtered_title_text);
     }
 
     fn decode(stream: &mut Reader) -> SetTitle {

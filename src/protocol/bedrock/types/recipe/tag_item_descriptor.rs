@@ -18,6 +18,6 @@ impl TagItemDescriptor {
     }
 
     pub fn write(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.tag.clone());
+        PacketSerializer::put_string(stream, &self.tag);
     }
 }

@@ -19,7 +19,7 @@ impl ClientStoreEntrypointConfig {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.store_id.clone());
-        PacketSerializer::put_string(stream, self.store_name.clone());
+        PacketSerializer::put_string(stream, &self.store_id);
+        PacketSerializer::put_string(stream, &self.store_name);
     }
 }

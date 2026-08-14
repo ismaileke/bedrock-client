@@ -15,10 +15,10 @@ impl Packet for DeathInfo {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.message_translation_key.clone());
+        PacketSerializer::put_string(stream, &self.message_translation_key);
         stream.put_var_u32(self.message_parameters.len() as u32);
         for message_parameter in self.message_parameters.iter() {
-            PacketSerializer::put_string(stream, message_parameter.clone());
+            PacketSerializer::put_string(stream, message_parameter);
         }
     }
 

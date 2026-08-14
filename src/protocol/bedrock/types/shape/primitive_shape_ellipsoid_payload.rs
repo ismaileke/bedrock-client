@@ -19,7 +19,7 @@ impl PrimitiveShapeEllipsoidPayload {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_vector3(stream, self.radii.clone());
+        PacketSerializer::put_vector3(stream, &self.radii);
         stream.put_u8(self.segments_per_axis);
     }
 }

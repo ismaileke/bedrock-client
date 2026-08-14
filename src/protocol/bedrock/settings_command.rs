@@ -15,7 +15,7 @@ impl Packet for SettingsCommand {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.command.clone());
+        PacketSerializer::put_string(stream, &self.command);
         stream.put_bool(self.suppress_output);
     }
 
@@ -23,9 +23,6 @@ impl Packet for SettingsCommand {
         let command = PacketSerializer::get_string(stream);
         let suppress_output = stream.get_bool();
 
-        SettingsCommand {
-            command,
-            suppress_output,
-        }
+        SettingsCommand { command, suppress_output }
     }
 }

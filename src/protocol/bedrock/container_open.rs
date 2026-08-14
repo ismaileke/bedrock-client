@@ -19,7 +19,7 @@ impl Packet for ContainerOpen {
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_u8(self.window_id);
         stream.put_u8(self.window_type);
-        PacketSerializer::put_block_pos(stream, self.block_position.clone());
+        PacketSerializer::put_block_pos(stream, &self.block_position);
         PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
     }
 

@@ -24,7 +24,7 @@ impl CommandParameterRawData {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.name.clone());
+        PacketSerializer::put_string(stream, &self.name);
         stream.put_u32_le(self.type_info);
         stream.put_bool(self.optional);
         stream.put_u8(self.flags);

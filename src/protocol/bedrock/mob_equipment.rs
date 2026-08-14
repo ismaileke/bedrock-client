@@ -20,7 +20,7 @@ impl Packet for MobEquipment {
 
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
-        PacketSerializer::put_network_item_stack_descriptor(stream, self.item.clone());
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.item);
         stream.put_u8(self.inventory_slot);
         stream.put_u8(self.hotbar_slot);
         stream.put_u8(self.window_id);

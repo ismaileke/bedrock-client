@@ -26,8 +26,8 @@ impl DataStoreChange {
     }
 
     pub fn write(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.name.clone());
-        PacketSerializer::put_string(stream, self.property.clone());
+        PacketSerializer::put_string(stream, &self.name);
+        PacketSerializer::put_string(stream, &self.property);
         stream.put_var_u32(self.update_count);
         stream.put_u32_le(self.data.id());
         self.data.write(stream);

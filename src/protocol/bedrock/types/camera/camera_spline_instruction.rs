@@ -69,7 +69,7 @@ impl CameraSplineInstruction {
 
         stream.put_var_u32(self.curve.len() as u32);
         for curve in &self.curve {
-            PacketSerializer::put_vector3(stream, curve.clone());
+            PacketSerializer::put_vector3(stream, &curve);
         }
 
         stream.put_var_u32(self.progress_key_frames.len() as u32);
@@ -82,7 +82,7 @@ impl CameraSplineInstruction {
             rotation_options.write(stream);
         }
 
-        PacketSerializer::put_string(stream, self.spline_identifier.clone());
+        PacketSerializer::put_string(stream, &self.spline_identifier);
         stream.put_bool(self.load_from_json);
     }
 }

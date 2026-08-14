@@ -54,8 +54,8 @@ impl Packet for BossEvent {
         PacketSerializer::put_actor_unique_id(stream, self.boss_actor_unique_id);
         PacketSerializer::put_actor_unique_id(stream, self.player_actor_unique_id);
         stream.put_u8(self.event_type);
-        PacketSerializer::put_string(stream, self.title.clone());
-        PacketSerializer::put_string(stream, self.filtered_title.clone());
+        PacketSerializer::put_string(stream, &self.title);
+        PacketSerializer::put_string(stream, &self.filtered_title);
         stream.put_f32_le(self.health_percent);
         stream.put_u8(self.color);
         stream.put_u8(self.overlay);

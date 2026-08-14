@@ -30,12 +30,12 @@ impl Packet for ClientBoundTextureShift {
 
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_u8(self.action_id);
-        PacketSerializer::put_string(stream, self.collection_name.clone());
-        PacketSerializer::put_string(stream, self.from_step.clone());
-        PacketSerializer::put_string(stream, self.to_step.clone());
+        PacketSerializer::put_string(stream, &self.collection_name);
+        PacketSerializer::put_string(stream, &self.from_step);
+        PacketSerializer::put_string(stream, &self.to_step);
         stream.put_var_u32(self.all_steps.len() as u32);
         for all_step in &self.all_steps {
-            PacketSerializer::put_string(stream, all_step.clone());
+            PacketSerializer::put_string(stream, all_step);
         }
         stream.put_var_u64(self.current_length_ticks);
         stream.put_var_u64(self.total_length_ticks);

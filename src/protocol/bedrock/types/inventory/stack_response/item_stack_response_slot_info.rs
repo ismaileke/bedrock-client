@@ -58,8 +58,8 @@ impl ItemStackResponseSlotInfo {
         stream.put_u8(self.hotbar_slot);
         stream.put_u8(self.count);
         PacketSerializer::write_server_item_stack_id(stream, self.item_stack_id);
-        PacketSerializer::put_string(stream, self.custom_name.clone());
-        PacketSerializer::put_string(stream, self.filtered_custom_name.clone());
+        PacketSerializer::put_string(stream, &self.custom_name);
+        PacketSerializer::put_string(stream, &self.filtered_custom_name);
         stream.put_var_i32(self.durability_correction);
     }
 }

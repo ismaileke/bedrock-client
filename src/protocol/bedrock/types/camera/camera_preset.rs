@@ -138,8 +138,8 @@ impl CameraPreset {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.name.clone());
-        PacketSerializer::put_string(stream, self.parent.clone());
+        PacketSerializer::put_string(stream, &self.name);
+        PacketSerializer::put_string(stream, &self.parent);
         PacketSerializer::write_optional(stream, &self.x_position, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.y_position, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.z_position, |s, v| s.put_f32_le(*v));
@@ -147,22 +147,12 @@ impl CameraPreset {
         PacketSerializer::write_optional(stream, &self.yaw, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.rotation_seed, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.snap_to_target, |s, v| s.put_bool(*v));
-        PacketSerializer::write_optional(stream, &self.horizontal_rotation_limit, |s, v| {
-            PacketSerializer::put_vector2(s, v.clone())
-        });
-        PacketSerializer::write_optional(stream, &self.vertical_rotation_limit, |s, v| {
-            PacketSerializer::put_vector2(s, v.clone())
-        });
+        PacketSerializer::write_optional(stream, &self.horizontal_rotation_limit, |s, v| PacketSerializer::put_vector2(s, v));
+        PacketSerializer::write_optional(stream, &self.vertical_rotation_limit, |s, v| PacketSerializer::put_vector2(s, v));
         PacketSerializer::write_optional(stream, &self.continue_targeting, |s, v| s.put_bool(*v));
-        PacketSerializer::write_optional(stream, &self.block_listening_radius, |s, v| {
-            s.put_f32_le(*v)
-        });
-        PacketSerializer::write_optional(stream, &self.view_offset, |s, v| {
-            PacketSerializer::put_vector2(s, v.clone())
-        });
-        PacketSerializer::write_optional(stream, &self.entity_offset, |s, v| {
-            PacketSerializer::put_vector3(s, v.clone())
-        });
+        PacketSerializer::write_optional(stream, &self.block_listening_radius, |s, v| s.put_f32_le(*v));
+        PacketSerializer::write_optional(stream, &self.view_offset, |s, v| PacketSerializer::put_vector2(s, v));
+        PacketSerializer::write_optional(stream, &self.entity_offset, |s, v| PacketSerializer::put_vector3(s, v));
         PacketSerializer::write_optional(stream, &self.radius, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.yaw_limit_min, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.yaw_limit_max, |s, v| s.put_f32_le(*v));

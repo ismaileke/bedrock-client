@@ -16,7 +16,7 @@ impl Packet for StopSound {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.sound_name.clone());
+        PacketSerializer::put_string(stream, &self.sound_name);
         stream.put_bool(self.stop_all);
         stream.put_bool(self.stop_legacy_music);
     }

@@ -53,7 +53,7 @@ impl BiomeNoiseGradientSurfaceData {
         for gradient_block in &self.gradient_blocks {
             gradient_block.write(stream);
         }
-        PacketSerializer::put_string(stream, self.noise_seed.clone());
+        PacketSerializer::put_string(stream, &self.noise_seed);
         stream.put_bool(self.first_octave);
         stream.put_var_u32(self.amplitudes.len() as u32);
         for amplitude in &self.amplitudes {

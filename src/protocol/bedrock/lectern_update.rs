@@ -18,7 +18,7 @@ impl Packet for LecternUpdate {
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_u8(self.page);
         stream.put_u8(self.total_pages);
-        PacketSerializer::put_block_pos(stream, self.block_position.clone());
+        PacketSerializer::put_block_pos(stream, &self.block_position);
     }
 
     fn decode(stream: &mut Reader) -> LecternUpdate {

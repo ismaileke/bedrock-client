@@ -24,7 +24,7 @@ impl AttributeUpdateLayerSettings {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.name.clone());
+        PacketSerializer::put_string(stream, &self.name);
         stream.put_var_u32(self.dimension);
         self.settings.write(stream);
     }

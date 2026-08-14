@@ -18,7 +18,7 @@ impl Packet for EmoteList {
         PacketSerializer::put_actor_runtime_id(stream, self.player_actor_runtime_id);
         stream.put_var_u32(self.emote_ids.len() as u32);
         for emote_id in self.emote_ids.iter() {
-            PacketSerializer::put_uuid(stream, emote_id.clone());
+            PacketSerializer::put_uuid(stream, &emote_id);
         }
     }
 

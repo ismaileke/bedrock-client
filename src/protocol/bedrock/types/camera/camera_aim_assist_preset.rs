@@ -61,21 +61,17 @@ impl CameraAimAssistPreset {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.identifier.clone());
+        PacketSerializer::put_string(stream, &self.identifier);
         self.exclusion_settings.write(stream);
         stream.put_var_u32(self.liquid_targeting_list.len() as u32);
         for liquid_target in &self.liquid_targeting_list {
-            PacketSerializer::put_string(stream, liquid_target.clone());
+            PacketSerializer::put_string(stream, liquid_target);
         }
         stream.put_var_u32(self.item_settings.len() as u32);
         for item_setting in &self.item_settings {
             item_setting.write(stream);
         }
-        PacketSerializer::write_optional(stream, &self.default_item_settings, |s, v| {
-            PacketSerializer::put_string(s, v.clone())
-        });
-        PacketSerializer::write_optional(stream, &self.default_hand_settings, |s, v| {
-            PacketSerializer::put_string(s, v.clone())
-        });
+        PacketSerializer::write_optional(stream, &self.default_item_settings, |s, v| PacketSerializer::put_string(s, v));
+        PacketSerializer::write_optional(stream, &self.default_hand_settings, |s, v| PacketSerializer::put_string(s, v));
     }
 }

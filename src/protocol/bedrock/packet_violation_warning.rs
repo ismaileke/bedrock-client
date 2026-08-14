@@ -20,7 +20,7 @@ impl Packet for PacketViolationWarning {
         stream.put_var_i32(self.violation_type);
         stream.put_var_i32(self.severity);
         stream.put_var_i32(self.packet_id);
-        PacketSerializer::put_string(stream, self.message.clone());
+        PacketSerializer::put_string(stream, &self.message);
     }
 
     fn decode(stream: &mut Reader) -> PacketViolationWarning {

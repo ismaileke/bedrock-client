@@ -22,8 +22,8 @@ impl CameraRotationOption {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_vector3(stream, self.value.clone());
+        PacketSerializer::put_vector3(stream, &self.value);
         stream.put_f32_le(self.time);
-        PacketSerializer::put_string(stream, self.ease_type.clone());
+        PacketSerializer::put_string(stream, &self.ease_type);
     }
 }

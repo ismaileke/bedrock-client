@@ -24,7 +24,7 @@ impl CommandEnumRawData {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.name.clone());
+        PacketSerializer::put_string(stream, &self.name);
         stream.put_var_u32(self.value_indexes.len() as u32);
         for value_index in &self.value_indexes {
             stream.put_u32_le(*value_index);

@@ -43,9 +43,9 @@ impl EnchantOption {
         result
     }
 
-    fn write_enchant_list(stream: &mut Writer, list: Vec<Enchant>) {
+    fn write_enchant_list(stream: &mut Writer, list: &Vec<Enchant>) {
         stream.put_var_u32(list.len() as u32);
-        for item in &list {
+        for item in list {
             item.write(stream);
         }
     }
@@ -73,10 +73,10 @@ impl EnchantOption {
     pub fn write(&self, stream: &mut Writer) {
         stream.put_u8(self.cost);
         stream.put_u32_le(self.slot_flags);
-        Self::write_enchant_list(stream, self.equip_activated_enchantments.clone());
-        Self::write_enchant_list(stream, self.held_activated_enchantments.clone());
-        Self::write_enchant_list(stream, self.self_activated_enchantments.clone());
-        PacketSerializer::put_string(stream, self.name.clone());
+        Self::write_enchant_list(stream, &self.equip_activated_enchantments);
+        Self::write_enchant_list(stream, &self.held_activated_enchantments);
+        Self::write_enchant_list(stream, &self.self_activated_enchantments);
+        PacketSerializer::put_string(stream, &self.name);
         PacketSerializer::write_recipe_net_id(stream, self.option_id);
     }
 }

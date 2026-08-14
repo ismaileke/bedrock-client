@@ -38,11 +38,11 @@ impl MetadataProperty {
             MetadataProperty::Short(v) => stream.put_i16_le(*v),
             MetadataProperty::Int(v) => stream.put_var_i32(*v),
             MetadataProperty::Float(v) => stream.put_f32_le(*v),
-            MetadataProperty::String(v) => PacketSerializer::put_string(stream, v.clone()),
+            MetadataProperty::String(v) => PacketSerializer::put_string(stream, v),
             MetadataProperty::CompoundTag(v) => stream.put(v.get_encoded_nbt()),
-            MetadataProperty::BlockPos(v) => PacketSerializer::put_block_pos(stream, v.clone()),
+            MetadataProperty::BlockPos(v) => PacketSerializer::put_block_pos(stream, v),
             MetadataProperty::Long(v) => stream.put_var_i64(*v),
-            MetadataProperty::Vector3f(v) => PacketSerializer::put_vector3(stream, v.clone()),
+            MetadataProperty::Vector3f(v) => PacketSerializer::put_vector3(stream, v),
         }
     }
 }

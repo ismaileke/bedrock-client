@@ -16,9 +16,9 @@ impl Packet for AgentActionEvent {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.request_id.clone());
+        PacketSerializer::put_string(stream, &self.request_id);
         stream.put_u32_le(self.action);
-        PacketSerializer::put_string(stream, self.response_json.clone());
+        PacketSerializer::put_string(stream, &self.response_json);
     }
 
     fn decode(stream: &mut Reader) -> AgentActionEvent {

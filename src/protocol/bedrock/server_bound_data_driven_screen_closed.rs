@@ -16,7 +16,7 @@ impl Packet for ServerBoundDataDrivenScreenClosed {
 
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_u32_le(self.form_id);
-        PacketSerializer::put_string(stream, self.close_reason.clone());
+        PacketSerializer::put_string(stream, &self.close_reason);
     }
 
     fn decode(stream: &mut Reader) -> ServerBoundDataDrivenScreenClosed {

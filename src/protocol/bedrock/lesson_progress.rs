@@ -18,7 +18,7 @@ impl Packet for LessonProgress {
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_i32(self.action);
         stream.put_var_i32(self.score);
-        PacketSerializer::put_string(stream, self.activity_id.clone());
+        PacketSerializer::put_string(stream, &self.activity_id);
     }
 
     fn decode(stream: &mut Reader) -> LessonProgress {

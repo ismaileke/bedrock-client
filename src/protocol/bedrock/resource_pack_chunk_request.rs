@@ -15,7 +15,7 @@ impl Packet for ResourcePackChunkRequest {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.pack_id.clone());
+        PacketSerializer::put_string(stream, &self.pack_id);
         stream.put_u32_le(self.chunk_index);
     }
 

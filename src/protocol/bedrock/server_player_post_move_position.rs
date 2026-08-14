@@ -14,7 +14,7 @@ impl Packet for ServerPlayerPostMovePosition {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_vector3(stream, &self.position);
     }
 
     fn decode(stream: &mut Reader) -> ServerPlayerPostMovePosition {

@@ -36,8 +36,8 @@ impl Packet for BookEdit {
         match self.event_type {
             BookEdit::TYPE_REPLACE_PAGE | BookEdit::TYPE_ADD_PAGE => {
                 stream.put_var_i32(self.page_number);
-                PacketSerializer::put_string(stream, self.text.clone());
-                PacketSerializer::put_string(stream, self.photo_name.clone());
+                PacketSerializer::put_string(stream, &self.text);
+                PacketSerializer::put_string(stream, &self.photo_name);
             }
             BookEdit::TYPE_DELETE_PAGE => {
                 stream.put_var_i32(self.page_number);
@@ -47,9 +47,9 @@ impl Packet for BookEdit {
                 stream.put_var_i32(self.secondary_page_number);
             }
             BookEdit::TYPE_SIGN_BOOK => {
-                PacketSerializer::put_string(stream, self.title.clone());
-                PacketSerializer::put_string(stream, self.author.clone());
-                PacketSerializer::put_string(stream, self.xuid.clone());
+                PacketSerializer::put_string(stream, &self.title);
+                PacketSerializer::put_string(stream, &self.author);
+                PacketSerializer::put_string(stream, &self.xuid);
             }
             _ => {
                 panic!("Invalid book edit event type");

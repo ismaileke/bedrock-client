@@ -17,9 +17,7 @@ impl Packet for ModalFormResponse {
 
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.form_id);
-        PacketSerializer::write_optional(stream, &self.form_data, |s, v| {
-            PacketSerializer::put_string(s, v.clone())
-        });
+        PacketSerializer::write_optional(stream, &self.form_data, |s, v| PacketSerializer::put_string(s, v));
         PacketSerializer::write_optional(stream, &self.cancel_reason, |s, v| s.put_u8(*v));
     }
 

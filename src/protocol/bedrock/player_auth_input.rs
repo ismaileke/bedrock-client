@@ -105,7 +105,7 @@ impl Packet for PlayerAuthInput {
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_f32_le(self.pitch);
         stream.put_f32_le(self.yaw);
-        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_vector3(stream, &self.position);
         stream.put_f32_le(self.move_vec_x);
         stream.put_f32_le(self.move_vec_z);
         stream.put_f32_le(self.head_yaw);
@@ -113,9 +113,9 @@ impl Packet for PlayerAuthInput {
         stream.put_var_u32(self.input_mode);
         stream.put_var_u32(self.play_mode);
         stream.put_var_u32(self.interaction_mode);
-        PacketSerializer::put_vector2(stream, self.interact_rotation.clone());
+        PacketSerializer::put_vector2(stream, &self.interact_rotation);
         stream.put_var_u64(self.tick);
-        PacketSerializer::put_vector3(stream, self.delta.clone());
+        PacketSerializer::put_vector3(stream, &self.delta);
         if let Some(item_interaction_data) = &self.item_interaction_data {
             item_interaction_data.write(stream);
         }
@@ -133,8 +133,8 @@ impl Packet for PlayerAuthInput {
         }
         stream.put_f32_le(self.analog_move_vec_x);
         stream.put_f32_le(self.analog_move_vec_z);
-        PacketSerializer::put_vector3(stream, self.camera_orientation.clone());
-        PacketSerializer::put_vector2(stream, self.raw_move.clone());
+        PacketSerializer::put_vector3(stream, &self.camera_orientation);
+        PacketSerializer::put_vector2(stream, &self.raw_move);
     }
 
     fn decode(stream: &mut Reader) -> PlayerAuthInput {

@@ -23,7 +23,7 @@ impl SystemDiagnosticTimingInfo {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.display_name.clone());
+        PacketSerializer::put_string(stream, &self.display_name);
         stream.put_u64_le(self.system_index);
         stream.put_u64_le(self.time_in_ns);
         stream.put_u8(self.percent_of_total);

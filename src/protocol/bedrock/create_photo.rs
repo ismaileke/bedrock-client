@@ -17,8 +17,8 @@ impl Packet for CreatePhoto {
 
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_i64_le(self.actor_unique_id);
-        PacketSerializer::put_string(stream, self.photo_name.clone());
-        PacketSerializer::put_string(stream, self.photo_item_name.clone());
+        PacketSerializer::put_string(stream, &self.photo_name);
+        PacketSerializer::put_string(stream, &self.photo_item_name);
     }
 
     fn decode(stream: &mut Reader) -> CreatePhoto {

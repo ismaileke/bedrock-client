@@ -18,7 +18,7 @@ impl Packet for StructureTemplateDataResponse {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.structure_template_name.clone());
+        PacketSerializer::put_string(stream, &self.structure_template_name);
         stream.put_bool(self.nbt.is_some());
         if let Some(nbt) = &mut self.nbt {
             stream.put(nbt.get_encoded_nbt());

@@ -11,7 +11,7 @@ impl ChainedSubCommandData {
         &self.name
     }
 
-    pub fn get_values(&self) -> Vec<ChainedSubCommandValue> {
-        self.values.clone()
+    pub fn get_values(&self) -> &Vec<ChainedSubCommandValue> {
+        &self.values
     }
 }

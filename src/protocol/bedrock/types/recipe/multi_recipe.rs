@@ -43,7 +43,7 @@ impl MultiRecipe {
     }
 
     pub fn write(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_uuid(stream, self.recipe_id.clone());
+        PacketSerializer::put_uuid(stream, &self.recipe_id);
         PacketSerializer::write_recipe_net_id(stream, self.recipe_net_id);
     }
 }

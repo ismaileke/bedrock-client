@@ -18,6 +18,6 @@ impl DataStoreRemoval {
     }
 
     pub fn write(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.name.clone());
+        PacketSerializer::put_string(stream, &self.name);
     }
 }

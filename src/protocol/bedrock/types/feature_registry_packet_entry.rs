@@ -19,7 +19,7 @@ impl FeatureRegistryPacketEntry {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.feature_name.clone());
-        PacketSerializer::put_string(stream, self.feature_json.clone());
+        PacketSerializer::put_string(stream, &self.feature_name);
+        PacketSerializer::put_string(stream, &self.feature_json);
     }
 }

@@ -25,16 +25,14 @@ impl Packet for EducationSettings {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.code_builder_default_uri.clone());
-        PacketSerializer::put_string(stream, self.code_builder_title.clone());
+        PacketSerializer::put_string(stream, &self.code_builder_default_uri);
+        PacketSerializer::put_string(stream, &self.code_builder_title);
         stream.put_bool(self.can_resize_code_builder);
         stream.put_bool(self.disable_legacy_title_bar);
-        PacketSerializer::put_string(stream, self.post_process_filter.clone());
-        PacketSerializer::put_string(stream, self.screenshot_border_resource_path.clone());
+        PacketSerializer::put_string(stream, &self.post_process_filter);
+        PacketSerializer::put_string(stream, &self.screenshot_border_resource_path);
         PacketSerializer::write_optional(stream, &self.agent_capabilities, |s, v| v.write(s));
-        PacketSerializer::write_optional(stream, &self.code_builder_override_uri, |s, v| {
-            PacketSerializer::put_string(s, v.clone())
-        });
+        PacketSerializer::write_optional(stream, &self.code_builder_override_uri, |s, v| PacketSerializer::put_string(s, v));
         stream.put_bool(self.has_quiz);
         PacketSerializer::write_optional(stream, &self.link_settings, |s, v| v.write(s));
     }

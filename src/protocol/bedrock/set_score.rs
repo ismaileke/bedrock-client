@@ -20,7 +20,7 @@ impl Packet for SetScore {
         stream.put_var_u32(self.entries.len() as u32);
         for entry in &self.entries {
             stream.put_var_i64(entry.scoreboard_id);
-            PacketSerializer::put_string(stream, entry.objective_name.clone());
+            PacketSerializer::put_string(stream, &entry.objective_name);
             stream.put_i32_le(entry.score);
             if self.action_type != Self::TYPE_REMOVE {
                 stream.put_u8(entry.entity_type);
@@ -32,10 +32,9 @@ impl Packet for SetScore {
                         );
                     }
                     ScoreEntry::TYPE_FAKE_PLAYER => {
-                        PacketSerializer::put_string(
-                            stream,
-                            entry.custom_name.clone().unwrap(),
-                        );
+                        if let Some(custom_name) = &entry.custom_name {
+                            PacketSerializer::put_string(stream, custom_name);
+                        }
                     }
                     _ => {
                         panic!("Unknown entry type {}", entry.entity_type);

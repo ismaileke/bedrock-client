@@ -23,8 +23,8 @@ impl Packet for InventorySlot {
         stream.put_var_u32(self.window_id);
         stream.put_var_u32(self.inventory_slot);
         PacketSerializer::write_optional(stream, &self.container_name, |s, v| v.write(s));
-        PacketSerializer::write_optional(stream, &self.storage, |s, v| PacketSerializer::put_network_item_stack_descriptor(s, v.clone()));
-        PacketSerializer::put_network_item_stack_descriptor(stream, self.item.clone());
+        PacketSerializer::write_optional(stream, &self.storage, |s, v| PacketSerializer::put_network_item_stack_descriptor(s, v));
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.item);
     }
 
     fn decode(stream: &mut Reader) -> InventorySlot {

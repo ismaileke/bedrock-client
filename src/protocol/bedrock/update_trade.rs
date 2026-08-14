@@ -31,7 +31,7 @@ impl Packet for UpdateTrade {
         stream.put_var_i32(self.trade_tier);
         PacketSerializer::put_actor_unique_id(stream, self.trader_actor_unique_id);
         PacketSerializer::put_actor_unique_id(stream, self.player_actor_unique_id);
-        PacketSerializer::put_string(stream, self.display_name.clone());
+        PacketSerializer::put_string(stream, &self.display_name);
         stream.put_bool(self.is_v2_trading);
         stream.put_bool(self.is_economy_trading);
         stream.put(self.offers.get_encoded_nbt());

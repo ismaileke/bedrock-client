@@ -60,8 +60,8 @@ impl UseItemOnEntityTransactionData {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
         stream.put_var_i32(self.action_type);
         stream.put_var_i32(self.hotbar_slot);
-        PacketSerializer::put_network_item_stack_descriptor(stream, self.item_in_hand.clone());
-        PacketSerializer::put_vector3(stream, self.player_position.clone());
-        PacketSerializer::put_vector3(stream, self.click_position.clone());
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.item_in_hand);
+        PacketSerializer::put_vector3(stream, &self.player_position);
+        PacketSerializer::put_vector3(stream, &self.click_position);
     }
 }

@@ -13,8 +13,8 @@ impl PersonaPieceTintColor {
         PersonaPieceTintColor { piece_type, colors }
     }
 
-    pub fn piece_type(&self) -> String {
-        self.piece_type.clone()
+    pub fn piece_type(&self) -> &String {
+        &self.piece_type
     }
 
     pub fn colors(&self) -> &Vec<String> {

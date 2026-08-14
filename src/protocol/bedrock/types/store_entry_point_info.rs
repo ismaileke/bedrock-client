@@ -19,7 +19,7 @@ impl StoreEntryPointInfo {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.id.clone());
-        PacketSerializer::put_string(stream, self.name.clone());
+        PacketSerializer::put_string(stream, &self.id);
+        PacketSerializer::put_string(stream, &self.name);
     }
 }

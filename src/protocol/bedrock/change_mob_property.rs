@@ -20,9 +20,9 @@ impl Packet for ChangeMobProperty {
 
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
-        PacketSerializer::put_string(stream, self.property_name.clone());
+        PacketSerializer::put_string(stream, &self.property_name);
         stream.put_bool(self.bool_value);
-        PacketSerializer::put_string(stream, self.string_value.clone());
+        PacketSerializer::put_string(stream, &self.string_value);
         stream.put_var_i32(self.int_value);
         stream.put_f32_le(self.float_value);
     }

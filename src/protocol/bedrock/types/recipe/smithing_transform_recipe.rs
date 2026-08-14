@@ -69,12 +69,12 @@ impl SmithingTransformRecipe {
     }
 
     pub fn write(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.recipe_id.clone());
+        PacketSerializer::put_string(stream, &self.recipe_id);
         PacketSerializer::put_recipe_ingredient(stream, &mut self.template);
         PacketSerializer::put_recipe_ingredient(stream, &mut self.input);
         PacketSerializer::put_recipe_ingredient(stream, &mut self.addition);
         PacketSerializer::put_item_stack_without_stack_id(stream, &self.output);
-        PacketSerializer::put_string(stream, self.block_name.clone());
+        PacketSerializer::put_string(stream, &self.block_name);
         PacketSerializer::write_recipe_net_id(stream, self.recipe_net_id);
     }
 }

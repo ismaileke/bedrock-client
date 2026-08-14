@@ -20,9 +20,9 @@ impl Packet for AddPainting {
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
-        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_vector3(stream, &self.position);
         stream.put_var_i32(self.direction);
-        PacketSerializer::put_string(stream, self.title.clone());
+        PacketSerializer::put_string(stream, &self.title);
     }
 
     fn decode(stream: &mut Reader) -> AddPainting {

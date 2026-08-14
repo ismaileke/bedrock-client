@@ -21,11 +21,11 @@ impl Packet for MobArmorEquipment {
 
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
-        PacketSerializer::put_network_item_stack_descriptor(stream, self.head.clone());
-        PacketSerializer::put_network_item_stack_descriptor(stream, self.chest.clone());
-        PacketSerializer::put_network_item_stack_descriptor(stream, self.legs.clone());
-        PacketSerializer::put_network_item_stack_descriptor(stream, self.feet.clone());
-        PacketSerializer::put_network_item_stack_descriptor(stream, self.body.clone());
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.head);
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.chest);
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.legs);
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.feet);
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.body);
     }
 
     fn decode(stream: &mut Reader) -> MobArmorEquipment {

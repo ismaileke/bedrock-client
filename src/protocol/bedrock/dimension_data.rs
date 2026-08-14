@@ -19,7 +19,7 @@ impl Packet for DimensionData {
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.definitions.len() as u32);
         for (dimension_name_id, dimension_data) in &self.definitions {
-            PacketSerializer::put_string(stream, dimension_name_id.to_string());
+            PacketSerializer::put_string(stream, dimension_name_id);
             dimension_data.write(stream);
         }
     }

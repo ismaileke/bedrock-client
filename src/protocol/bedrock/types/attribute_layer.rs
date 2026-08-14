@@ -32,8 +32,8 @@ impl AttributeLayer {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.name.clone());
-        PacketSerializer::write_optional(stream, &self.noise_name, |s, v| PacketSerializer::put_string(s, v.clone()));
+        PacketSerializer::put_string(stream, &self.name);
+        PacketSerializer::write_optional(stream, &self.noise_name, |s, v| PacketSerializer::put_string(s, v));
         stream.put_var_u32(self.dimension);
         self.settings.write(stream);
         stream.put_var_u32(self.attributes.len() as u32);

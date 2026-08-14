@@ -35,23 +35,23 @@ impl PersonaSkinPiece {
         }
     }
 
-    pub fn piece_id(&self) -> String {
-        self.piece_id.clone()
+    pub fn piece_id(&self) -> &String {
+        &self.piece_id
     }
 
-    pub fn piece_type(&self) -> String {
-        self.piece_type.clone()
+    pub fn piece_type(&self) -> &String {
+        &self.piece_type
     }
 
-    pub fn pack_id(&self) -> String {
-        self.pack_id.clone()
+    pub fn pack_id(&self) -> &String {
+        &self.pack_id
     }
 
     pub fn is_default_piece(&self) -> bool {
         self.is_default_piece
     }
 
-    pub fn product_id(&self) -> String {
-        self.product_id.clone()
+    pub fn product_id(&self) -> &String {
+        &self.product_id
     }
 }

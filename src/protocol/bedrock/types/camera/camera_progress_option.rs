@@ -24,6 +24,6 @@ impl CameraProgressOption {
     pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.value);
         stream.put_f32_le(self.time);
-        PacketSerializer::put_string(stream, self.ease_type.clone());
+        PacketSerializer::put_string(stream, &self.ease_type);
     }
 }

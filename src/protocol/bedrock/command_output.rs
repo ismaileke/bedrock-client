@@ -21,13 +21,13 @@ impl Packet for CommandOutput {
 
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_command_origin_data(stream, &self.origin_data);
-        PacketSerializer::put_string(stream, self.output_type.clone());
+        PacketSerializer::put_string(stream, &self.output_type);
         stream.put_u32_le(self.success_count);
         stream.put_var_u32(self.messages.len() as u32);
         for message in &self.messages {
             Self::put_command_message(message, stream);
         }
-        PacketSerializer::write_optional(stream, &self.data, |s, v| PacketSerializer::put_string(s, v.clone()));
+        PacketSerializer::write_optional(stream, &self.data, |s, v| PacketSerializer::put_string(s, v));
     }
 
     fn decode(stream: &mut Reader) -> CommandOutput {
@@ -62,11 +62,11 @@ impl CommandOutput {
         CommandOutputMessage { message_id, is_internal, parameters }
     }
     fn put_command_message(message: &CommandOutputMessage, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, message.message_id.clone());
+        PacketSerializer::put_string(stream, &message.message_id);
         stream.put_bool(message.is_internal);
         stream.put_var_u32(message.parameters.len() as u32);
         for parameter in &message.parameters {
-            PacketSerializer::put_string(stream, parameter.to_string());
+            PacketSerializer::put_string(stream, parameter);
         }
     }
 }

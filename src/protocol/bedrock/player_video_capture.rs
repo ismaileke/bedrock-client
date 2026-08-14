@@ -26,7 +26,10 @@ impl Packet for PlayerVideoCapture {
             }
         }
         stream.put_u32_le(self.frame_rate.unwrap());
-        PacketSerializer::put_string(stream, self.file_prefix.clone().unwrap());
+        if let Some(file_prefix) = &self.file_prefix {
+            PacketSerializer::put_string(stream, file_prefix);
+        }
+
     }
 
     fn decode(stream: &mut Reader) -> PlayerVideoCapture {

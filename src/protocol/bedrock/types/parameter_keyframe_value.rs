@@ -17,6 +17,6 @@ impl ParameterKeyframeValue {
 
     pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.time);
-        PacketSerializer::put_vector3(stream, self.value.clone());
+        PacketSerializer::put_vector3(stream, &self.value);
     }
 }

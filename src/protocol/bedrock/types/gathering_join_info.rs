@@ -28,13 +28,13 @@ impl GatheringJoinInfo {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_uuid(stream, self.experience_id.clone());
-        PacketSerializer::put_string(stream, self.experience_name.clone());
-        PacketSerializer::put_uuid(stream, self.experience_world_id.clone());
-        PacketSerializer::put_string(stream, self.experience_world_name.clone());
-        PacketSerializer::put_string(stream, self.creator_id.clone());
-        PacketSerializer::put_uuid(stream, self.target_id.clone());
-        PacketSerializer::put_string(stream, self.scenario_id.clone());
-        PacketSerializer::put_string(stream, self.server_id.clone());
+        PacketSerializer::put_uuid(stream, &self.experience_id);
+        PacketSerializer::put_string(stream, &self.experience_name);
+        PacketSerializer::put_uuid(stream, &self.experience_world_id);
+        PacketSerializer::put_string(stream, &self.experience_world_name);
+        PacketSerializer::put_string(stream, &self.creator_id);
+        PacketSerializer::put_uuid(stream, &self.target_id);
+        PacketSerializer::put_string(stream, &self.scenario_id);
+        PacketSerializer::put_string(stream, &self.server_id);
     }
 }

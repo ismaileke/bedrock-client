@@ -20,11 +20,9 @@ impl Packet for SpawnParticleEffect {
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_u8(self.dimension_id);
         PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
-        PacketSerializer::put_vector3(stream, self.position.clone());
-        PacketSerializer::put_string(stream, self.particle_name.clone());
-        PacketSerializer::write_optional(stream, &self.molang_variables_json, |s, v| {
-            PacketSerializer::put_string(s, v.clone())
-        });
+        PacketSerializer::put_vector3(stream, &self.position);
+        PacketSerializer::put_string(stream, &self.particle_name);
+        PacketSerializer::write_optional(stream, &self.molang_variables_json, |s, v| PacketSerializer::put_string(s, v));
     }
 
     fn decode(stream: &mut Reader) -> SpawnParticleEffect {
@@ -32,8 +30,7 @@ impl Packet for SpawnParticleEffect {
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let position = PacketSerializer::get_vector3(stream);
         let particle_name = PacketSerializer::get_string(stream);
-        let molang_variables_json =
-            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
+        let molang_variables_json = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
 
         SpawnParticleEffect {
             dimension_id,

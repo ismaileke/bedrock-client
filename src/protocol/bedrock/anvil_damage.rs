@@ -16,7 +16,7 @@ impl Packet for AnvilDamage {
 
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_u8(self.damage_amount);
-        PacketSerializer::put_block_pos(stream, self.block_pos.clone());
+        PacketSerializer::put_block_pos(stream, &self.block_pos);
     }
 
     fn decode(stream: &mut Reader) -> AnvilDamage {

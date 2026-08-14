@@ -27,8 +27,8 @@ impl Packet for CorrectPlayerMovePrediction {
 
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_u8(self.prediction_type);
-        PacketSerializer::put_vector3(stream, self.position.clone());
-        PacketSerializer::put_vector3(stream, self.delta.clone());
+        PacketSerializer::put_vector3(stream, &self.position);
+        PacketSerializer::put_vector3(stream, &self.delta);
         stream.put_f32_le(self.vehicle_rotation_x);
         stream.put_f32_le(self.vehicle_rotation_y);
         PacketSerializer::write_optional(stream, &self.vehicle_angular_velocity, |s, v| {

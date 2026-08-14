@@ -36,7 +36,7 @@ impl PrimitiveShapeTextPayload {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.text.clone());
+        PacketSerializer::put_string(stream, &self.text);
         stream.put_bool(self.use_rotation);
         PacketSerializer::write_optional(stream, &self.background_color, |s, v| s.put_u32_le(v.to_argb()));
         stream.put_bool(self.depth_test);

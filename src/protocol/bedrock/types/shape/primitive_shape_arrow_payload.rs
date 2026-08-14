@@ -29,7 +29,7 @@ impl PrimitiveShapeArrowPayload {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::write_optional(stream, &self.line_end_location, |s, v| PacketSerializer::put_vector3(s, v.clone()));
+        PacketSerializer::write_optional(stream, &self.line_end_location, |s, v| PacketSerializer::put_vector3(s, v));
         PacketSerializer::write_optional(stream, &self.arrow_head_length, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.arrow_head_radius, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.segments, |s, v| s.put_u8(*v));

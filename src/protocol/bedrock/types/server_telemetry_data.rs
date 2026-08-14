@@ -20,9 +20,9 @@ impl ServerTelemetryData {
     }
 
     pub fn write(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.server_id.clone());
-        PacketSerializer::put_string(stream, self.scenario_id.clone());
-        PacketSerializer::put_string(stream, self.world_id.clone());
-        PacketSerializer::put_string(stream, self.owner_id.clone());
+        PacketSerializer::put_string(stream, &self.server_id);
+        PacketSerializer::put_string(stream, &self.scenario_id);
+        PacketSerializer::put_string(stream, &self.world_id);
+        PacketSerializer::put_string(stream, &self.owner_id);
     }
 }

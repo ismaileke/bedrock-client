@@ -13,7 +13,7 @@ impl ChunkCacheBlob {
         self.hash
     }
 
-    pub fn get_payload(&self) -> String {
-        self.payload.clone()
+    pub fn get_payload(&self) -> &String {
+        &self.payload
     }
 }

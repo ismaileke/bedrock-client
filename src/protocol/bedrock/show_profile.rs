@@ -14,7 +14,7 @@ impl Packet for ShowProfile {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.xuid.clone());
+        PacketSerializer::put_string(stream, &self.xuid);
     }
 
     fn decode(stream: &mut Reader) -> ShowProfile {

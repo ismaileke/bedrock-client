@@ -21,7 +21,7 @@ impl PrimitiveShapeConePayload {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_vector2(stream, self.radii.clone());
+        PacketSerializer::put_vector2(stream, &self.radii);
         stream.put_f32_le(self.height);
         stream.put_u8(self.segments);
     }

@@ -16,7 +16,7 @@ impl Packet for Transfer {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.address.clone());
+        PacketSerializer::put_string(stream, &self.address);
         stream.put_u16_le(self.port);
         stream.put_bool(self.reload_world);
     }

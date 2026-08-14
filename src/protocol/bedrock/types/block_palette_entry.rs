@@ -11,8 +11,8 @@ impl BlockPaletteEntry {
         BlockPaletteEntry { name, states }
     }
 
-    pub fn get_name(&self) -> String {
-        self.name.clone()
+    pub fn get_name(&self) -> &String {
+        &self.name
     }
 
     pub fn get_states(&self) -> &CacheableNBT {

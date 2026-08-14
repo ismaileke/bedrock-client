@@ -26,7 +26,7 @@ impl CameraFovInstruction {
     pub fn write(&self, stream: &mut Writer) {
         stream.put_f32_le(self.field_of_view);
         stream.put_f32_le(self.ease_time);
-        PacketSerializer::put_string(stream, self.ease_type.clone());
+        PacketSerializer::put_string(stream, &self.ease_type);
         stream.put_bool(self.clear);
     }
 }

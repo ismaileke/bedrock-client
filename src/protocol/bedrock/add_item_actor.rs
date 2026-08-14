@@ -25,8 +25,8 @@ impl Packet for AddItemActor {
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
-        PacketSerializer::put_item_stack_wrapper(stream, self.item.clone());
-        PacketSerializer::put_vector3(stream, self.position.clone());
+        PacketSerializer::put_item_stack_wrapper(stream, &self.item);
+        PacketSerializer::put_vector3(stream, &self.position);
         PacketSerializer::put_vector3_nullable(stream, Option::from(self.motion.clone()));
         PacketSerializer::put_entity_metadata(stream, &mut self.metadata);
         stream.put_bool(self.is_from_fishing);

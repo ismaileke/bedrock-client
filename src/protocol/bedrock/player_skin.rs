@@ -18,10 +18,10 @@ impl Packet for PlayerSkin {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_uuid(stream, self.uuid.clone());
+        PacketSerializer::put_uuid(stream, &self.uuid);
         PacketSerializer::put_skin(stream, &self.skin);
-        PacketSerializer::put_string(stream, self.new_skin_name.clone());
-        PacketSerializer::put_string(stream, self.old_skin_name.clone());
+        PacketSerializer::put_string(stream, &self.new_skin_name);
+        PacketSerializer::put_string(stream, &self.old_skin_name);
         stream.put_bool(self.skin.is_verified);
     }
 

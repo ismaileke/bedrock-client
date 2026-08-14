@@ -19,7 +19,7 @@ impl Packet for ResourcePackClientResponse {
         stream.put_u16_le(self.pack_ids.len() as u16);
 
         for pack_id in &self.pack_ids {
-            PacketSerializer::put_string(stream, pack_id.clone());
+            PacketSerializer::put_string(stream, &pack_id);
         }
     }
 

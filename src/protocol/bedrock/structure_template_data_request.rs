@@ -18,8 +18,8 @@ impl Packet for StructureTemplateDataRequest {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.structure_template_name.clone());
-        PacketSerializer::put_block_pos(stream, self.structure_block_position.clone());
+        PacketSerializer::put_string(stream, &self.structure_template_name);
+        PacketSerializer::put_block_pos(stream, &self.structure_block_position);
         PacketSerializer::put_structure_settings(stream, &self.structure_settings);
         stream.put_u8(self.request_type);
     }

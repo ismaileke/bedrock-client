@@ -18,10 +18,10 @@ impl Packet for CommandRequest {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.command.clone());
+        PacketSerializer::put_string(stream, &self.command);
         PacketSerializer::put_command_origin_data(stream, &self.origin_data);
         stream.put_bool(self.is_internal);
-        PacketSerializer::put_string(stream, self.version.clone());
+        PacketSerializer::put_string(stream, &self.version);
     }
 
     fn decode(stream: &mut Reader) -> CommandRequest {

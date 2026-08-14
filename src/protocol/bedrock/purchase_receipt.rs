@@ -16,7 +16,7 @@ impl Packet for PurchaseReceipt {
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.entries.len() as u32);
         for entry in self.entries.iter() {
-            PacketSerializer::put_string(stream, entry.to_string());
+            PacketSerializer::put_string(stream, entry);
         }
     }
 

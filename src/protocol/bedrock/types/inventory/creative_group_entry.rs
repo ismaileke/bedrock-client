@@ -32,7 +32,7 @@ impl CreativeGroupEntry {
 
     pub fn write(&self, stream: &mut Writer) {
         stream.put_i32_le(self.category_id);
-        PacketSerializer::put_string(stream, self.category_name.clone());
+        PacketSerializer::put_string(stream, &self.category_name);
         PacketSerializer::put_item_stack_without_stack_id(stream, &self.icon);
     }
 }

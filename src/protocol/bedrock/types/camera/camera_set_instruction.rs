@@ -50,22 +50,12 @@ impl CameraSetInstruction {
     pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::write_optional(stream, &self.preset, |s, v| s.put_u32_le(*v));
         PacketSerializer::write_optional(stream, &self.ease, |s, v| v.write(s));
-        PacketSerializer::write_optional(stream, &self.camera_position, |s, v| {
-            PacketSerializer::put_vector3(s, v.clone())
-        });
+        PacketSerializer::write_optional(stream, &self.camera_position, |s, v| PacketSerializer::put_vector3(s, v));
         PacketSerializer::write_optional(stream, &self.rotation, |s, v| v.write(s));
-        PacketSerializer::write_optional(stream, &self.facing_position, |s, v| {
-            PacketSerializer::put_vector3(s, v.clone())
-        });
-        PacketSerializer::write_optional(stream, &self.view_offset, |s, v| {
-            PacketSerializer::put_vector2(s, v.clone())
-        });
-        PacketSerializer::write_optional(stream, &self.entity_offset, |s, v| {
-            PacketSerializer::put_vector3(s, v.clone())
-        });
+        PacketSerializer::write_optional(stream, &self.facing_position, |s, v| PacketSerializer::put_vector3(s, v));
+        PacketSerializer::write_optional(stream, &self.view_offset, |s, v| PacketSerializer::put_vector2(s, v));
+        PacketSerializer::write_optional(stream, &self.entity_offset, |s, v| PacketSerializer::put_vector3(s, v));
         PacketSerializer::write_optional(stream, &self.default, |s, v| s.put_bool(*v));
-        PacketSerializer::write_optional(stream, &self.ignore_starting_values_component, |s, v| {
-            s.put_bool(*v)
-        });
+        PacketSerializer::write_optional(stream, &self.ignore_starting_values_component, |s, v| s.put_bool(*v));
     }
 }

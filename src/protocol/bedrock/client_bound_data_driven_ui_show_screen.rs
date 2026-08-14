@@ -16,7 +16,7 @@ impl Packet for ClientBoundDataDrivenUIShowScreen {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.screen_id.clone());
+        PacketSerializer::put_string(stream, &self.screen_id);
         stream.put_u32_le(self.form_id);
         PacketSerializer::write_optional(stream, &self.data_instance_id, |s, v| s.put_u32_le(*v));
     }

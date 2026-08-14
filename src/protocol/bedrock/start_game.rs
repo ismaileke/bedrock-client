@@ -52,30 +52,30 @@ impl Packet for StartGame {
         PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
         stream.put_var_i32(self.player_game_mode);
-        PacketSerializer::put_vector3(stream, self.player_position.clone());
+        PacketSerializer::put_vector3(stream, &self.player_position);
         stream.put_f32_le(self.pitch);
         stream.put_f32_le(self.yaw);
         self.level_settings.write(stream);
-        PacketSerializer::put_string(stream, self.level_id.clone());
-        PacketSerializer::put_string(stream, self.world_name.clone());
-        PacketSerializer::put_string(stream, self.premium_world_template_id.clone());
+        PacketSerializer::put_string(stream, &self.level_id);
+        PacketSerializer::put_string(stream, &self.world_name);
+        PacketSerializer::put_string(stream, &self.premium_world_template_id);
         stream.put_bool(self.is_trial);
         self.player_movement_settings.write(stream);
         stream.put_u64_le(self.current_tick);
         stream.put_var_i32(self.enchantment_seed);
         stream.put_var_u32(self.block_palette.len() as u32);
         for block_palette_entry in &self.block_palette {
-            PacketSerializer::put_string(stream, block_palette_entry.get_name());
+            PacketSerializer::put_string(stream, &block_palette_entry.get_name());
             //for now
             let mut states = block_palette_entry.get_states().clone();
             stream.put(states.get_encoded_nbt());
         }
-        PacketSerializer::put_string(stream, self.multiplayer_correlation_id.clone());
+        PacketSerializer::put_string(stream, &self.multiplayer_correlation_id);
         stream.put_bool(self.enable_new_inventory_system);
-        PacketSerializer::put_string(stream, self.server_software_version.clone());
+        PacketSerializer::put_string(stream, &self.server_software_version);
         stream.put(self.player_actor_properties.get_encoded_nbt());
         stream.put_u64_le(self.block_palette_checksum);
-        PacketSerializer::put_uuid(stream, self.world_template_id.clone());
+        PacketSerializer::put_uuid(stream, &self.world_template_id);
         stream.put_bool(self.enable_client_side_chunk_generation);
         stream.put_bool(self.block_network_ids_are_hashes);
         self.network_permissions.write(stream);

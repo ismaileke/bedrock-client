@@ -38,20 +38,20 @@ impl Packet for ResourcePacksInfo {
         stream.put_bool(self.has_addons);
         stream.put_bool(self.has_scripts);
         stream.put_bool(self.force_disable_vibrant_visuals);
-        PacketSerializer::put_uuid(stream, self.world_template_id.clone());
-        PacketSerializer::put_string(stream, self.world_template_version.clone());
+        PacketSerializer::put_uuid(stream, &self.world_template_id);
+        PacketSerializer::put_string(stream, &self.world_template_version);
         stream.put_u16_le(self.resource_packs.len() as u16);
         for resource_pack in &self.resource_packs {
-            PacketSerializer::put_uuid(stream, resource_pack.uuid.clone());
-            PacketSerializer::put_string(stream, resource_pack.version.clone());
+            PacketSerializer::put_uuid(stream, &resource_pack.uuid);
+            PacketSerializer::put_string(stream, &resource_pack.version);
             stream.put_u64_le(resource_pack.size_bytes);
-            PacketSerializer::put_string(stream, resource_pack.encryption_key.clone());
-            PacketSerializer::put_string(stream, resource_pack.sub_pack_name.clone());
-            PacketSerializer::put_string(stream, resource_pack.content_id.clone());
+            PacketSerializer::put_string(stream, &resource_pack.encryption_key);
+            PacketSerializer::put_string(stream, &resource_pack.sub_pack_name);
+            PacketSerializer::put_string(stream, &resource_pack.content_id);
             stream.put_bool(resource_pack.has_scripts);
             stream.put_bool(resource_pack.is_addon_pack);
             stream.put_bool(resource_pack.is_rtx_capable);
-            PacketSerializer::put_string(stream, resource_pack.cdn_url.clone());
+            PacketSerializer::put_string(stream, &resource_pack.cdn_url);
         }
     }
 

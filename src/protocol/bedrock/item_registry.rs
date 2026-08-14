@@ -19,7 +19,7 @@ impl Packet for ItemRegistry {
     fn encode(&mut self, stream: &mut Writer) {
         stream.put_var_u32(self.entries.len() as u32);
         for entry in self.entries.iter_mut() {
-            PacketSerializer::put_string(stream, entry.string_id.clone());
+            PacketSerializer::put_string(stream, &entry.string_id);
             stream.put_i16_le(entry.numeric_id);
             stream.put_bool(entry.component_based);
             stream.put_var_i32(entry.version);

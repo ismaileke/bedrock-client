@@ -26,7 +26,7 @@ impl MolangItemDescriptor {
     }
 
     pub fn write(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.molang_expression.clone());
+        PacketSerializer::put_string(stream, &self.molang_expression);
         stream.put_u8(self.version);
     }
 }

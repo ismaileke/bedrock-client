@@ -31,8 +31,8 @@ impl WhiskerScopeDataSummary {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.label.clone());
-        PacketSerializer::put_string(stream, self.indentation.clone());
+        PacketSerializer::put_string(stream, &self.label);
+        PacketSerializer::put_string(stream, &self.indentation);
         stream.put_u64_le(self.total_high_cost_ns);
         stream.put_u64_le(self.total_mid_cost_ns);
         stream.put_u64_le(self.total_low_cost_ns);

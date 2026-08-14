@@ -17,7 +17,7 @@ impl Packet for UpdateSubChunkBlocks {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_block_pos(stream, self.base_block_position.clone());
+        PacketSerializer::put_block_pos(stream, &self.base_block_position);
         stream.put_var_u32(self.layer_0_updates.len() as u32);
         for update in self.layer_0_updates.iter() {
             update.write(stream);

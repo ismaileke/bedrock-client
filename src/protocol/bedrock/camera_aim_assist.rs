@@ -19,8 +19,8 @@ impl Packet for CameraAimAssist {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.preset_id.clone());
-        PacketSerializer::put_vector2(stream, self.view_angle.clone());
+        PacketSerializer::put_string(stream, &self.preset_id);
+        PacketSerializer::put_vector2(stream, &self.view_angle);
         stream.put_f32_le(self.distance);
         stream.put_u8(self.target_mode);
         stream.put_u8(self.action_type);

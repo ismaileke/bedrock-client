@@ -14,7 +14,7 @@ impl Packet for AddBehaviorTree {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.behavior_tree_json.clone());
+        PacketSerializer::put_string(stream, &self.behavior_tree_json);
     }
 
     fn decode(stream: &mut Reader) -> AddBehaviorTree {

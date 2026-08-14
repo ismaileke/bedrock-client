@@ -18,10 +18,10 @@ impl Packet for SetDisplayObjective {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.display_slot.clone());
-        PacketSerializer::put_string(stream, self.objective_name.clone());
-        PacketSerializer::put_string(stream, self.display_name.clone());
-        PacketSerializer::put_string(stream, self.criteria_name.clone());
+        PacketSerializer::put_string(stream, &self.display_slot);
+        PacketSerializer::put_string(stream, &self.objective_name);
+        PacketSerializer::put_string(stream, &self.display_name);
+        PacketSerializer::put_string(stream, &self.criteria_name);
         stream.put_var_i32(self.sort_order);
     }
 

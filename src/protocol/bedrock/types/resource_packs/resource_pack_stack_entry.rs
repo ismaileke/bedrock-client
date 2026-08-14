@@ -18,8 +18,8 @@ impl ResourcePackStackEntry {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::put_string(stream, self.pack_id.clone());
-        PacketSerializer::put_string(stream, self.version.clone());
-        PacketSerializer::put_string(stream, self.sub_pack_name.clone());
+        PacketSerializer::put_string(stream, &self.pack_id);
+        PacketSerializer::put_string(stream, &self.version);
+        PacketSerializer::put_string(stream, &self.sub_pack_name);
     }
 }

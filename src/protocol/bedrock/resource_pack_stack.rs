@@ -25,7 +25,7 @@ impl Packet for ResourcePackStack {
         for resource_pack_stack_entry in &self.resource_pack_stack {
             resource_pack_stack_entry.write(stream);
         }
-        PacketSerializer::put_string(stream, self.base_game_version.clone());
+        PacketSerializer::put_string(stream, &self.base_game_version);
         self.experiments.write(stream);
         stream.put_bool(self.use_vanilla_editor_packs);
     }
