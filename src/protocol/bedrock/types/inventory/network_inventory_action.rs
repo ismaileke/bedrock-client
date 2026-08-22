@@ -5,7 +5,7 @@ use binary_utils::binary::{Reader, Writer};
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct NetworkInventoryAction {
     source_type: u32,
-    window_id: Option<i32>,
+    window_id: Option<i8>,
     source_flags: Option<u32>,
     inventory_slot: u32,
     old_item: ItemStackWrapper,
@@ -26,7 +26,7 @@ impl NetworkInventoryAction {
 
     pub fn new(
         source_type: u32,
-        window_id: Option<i32>,
+        window_id: Option<i8>,
         source_flags: Option<u32>,
         inventory_slot: u32,
         old_item: ItemStackWrapper,
@@ -42,94 +42,10 @@ impl NetworkInventoryAction {
         }
     }
 
-    pub fn read_auth_input(stream: &mut Reader) -> NetworkInventoryAction {
+    pub fn read(stream: &mut Reader) -> NetworkInventoryAction {
         let source_type = stream.get_var_u32();
-
-        let mut window_id = None;
-        let mut source_flags = None;
-        match source_type {
-            Self::SOURCE_CONTAINER => {
-                window_id = Some(stream.get_var_i32());
-            }
-            Self::SOURCE_WORLD => {
-                source_flags = Some(stream.get_var_u32());
-            }
-            Self::SOURCE_CREATIVE => {}
-            Self::SOURCE_TODO => {
-                window_id = Some(stream.get_var_i32());
-            }
-            _ => {
-                panic!("Unknown inventory action source type: {}", source_type);
-            }
-        }
-
-        let inventory_slot = stream.get_var_u32();
-        let old_item = PacketSerializer::get_item_stack_wrapper(stream);
-        let new_item = PacketSerializer::get_item_stack_wrapper(stream);
-
-        NetworkInventoryAction {
-            source_type,
-            window_id,
-            source_flags,
-            inventory_slot,
-            old_item,
-            new_item,
-        }
-    }
-
-    pub fn write_auth_input(&self, stream: &mut Writer) {
-        stream.put_var_u32(self.source_type);
-
-        match self.source_type {
-            Self::SOURCE_CONTAINER => {
-                if let Some(window_id) = self.window_id {
-                    stream.put_var_i32(window_id);
-                } else {
-                    panic!("WindowID must be set for SOURCE_CONTAINER");
-                }
-            }
-            Self::SOURCE_WORLD => {
-                if let Some(source_flags) = self.source_flags {
-                    stream.put_var_u32(source_flags);
-                } else {
-                    panic!("SourceFlags must be set for SOURCE_WORLD");
-                }
-            }
-            Self::SOURCE_CREATIVE => {}
-            Self::SOURCE_TODO => {
-                if let Some(window_id) = self.window_id {
-                    stream.put_var_i32(window_id);
-                } else {
-                    panic!("WindowID must be set for SOURCE_TODO");
-                }
-            }
-            _ => {
-                panic!("Unknown source type: {}", self.source_type);
-            }
-        }
-
-        stream.put_var_u32(self.inventory_slot);
-        PacketSerializer::put_item_stack_wrapper(stream, &self.old_item);
-        PacketSerializer::put_item_stack_wrapper(stream, &self.new_item);
-    }
-
-    pub fn read_transaction(stream: &mut Reader) -> NetworkInventoryAction {
-        let source_type = stream.get_var_u32();
-
-        let mut byte = stream.get_u8();
-        if byte != 1 {
-            panic!("Inconsistent optional state for windowId");
-        }
-
-        let window_id = PacketSerializer::read_optional(stream, |s| (s.get_u8() as i8) as i32);
-
-        byte = stream.get_u8();
-        if byte != 1 {
-            panic!("Inconsistent optional state for sourceFlags");
-        }
-
-        let source_flags = PacketSerializer::read_optional(stream, |s| s.get_var_u32());
-
+        let window_id = PacketSerializer::read_double_optional(stream, |s| s.get_i8());
+        let source_flags = PacketSerializer::read_double_optional(stream, |s| s.get_var_u32());
         let inventory_slot = stream.get_var_u32();
         let old_item = PacketSerializer::get_network_item_stack_descriptor(stream);
         let new_item = PacketSerializer::get_network_item_stack_descriptor(stream);
@@ -144,15 +60,10 @@ impl NetworkInventoryAction {
         }
     }
 
-    pub fn write_transaction(&self, stream: &mut Writer) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.source_type);
-
-        stream.put_u8(1);
-        PacketSerializer::write_optional(stream, &self.window_id, |s, v| s.put_u8(*v as u8)); // check later u8/i8 conversion
-
-        stream.put_u8(1);
-        PacketSerializer::write_optional(stream, &self.source_flags, |s, v| s.put_var_u32(*v));
-
+        PacketSerializer::write_double_optional(stream, &self.window_id, |s, v| s.put_i8(*v));
+        PacketSerializer::write_double_optional(stream, &self.source_flags, |s, v| s.put_var_u32(*v));
         stream.put_var_u32(self.inventory_slot);
         PacketSerializer::put_network_item_stack_descriptor(stream, &self.old_item);
         PacketSerializer::put_network_item_stack_descriptor(stream, &self.new_item);

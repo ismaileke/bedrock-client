@@ -10,13 +10,11 @@ use crate::protocol::bedrock::types::game_rule_types::GameRuleTypes;
 use crate::protocol::bedrock::types::int_game_rule::IntGameRule;
 use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
-use crate::protocol::bedrock::types::recipe::complex_alias_item_descriptor::ComplexAliasItemDescriptor;
-use crate::protocol::bedrock::types::recipe::int_id_meta_item_descriptor::IntIdMetaItemDescriptor;
 use crate::protocol::bedrock::types::recipe::item_descriptor::ItemDescriptor;
 use crate::protocol::bedrock::types::recipe::item_descriptor_type::ItemDescriptorType;
 use crate::protocol::bedrock::types::recipe::molang_item_descriptor::MolangItemDescriptor;
+use crate::protocol::bedrock::types::recipe::default_item_descriptor::DefaultItemDescriptor;
 use crate::protocol::bedrock::types::recipe::recipe_ingredient::RecipeIngredient;
-use crate::protocol::bedrock::types::recipe::string_id_meta_item_descriptor::StringIdMetaItemDescriptor;
 use crate::protocol::bedrock::types::recipe::tag_item_descriptor::TagItemDescriptor;
 use crate::protocol::bedrock::types::skin::persona_piece_tint_color::PersonaPieceTintColor;
 use crate::protocol::bedrock::types::skin::persona_skin_piece::PersonaSkinPiece;
@@ -192,6 +190,7 @@ impl PacketSerializer {
         for _ in 0..count {
             let key = stream.get_var_u32();
             let metadata_type = stream.get_var_u32();
+            let _ = stream.get_u8();
             data.insert(key, Self::read_metadata_property(stream, metadata_type));
         }
 
@@ -218,16 +217,17 @@ impl PacketSerializer {
         for (key, value) in data.iter_mut() {
             stream.put_var_u32(*key);
             stream.put_var_u32(value.id());
+            stream.put_u8(value.id() as u8);
             value.write(stream);
         }
     }
 
-    pub fn read_recipe_net_id(stream: &mut Reader) -> u32 {
-        stream.get_var_u32()
+    pub fn read_recipe_net_id(stream: &mut Reader) -> i32 {
+        stream.get_var_i32()
     }
 
-    pub fn write_recipe_net_id(stream: &mut Writer, id: u32) {
-        stream.put_var_u32(id);
+    pub fn write_recipe_net_id(stream: &mut Writer, id: i32) {
+        stream.put_var_i32(id);
     }
 
     pub fn read_creative_item_net_id(stream: &mut Reader) -> u32 {
@@ -285,28 +285,6 @@ impl PacketSerializer {
         stream.put_var_i32(id);
     }
 
-    fn get_item_stack_header(stream: &mut Reader) -> Vec<Item> {
-        let id = stream.get_var_i32();
-        if id == 0 {
-            return vec![Item::Id(0), Item::Meta(0), Item::Count(0)];
-        }
-        let count = stream.get_u16_le();
-        let meta = stream.get_var_u32();
-
-        vec![Item::Id(id), Item::Meta(meta), Item::Count(count)]
-    }
-
-    fn put_item_stack_header(stream: &mut Writer, stack: &ItemStack) -> bool {
-        if stack.id == 0 {
-            stream.put_var_i32(0);
-            return false;
-        }
-        stream.put_var_i32(stack.id);
-        stream.put_u16_le(stack.count);
-        stream.put_var_u32(stack.meta);
-        true
-    }
-
     fn get_item_stack_footer(stream: &mut Reader, id: i32, meta: u32, count: u16) -> ItemStack {
         let block_runtime_id = stream.get_var_i32();
         let raw_extra_data = PacketSerializer::get_string(stream);
@@ -316,86 +294,33 @@ impl PacketSerializer {
 
     fn put_item_stack_footer(stream: &mut Writer, stack: &ItemStack) {
         stream.put_var_i32(stack.block_runtime_id);
-        PacketSerializer::put_string(stream, &stack.raw_extra_data);
+        Self::put_string(stream, &stack.raw_extra_data);
     }
 
     pub fn get_item_stack_without_stack_id(stream: &mut Reader) -> ItemStack {
-        let stack_header = Self::get_item_stack_header(stream);
-        if let Item::Id(id) = &stack_header[0] {
-            if *id == 0 {
-                return ItemStack::null();
-            }
-        }
-        Self::get_item_stack_footer(
-            stream,
-            stack_header[0].unwrap_id(),
-            stack_header[1].unwrap_meta(),
-            stack_header[2].unwrap_count(),
-        )
+        let id = stream.get_var_i32();
+        let count = stream.get_u16_le();
+        let meta = stream.get_var_u32();
+
+        Self::get_item_stack_footer(stream, id, meta, count)
     }
 
     pub fn put_item_stack_without_stack_id(stream: &mut Writer, stack: &ItemStack) {
-        if Self::put_item_stack_header(stream, &stack) {
-            Self::put_item_stack_footer(stream, &stack);
-        }
-    }
-
-    pub fn get_item_stack_wrapper(stream: &mut Reader) -> ItemStackWrapper {
-        let stack_header = Self::get_item_stack_header(stream);
-        if stack_header[0].unwrap_id() == 0 {
-            return ItemStackWrapper {
-                stack_id: 0,
-                item_stack: ItemStack::null(),
-                variant: 0,
-            };
-        }
-
-        let has_net_id = stream.get_bool();
-        let stack_id = if has_net_id {
-            Self::read_server_item_stack_id(stream)
-        } else {
-            0
-        };
-
-        let item_stack = Self::get_item_stack_footer(
-            stream,
-            stack_header[0].unwrap_id(),
-            stack_header[1].unwrap_meta(),
-            stack_header[2].unwrap_count(),
-        );
-
-        ItemStackWrapper { stack_id, item_stack, variant: 0 }
-    }
-
-    pub fn put_item_stack_wrapper(stream: &mut Writer, wrapper: &ItemStackWrapper) {
-        let item_stack = &wrapper.item_stack;
-        if Self::put_item_stack_header(stream, item_stack) {
-            let has_net_id = wrapper.stack_id != 0;
-            stream.put_bool(has_net_id);
-            if has_net_id {
-                Self::write_server_item_stack_id(stream, wrapper.stack_id);
-            }
-            Self::put_item_stack_footer(stream, item_stack);
-        }
+        stream.put_var_i32(stack.id);
+        stream.put_u16_le(stack.count);
+        stream.put_var_u32(stack.meta);
+        Self::put_item_stack_footer(stream, stack);
     }
 
     pub fn get_network_item_stack_descriptor(stream: &mut Reader) -> ItemStackWrapper {
         let id = stream.get_i16_le();
         let count = stream.get_u16_le();
         let meta = stream.get_var_u32();
-
         let has_net_id = stream.get_bool();
-        let variant = if has_net_id {
-            stream.get_var_u32()
-        } else {
-            0
-        };
-        let stack_id = if has_net_id {
-            stream.get_var_i32()
-        } else {
-            0
-        };
-
+        let mut stack_id = 0;
+        if has_net_id {
+            stack_id = stream.get_var_i32();
+        }
         let block_runtime_id = stream.get_var_u32();
         let raw_extra_data = PacketSerializer::get_string(stream);
 
@@ -405,18 +330,16 @@ impl PacketSerializer {
             count,
             block_runtime_id: block_runtime_id as i32,
             raw_extra_data,
-        }, variant }
+        } }
     }
 
     pub fn put_network_item_stack_descriptor(stream: &mut Writer, wrapper: &ItemStackWrapper) {
         stream.put_i16_le(wrapper.item_stack.id as i16);
         stream.put_u16_le(wrapper.item_stack.count);
         stream.put_var_u32(wrapper.item_stack.meta);
-
         let has_net_id = wrapper.stack_id != 0;
         stream.put_bool(has_net_id);
         if has_net_id {
-            stream.put_var_u32(wrapper.variant);
             stream.put_var_i32(wrapper.stack_id);
         }
         stream.put_var_u32(wrapper.item_stack.block_runtime_id as u32);
@@ -424,28 +347,29 @@ impl PacketSerializer {
     }
 
     pub fn get_recipe_ingredient(stream: &mut Reader) -> RecipeIngredient {
-        let descriptor_type = stream.get_u8();
+        let descriptor_type = stream.get_var_u32();
+        let _ = stream.get_u8();
         let descriptor = match descriptor_type {
-            ItemDescriptorType::INT_ID_META => Some(ItemDescriptor::IntIDMeta(IntIdMetaItemDescriptor::read(stream))),
-            ItemDescriptorType::STRING_ID_META => Some(ItemDescriptor::StringIDMeta(StringIdMetaItemDescriptor::read(stream))),
+            ItemDescriptorType::DEFAULT => Some(ItemDescriptor::Default(DefaultItemDescriptor::read(stream))),
             ItemDescriptorType::TAG => Some(ItemDescriptor::Tag(TagItemDescriptor::read(stream))),
             ItemDescriptorType::MOLANG => Some(ItemDescriptor::Molang(MolangItemDescriptor::read(stream))),
-            ItemDescriptorType::COMPLEX_ALIAS => Some(ItemDescriptor::ComplexAlias(ComplexAliasItemDescriptor::read(stream))),
             _ => None,
         };
-        let count = stream.get_var_i32();
+        let count = stream.get_i16_le();
 
-        RecipeIngredient { descriptor, count }
+        RecipeIngredient { descriptor, count: count as i32 }
     }
 
-    pub fn put_recipe_ingredient(stream: &mut Writer, ingredient: &mut RecipeIngredient) {
-        if let Some(ref mut descriptor) = ingredient.descriptor {
-            stream.put_u8(descriptor.type_id());
+    pub fn put_recipe_ingredient(stream: &mut Writer, ingredient: &RecipeIngredient) {
+        if let Some(descriptor) = &ingredient.descriptor {
+            stream.put_var_u32(descriptor.type_id());
+            stream.put_u8(descriptor.type_id() as u8);
             descriptor.write(stream);
         } else {
+            stream.put_var_u32(0);
             stream.put_u8(0);
         }
-        stream.put_var_i32(ingredient.count);
+        stream.put_i16_le(ingredient.count as i16);
     }
 
     fn read_game_rule(
@@ -518,13 +442,13 @@ impl PacketSerializer {
         let play_fab_id = PacketSerializer::get_string(stream);
         let resource_patch = PacketSerializer::get_string(stream);
         let skin_image = PacketSerializer::get_skin_image(stream);
-        let animation_count = stream.get_u32_le();
+        let animation_count = stream.get_var_u32();
         let mut animations = Vec::with_capacity(animation_count as usize);
         for _ in 0..animation_count {
             let skin_image = PacketSerializer::get_skin_image(stream);
-            let animation_type = stream.get_u32_le();
+            let animation_type = stream.get_var_u32();
             let animation_frames = stream.get_f32_le();
-            let expression_type = stream.get_u32_le();
+            let expression_type = stream.get_var_u32();
             animations.push(SkinAnimation::new(
                 skin_image,
                 animation_type,
@@ -538,14 +462,14 @@ impl PacketSerializer {
         let animation_data = PacketSerializer::get_string(stream);
         let cape_id = PacketSerializer::get_string(stream);
         let full_skin_id = Option::from(PacketSerializer::get_string(stream));
-        let arm_size = PacketSerializer::get_string(stream);
-        let skin_color = PacketSerializer::get_string(stream);
-        let persona_piece_count = stream.get_u32_le();
+        let arm_size = stream.get_u8();
+        let skin_color = stream.get_i32_le();
+        let persona_piece_count = stream.get_var_u32();
         let mut persona_pieces = Vec::with_capacity(persona_piece_count as usize);
         for _ in 0..persona_piece_count {
             let piece_id = PacketSerializer::get_string(stream);
-            let piece_type = PacketSerializer::get_string(stream);
-            let pack_id = PacketSerializer::get_string(stream);
+            let piece_type = stream.get_i32_le();
+            let pack_id = PacketSerializer::get_uuid(stream);
             let is_default_piece = stream.get_bool();
             let product_id = PacketSerializer::get_string(stream);
             persona_pieces.push(PersonaSkinPiece::new(
@@ -556,14 +480,13 @@ impl PacketSerializer {
                 product_id,
             ))
         }
-        let piece_tint_color_count = stream.get_u32_le();
+        let piece_tint_color_count = stream.get_var_u32();
         let mut piece_tint_colors = Vec::with_capacity(piece_tint_color_count as usize);
         for _ in 0..piece_tint_color_count {
             let piece_type = PacketSerializer::get_string(stream);
-            let color_count = stream.get_u32_le();
-            let mut colors = Vec::with_capacity(color_count as usize);
-            for _ in 0..color_count {
-                colors.push(PacketSerializer::get_string(stream));
+            let mut colors = Vec::with_capacity(PersonaPieceTintColor::COLOR_COUNT as usize);
+            for _ in 0..PersonaPieceTintColor::COLOR_COUNT {
+                colors.push(stream.get_i32_le());
             }
             piece_tint_colors.push(PersonaPieceTintColor::new(piece_type, colors));
         }
@@ -572,6 +495,8 @@ impl PacketSerializer {
         let persona_cape_on_classic = stream.get_bool();
         let is_primary_user = stream.get_bool();
         let is_override = stream.get_bool();
+        let trusted_skin_flag = PacketSerializer::get_string(stream);
+        let profile_hash = PacketSerializer::get_string(stream);
 
         SkinData {
             skin_id,
@@ -595,6 +520,8 @@ impl PacketSerializer {
             persona_cape_on_classic,
             is_primary_user,
             is_override,
+            trusted_skin_flag,
+            profile_hash
         }
     }
 
@@ -603,12 +530,12 @@ impl PacketSerializer {
         PacketSerializer::put_string(stream, &skin.play_fab_id);
         PacketSerializer::put_string(stream, &skin.resource_patch);
         PacketSerializer::put_skin_image(stream, &skin.skin_image);
-        stream.put_u32_le(skin.animations.len() as u32);
+        stream.put_var_u32(skin.animations.len() as u32);
         for animation in skin.animations.iter() {
             Self::put_skin_image(stream, animation.image());
-            stream.put_u32_le(animation.animation_type());
+            stream.put_var_u32(animation.animation_type());
             stream.put_f32_le(animation.frames());
-            stream.put_u32_le(animation.expression_type());
+            stream.put_var_u32(animation.expression_type());
         }
         if let Some(cape) = skin.cape_image.as_ref() {
             Self::put_skin_image(stream, cape);
@@ -620,22 +547,21 @@ impl PacketSerializer {
         if let Some(full_skin_id) = skin.full_skin_id.as_ref() {
             PacketSerializer::put_string(stream, full_skin_id);
         }
-        PacketSerializer::put_string(stream, &skin.arm_size);
-        PacketSerializer::put_string(stream, &skin.skin_color);
-        stream.put_u32_le(skin.persona_pieces.len() as u32);
+        stream.put_u8(skin.arm_size);
+        stream.put_i32_le(skin.skin_color);
+        stream.put_var_u32(skin.persona_pieces.len() as u32);
         for piece in skin.persona_pieces.iter() {
             PacketSerializer::put_string(stream, &piece.piece_id());
-            PacketSerializer::put_string(stream, &piece.piece_type());
-            PacketSerializer::put_string(stream, &piece.pack_id());
+            stream.put_i32_le(piece.piece_type());
+            PacketSerializer::put_uuid(stream, &piece.pack_id());
             stream.put_bool(piece.is_default_piece());
             PacketSerializer::put_string(stream, &piece.product_id());
         }
-        stream.put_u32_le(skin.piece_tint_colors.len() as u32);
+        stream.put_var_u32(skin.piece_tint_colors.len() as u32);
         for piece_tint_color in skin.piece_tint_colors.iter() {
             PacketSerializer::put_string(stream, &piece_tint_color.piece_type());
-            stream.put_u32_le(piece_tint_color.colors().len() as u32);
             for color in piece_tint_color.colors().iter() {
-                PacketSerializer::put_string(stream, color);
+                stream.put_i32_le(*color);
             }
         }
         stream.put_bool(skin.premium);
@@ -643,6 +569,8 @@ impl PacketSerializer {
         stream.put_bool(skin.persona_cape_on_classic);
         stream.put_bool(skin.is_primary_user);
         stream.put_bool(skin.is_override);
+        PacketSerializer::put_string(stream, &skin.trusted_skin_flag);
+        PacketSerializer::put_string(stream, &skin.profile_hash);
     }
 
     fn get_skin_image(stream: &mut Reader) -> SkinImage {
@@ -725,7 +653,7 @@ impl PacketSerializer {
         let show_bounding_box = stream.get_bool();
         let structure_block_type = stream.get_var_i32();
         let structure_settings = PacketSerializer::get_structure_settings(stream);
-        let structure_redstone_save_mode = stream.get_var_i32();
+        let structure_redstone_save_mode = stream.get_u8();
 
         StructureEditorData {
             structure_name,
@@ -747,7 +675,7 @@ impl PacketSerializer {
         stream.put_bool(structure_editor_data.show_bounding_box);
         stream.put_var_i32(structure_editor_data.structure_block_type);
         PacketSerializer::put_structure_settings(stream, &structure_editor_data.structure_settings);
-        stream.put_var_i32(structure_editor_data.structure_redstone_save_mode);
+        stream.put_u8(structure_editor_data.structure_redstone_save_mode);
     }
 
     pub fn read_optional<T, F>(stream: &mut Reader, read_fn: F) -> Option<T>
@@ -773,36 +701,28 @@ impl PacketSerializer {
             stream.put_bool(false);
         }
     }
-}
 
-enum Item {
-    Id(i32),
-    Meta(u32),
-    Count(u16),
-}
-
-impl Item {
-    fn unwrap_id(&self) -> i32 {
-        if let Item::Id(i) = self {
-            *i
-        } else {
-            panic!("Item enum error: not 'id'");
-        }
+    fn read_dummy_optional(stream: &mut Reader) {
+        debug_assert_eq!(stream.get_u8(), 1, "dummy optional byte must be 1");
     }
 
-    fn unwrap_meta(&self) -> u32 {
-        if let Item::Meta(i) = self {
-            *i
-        } else {
-            panic!("Item enum error: not 'meta'");
-        }
+    fn write_dummy_optional(stream: &mut Writer) {
+        stream.put_u8(1);
     }
 
-    fn unwrap_count(&self) -> u16 {
-        if let Item::Count(i) = self {
-            *i
-        } else {
-            panic!("Item enum error: not 'count'");
-        }
+    pub fn read_double_optional<T, F>(stream: &mut Reader, read_fn: F) -> Option<T>
+    where
+        F: FnOnce(&mut Reader) -> T,
+    {
+        Self::read_dummy_optional(stream);
+        Self::read_optional(stream, read_fn)
+    }
+
+    pub fn write_double_optional<T, F>(stream: &mut Writer, value: &Option<T>, write_fn: F)
+    where
+        F: FnOnce(&mut Writer, &T),
+    {
+        Self::write_dummy_optional(stream);
+        Self::write_optional(stream, value, write_fn);
     }
 }

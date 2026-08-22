@@ -1,27 +1,44 @@
 #[derive(serde::Serialize, Debug)]
 pub struct PersonaSkinPiece {
     piece_id: String,
-    piece_type: String,
+    piece_type: i32,
     pack_id: String,
     is_default_piece: bool,
     product_id: String,
 }
 
 impl PersonaSkinPiece {
-    pub const PIECE_TYPE_PERSONA_BODY: &'static str = "persona_body";
-    pub const PIECE_TYPE_PERSONA_BOTTOM: &'static str = "persona_bottom";
-    pub const PIECE_TYPE_PERSONA_EYES: &'static str = "persona_eyes";
-    pub const PIECE_TYPE_PERSONA_FACIAL_HAIR: &'static str = "persona_facial_hair";
-    pub const PIECE_TYPE_PERSONA_FEET: &'static str = "persona_feet";
-    pub const PIECE_TYPE_PERSONA_HAIR: &'static str = "persona_hair";
-    pub const PIECE_TYPE_PERSONA_MOUTH: &'static str = "persona_mouth";
-    pub const PIECE_TYPE_PERSONA_SKELETON: &'static str = "persona_skeleton";
-    pub const PIECE_TYPE_PERSONA_SKIN: &'static str = "persona_skin";
-    pub const PIECE_TYPE_PERSONA_TOP: &'static str = "persona_top";
+    pub const PIECE_TYPE_SKELETON: i32 = 0;
+    pub const PIECE_TYPE_BODY: i32 = 1;
+    pub const PIECE_TYPE_SKIN: i32 = 2;
+    pub const PIECE_TYPE_BOTTOM: i32 = 3;
+    pub const PIECE_TYPE_FEET: i32 = 4;
+    pub const PIECE_TYPE_DRESS: i32 = 5;
+    pub const PIECE_TYPE_TOP: i32 = 6;
+    pub const PIECE_TYPE_HIGH_PANTS: i32 = 7;
+    pub const PIECE_TYPE_HANDS: i32 = 8;
+    pub const PIECE_TYPE_OUTERWEAR: i32 = 9;
+    pub const PIECE_TYPE_FACIAL_HAIR: i32 = 10;
+    pub const PIECE_TYPE_MOUTH: i32 = 11;
+    pub const PIECE_TYPE_EYES: i32 = 12;
+    pub const PIECE_TYPE_HAIR: i32 = 13;
+    pub const PIECE_TYPE_HOOD: i32 = 14;
+    pub const PIECE_TYPE_BACK: i32 = 15;
+    pub const PIECE_TYPE_FACE_ACCESSORY: i32 = 16;
+    pub const PIECE_TYPE_HEAD: i32 = 17;
+    pub const PIECE_TYPE_LEGS: i32 = 18;
+    pub const PIECE_TYPE_LEFT_LEG: i32 = 19;
+    pub const PIECE_TYPE_RIGHT_LEG: i32 = 20;
+    pub const PIECE_TYPE_ARMS: i32 = 21;
+    pub const PIECE_TYPE_LEFT_ARM: i32 = 22;
+    pub const PIECE_TYPE_RIGHT_ARM: i32 = 23;
+    pub const PIECE_TYPE_CAPES: i32 = 24;
+    pub const PIECE_TYPE_CLASSIC_SKIN: i32 = 25;
+    pub const PIECE_TYPE_EMOTE: i32 = 26;
 
     pub fn new(
         piece_id: String,
-        piece_type: String,
+        piece_type: i32,
         pack_id: String,
         is_default_piece: bool,
         product_id: String,
@@ -39,8 +56,8 @@ impl PersonaSkinPiece {
         &self.piece_id
     }
 
-    pub fn piece_type(&self) -> &String {
-        &self.piece_type
+    pub fn piece_type(&self) -> i32 {
+        self.piece_type
     }
 
     pub fn pack_id(&self) -> &String {

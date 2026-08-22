@@ -10,16 +10,8 @@ pub struct ItemStackRequestSlotInfo {
 }
 
 impl ItemStackRequestSlotInfo {
-    pub fn new(
-        container_name: FullContainerName,
-        slot_id: u8,
-        stack_id: i32,
-    ) -> ItemStackRequestSlotInfo {
-        ItemStackRequestSlotInfo {
-            container_name,
-            slot_id,
-            stack_id,
-        }
+    pub fn new(container_name: FullContainerName, slot_id: u8, stack_id: i32) -> ItemStackRequestSlotInfo {
+        ItemStackRequestSlotInfo { container_name, slot_id, stack_id }
     }
 
     pub fn read(stream: &mut Reader) -> ItemStackRequestSlotInfo {
@@ -27,11 +19,7 @@ impl ItemStackRequestSlotInfo {
         let slot_id = stream.get_u8();
         let stack_id = PacketSerializer::read_item_stack_net_id_variant(stream);
 
-        ItemStackRequestSlotInfo {
-            container_name,
-            slot_id,
-            stack_id,
-        }
+        ItemStackRequestSlotInfo { container_name, slot_id, stack_id }
     }
 
     pub fn write(&self, stream: &mut Writer) {

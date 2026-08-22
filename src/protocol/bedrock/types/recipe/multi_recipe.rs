@@ -6,7 +6,7 @@ use binary_utils::binary::{Reader, Writer};
 pub struct MultiRecipe {
     type_id: i32,
     recipe_id: String,
-    recipe_net_id: u32,
+    recipe_net_id: i32,
 }
 
 impl MultiRecipe {
@@ -23,7 +23,7 @@ impl MultiRecipe {
     pub const TYPE_FIREWORKS: &'static str = "00000000-0000-0000-0000-000000000002";
     pub const TYPE_MAP_LOCKING_CARTOGRAPHY: &'static str = "602234E4-CAC1-4353-8BB7-B1EBFF70024B";
 
-    pub fn new(type_id: i32, recipe_id: String, recipe_net_id: u32) -> MultiRecipe {
+    pub fn new(type_id: i32, recipe_id: String, recipe_net_id: i32) -> MultiRecipe {
         MultiRecipe { type_id, recipe_id, recipe_net_id }
     }
 

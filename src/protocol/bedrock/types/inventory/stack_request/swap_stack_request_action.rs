@@ -22,7 +22,7 @@ impl SwapStackRequestAction {
         SwapStackRequestAction { slot1, slot2 }
     }
 
-    pub fn write(&mut self, stream: &mut Writer) {
+    pub fn write(&self, stream: &mut Writer) {
         self.slot1.write(stream);
         self.slot2.write(stream);
     }

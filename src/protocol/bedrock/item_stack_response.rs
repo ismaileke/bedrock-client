@@ -22,7 +22,7 @@ impl Packet for ItemStackResponse {
 
     fn decode(stream: &mut Reader) -> ItemStackResponse {
         let response_count = stream.get_var_u32() as usize;
-        let mut responses = Vec::new();
+        let mut responses = Vec::with_capacity(response_count);
         for _ in 0..response_count {
             responses.push(ItemStackResponseEntry::read(stream));
         }

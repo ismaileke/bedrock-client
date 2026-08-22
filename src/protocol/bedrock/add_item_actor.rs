@@ -25,7 +25,7 @@ impl Packet for AddItemActor {
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
-        PacketSerializer::put_item_stack_wrapper(stream, &self.item);
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.item);
         PacketSerializer::put_vector3(stream, &self.position);
         PacketSerializer::put_vector3_nullable(stream, Option::from(self.motion.clone()));
         PacketSerializer::put_entity_metadata(stream, &mut self.metadata);
@@ -35,7 +35,7 @@ impl Packet for AddItemActor {
     fn decode(stream: &mut Reader) -> AddItemActor {
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
-        let item = PacketSerializer::get_item_stack_wrapper(stream);
+        let item = PacketSerializer::get_network_item_stack_descriptor(stream);
         let position = PacketSerializer::get_vector3(stream);
         let motion = PacketSerializer::get_vector3(stream);
         let metadata = PacketSerializer::get_entity_metadata(stream);

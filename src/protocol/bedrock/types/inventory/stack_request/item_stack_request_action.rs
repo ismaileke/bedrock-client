@@ -41,7 +41,7 @@ pub enum ItemStackRequestAction {
 }
 
 impl ItemStackRequestAction {
-    pub fn get_type_id(&self) -> u8 {
+    pub fn get_type_id(&self) -> u32 {
         match self {
             ItemStackRequestAction::Take(_) => ItemStackRequestActionType::TAKE,
             ItemStackRequestAction::Place(_) => ItemStackRequestActionType::PLACE,
@@ -79,7 +79,7 @@ impl ItemStackRequestAction {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Writer) {
+    pub fn write(&self, stream: &mut Writer) {
         match self {
             ItemStackRequestAction::Take(r) => r.write(stream),
             ItemStackRequestAction::Place(r) => r.write(stream),

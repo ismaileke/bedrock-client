@@ -60,27 +60,35 @@ impl Packet for CraftingData {
     }
 
     fn decode(stream: &mut Reader) -> CraftingData {
-        let recipe_count = stream.get_var_u32();
-        let mut previous_type = 100; // 100 = none (I made it up) FIX THAT LATER
         let mut recipes = Vec::new();
-        for _ in 0..recipe_count {
-            let recipe_type = stream.get_var_i32();
-            recipes.push(match recipe_type {
-                Self::ENTRY_SHAPELESS
-                | Self::ENTRY_USER_DATA_SHAPELESS
-                | Self::ENTRY_SHAPELESS_CHEMISTRY => Recipe::Shapeless(ShapelessRecipe::read(recipe_type, stream)),
-                Self::ENTRY_SHAPED | Self::ENTRY_SHAPED_CHEMISTRY => Recipe::Shaped(ShapedRecipe::read(recipe_type, stream)),
-                Self::ENTRY_MULTI => Recipe::Multi(MultiRecipe::read(recipe_type, stream)),
-                Self::ENTRY_SMITHING_TRANSFORM => Recipe::SmitingTransform(SmithingTransformRecipe::read(recipe_type, stream)),
-                Self::ENTRY_SMITHING_TRIM => Recipe::SmithingTrim(SmithingTrimRecipe::read(recipe_type, stream)),
-                _ => {
-                    panic!("Unhandled recipe type {} (previous was {})", recipe_type, previous_type);
-                }
-            });
-            previous_type = recipe_type;
+
+        for _ in 0..stream.get_var_u32() {
+            recipes.push(Recipe::Shaped(ShapedRecipe::read(Self::ENTRY_SHAPED, stream)));
         }
+        for _ in 0..stream.get_var_u32() {
+            recipes.push(Recipe::Shapeless(ShapelessRecipe::read(Self::ENTRY_SHAPELESS, stream)));
+        }
+        for _ in 0..stream.get_var_u32() {
+            recipes.push(Recipe::Multi(MultiRecipe::read(Self::ENTRY_MULTI, stream)));
+        }
+        for _ in 0..stream.get_var_u32() {
+            recipes.push(Recipe::Shapeless(ShapelessRecipe::read(Self::ENTRY_USER_DATA_SHAPELESS, stream)));
+        }
+        for _ in 0..stream.get_var_u32() {
+            recipes.push(Recipe::Shapeless(ShapelessRecipe::read(Self::ENTRY_SHAPELESS_CHEMISTRY, stream)));
+        }
+        for _ in 0..stream.get_var_u32() {
+            recipes.push(Recipe::Shapeless(ShapelessRecipe::read(Self::ENTRY_SHAPED_CHEMISTRY, stream)));
+        }
+        for _ in 0..stream.get_var_u32() {
+            recipes.push(Recipe::SmitingTransform(SmithingTransformRecipe::read(Self::ENTRY_SMITHING_TRANSFORM, stream)));
+        }
+        for _ in 0..stream.get_var_u32() {
+            recipes.push(Recipe::SmithingTrim(SmithingTrimRecipe::read(Self::ENTRY_SMITHING_TRIM, stream)));
+        }
+
         let mut count = stream.get_var_u32();
-        let mut potion_type_recipes = Vec::new();
+        let mut potion_type_recipes = Vec::with_capacity(count as usize);
         for _ in 0..count {
             let input_item_id = stream.get_var_i32();
             let input_item_meta = stream.get_var_i32();
@@ -99,7 +107,7 @@ impl Packet for CraftingData {
             });
         }
         count = stream.get_var_u32();
-        let mut potion_container_recipes = Vec::new();
+        let mut potion_container_recipes = Vec::with_capacity(count as usize);
         for _ in 0..count {
             let input_item_id = stream.get_var_i32();
             let ingredient_item_id = stream.get_var_i32();

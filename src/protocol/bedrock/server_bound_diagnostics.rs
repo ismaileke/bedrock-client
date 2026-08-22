@@ -3,6 +3,7 @@ use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::types::memory_category_counter::MemoryCategoryCounter;
 use crate::protocol::bedrock::types::entity_diagnostics_timing_info::EntityDiagnosticTimingInfo;
 use crate::protocol::bedrock::types::system_diagnostics_timing_info::SystemDiagnosticTimingInfo;
+use crate::protocol::bedrock::types::system_category_timing_info::SystemCategoryTimingInfo;
 use crate::protocol::bedrock::types::whisker_scope_data_summary::WhiskerScopeDataSummary;
 use binary_utils::binary::{Reader, Writer};
 
@@ -20,6 +21,7 @@ pub struct ServerBoundDiagnostics {
     pub memory_category_values: Vec<MemoryCategoryCounter>,
     pub entity_diagnostics: Vec<EntityDiagnosticTimingInfo>,
     pub system_diagnostics: Vec<SystemDiagnosticTimingInfo>,
+    pub system_categories: Vec<SystemCategoryTimingInfo>,
     pub whisker_scopes: Vec<WhiskerScopeDataSummary>
 }
 
@@ -50,6 +52,10 @@ impl Packet for ServerBoundDiagnostics {
         for system_diagnostics_value in &self.system_diagnostics {
             system_diagnostics_value.write(stream);
         }
+        stream.put_var_u32(self.system_categories.len() as u32);
+        for system_categories_value in &self.system_categories {
+            system_categories_value.write(stream);
+        }
         stream.put_var_u32(self.whisker_scopes.len() as u32);
         for whisker_scopes_value in &self.whisker_scopes {
             whisker_scopes_value.write(stream);
@@ -67,22 +73,27 @@ impl Packet for ServerBoundDiagnostics {
         let avg_remainder_time_percent = stream.get_f32_le();
         let avg_unaccounted_time_percent = stream.get_f32_le();
         let mut count = stream.get_var_u32();
-        let mut memory_category_values = Vec::new();
+        let mut memory_category_values = Vec::with_capacity(count as usize);
         for _ in 0..count {
             memory_category_values.push(MemoryCategoryCounter::read(stream));
         }
         count = stream.get_var_u32();
-        let mut entity_diagnostics = Vec::new();
+        let mut entity_diagnostics = Vec::with_capacity(count as usize);
         for _ in 0..count {
             entity_diagnostics.push(EntityDiagnosticTimingInfo::read(stream));
         }
         count = stream.get_var_u32();
-        let mut system_diagnostics = Vec::new();
+        let mut system_diagnostics = Vec::with_capacity(count as usize);
         for _ in 0..count {
             system_diagnostics.push(SystemDiagnosticTimingInfo::read(stream));
         }
         count = stream.get_var_u32();
-        let mut whisker_scopes = Vec::new();
+        let mut system_categories = Vec::with_capacity(count as usize);
+        for _ in 0..count {
+            system_categories.push(SystemCategoryTimingInfo::read(stream));
+        }
+        count = stream.get_var_u32();
+        let mut whisker_scopes = Vec::with_capacity(count as usize);
         for _ in 0..count {
             whisker_scopes.push(WhiskerScopeDataSummary::read(stream));
         }
@@ -100,6 +111,7 @@ impl Packet for ServerBoundDiagnostics {
             memory_category_values,
             entity_diagnostics,
             system_diagnostics,
+            system_categories,
             whisker_scopes
         }
     }

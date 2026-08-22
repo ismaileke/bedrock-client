@@ -45,7 +45,7 @@ impl Packet for AddPlayer {
         stream.put_f32_le(self.pitch);
         stream.put_f32_le(self.yaw);
         stream.put_f32_le(self.head_yaw);
-        PacketSerializer::put_item_stack_wrapper(stream, &self.item);
+        PacketSerializer::put_network_item_stack_descriptor(stream, &self.item);
         stream.put_var_i32(self.game_mode);
         PacketSerializer::put_entity_metadata(stream, &mut self.metadata);
         self.synced_properties.write(stream);
@@ -68,7 +68,7 @@ impl Packet for AddPlayer {
         let pitch = stream.get_f32_le();
         let yaw = stream.get_f32_le();
         let head_yaw = stream.get_f32_le();
-        let item = PacketSerializer::get_item_stack_wrapper(stream);
+        let item = PacketSerializer::get_network_item_stack_descriptor(stream);
         let game_mode = stream.get_var_i32();
         let metadata = PacketSerializer::get_entity_metadata(stream);
         let synced_properties = PropertySyncData::read(stream);

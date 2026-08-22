@@ -43,7 +43,7 @@ impl ItemStackRequestEntry {
         }
     }
 
-    fn read_action(stream: &mut Reader, type_id: u8) -> ItemStackRequestAction {
+    fn read_action(stream: &mut Reader, type_id: u32) -> ItemStackRequestAction {
         match type_id {
             ItemStackRequestActionType::TAKE => {
                 ItemStackRequestAction::Take(TakeStackRequestAction::read(stream))
@@ -61,14 +61,10 @@ impl ItemStackRequestEntry {
                 ItemStackRequestAction::Destroy(DestroyStackRequestAction::read(stream))
             }
             ItemStackRequestActionType::CRAFTING_CONSUME_INPUT => {
-                ItemStackRequestAction::CraftingConsumeInput(
-                    CraftingConsumeInputStackRequestAction::read(stream),
-                )
+                ItemStackRequestAction::CraftingConsumeInput(CraftingConsumeInputStackRequestAction::read(stream))
             }
             ItemStackRequestActionType::LAB_TABLE_COMBINE => {
-                ItemStackRequestAction::LabTableCombine(
-                    LabTableCombineInputStackRequestAction::read(stream),
-                )
+                ItemStackRequestAction::LabTableCombine(LabTableCombineInputStackRequestAction::read(stream))
             }
             ItemStackRequestActionType::BEACON_PAYMENT => {
                 ItemStackRequestAction::BeaconPayment(BeaconPaymentStackRequestAction::read(stream))
@@ -80,17 +76,13 @@ impl ItemStackRequestEntry {
                 ItemStackRequestAction::CraftRecipe(CraftRecipeStackRequestAction::read(stream))
             }
             ItemStackRequestActionType::CRAFTING_RECIPE_AUTO => {
-                ItemStackRequestAction::CraftRecipeAuto(CraftRecipeAutoStackRequestAction::read(
-                    stream,
-                ))
+                ItemStackRequestAction::CraftRecipeAuto(CraftRecipeAutoStackRequestAction::read(stream))
             }
             ItemStackRequestActionType::CREATIVE_CREATE => ItemStackRequestAction::CreativeCreate(
                 CreativeCreateStackRequestAction::read(stream),
             ),
             ItemStackRequestActionType::CRAFTING_RECIPE_OPTIONAL => {
-                ItemStackRequestAction::CraftRecipeOptional(
-                    CraftRecipeOptionalStackRequestAction::read(stream),
-                )
+                ItemStackRequestAction::CraftRecipeOptional(CraftRecipeOptionalStackRequestAction::read(stream))
             }
             ItemStackRequestActionType::CRAFTING_GRINDSTONE => {
                 ItemStackRequestAction::Grindstone(GrindstoneStackRequestAction::read(stream))
@@ -99,14 +91,10 @@ impl ItemStackRequestEntry {
                 ItemStackRequestAction::Loom(LoomStackRequestAction::read(stream))
             }
             ItemStackRequestActionType::CRAFTING_NON_IMPLEMENTED_DEPRECATED_ASK_TY_LAING => {
-                ItemStackRequestAction::DeprecatedCraftingNonImplemented(
-                    DeprecatedCraftingNonImplementedStackRequestAction::read(stream),
-                )
+                ItemStackRequestAction::DeprecatedCraftingNonImplemented(DeprecatedCraftingNonImplementedStackRequestAction::read(stream))
             }
             ItemStackRequestActionType::CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING => {
-                ItemStackRequestAction::DeprecatedCraftingResults(
-                    DeprecatedCraftingResultsStackRequestAction::read(stream),
-                )
+                ItemStackRequestAction::DeprecatedCraftingResults(DeprecatedCraftingResultsStackRequestAction::read(stream))
             }
             _ => {
                 panic!("Unhandled item stack request action type {}", type_id)
@@ -119,7 +107,8 @@ impl ItemStackRequestEntry {
         let mut actions = Vec::new();
         let mut len = stream.get_var_u32();
         for _ in 0..len {
-            let type_id = stream.get_u8();
+            let type_id = stream.get_var_u32();
+            let _ = stream.get_u8(); //legacy type id, unused
             actions.push(Self::read_action(stream, type_id));
         }
         let mut filter_strings = Vec::new();
@@ -137,11 +126,12 @@ impl ItemStackRequestEntry {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Writer) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::write_item_stack_request_id(stream, self.request_id);
         stream.put_var_u32(self.actions.len() as u32);
-        for action in self.actions.iter_mut() {
-            stream.put_u8(action.get_type_id());
+        for action in self.actions.iter() {
+            stream.put_var_u32(action.get_type_id());
+            stream.put_u8(ItemStackRequestActionType::legacy_type_id(action.get_type_id()) as u8);
             action.write(stream);
         }
         stream.put_var_u32(self.filter_strings.len() as u32);

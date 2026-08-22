@@ -11,7 +11,7 @@ pub struct SmithingTrimRecipe {
     input: RecipeIngredient,
     addition: RecipeIngredient,
     block_name: String,
-    recipe_net_id: u32,
+    recipe_net_id: i32,
 }
 
 impl SmithingTrimRecipe {
@@ -22,7 +22,7 @@ impl SmithingTrimRecipe {
         input: RecipeIngredient,
         addition: RecipeIngredient,
         block_name: String,
-        recipe_net_id: u32,
+        recipe_net_id: i32,
     ) -> SmithingTrimRecipe {
         SmithingTrimRecipe {
             type_id,
@@ -45,9 +45,9 @@ impl SmithingTrimRecipe {
 
     pub fn read(type_id: i32, stream: &mut Reader) -> SmithingTrimRecipe {
         let recipe_id = PacketSerializer::get_string(stream);
-        let template = PacketSerializer::get_recipe_ingredient(stream);
-        let input = PacketSerializer::get_recipe_ingredient(stream);
-        let addition = PacketSerializer::get_recipe_ingredient(stream);
+        let template = RecipeIngredient::read(stream);
+        let input = RecipeIngredient::read(stream);
+        let addition = RecipeIngredient::read(stream);
         let block_name = PacketSerializer::get_string(stream);
         let recipe_net_id = PacketSerializer::read_recipe_net_id(stream);
 
@@ -64,9 +64,9 @@ impl SmithingTrimRecipe {
 
     pub fn write(&mut self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, &self.recipe_id);
-        PacketSerializer::put_recipe_ingredient(stream, &mut self.template);
-        PacketSerializer::put_recipe_ingredient(stream, &mut self.input);
-        PacketSerializer::put_recipe_ingredient(stream, &mut self.addition);
+        self.template.write(stream);
+        self.input.write(stream);
+        self.addition.write(stream);
         PacketSerializer::put_string(stream, &self.block_name);
         PacketSerializer::write_recipe_net_id(stream, self.recipe_net_id);
     }

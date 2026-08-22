@@ -102,6 +102,7 @@ impl PlayerAuthInputFlags {
     pub const SNEAK_RELEASED_RAW: usize = 62;
     pub const SNEAK_PRESSED_RAW: usize = 63;
     pub const SNEAK_CURRENT_RAW: usize = 64;
+    pub const INTERNAL_UPDATE: usize = 65;
 
-    pub const NUMBER_OF_FLAGS: usize = 65;
+    pub const NUMBER_OF_FLAGS: usize = 66;
 }

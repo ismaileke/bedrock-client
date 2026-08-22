@@ -15,8 +15,8 @@ pub struct ShapedRecipe {
     block_name: String,
     priority: i32,
     symmetric: bool,
-    unlocking_requirement: RecipeUnlockingRequirement,
-    recipe_net_id: u32,
+    unlocking_requirement: Option<RecipeUnlockingRequirement>,
+    recipe_net_id: i32,
 }
 
 impl ShapedRecipe {
@@ -29,8 +29,8 @@ impl ShapedRecipe {
         block_name: String,
         priority: i32,
         symmetric: bool,
-        unlocking_requirement: RecipeUnlockingRequirement,
-        recipe_net_id: u32,
+        unlocking_requirement: Option<RecipeUnlockingRequirement>,
+        recipe_net_id: i32,
     ) -> ShapedRecipe {
         let rows = inputs.len();
         if rows < 1 || rows > 3 {
@@ -72,16 +72,16 @@ impl ShapedRecipe {
     pub fn read(type_id: i32, stream: &mut Reader) -> ShapedRecipe {
         let recipe_id = PacketSerializer::get_string(stream);
         let width = stream.get_var_i32();
-        let height = stream.get_var_i32();
-        let mut inputs = Vec::new();
-
-        for _ in 0..height {
-            let mut columns = Vec::new();
-            for _ in 0..width {
-                columns.push(PacketSerializer::get_recipe_ingredient(stream));
-            }
-            inputs.push(columns);
+        let _height = stream.get_var_i32();
+        let mut ingredients = Vec::new();
+        let ingredients_count = stream.get_var_u32();
+        for _ in 0..ingredients_count {
+            ingredients.push(RecipeIngredient::read(stream));
         }
+        let inputs = ingredients
+            .chunks(width.max(1) as usize)
+            .map(|chunk| chunk.to_vec())
+            .collect::<Vec<Vec<RecipeIngredient>>>();
         let mut outputs = Vec::new();
         let count = stream.get_var_u32();
         for _ in 0..count {
@@ -91,7 +91,7 @@ impl ShapedRecipe {
         let block_name = PacketSerializer::get_string(stream);
         let priority = stream.get_var_i32();
         let symmetric = stream.get_bool();
-        let unlocking_requirement = RecipeUnlockingRequirement::read(stream);
+        let unlocking_requirement = PacketSerializer::read_optional(stream, |s| RecipeUnlockingRequirement::read(s));
         let recipe_net_id = PacketSerializer::read_recipe_net_id(stream);
 
         ShapedRecipe {
@@ -112,9 +112,10 @@ impl ShapedRecipe {
         PacketSerializer::put_string(stream, &self.recipe_id);
         stream.put_var_i32(self.get_width() as i32);
         stream.put_var_i32(self.get_height() as i32);
+        stream.put_var_u32(self.get_width() as u32 * self.get_height() as u32);
         for row in self.inputs.iter_mut() {
             for ingredient in row {
-                PacketSerializer::put_recipe_ingredient(stream, ingredient);
+                ingredient.write(stream);
             }
         }
         stream.put_var_u32(self.outputs.len() as u32);
@@ -125,7 +126,7 @@ impl ShapedRecipe {
         PacketSerializer::put_string(stream, &self.block_name);
         stream.put_var_i32(self.priority);
         stream.put_bool(self.symmetric);
-        self.unlocking_requirement.write(stream);
+        PacketSerializer::write_optional(stream, &self.unlocking_requirement, |s, v| v.write(s));
         PacketSerializer::write_recipe_net_id(stream, self.recipe_net_id);
     }
 }

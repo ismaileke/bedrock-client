@@ -2,6 +2,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::types::inventory::network_inventory_action::NetworkInventoryAction;
 use binary_utils::binary::{Reader, Writer};
+use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ReleaseItemTransactionData {
@@ -29,6 +30,19 @@ impl ReleaseItemTransactionData {
             hotbar_slot,
             item_in_hand,
             head_position,
+        }
+    }
+    
+    pub fn null() -> ReleaseItemTransactionData {
+        ReleaseItemTransactionData {
+            actions: vec![],
+            action_type: 0,
+            hotbar_slot: 0,
+            item_in_hand: ItemStackWrapper {
+                stack_id: 0,
+                item_stack: ItemStack::null()
+            },
+            head_position: vec![],
         }
     }
 

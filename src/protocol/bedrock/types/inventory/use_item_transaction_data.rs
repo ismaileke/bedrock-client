@@ -2,6 +2,7 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::types::inventory::network_inventory_action::NetworkInventoryAction;
 use binary_utils::binary::{Reader, Writer};
+use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct UseItemTransactionData {
@@ -52,6 +53,26 @@ impl UseItemTransactionData {
             block_runtime_id,
             client_interact_prediction,
             client_cooldown_state,
+        }
+    }
+
+    pub fn null() -> UseItemTransactionData {
+        UseItemTransactionData {
+            actions: vec![],
+            action_type: 0,
+            trigger_type: 0,
+            block_position: vec![],
+            face: 0,
+            hotbar_slot: 0,
+            item_in_hand: ItemStackWrapper {
+                stack_id: 0,
+                item_stack: ItemStack::null(),
+            },
+            player_position: vec![],
+            click_position: vec![],
+            block_runtime_id: 0,
+            client_interact_prediction: 0,
+            client_cooldown_state: 0,
         }
     }
 

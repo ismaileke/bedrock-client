@@ -12,5 +12,5 @@ impl PlaceStackRequestAction {
         PlaceStackRequestAction {}
     }
 
-    pub fn write(&mut self, _stream: &mut Writer) {}
+    pub fn write(&self, _stream: &mut Writer) {}
 }

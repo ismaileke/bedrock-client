@@ -1,44 +1,44 @@
-use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::recipe::recipe_ingredient::RecipeIngredient;
 use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct RecipeUnlockingRequirement {
-    unlocking_ingredients: Option<Vec<RecipeIngredient>>,
+    unlocking_context: i32,
+    unlocking_ingredients: Option<Vec<RecipeIngredient>>
 }
 
 impl RecipeUnlockingRequirement {
-    pub fn new(unlocking_ingredients: Option<Vec<RecipeIngredient>>) -> RecipeUnlockingRequirement {
-        RecipeUnlockingRequirement {
-            unlocking_ingredients,
-        }
+    pub const CONTEXT_NONE: i32 = 0;
+    pub const CONTEXT_ALWAYS_UNLOCKED : i32= 1;
+    pub const CONTEXT_PLAYER_IN_WATER: i32 = 2;
+    pub const CONTEXT_PLAYER_HAS_MANY_ITEMS: i32 = 3;
+
+    pub fn new(unlocking_context: i32, unlocking_ingredients: Option<Vec<RecipeIngredient>>) -> RecipeUnlockingRequirement {
+        RecipeUnlockingRequirement { unlocking_context, unlocking_ingredients }
     }
 
     pub fn read(stream: &mut Reader) -> RecipeUnlockingRequirement {
-        //I don't know what the point of this structure is. It could easily have been a list<RecipeIngredient> instead.
-        //It's basically just an optional list, which could have been done by an empty list wherever it's not needed.
-        let unlocking_context = stream.get_bool();
+        let unlocking_context = stream.get_var_i32();
         let mut unlocking_ingredients = None;
-        if !unlocking_context {
+        if stream.get_bool() {
             let mut unlocking_ingredients2 = Vec::new();
             let count = stream.get_var_u32();
             for _ in 0..count {
-                unlocking_ingredients2.push(PacketSerializer::get_recipe_ingredient(stream));
+                unlocking_ingredients2.push(RecipeIngredient::read(stream));
             }
             unlocking_ingredients = Some(unlocking_ingredients2);
         }
 
-        RecipeUnlockingRequirement {
-            unlocking_ingredients,
-        }
+        RecipeUnlockingRequirement { unlocking_context, unlocking_ingredients }
     }
 
-    pub fn write(&mut self, stream: &mut Writer) {
-        stream.put_bool(self.unlocking_ingredients.is_none());
-        if let Some(unlocking_ingredients) = self.unlocking_ingredients.as_mut() {
+    pub fn write(&self, stream: &mut Writer) {
+        stream.put_var_i32(self.unlocking_context);
+        stream.put_bool(self.unlocking_ingredients.is_some());
+        if let Some(unlocking_ingredients) = &self.unlocking_ingredients {
             stream.put_var_u32(unlocking_ingredients.len() as u32);
             for ingredient in unlocking_ingredients {
-                PacketSerializer::put_recipe_ingredient(stream, ingredient);
+                ingredient.write(stream);
             }
         }
     }

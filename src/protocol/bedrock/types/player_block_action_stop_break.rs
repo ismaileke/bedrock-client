@@ -13,7 +13,7 @@ impl PlayerBlockActionStopBreak {
         PlayerBlockActionStopBreak {}
     }
 
-    pub fn write(&mut self, _stream: &mut Writer) {
+    pub fn write(&self, _stream: &mut Writer) {
         //NOOP
     }
 }

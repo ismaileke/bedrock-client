@@ -11,6 +11,7 @@ pub struct PlaySound {
     pub z: f32,
     pub volume: f32,
     pub pitch: f32,
+    pub loop_count: i32,
     pub server_sound_handle: Option<u64>,
 }
 
@@ -31,6 +32,7 @@ impl Packet for PlaySound {
         );
         stream.put_f32_le(self.volume);
         stream.put_f32_le(self.pitch);
+        stream.put_var_i32(self.loop_count);
         PacketSerializer::write_optional(stream, &self.server_sound_handle, |s, v| s.put_u64_le(*v));
     }
 
@@ -42,8 +44,9 @@ impl Packet for PlaySound {
         let x = (block_pos[0] as f32) / 8.0;
         let y = (block_pos[1] as f32) / 8.0;
         let z = (block_pos[2] as f32) / 8.0;
+        let loop_count = stream.get_var_i32();
         let server_sound_handle = PacketSerializer::read_optional(stream, |s| s.get_u64_le());
 
-        PlaySound { sound_name, x, y, z, volume, pitch, server_sound_handle }
+        PlaySound { sound_name, x, y, z, volume, pitch, loop_count, server_sound_handle }
     }
 }

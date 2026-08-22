@@ -29,16 +29,16 @@ impl Packet for SubChunk {
         let cache_enabled = matches!(self.entries, SubChunkEntries::ListWithCache(_));
         stream.put_bool(cache_enabled);
         stream.put_var_i32(self.dimension);
-        self.base_sub_chunk_position.write_var_ints(stream);
+        self.base_sub_chunk_position.write_fixed_ints(stream);
         match &self.entries {
             SubChunkEntries::ListWithCache(list) => {
-                stream.put_u32_le(list.get_entries().len() as u32);
+                stream.put_var_u32(list.get_entries().len() as u32);
                 for entry in list.get_entries() {
                     entry.write(stream);
                 }
             }
             SubChunkEntries::ListWithoutCache(list) => {
-                stream.put_u32_le(list.get_entries().len() as u32);
+                stream.put_var_u32(list.get_entries().len() as u32);
                 for entry in list.get_entries() {
                     entry.write(stream);
                 }
@@ -53,16 +53,16 @@ impl Packet for SubChunk {
     fn decode(stream: &mut Reader) -> SubChunk {
         let cache_enabled = stream.get_bool();
         let dimension = stream.get_var_i32();
-        let base_sub_chunk_position = SubChunkPosition::read_var_ints(stream);
-        let count = stream.get_u32_le();
+        let base_sub_chunk_position = SubChunkPosition::read_fixed_ints(stream);
+        let count = stream.get_var_u32();
         let entries = if cache_enabled {
-            let mut sub_entries = Vec::new();
+            let mut sub_entries = Vec::with_capacity(count as usize);
             for _ in 0..count {
                 sub_entries.push(SubChunkEntryWithCache::read(stream));
             }
             SubChunkEntries::ListWithCache(SubChunkEntryWithCacheList::new(sub_entries))
         } else {
-            let mut sub_entries = Vec::new();
+            let mut sub_entries = Vec::with_capacity(count as usize);
             for _ in 0..count {
                 sub_entries.push(SubChunkEntryWithoutCache::read(stream));
             }

@@ -104,4 +104,8 @@ impl ParticleIDS {
     pub const GREEN_FLAME: u32 = 98;
     pub const PAUSE_MOB_GROWTH: u32 = 99;
     pub const RESET_MOB_GROWTH: u32 = 100;
+    pub const SULFUR_CUBE: u32 = 101;
+    pub const ORANGE_POPLAR_LEAVES: u32= 102;
+    pub const RED_POPLAR_LEAVES: u32 = 103;
+    pub const YELLOW_POPLAR_LEAVES: u32 = 104;
 }

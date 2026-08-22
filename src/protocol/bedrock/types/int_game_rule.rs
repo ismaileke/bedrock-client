@@ -18,22 +18,14 @@ impl IntGameRule {
         }
     }
 
-    pub fn read(stream: &mut Reader, is_player_modifiable: bool, is_start_game: bool) -> IntGameRule {
+    pub fn read(stream: &mut Reader, is_player_modifiable: bool, _is_start_game: bool) -> IntGameRule {
         IntGameRule {
-            value: if is_start_game {
-                stream.get_var_u32()
-            } else {
-                stream.get_u32_le()
-            },
+            value: stream.get_u32_le(),
             is_player_modifiable,
         }
     }
 
-    pub fn write(&mut self, stream: &mut Writer, is_start_game: bool) {
-        if is_start_game {
-            stream.put_var_u32(self.value);
-        } else {
-            stream.put_u32_le(self.value);
-        }
+    pub fn write(&mut self, stream: &mut Writer, _is_start_game: bool) {
+        stream.put_u32_le(self.value);
     }
 }

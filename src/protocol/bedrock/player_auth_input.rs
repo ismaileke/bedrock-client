@@ -6,7 +6,6 @@ use crate::protocol::bedrock::types::inventory::stack_request::item_stack_reques
 use crate::protocol::bedrock::types::item_interaction_data::ItemInteractionData;
 use crate::protocol::bedrock::types::player_action_types::PlayerActionTypes;
 use crate::protocol::bedrock::types::player_auth_input_flags::PlayerAuthInputFlags;
-use crate::protocol::bedrock::types::player_auth_input_vehicle_info::PlayerAuthInputVehicleInfo;
 use crate::protocol::bedrock::types::player_block_action::PlayerBlockAction;
 use crate::protocol::bedrock::types::player_block_action_stop_break::PlayerBlockActionStopBreak;
 use crate::protocol::bedrock::types::player_block_action_with_block_info::PlayerBlockActionWithBlockInfo;
@@ -17,22 +16,21 @@ pub struct PlayerAuthInput {
     pub pitch: f32,
     pub yaw: f32,
     pub position: Vec<f32>,
-    pub move_vec_x: f32,
-    pub move_vec_z: f32,
+    pub move_vec: Vec<f32>,
     pub head_yaw: f32,
     pub input_flags: BitSet,
     pub input_mode: u32,
     pub play_mode: u32,
-    pub interaction_mode: u32,
+    pub interaction_model: i32,
     pub interact_rotation: Vec<f32>,
     pub tick: u64,
     pub delta: Vec<f32>,
     pub item_interaction_data: Option<ItemInteractionData>,
     pub item_stack_request: Option<ItemStackRequestEntry>,
     pub block_actions: Option<Vec<PlayerBlockAction>>,
-    pub vehicle_info: Option<PlayerAuthInputVehicleInfo>,
-    pub analog_move_vec_x: f32,
-    pub analog_move_vec_z: f32,
+    pub vehicle_rotation: Option<Vec<f32>>,
+    pub client_predicted_vehicle: Option<i64>,
+    pub analog_move_vec: Vec<f32>,
     pub camera_orientation: Vec<f32>,
     pub raw_move: Vec<f32>,
 }
@@ -42,55 +40,50 @@ impl PlayerAuthInput {
         pitch: f32,
         yaw: f32,
         position: Vec<f32>,
-        move_vec_x: f32,
-        move_vec_z: f32,
+        move_vec: Vec<f32>,
         head_yaw: f32,
         mut input_flags: BitSet,
         input_mode: u32,
         play_mode: u32,
-        interaction_mode: u32,
+        interaction_model: i32,
         interact_rotation: Vec<f32>,
         tick: u64,
         delta: Vec<f32>,
         item_interaction_data: Option<ItemInteractionData>,
         item_stack_request: Option<ItemStackRequestEntry>,
         block_actions: Option<Vec<PlayerBlockAction>>,
-        vehicle_info: Option<PlayerAuthInputVehicleInfo>,
-        analog_move_vec_x: f32,
-        analog_move_vec_z: f32,
+        vehicle_rotation: Option<Vec<f32>>,
+        client_predicted_vehicle: Option<i64>,
+        analog_move_vec: Vec<f32>,
         camera_orientation: Vec<f32>,
         raw_move: Vec<f32>,
     ) -> PlayerAuthInput {
         if input_flags.get_length() != PlayerAuthInputFlags::NUMBER_OF_FLAGS {
-            panic!(
-                "Input flags must be {} bits long",
-                PlayerAuthInputFlags::NUMBER_OF_FLAGS
-            );
+            panic!("Input flags must be {} bits long", PlayerAuthInputFlags::NUMBER_OF_FLAGS);
         }
         input_flags.set(PlayerAuthInputFlags::PERFORM_ITEM_STACK_REQUEST, item_stack_request.is_some());
         input_flags.set(PlayerAuthInputFlags::PERFORM_ITEM_INTERACTION, item_interaction_data.is_some());
         input_flags.set(PlayerAuthInputFlags::PERFORM_BLOCK_ACTIONS, block_actions.is_some());
-        input_flags.set(PlayerAuthInputFlags::IN_CLIENT_PREDICTED_VEHICLE, vehicle_info.is_some());
+        input_flags.set(PlayerAuthInputFlags::IN_CLIENT_PREDICTED_VEHICLE, vehicle_rotation.is_some() || client_predicted_vehicle.is_some());
         PlayerAuthInput {
             pitch,
             yaw,
             position,
-            move_vec_x,
-            move_vec_z,
+            move_vec,
             head_yaw,
             input_flags,
             input_mode,
             play_mode,
-            interaction_mode,
+            interaction_model,
             interact_rotation,
             tick,
             delta,
             item_interaction_data,
             item_stack_request,
             block_actions,
-            vehicle_info,
-            analog_move_vec_x,
-            analog_move_vec_z,
+            vehicle_rotation,
+            client_predicted_vehicle,
+            analog_move_vec,
             camera_orientation,
             raw_move,
         }
@@ -106,33 +99,42 @@ impl Packet for PlayerAuthInput {
         stream.put_f32_le(self.pitch);
         stream.put_f32_le(self.yaw);
         PacketSerializer::put_vector3(stream, &self.position);
-        stream.put_f32_le(self.move_vec_x);
-        stream.put_f32_le(self.move_vec_z);
+        PacketSerializer::put_vector2(stream, &self.move_vec);
         stream.put_f32_le(self.head_yaw);
-        self.input_flags.write(stream);
+
+        // Input Flags
+        //self.input_flags.write(stream);
+        stream.put_bool(self.input_flags.get_length() > 0);
+        let mut flags = vec![];
+        for i in 0..PlayerAuthInputFlags::NUMBER_OF_FLAGS {
+            if self.input_flags.get(i) {
+                flags.push(i as i32);
+            }
+        }
+        stream.put_var_u32(flags.len() as u32);
+        for flag in flags {
+            stream.put_var_i32(flag);
+        }
+        // Input Flags
+
         stream.put_var_u32(self.input_mode);
         stream.put_var_u32(self.play_mode);
-        stream.put_var_u32(self.interaction_mode);
+        stream.put_var_i32(self.interaction_model);
         PacketSerializer::put_vector2(stream, &self.interact_rotation);
         stream.put_var_u64(self.tick);
         PacketSerializer::put_vector3(stream, &self.delta);
-        if let Some(item_interaction_data) = &self.item_interaction_data {
-            item_interaction_data.write(stream);
-        }
-        if let Some(item_stack_request) = &mut self.item_stack_request {
-            item_stack_request.write(stream);
-        }
-        if let Some(block_actions) = &mut self.block_actions {
-            stream.put_var_i32(block_actions.len() as i32);
-            for block_action in block_actions {
-                block_action.write(stream);
+        PacketSerializer::write_double_optional(stream, &self.item_interaction_data, |s, v| v.write(s));
+        PacketSerializer::write_double_optional(stream, &self.item_stack_request, |s, v| v.write(s));
+        PacketSerializer::write_double_optional(stream, &self.block_actions, |s, v| {
+            s.put_var_u32(v.len() as u32);
+            for block_action in v {
+                s.put_var_i32(block_action.get_action_type());
+                block_action.write(s);
             }
-        }
-        if let Some(vehicle_info) = &mut self.vehicle_info {
-            vehicle_info.write(stream);
-        }
-        stream.put_f32_le(self.analog_move_vec_x);
-        stream.put_f32_le(self.analog_move_vec_z);
+        });
+        PacketSerializer::write_double_optional(stream, &self.vehicle_rotation, |s, v| PacketSerializer::put_vector2(s, v));
+        PacketSerializer::write_double_optional(stream, &self.client_predicted_vehicle, |s, v| PacketSerializer::put_actor_unique_id(s, *v));
+        PacketSerializer::put_vector2(stream, &self.analog_move_vec);
         PacketSerializer::put_vector3(stream, &self.camera_orientation);
         PacketSerializer::put_vector2(stream, &self.raw_move);
     }
@@ -141,52 +143,45 @@ impl Packet for PlayerAuthInput {
         let pitch = stream.get_f32_le();
         let yaw = stream.get_f32_le();
         let position = PacketSerializer::get_vector3(stream);
-        let move_vec_x = stream.get_f32_le();
-        let move_vec_z = stream.get_f32_le();
+        let move_vec = PacketSerializer::get_vector2(stream);
         let head_yaw = stream.get_f32_le();
-        let input_flags = BitSet::read(stream, PlayerAuthInputFlags::NUMBER_OF_FLAGS);
+        let mut input_flags = BitSet::new(PlayerAuthInputFlags::NUMBER_OF_FLAGS, vec![]);
+        if stream.get_bool() {
+            let count = stream.get_var_u32();
+            for _ in 0..count {
+                let flag = stream.get_var_i32();
+                if flag < 0 || flag >= PlayerAuthInputFlags::NUMBER_OF_FLAGS as i32 {
+                    panic!("Unknown input flag {}", flag);
+                }
+                input_flags.set(flag as usize, true);
+            }
+        }
         let input_mode = stream.get_var_u32();
         let play_mode = stream.get_var_u32();
-        let interaction_mode = stream.get_var_u32();
+        let interaction_model = stream.get_var_i32();
         let interact_rotation = PacketSerializer::get_vector2(stream);
         let tick = stream.get_var_u64();
         let delta = PacketSerializer::get_vector3(stream);
-        let mut item_interaction_data = None;
-        if input_flags.get(PlayerAuthInputFlags::PERFORM_ITEM_INTERACTION) {
-            item_interaction_data = Some(ItemInteractionData::read(stream));
-        }
-        let mut item_stack_request = None;
-        if input_flags.get(PlayerAuthInputFlags::PERFORM_ITEM_STACK_REQUEST) {
-            item_stack_request = Some(ItemStackRequestEntry::read(stream));
-        }
-        let mut block_actions: Option<Vec<PlayerBlockAction>> = None;
-        if input_flags.get(PlayerAuthInputFlags::PERFORM_BLOCK_ACTIONS) {
-            let mut sub_block_actions = vec![];
-            let max = stream.get_var_i32();
+        let item_interaction_data = PacketSerializer::read_double_optional(stream, |s| ItemInteractionData::read(s));
+        let item_stack_request = PacketSerializer::read_double_optional(stream, |s| ItemStackRequestEntry::read(s));
+        let block_actions = PacketSerializer::read_double_optional(stream, |s| {
+            let max = s.get_var_u32();
+            let mut block_actions_vec = Vec::with_capacity(max as usize);
             for _ in 0..max {
-                let action_type = stream.get_var_i32();
-                let block_action =
-                    if PlayerBlockActionWithBlockInfo::is_valid_action_type(action_type) {
-                        PlayerBlockAction::WithBlockInfo(PlayerBlockActionWithBlockInfo::read(
-                            stream,
-                            action_type,
-                        ))
-                    } else if action_type == PlayerActionTypes::STOP_BREAK {
-                        PlayerBlockAction::StopBreak(PlayerBlockActionStopBreak::read(
-                            stream,
-                            action_type,
-                        ))
-                    } else { panic!("Unexpected block action type {}", action_type) };
-                sub_block_actions.push(block_action);
+                let action_type = s.get_var_i32();
+                block_actions_vec.push(if action_type == PlayerActionTypes::STOP_BREAK {
+                    PlayerBlockAction::StopBreak(PlayerBlockActionStopBreak {})
+                } else if PlayerBlockActionWithBlockInfo::is_valid_action_type(action_type) {
+                    PlayerBlockAction::WithBlockInfo(PlayerBlockActionWithBlockInfo::read(s, action_type))
+                } else {
+                    panic!("Unexpected block action type {}", action_type);
+                })
             }
-            block_actions = Some(sub_block_actions);
-        }
-        let mut vehicle_info = None;
-        if input_flags.get(PlayerAuthInputFlags::IN_CLIENT_PREDICTED_VEHICLE) {
-            vehicle_info = Some(PlayerAuthInputVehicleInfo::read(stream));
-        }
-        let analog_move_vec_x = stream.get_f32_le();
-        let analog_move_vec_z = stream.get_f32_le();
+            return block_actions_vec;
+        });
+        let vehicle_rotation = PacketSerializer::read_double_optional(stream, |s| PacketSerializer::get_vector2(s));
+        let client_predicted_vehicle = PacketSerializer::read_double_optional(stream, |s| PacketSerializer::get_actor_unique_id(s));
+        let analog_move_vec = PacketSerializer::get_vector2(stream);
         let camera_orientation = PacketSerializer::get_vector3(stream);
         let raw_move = PacketSerializer::get_vector2(stream);
 
@@ -194,22 +189,21 @@ impl Packet for PlayerAuthInput {
             pitch,
             yaw,
             position,
-            move_vec_x,
-            move_vec_z,
+            move_vec,
             head_yaw,
             input_flags,
             input_mode,
             play_mode,
-            interaction_mode,
+            interaction_model,
             interact_rotation,
             tick,
             delta,
             item_interaction_data,
             item_stack_request,
             block_actions,
-            vehicle_info,
-            analog_move_vec_x,
-            analog_move_vec_z,
+            vehicle_rotation,
+            client_predicted_vehicle,
+            analog_move_vec,
             camera_orientation,
             raw_move,
         }

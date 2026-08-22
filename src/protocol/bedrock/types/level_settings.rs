@@ -20,7 +20,7 @@ pub struct LevelSettings {
     pub created_in_editor_mode: bool,
     pub exported_from_editor_mode: bool,
     pub time: i32,
-    pub edu_edition_offer: i32,
+    pub edu_edition_offer: u32,
     pub has_edu_features_enabled: bool,
     pub edu_product_uuid: String,
     pub rain_level: f32,
@@ -36,7 +36,7 @@ pub struct LevelSettings {
     pub experiments: Experiments,
     pub has_bonus_chest_enabled: bool,
     pub has_start_with_map_enabled: bool,
-    pub default_player_permission: i32,
+    pub default_player_permission: u8,
     pub server_chunk_tick_radius: i32,
     pub has_locked_behavior_pack: bool,
     pub has_locked_resource_pack: bool,
@@ -74,7 +74,7 @@ impl LevelSettings {
         let created_in_editor_mode = stream.get_bool();
         let exported_from_editor_mode = stream.get_bool();
         let time = stream.get_var_i32();
-        let edu_edition_offer = stream.get_var_i32();
+        let edu_edition_offer = stream.get_var_u32();
         let has_edu_features_enabled = stream.get_bool();
         let edu_product_uuid = PacketSerializer::get_string(stream);
         let rain_level = stream.get_f32_le();
@@ -86,11 +86,11 @@ impl LevelSettings {
         let platform_broadcast_mode = stream.get_var_i32();
         let commands_enabled = stream.get_bool();
         let is_texture_packs_required = stream.get_bool();
-        let game_rules = PacketSerializer::get_game_rules(stream, true);
+        let game_rules = PacketSerializer::get_game_rules(stream, false);
         let experiments = Experiments::read(stream);
         let has_bonus_chest_enabled = stream.get_bool();
         let has_start_with_map_enabled = stream.get_bool();
-        let default_player_permission = stream.get_var_i32();
+        let default_player_permission = stream.get_u8();
         let server_chunk_tick_radius = stream.get_i32_le();
         let has_locked_behavior_pack = stream.get_bool();
         let has_locked_resource_pack = stream.get_bool();
@@ -180,7 +180,7 @@ impl LevelSettings {
         stream.put_bool(self.created_in_editor_mode);
         stream.put_bool(self.exported_from_editor_mode);
         stream.put_var_i32(self.time);
-        stream.put_var_i32(self.edu_edition_offer);
+        stream.put_var_u32(self.edu_edition_offer);
         stream.put_bool(self.has_edu_features_enabled);
         PacketSerializer::put_string(stream, &self.edu_product_uuid);
         stream.put_f32_le(self.rain_level);
@@ -193,10 +193,10 @@ impl LevelSettings {
         stream.put_var_i32(self.platform_broadcast_mode);
         stream.put_bool(self.commands_enabled);
         stream.put_bool(self.is_texture_packs_required);
-        PacketSerializer::put_game_rules(stream, &mut self.game_rules, true);
+        PacketSerializer::put_game_rules(stream, &mut self.game_rules, false);
         stream.put_bool(self.has_bonus_chest_enabled);
         stream.put_bool(self.has_start_with_map_enabled);
-        stream.put_var_i32(self.default_player_permission);
+        stream.put_u8(self.default_player_permission);
         stream.put_i32_le(self.server_chunk_tick_radius);
         stream.put_bool(self.has_locked_behavior_pack);
         stream.put_bool(self.has_locked_resource_pack);

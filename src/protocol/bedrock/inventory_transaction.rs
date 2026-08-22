@@ -2,8 +2,6 @@ use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::inventory_transaction_changed_slots_hack::InventoryTransactionChangedSlotsHack;
-use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
-use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::types::inventory::mismatch_transaction_data::MismatchTransactionData;
 use crate::protocol::bedrock::types::inventory::normal_transaction_data::NormalTransactionData;
 use crate::protocol::bedrock::types::inventory::release_item_transaction_data::ReleaseItemTransactionData;
@@ -35,7 +33,7 @@ impl Packet for InventoryTransaction {
         stream.put_u8(1);
         stream.put_var_u32(self.tr_data.get_type_id());
         stream.put_u8(1);
-        self.tr_data.encode_transaction(stream);
+        self.tr_data.encode(stream);
     }
 
     fn decode(stream: &mut Reader) -> InventoryTransaction {
@@ -55,59 +53,19 @@ impl Packet for InventoryTransaction {
         if stream.get_u8() != 1 {
             panic!("Dummy optional bool for trData should always be 1");
         }
-        // check later, bad using
         let mut tr_data = match tr_type {
             Self::TYPE_NORMAL => TransactionData::Normal(NormalTransactionData::new(vec![])),
             Self::TYPE_MISMATCH => TransactionData::Mismatch(MismatchTransactionData::new()),
-            Self::TYPE_USE_ITEM => TransactionData::UseItem(UseItemTransactionData::new(
-                vec![],
-                0,
-                0,
-                vec![],
-                0,
-                0,
-                ItemStackWrapper {
-                    stack_id: 0,
-                    item_stack: ItemStack::null(),
-                    variant: 0,
-                },
-                vec![],
-                vec![],
-                0,
-                0,
-                0
-            )),
+            Self::TYPE_USE_ITEM => TransactionData::UseItem(UseItemTransactionData::null()),
             Self::TYPE_USE_ITEM_ON_ENTITY => {
-                TransactionData::UseItemOnEntity(UseItemOnEntityTransactionData::new(
-                    vec![],
-                    0,
-                    0,
-                    0,
-                    ItemStackWrapper {
-                        stack_id: 0,
-                        item_stack: ItemStack::null(),
-                        variant: 0,
-                    },
-                    vec![],
-                    vec![],
-                ))
+                TransactionData::UseItemOnEntity(UseItemOnEntityTransactionData::null())
             }
             Self::TYPE_RELEASE_ITEM => {
-                TransactionData::ReleaseItem(ReleaseItemTransactionData::new(
-                    vec![],
-                    0,
-                    0,
-                    ItemStackWrapper {
-                        stack_id: 0,
-                        item_stack: ItemStack::null(),
-                        variant: 0,
-                    },
-                    vec![],
-                ))
+                TransactionData::ReleaseItem(ReleaseItemTransactionData::null())
             }
             _ => TransactionData::Normal(NormalTransactionData::new(vec![])),
         };
-        tr_data.decode_transaction(stream);
+        tr_data.decode(stream);
 
         InventoryTransaction { request_id, request_changed_slots, tr_data }
     }

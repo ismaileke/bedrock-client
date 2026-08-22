@@ -20,9 +20,7 @@ impl Packet for SetScoreboardIdentity {
         stream.put_var_u32(self.entries.len() as u32);
         for entry in &self.entries {
             stream.put_var_i64(entry.scoreboard_id);
-            if self.action_type == SetScoreboardIdentity::TYPE_REGISTER_IDENTITY {
-                PacketSerializer::put_actor_unique_id(stream, entry.actor_unique_id.unwrap());
-            }
+            PacketSerializer::put_actor_unique_id(stream, entry.actor_unique_id);
         }
     }
 
@@ -32,14 +30,8 @@ impl Packet for SetScoreboardIdentity {
         let count = stream.get_var_u32();
         for _ in 0..count {
             let scoreboard_id = stream.get_var_i64();
-            let mut actor_unique_id = None;
-            if action_type == SetScoreboardIdentity::TYPE_REGISTER_IDENTITY {
-                actor_unique_id = Some(PacketSerializer::get_actor_unique_id(stream));
-            }
-            entries.push(ScoreboardIdentityEntry {
-                scoreboard_id,
-                actor_unique_id,
-            });
+            let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
+            entries.push(ScoreboardIdentityEntry { scoreboard_id, actor_unique_id });
         }
 
         SetScoreboardIdentity { action_type, entries }

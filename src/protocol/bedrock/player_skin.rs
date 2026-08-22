@@ -8,8 +8,8 @@ use binary_utils::binary::{Reader, Writer};
 pub struct PlayerSkin {
     pub uuid: String,
     pub skin: SkinData,
-    pub new_skin_name: String,
     pub old_skin_name: String,
+    pub new_skin_name: String
 }
 
 impl Packet for PlayerSkin {
@@ -20,23 +20,16 @@ impl Packet for PlayerSkin {
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_uuid(stream, &self.uuid);
         PacketSerializer::put_skin(stream, &self.skin);
-        PacketSerializer::put_string(stream, &self.new_skin_name);
         PacketSerializer::put_string(stream, &self.old_skin_name);
-        stream.put_bool(self.skin.is_verified);
+        PacketSerializer::put_string(stream, &self.new_skin_name);
     }
 
     fn decode(stream: &mut Reader) -> PlayerSkin {
         let uuid = PacketSerializer::get_uuid(stream);
-        let mut skin = PacketSerializer::get_skin(stream);
-        let new_skin_name = PacketSerializer::get_string(stream);
+        let skin = PacketSerializer::get_skin(stream);
         let old_skin_name = PacketSerializer::get_string(stream);
-        skin.is_verified = stream.get_bool();
+        let new_skin_name = PacketSerializer::get_string(stream);
 
-        PlayerSkin {
-            uuid,
-            skin,
-            new_skin_name,
-            old_skin_name,
-        }
+        PlayerSkin { uuid, skin, new_skin_name, old_skin_name }
     }
 }

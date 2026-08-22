@@ -7,10 +7,7 @@ pub struct BeaconPaymentStackRequestAction {
 }
 
 impl BeaconPaymentStackRequestAction {
-    pub fn new(
-        primary_effect_id: i32,
-        secondary_effect_id: i32,
-    ) -> BeaconPaymentStackRequestAction {
+    pub fn new(primary_effect_id: i32, secondary_effect_id: i32) -> BeaconPaymentStackRequestAction {
         BeaconPaymentStackRequestAction {
             primary_effect_id,
             secondary_effect_id,
@@ -21,13 +18,10 @@ impl BeaconPaymentStackRequestAction {
         let primary_effect_id = stream.get_var_i32();
         let secondary_effect_id = stream.get_var_i32();
 
-        BeaconPaymentStackRequestAction {
-            primary_effect_id,
-            secondary_effect_id,
-        }
+        BeaconPaymentStackRequestAction { primary_effect_id, secondary_effect_id }
     }
 
-    pub fn write(&mut self, stream: &mut Writer) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_var_i32(self.primary_effect_id);
         stream.put_var_i32(self.secondary_effect_id);
     }

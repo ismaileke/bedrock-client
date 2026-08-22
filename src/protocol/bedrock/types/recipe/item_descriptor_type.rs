@@ -1,9 +1,8 @@
 pub struct ItemDescriptorType {}
 
 impl ItemDescriptorType {
-    pub const INT_ID_META: u8 = 1;
-    pub const MOLANG: u8 = 2;
-    pub const TAG: u8 = 3;
-    pub const STRING_ID_META: u8 = 4;
-    pub const COMPLEX_ALIAS: u8 = 5;
+    pub const EMPTY: u32 = 0;
+    pub const DEFAULT: u32 = 1;
+    pub const MOLANG: u32 = 2;
+    pub const TAG: u32 = 3;
 }

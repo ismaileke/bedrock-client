@@ -9,11 +9,7 @@ pub struct DropStackRequestAction {
 }
 
 impl DropStackRequestAction {
-    pub fn new(
-        count: u8,
-        source: ItemStackRequestSlotInfo,
-        randomly: bool,
-    ) -> DropStackRequestAction {
+    pub fn new(count: u8, source: ItemStackRequestSlotInfo, randomly: bool) -> DropStackRequestAction {
         DropStackRequestAction {
             count,
             source,
@@ -26,14 +22,10 @@ impl DropStackRequestAction {
         let source = ItemStackRequestSlotInfo::read(stream);
         let randomly = stream.get_bool();
 
-        DropStackRequestAction {
-            count,
-            source,
-            randomly,
-        }
+        DropStackRequestAction { count, source, randomly }
     }
 
-    pub fn write(&mut self, stream: &mut Writer) {
+    pub fn write(&self, stream: &mut Writer) {
         stream.put_u8(self.count);
         self.source.write(stream);
         stream.put_bool(self.randomly);

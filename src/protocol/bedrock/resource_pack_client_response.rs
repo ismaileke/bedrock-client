@@ -5,8 +5,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ResourcePackClientResponse {
-    pub status: u8,
-    pub pack_ids: Vec<String>,
+    pub status: u32,
+    pub pack_ids: Vec<String>
 }
 
 impl Packet for ResourcePackClientResponse {
@@ -15,32 +15,36 @@ impl Packet for ResourcePackClientResponse {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        stream.put_u8(self.status);
-        stream.put_u16_le(self.pack_ids.len() as u16);
-
-        for pack_id in &self.pack_ids {
-            PacketSerializer::put_string(stream, &pack_id);
+        stream.put_var_u32(self.status);
+        let name = ResourcePackClientResponse::RESPONSE_STATUS[self.status as usize];
+        PacketSerializer::put_string(stream, name);
+        if self.status == ResourcePackClientResponse::SEND_PACKS {
+            stream.put_var_u32(self.pack_ids.len() as u32);
+            for pack_id in &self.pack_ids {
+                PacketSerializer::put_string(stream, &pack_id);
+            }
         }
     }
 
     fn decode(stream: &mut Reader) -> ResourcePackClientResponse {
-        let status = stream.get_u8();
-        let entry_count = stream.get_u16_le();
-
+        let status = stream.get_var_u32();
+        let _ = PacketSerializer::get_string(stream);
         let mut pack_ids = vec![];
-        for _ in 0..entry_count {
-            let pack_id = PacketSerializer::get_string(stream);
-            pack_ids.push(pack_id);
+        if status == ResourcePackClientResponse::SEND_PACKS {
+            let entry_count = stream.get_var_u32();
+            for _ in 0..entry_count {
+                pack_ids.push(PacketSerializer::get_string(stream));
+            }
         }
-
         ResourcePackClientResponse { status, pack_ids }
     }
 }
 
 impl ResourcePackClientResponse {
-    pub const NONE: u8 = 0;
-    pub const REFUSED: u8 = 1;
-    pub const SEND_PACKS: u8 = 2;
-    pub const HAVE_ALL_PACKS: u8 = 3;
-    pub const COMPLETED: u8 = 4;
+    pub const REFUSED: u32 = 0;
+    pub const SEND_PACKS: u32 = 1;
+    pub const HAVE_ALL_PACKS: u32 = 2;
+    pub const COMPLETED: u32 = 3;
+
+    pub const RESPONSE_STATUS: [&str; 4] = ["cancel", "downloading", "downloadingfinished", "resourcepackstackfinished"];
 }

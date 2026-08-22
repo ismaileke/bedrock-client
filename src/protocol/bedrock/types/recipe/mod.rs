@@ -1,5 +1,3 @@
-pub mod complex_alias_item_descriptor;
-pub mod int_id_meta_item_descriptor;
 pub mod item_descriptor;
 pub mod item_descriptor_type;
 pub mod material_reducer_recipe;
@@ -15,5 +13,5 @@ pub mod shaped_recipe;
 pub mod shapeless_recipe;
 pub mod smithing_transform_recipe;
 pub mod smithing_trim_recipe;
-pub mod string_id_meta_item_descriptor;
 pub mod tag_item_descriptor;
+pub mod default_item_descriptor;

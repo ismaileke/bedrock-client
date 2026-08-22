@@ -40,7 +40,7 @@ impl Packet for ResourcePacksInfo {
         stream.put_bool(self.force_disable_vibrant_visuals);
         PacketSerializer::put_uuid(stream, &self.world_template_id);
         PacketSerializer::put_string(stream, &self.world_template_version);
-        stream.put_u16_le(self.resource_packs.len() as u16);
+        stream.put_var_u32(self.resource_packs.len() as u32);
         for resource_pack in &self.resource_packs {
             PacketSerializer::put_uuid(stream, &resource_pack.uuid);
             PacketSerializer::put_string(stream, &resource_pack.version);
@@ -63,7 +63,7 @@ impl Packet for ResourcePacksInfo {
         let world_template_id = PacketSerializer::get_uuid(stream);
         let world_template_version = PacketSerializer::get_string(stream);
 
-        let resource_pack_count = stream.get_u16_le();
+        let resource_pack_count = stream.get_var_u32();
         let mut resource_packs = Vec::new();
         for _ in 0..resource_pack_count {
             let uuid = PacketSerializer::get_uuid(stream);

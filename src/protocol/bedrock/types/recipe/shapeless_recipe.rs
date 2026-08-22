@@ -14,8 +14,8 @@ pub struct ShapelessRecipe {
     uuid: String,
     block_name: String,
     priority: i32,
-    unlocking_requirement: RecipeUnlockingRequirement,
-    recipe_net_id: u32,
+    unlocking_requirement: Option<RecipeUnlockingRequirement>,
+    recipe_net_id: i32,
 }
 
 impl ShapelessRecipe {
@@ -27,8 +27,8 @@ impl ShapelessRecipe {
         uuid: String,
         block_name: String,
         priority: i32,
-        unlocking_requirement: RecipeUnlockingRequirement,
-        recipe_net_id: u32,
+        unlocking_requirement: Option<RecipeUnlockingRequirement>,
+        recipe_net_id: i32,
     ) -> ShapelessRecipe {
         ShapelessRecipe {
             type_id,
@@ -60,7 +60,7 @@ impl ShapelessRecipe {
         let mut inputs = Vec::new();
         let count = stream.get_var_u32();
         for _ in 0..count {
-            inputs.push(PacketSerializer::get_recipe_ingredient(stream));
+            inputs.push(RecipeIngredient::read(stream));
         }
         let mut outputs = Vec::new();
         let count = stream.get_var_u32();
@@ -70,7 +70,7 @@ impl ShapelessRecipe {
         let uuid = PacketSerializer::get_uuid(stream);
         let block_name = PacketSerializer::get_string(stream);
         let priority = stream.get_var_i32();
-        let unlocking_requirement = RecipeUnlockingRequirement::read(stream);
+        let unlocking_requirement = PacketSerializer::read_optional(stream, |s| RecipeUnlockingRequirement::read(s));
         let recipe_net_id = PacketSerializer::read_recipe_net_id(stream);
 
         ShapelessRecipe {
@@ -89,8 +89,8 @@ impl ShapelessRecipe {
     pub fn write(&mut self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, &self.recipe_id);
         stream.put_var_u32(self.inputs.len() as u32);
-        for input in self.inputs.iter_mut() {
-            PacketSerializer::put_recipe_ingredient(stream, input);
+        for input in self.inputs.iter() {
+            input.write(stream);
         }
         stream.put_var_u32(self.outputs.len() as u32);
         for output in &self.outputs {
@@ -99,7 +99,7 @@ impl ShapelessRecipe {
         PacketSerializer::put_uuid(stream, &self.uuid);
         PacketSerializer::put_string(stream, &self.block_name);
         stream.put_var_i32(self.priority);
-        self.unlocking_requirement.write(stream);
+        PacketSerializer::write_optional(stream, &self.unlocking_requirement, |s, v| v.write(s));
         PacketSerializer::write_recipe_net_id(stream, self.recipe_net_id);
     }
 }

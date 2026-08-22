@@ -38,7 +38,6 @@ pub struct StartGame {
     pub enable_client_side_chunk_generation: bool,
     pub block_network_ids_are_hashes: bool,
     pub network_permissions: NetworkPermissions,
-    pub is_logging_chat: bool,
     pub server_join_information: Option<ServerJoinInformation>,
     pub server_telemetry_data: ServerTelemetryData,
 }
@@ -79,7 +78,6 @@ impl Packet for StartGame {
         stream.put_bool(self.enable_client_side_chunk_generation);
         stream.put_bool(self.block_network_ids_are_hashes);
         self.network_permissions.write(stream);
-        stream.put_bool(self.is_logging_chat);
         PacketSerializer::write_optional(stream, &mut self.server_join_information, |s, v| v.write(s));
         self.server_telemetry_data.write(stream);
     }
@@ -137,8 +135,6 @@ impl Packet for StartGame {
 
         let network_permissions = NetworkPermissions::read(stream);
 
-        let is_logging_chat = stream.get_bool();
-
         let server_join_information = PacketSerializer::read_optional(stream, |s| ServerJoinInformation::read(s));
 
         let server_telemetry_data = ServerTelemetryData::read(stream);
@@ -168,7 +164,6 @@ impl Packet for StartGame {
             enable_client_side_chunk_generation,
             block_network_ids_are_hashes,
             network_permissions,
-            is_logging_chat,
             server_join_information,
             server_telemetry_data,
         }

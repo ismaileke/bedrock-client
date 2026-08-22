@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use binary_utils::binary::{Reader, Writer};
 
-#[derive(serde::Serialize, Debug)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct TagItemDescriptor {
     tag: String,
 }
@@ -17,7 +17,7 @@ impl TagItemDescriptor {
         TagItemDescriptor { tag }
     }
 
-    pub fn write(&mut self, stream: &mut Writer) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, &self.tag);
     }
 }

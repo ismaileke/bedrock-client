@@ -67,37 +67,28 @@ impl TransactionData {
         }
     }
 
-    pub fn decode_transaction(&mut self, stream: &mut Reader) {
-        let action_count = stream.get_var_u32();
-        for _ in 0..action_count {
-            let action = NetworkInventoryAction::read_transaction(stream);
-            self.get_actions_mut().push(action);
+    pub fn decode(&mut self, stream: &mut Reader) {
+        let has_bool = stream.get_bool();
+        if has_bool {
+            let action_count = stream.get_var_u32();
+            for _ in 0..action_count {
+                let action = NetworkInventoryAction::read(stream);
+                self.get_actions_mut().push(action);
+            }
+            self.decode_data(stream)
         }
-        self.decode_data(stream)
     }
 
-    pub fn decode_auth_input(&mut self, stream: &mut Reader) {
-        let action_count = stream.get_var_u32();
-        for _ in 0..action_count {
-            let action = NetworkInventoryAction::read_auth_input(stream);
-            self.get_actions_mut().push(action);
-        }
-        self.decode_data(stream)
-    }
 
-    pub fn encode_transaction(&self, stream: &mut Writer) {
-        stream.put_var_u32(self.get_actions().len() as u32);
-        for action in self.get_actions() {
-            action.write_transaction(stream);
+    pub fn encode(&self, stream: &mut Writer) {
+        let has_value = self.get_actions().len() > 0;
+        stream.put_bool(has_value);
+        if has_value {
+            stream.put_var_u32(self.get_actions().len() as u32);
+            for action in self.get_actions() {
+                action.write(stream);
+            }
+            self.encode_data(stream)
         }
-        self.encode_data(stream)
-    }
-
-    pub fn encode_auth_input(&self, stream: &mut Writer) {
-        stream.put_var_u32(self.get_actions().len() as u32);
-        for action in self.get_actions() {
-            action.write_auth_input(stream);
-        }
-        self.encode_data(stream)
     }
 }

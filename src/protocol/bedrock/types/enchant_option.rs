@@ -10,7 +10,7 @@ pub struct EnchantOption {
     held_activated_enchantments: Vec<Enchant>,
     self_activated_enchantments: Vec<Enchant>,
     name: String,
-    option_id: u32,
+    option_id: i32,
 }
 
 impl EnchantOption {
@@ -21,7 +21,7 @@ impl EnchantOption {
         held_activated_enchantments: Vec<Enchant>,
         self_activated_enchantments: Vec<Enchant>,
         name: String,
-        option_id: u32,
+        option_id: i32,
     ) -> EnchantOption {
         EnchantOption {
             cost,

@@ -14,8 +14,8 @@ pub struct MovePlayer {
     pub mode: u8,
     pub on_ground: bool,
     pub riding_actor_runtime_id: u64,
-    pub teleport_cause: i32,
-    pub teleport_item: i32,
+    pub teleport_cause: Option<i32>,
+    pub teleport_item: Option<i32>,
     pub tick: u64,
 }
 
@@ -34,9 +34,11 @@ impl Packet for MovePlayer {
         stream.put_u8(self.mode);
         stream.put_bool(self.on_ground);
         PacketSerializer::put_actor_runtime_id(stream, self.riding_actor_runtime_id);
-        if self.mode == MovePlayer::MODE_TELEPORT {
-            stream.put_i32_le(self.teleport_cause);
-            stream.put_i32_le(self.teleport_item);
+        let has_teleport = self.teleport_cause.is_some() && self.teleport_item.is_some();
+        stream.put_bool(has_teleport);
+        if has_teleport {
+            stream.put_i32_le(self.teleport_cause.unwrap());
+            stream.put_i32_le(self.teleport_item.unwrap());
         }
         stream.put_var_u64(self.tick);
     }
@@ -51,10 +53,10 @@ impl Packet for MovePlayer {
         let mode = stream.get_u8();
         let on_ground = stream.get_bool();
         let riding_actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
-        let (mut teleport_cause, mut teleport_item) = (0, 0);
-        if mode == MovePlayer::MODE_TELEPORT {
-            teleport_cause = stream.get_i32_le();
-            teleport_item = stream.get_i32_le();
+        let (mut teleport_cause, mut teleport_item) = (None, None);
+        if stream.get_bool() {
+            teleport_cause = Some(stream.get_i32_le());
+            teleport_item = Some(stream.get_i32_le());
         }
         let tick = stream.get_var_u64();
 

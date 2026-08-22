@@ -3,26 +3,20 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PresenceInfo {
-    experience_name: Option<String>,
-    world_name: Option<String>,
-    rich_presence_id: String,
+    rich_presence_id: Option<String>
 }
 
 impl PresenceInfo {
-    pub fn new(experience_name: Option<String>, world_name: Option<String>, rich_presence_id: String,) -> PresenceInfo {
-        PresenceInfo { experience_name, world_name, rich_presence_id }
+    pub fn new(rich_presence_id: Option<String>) -> PresenceInfo {
+        PresenceInfo { rich_presence_id }
     }
 
     pub fn read(stream: &mut Reader) -> PresenceInfo {
-        let experience_name = PacketSerializer::read_optional(stream, |stream| PacketSerializer::get_string(stream));
-        let world_name = PacketSerializer::read_optional(stream, |stream| PacketSerializer::get_string(stream));
-        let rich_presence_id = PacketSerializer::get_string(stream);
-        PresenceInfo { experience_name, world_name, rich_presence_id }
+        let rich_presence_id = PacketSerializer::read_optional(stream, |stream| PacketSerializer::get_string(stream));
+        PresenceInfo { rich_presence_id }
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::write_optional(stream, &self.experience_name, |stream, value| PacketSerializer::put_string(stream, value));
-        PacketSerializer::write_optional(stream, &self.world_name, |stream, value| PacketSerializer::put_string(stream, value));
-        PacketSerializer::put_string(stream, &self.rich_presence_id);
+        PacketSerializer::write_optional(stream, &self.rich_presence_id, |stream, value| PacketSerializer::put_string(stream, value));
     }
 }

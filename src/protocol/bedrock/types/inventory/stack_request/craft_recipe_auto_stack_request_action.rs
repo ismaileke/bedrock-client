@@ -4,51 +4,33 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CraftRecipeAutoStackRequestAction {
-    recipe_id: u32,
+    recipe_id: i32,
     repetitions: u8,
-    repetitions2: u8,
     ingredients: Vec<RecipeIngredient>,
 }
 
 impl CraftRecipeAutoStackRequestAction {
-    pub fn new(
-        recipe_id: u32,
-        repetitions: u8,
-        repetitions2: u8,
-        ingredients: Vec<RecipeIngredient>,
-    ) -> CraftRecipeAutoStackRequestAction {
-        CraftRecipeAutoStackRequestAction {
-            recipe_id,
-            repetitions,
-            repetitions2,
-            ingredients,
-        }
+    pub fn new(recipe_id: i32, repetitions: u8, ingredients: Vec<RecipeIngredient>) -> CraftRecipeAutoStackRequestAction {
+        CraftRecipeAutoStackRequestAction { recipe_id, repetitions, ingredients }
     }
 
     pub fn read(stream: &mut Reader) -> CraftRecipeAutoStackRequestAction {
         let recipe_id = PacketSerializer::read_recipe_net_id(stream);
         let repetitions = stream.get_u8();
-        let repetitions2 = stream.get_u8();
-        let len = stream.get_u8();
-        let mut ingredients = Vec::new();
+        let len = stream.get_var_u32();
+        let mut ingredients = Vec::with_capacity(len as usize);
         for _ in 0..len {
             ingredients.push(PacketSerializer::get_recipe_ingredient(stream));
         }
 
-        CraftRecipeAutoStackRequestAction {
-            recipe_id,
-            repetitions,
-            repetitions2,
-            ingredients,
-        }
+        CraftRecipeAutoStackRequestAction { recipe_id, repetitions, ingredients }
     }
 
-    pub fn write(&mut self, stream: &mut Writer) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::write_recipe_net_id(stream, self.recipe_id);
         stream.put_u8(self.repetitions);
-        stream.put_u8(self.repetitions2);
-        stream.put_u8(self.ingredients.len() as u8);
-        for ingredient in self.ingredients.iter_mut() {
+        stream.put_var_u32(self.ingredients.len() as u32);
+        for ingredient in self.ingredients.iter() {
             PacketSerializer::put_recipe_ingredient(stream, ingredient);
         }
     }

@@ -15,9 +15,6 @@ impl PlayerBlockActionWithBlockInfo {
     }
 
     pub fn new(action_type: i32, block_position: Vec<i32>, face: i32) -> PlayerBlockActionWithBlockInfo {
-        if !Self::is_valid_action_type(action_type) {
-            panic!("Invalid action type for PlayerBlockActionWithBlockInfo");
-        }
         PlayerBlockActionWithBlockInfo { action_type, block_position, face }
     }
 
@@ -28,7 +25,7 @@ impl PlayerBlockActionWithBlockInfo {
         PlayerBlockActionWithBlockInfo { action_type, block_position, face }
     }
 
-    pub fn write(&mut self, stream: &mut Writer) {
+    pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_block_pos(stream, &self.block_position);
         stream.put_var_i32(self.face);
     }

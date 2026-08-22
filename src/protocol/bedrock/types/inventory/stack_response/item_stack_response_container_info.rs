@@ -9,14 +9,8 @@ pub struct ItemStackResponseContainerInfo {
 }
 
 impl ItemStackResponseContainerInfo {
-    pub fn new(
-        container_name: FullContainerName,
-        slots: Vec<ItemStackResponseSlotInfo>,
-    ) -> ItemStackResponseContainerInfo {
-        ItemStackResponseContainerInfo {
-            container_name,
-            slots,
-        }
+    pub fn new(container_name: FullContainerName, slots: Vec<ItemStackResponseSlotInfo>) -> ItemStackResponseContainerInfo {
+        ItemStackResponseContainerInfo { container_name, slots }
     }
 
     pub fn read(stream: &mut Reader) -> ItemStackResponseContainerInfo {
@@ -27,10 +21,7 @@ impl ItemStackResponseContainerInfo {
             slots.push(ItemStackResponseSlotInfo::read(stream));
         }
 
-        ItemStackResponseContainerInfo {
-            container_name,
-            slots,
-        }
+        ItemStackResponseContainerInfo { container_name, slots }
     }
 
     pub fn write(&self, stream: &mut Writer) {

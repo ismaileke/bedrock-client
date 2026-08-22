@@ -16,12 +16,16 @@ impl SubChunkEntryWithoutCache {
     }
 
     pub fn read(stream: &mut Reader) -> SubChunkEntryWithoutCache {
-        let base = SubChunkEntryCommon::read(stream, false);
+        let base = SubChunkEntryCommon::read(stream);
+        if stream.get_bool() {
+            let _ = stream.get_u64_le(); //blob hash, useless without a cache
+        }
 
         SubChunkEntryWithoutCache { base }
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        self.base.write(stream, false);
+        self.base.write(stream);
+        stream.put_bool(false);
     }
 }

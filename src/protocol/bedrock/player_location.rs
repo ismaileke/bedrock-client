@@ -6,7 +6,7 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerLocation {
-    pub location_type: u32, //see types/player_location_type.rs
+    pub location_type: i32, //see types/player_location_type.rs
     pub actor_unique_id: i64,
     pub position: Option<Vec<f32>>,
 }
@@ -34,21 +34,22 @@ impl Packet for PlayerLocation {
     }
 
     fn encode(&mut self, stream: &mut Writer) {
-        stream.put_u32_le(self.location_type);
         PacketSerializer::put_actor_unique_id(stream, self.actor_unique_id);
+        stream.put_var_u32(self.location_type as u32);
+        stream.put_var_i32(self.location_type);
         if self.location_type == PlayerLocationType::PLAYER_LOCATION_COORDINATES {
             if let Some(position) = &self.position {
                 PacketSerializer::put_vector3(stream, position);
             } else {
                 panic!("PlayerLocationPacket with type PLAYER_LOCATION_COORDINATES require a position to be provided");
             }
-
         }
     }
 
     fn decode(stream: &mut Reader) -> PlayerLocation {
-        let location_type = stream.get_u32_le();
         let actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
+        let location_type = stream.get_var_u32() as i32;
+        let _ = stream.get_var_i32();
         let mut position: Option<Vec<f32>> = None;
         if location_type == PlayerLocationType::PLAYER_LOCATION_COORDINATES {
             position = Some(PacketSerializer::get_vector3(stream));

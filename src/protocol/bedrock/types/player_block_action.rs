@@ -17,7 +17,7 @@ impl PlayerBlockAction {
         }
     }
 
-    pub fn write(&mut self, stream: &mut Writer) {
+    pub fn write(&self, stream: &mut Writer) {
         match self {
             PlayerBlockAction::StopBreak(r) => r.write(stream),
             PlayerBlockAction::WithBlockInfo(r) => r.write(stream),

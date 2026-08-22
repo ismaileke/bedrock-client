@@ -1,6 +1,4 @@
 use crate::protocol::bedrock::types::inventory::inventory_transaction_changed_slots_hack::InventoryTransactionChangedSlotsHack;
-use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
-use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::types::inventory::transaction_data::TransactionData;
 use crate::protocol::bedrock::types::inventory::use_item_transaction_data::UseItemTransactionData;
 use binary_utils::binary::{Reader, Writer};
@@ -30,12 +28,8 @@ impl ItemInteractionData {
                 request_changed_slots.push(InventoryTransactionChangedSlotsHack::read(stream));
             }
         }
-        let mut tr_data = TransactionData::UseItem(UseItemTransactionData::new(vec![], 0, 0, vec![], 0, 0, ItemStackWrapper {
-            stack_id: 0,
-            item_stack: ItemStack::null(),
-            variant: 0,
-        }, vec![], vec![], 0, 0, 0)); // bad way LOL
-        tr_data.decode_auth_input(stream);
+        let mut tr_data = TransactionData::UseItem(UseItemTransactionData::null());
+        tr_data.decode(stream);
 
         let use_item_tr_data = match tr_data {
             TransactionData::UseItem(data) => data,
@@ -58,6 +52,6 @@ impl ItemInteractionData {
             }
         }
         let tr_data = TransactionData::UseItem(self.tr_data.clone());
-        tr_data.encode_auth_input(stream);
+        tr_data.encode(stream);
     }
 }

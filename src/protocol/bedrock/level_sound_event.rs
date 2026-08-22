@@ -626,4 +626,7 @@ impl LevelSoundEvent {
     pub const BUCKET_EMPTY_LAND_ANIMAL: &'static str = "bucket.empty.land_animal";
     pub const GEYSER_CONTINUOUS_ERUPTION_START: &'static str = "geyser_continuous_eruption_start";
     pub const GEYSER_CONTINUOUS_ERUPTION_ACTIVE: &'static str = "geyser_continuous_eruption_active";
+    pub const MOUNT: &'static str = "mount";
+    pub const DISMOUNT: &'static str = "dismount";
+    pub const STRAW_BED_BREAK_LEAVE: &'static str = "straw_bed.break_leave";
 }

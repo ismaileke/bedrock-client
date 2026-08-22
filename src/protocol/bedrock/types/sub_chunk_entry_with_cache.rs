@@ -24,17 +24,18 @@ impl SubChunkEntryWithCache {
     }
 
     pub fn read(stream: &mut Reader) -> SubChunkEntryWithCache {
-        let base = SubChunkEntryCommon::read(stream, true);
+        let base = SubChunkEntryCommon::read(stream);
+        if !stream.get_bool() {
+            panic!("Expected a blob hash for a cache-enabled subchunk entry");
+        }
         let used_blob_hash = stream.get_u64_le();
 
-        SubChunkEntryWithCache {
-            base,
-            used_blob_hash,
-        }
+        SubChunkEntryWithCache { base, used_blob_hash }
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        self.base.write(stream, true);
+        self.base.write(stream);
+        stream.put_bool(true);
         stream.put_u64_le(self.used_blob_hash);
     }
 }
