@@ -34,6 +34,7 @@ use mojang_nbt::nbt::NBT;
 use mojang_nbt::tag::compound_tag::CompoundTag;
 use mojang_nbt::tag::tag::Tag;
 use mojang_nbt::tree_root::TreeRoot;
+use mojang_nbt::nbt_serializer::{NBTReader, NBTWriter};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::io::{Cursor, Read};
@@ -41,9 +42,9 @@ use std::net::{SocketAddr, ToSocketAddrs};
 use std::sync::{Arc, Mutex};
 use std::io;
 use binary_utils::binary::{Reader, Writer};
-use mojang_nbt::nbt_serializer::{NBTReader, NBTWriter};
 use tokio::net::UdpSocket;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
+use crate::protocol::bedrock::types::block_palette_entry::BlockPaletteEntry;
 
 pub struct Client {
     // Network
@@ -263,11 +264,11 @@ async fn start_network_thread(
     socket.send(req1.as_slice()).await.expect("Open Connection Request 1 packet could not be sent");
 
     let mut buffer = vec![0; 2048];
-    let mut raknet_out = Writer::with_capacity(1500);   // handle_packet çıktısı
-    let mut game_body = Writer::with_capacity(2048);   // paket gövdesi
+    let mut raknet_out = Writer::with_capacity(1500);   // handle_packet output
+    let mut game_body = Writer::with_capacity(2048);   // packet body
     let mut datagram_out = Writer::with_capacity(1500); // datagram
     let mut ack_buf = Writer::with_capacity(64);       // ACK/NACK
-    let mut game_scratch = vec![0u8; 2 * 1024 * 1024]; // decompress
+    let mut game_scratch = vec![0u8; 16 * 1024 * 1024]; // decompress (16 MB)
     let mut should_stop = false;
 
     loop {
@@ -305,6 +306,7 @@ async fn start_network_thread(
                 ack_buf.clear();
                 Acknowledge::create(PacketType::ACK, 1, true, Option::from(datagram.sequence_number.clone()), None, None).encode(&mut ack_buf);
                 socket.send(ack_buf.as_slice()).await.expect("ACK Send Error");
+                //eprintln!("ACK seq={} bytes={:02X?}", datagram.sequence_number, ack_buf.as_slice());
                 //////////////////
 
                 let seq = datagram.sequence_number;
@@ -327,13 +329,13 @@ async fn start_network_thread(
                 }
 
                 // SENDING NACK
-                if (raknet_handler.last_received_sequence_number + 1) != (seq as i64) {
+                /*if (raknet_handler.last_received_sequence_number + 1) != (seq as i64) {
                     for seq_num in ((raknet_handler.last_received_sequence_number+1) as u32)..seq {
                         let mut nack = Writer::new();
                         Acknowledge::create(PacketType::NACK, 1, true, Option::from(seq_num), None, None).encode(&mut nack);
                         socket.send(nack.as_slice()).await.expect("NACK Send Error");
                     }
-                }
+                }*/
                 if (seq as i64) > raknet_handler.last_received_sequence_number {
                     raknet_handler.last_received_sequence_number = seq as i64;
                 }
@@ -526,295 +528,37 @@ async fn start_network_thread(
                                                 }
                                             },
                                             BedrockPacket::StartGame(start_game) => {
-                                                // Custom Blok Verileri HashMap'e Aktarılıyor
-                                                let block_palette_entries = &start_game.block_palette;
-                                                let mut custom_blocks = HashMap::new();
-                                                for block_palette_entry in block_palette_entries {
-                                                    //println!("{}----{}", COLOR_DARK_AQUA, COLOR_WHITE);
-                                                    //println!("Block Name: {}", block_palette_entry.get_name());
-                                                    let root = block_palette_entry.get_states().get_root();
-                                                    if let Tag::Compound(bct) = root {
-                                                        let vanilla_block_data = bct.get_compound_tag("vanilla_block_data".to_string());
-                                                        let menu_category = bct.get_compound_tag("menu_category".to_string());
-                                                        let components = bct.get_compound_tag("components".to_string());
-                                                        let properties = bct.get_list_tag("properties".to_string());
-                                                        let permutations = bct.get_list_tag("permutations".to_string());
-
-                                                        let mut properties_map = LinkedHashMap::new();
-
-                                                        /*if vanilla_block_data.is_some() {
-                                                            let vbd = vanilla_block_data.unwrap();
-                                                            let block_id = vbd.get_int("block_id").unwrap();
-                                                            let material = vbd.get_string("material").unwrap();
-                                                            //println!("Block ID: {}, Material: {}", block_id, material); // Block ID: 10000, Material: dirt
-                                                            // block_palette_827.nbt dosyasına tüm stateslere göre eklicen misal
-                                                            // block name: dirt, id: 1, states: [up: 0, down: 0]
-                                                            // block name: dirt, id: 1, states: [up: 1, down: 0]
-                                                            // block name: dirt, id: 1, states: [up: 0, down: 1]
-                                                            // block name: dirt, id: 1, states: [up: 1, down: 1]
-
-
-                                                            /*for (key, value) in vanilla_block_data.unwrap().get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
-                                                                println!("vanilla_block_data - {} - {}", key, value.get_type());
-                                                            }*/
-                                                        }*/
-                                                        /* Unnecessary */if menu_category.is_some() {
-                                                            /*for (key, value) in menu_category.unwrap().get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
-                                                                println!("menu_category - {} - {}", key, value.get_type());
-                                                            }*/
-                                                        }
-                                                        /* Unnecessary */if components.is_some() {
-                                                            /*for (key, value) in components.unwrap().get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
-                                                                println!("components - {} - {}", key, value.get_type());
-                                                            }*/
-                                                        }
-                                                        if properties.is_some() {
-                                                            properties.unwrap().get_value().iter().for_each(|property| {
-                                                                let mut property_enums_map: Vec<PropertyValue> = vec![];
-
-                                                                if let Tag::Compound(pct) = property {
-                                                                    let property_name = pct.get_string("name").unwrap();
-                                                                    let property_enums = pct.get_list_tag("enum".to_string()).unwrap();
-                                                                    // Blok Özellikleri ve Alabileceği Değerler
-                                                                    //println!("property name: {}", property_name);
-                                                                    property_enums.get_value().iter().for_each(|property_enum| {
-                                                                        let id = property_enum.get_id();
-                                                                        if id == NBT::TAG_BYTE {
-                                                                            if let Tag::Byte(pce) = property_enum {
-                                                                                property_enums_map.push(PropertyValue::Byte(pce.get_value()));
-                                                                            }
-                                                                        } else if id == NBT::TAG_STRING {
-                                                                            if let Tag::String(pce) = property_enum {
-                                                                                property_enums_map.push(PropertyValue::Str(pce.get_value().clone()));
-                                                                            }
-                                                                        } else if id == NBT::TAG_INT {
-                                                                            if let Tag::Int(pce) = property_enum {
-                                                                                property_enums_map.push(PropertyValue::Int(pce.get_value()));
-                                                                            }
-                                                                        } else { println!("Unknown property enum id {:?}", id); }
-                                                                    });
-                                                                    properties_map.insert(property_name, property_enums_map);
-                                                                }
-
-                                                                /*block_enum.get_value().downcast_ref::<Vec<Box<dyn Tag>>>().unwrap().iter().for_each(|enum_value| {
-                                                                    let enum_value_tag = enum_value.as_any().downcast_ref::<IntTag>().unwrap();
-                                                                    println!("  - {}", enum_value_tag.get_value().downcast_ref::<u32>().unwrap());
-                                                                })*/
-                                                                /*for (key, value) in pct.get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
-                                                                    println!("property - {} - {}", key, value.get_type());
-                                                                }*/
-                                                            });
-                                                        }
-                                                        /* Unnecessary */if permutations.is_some() {
-                                                            /*permutations.unwrap().get_value().downcast_ref::<Vec<Box<dyn Tag>>>().unwrap().iter().for_each(|permutation| {
-                                                                let pct = permutation.as_any().downcast_ref::<CompoundTag>().unwrap();
-                                                                for (key, value) in pct.get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
-                                                                    if key == "condition" {
-                                                                        let condition_tag = pct.get_string("condition").unwrap();
-                                                                        println!("Condition Name  - {}", condition_tag);
-                                                                    }
-                                                                    if key == "components" {
-                                                                        let components_tag = pct.get_compound_tag("components".to_string()).unwrap();
-                                                                        for (key, value) in components_tag.get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
-                                                                            //println!("  - {} - {}", key, value.get_type());
-                                                                        }
-                                                                    }
-                                                                    println!("permutation -> {} - {}", key, value.get_type());
-                                                                }
-                                                            });*/
-                                                        }
-
-                                                        //////////////////////////
-                                                        let vbd = vanilla_block_data.unwrap();
-                                                        let block_id = vbd.get_int("block_id").unwrap();
-                                                        let block_data = format!("{}/{}", block_id, block_palette_entry.get_name());
-                                                        custom_blocks.insert(block_data, properties_map);
-                                                        //////////////////////////
-                                                    }
-                                                }
-
-                                                ////////////////////////////////////////////////////
-                                                ////////////////////////////////////////////////////
-                                                ////////////////////////////////////////////////////
-                                                ////////////////////////////////////////////////////
-                                                let cursor = Cursor::new(VANILLA_BLOCK_PALETTE);
-                                                let mut decoder = GzDecoder::new(cursor);
-
-                                                let mut contents = Vec::new();
-                                                decoder.read_to_end(&mut contents).unwrap();
-                                                let mut stream = Reader::new(contents.as_slice());
-
-                                                let mut nbt_serializer = NBTReader::new_big_endian();
-                                                let mut offset = stream.offset();
-                                                let nbt_root = nbt_serializer.read(stream.get_buffer(), &mut offset, 0);
-                                                stream.set_offset(offset);
-
-                                                let ct = nbt_root.must_get_compound_tag().unwrap();
-
-                                                let vanilla_blocks = ct.get_list_tag("blocks".to_string()).unwrap();
-                                                ////////////////////////////////////////////////////
-                                                ////////////////////////////////////////////////////
-                                                ////////////////////////////////////////////////////
-                                                ////////////////////////////////////////////////////
-
-                                                if start_game.block_network_ids_are_hashes {
-                                                    // Adding vanilla blocks to Hashed Network IDs
-                                                    for i in 0..vanilla_blocks.count() {
-                                                        let vanilla_block = vanilla_blocks.get(i);
-                                                        if let Tag::Compound(mut vanilla_ct) = vanilla_block {
-                                                            let hashed_network_id = vanilla_ct.get_int("network_id").unwrap() as u32;
-                                                            //let block_name = vanilla_ct.get_string("name").unwrap();
-                                                            //println!("{}, Block Name: {}, Network ID: {}", i, block_name, hashed_network_id);
-                                                            vanilla_ct.remove_tag(vec!["network_id".to_string(), "name_hash".to_string(), "version".to_string()]);
-                                                            bedrock_handler.hashed_network_ids.insert(hashed_network_id, vanilla_ct.clone());
-                                                        }
-                                                    }
-
-                                                    // Adding custom blocks to Hashed Network IDs
-                                                    for (block_data, properties) in custom_blocks {
-                                                        let parts: Vec<&str> = block_data.split('/').collect();
-                                                        let block_id = parts[0].parse::<i32>().unwrap();
-                                                        let block_name = parts[1];
-
-                                                        let combinations = block::cartesian_product_enum(&properties);
-                                                        for combo in combinations {
-                                                            let mut state = CompoundTag::new(LinkedHashMap::new());
-                                                            for (k, v) in &combo {
-                                                                match v {
-                                                                    PropertyValue::Int(i) => {
-                                                                        state.set_int(k, *i);
-                                                                    },
-                                                                    PropertyValue::Str(s) => {
-                                                                        state.set_string(k, s.clone());
-                                                                    },
-                                                                    PropertyValue::Byte(b) => {
-                                                                        state.set_byte(k, *b);
-                                                                    }
-                                                                }
-                                                            }
-
-                                                            let mut custom_ct = CompoundTag::new(LinkedHashMap::new());
-                                                            custom_ct.set_string("name", block_name.to_string());
-                                                            custom_ct.set_tag("states", Tag::Compound(state.clone()));
-
-                                                            let root = TreeRoot::new(Tag::Compound(custom_ct.clone()), "");
-                                                            let mut serializer = NBTWriter::new_little_endian();
-                                                            let data = serializer.write(root);
-
-                                                            //let hash_id = block::fnv1a_32(data);
-                                                            //println!("Block Name: {}, Hash ID: {}", block_name.clone(), hash_id);
-
-                                                            let mut custom_ct_list = custom_ct.clone();
-                                                            custom_ct_list.set_int("block_id", block_id);
-                                                            bedrock_handler.hashed_network_ids.insert(block::fnv1a_32(data), custom_ct_list.clone());
-                                                        }
-                                                    }
-
-                                                    // Hashed Network IDs Dump
-                                                    for (id, tag) in &bedrock_handler.hashed_network_ids {
-                                                        let name = tag.get_string("name").unwrap();
-                                                        if name.clone() == "minecraft:air" {
-                                                            bedrock_handler.air_network_id = id.clone();
-                                                        }
-                                                        /*println!("Hashed Network ID: {}", id);
-                                                        println!(" - Block ID: {:?}", tag.get_int("block_id").unwrap());
-                                                        println!(" - Block Name: {:?}", name.clone());
-                                                        let states = tag.get_compound_tag("states".to_string()).unwrap();
-                                                        for (key, value) in states.get_value().downcast_ref::<HashMap<String, Box<dyn Tag>>>().unwrap() {
-                                                            let id = value.as_any().type_id();
-                                                            if id == std::any::TypeId::of::<IntTag>() {
-                                                                let pce = value.as_any().downcast_ref::<IntTag>().unwrap().clone();
-                                                                let any_value = pce.get_value();
-                                                                let real_val = any_value.downcast_ref::<u32>().unwrap();
-                                                                println!(" -- State -> {} - {}", key, real_val);
-                                                            } else if id == std::any::TypeId::of::<StringTag>() {
-                                                                let pce = value.as_any().downcast_ref::<StringTag>().unwrap().clone();
-                                                                let any_value = pce.get_value();
-                                                                let real_val = any_value.downcast_ref::<String>().unwrap();
-                                                                println!(" -- State -> {} - {}", key, real_val.clone());
-                                                            }
-                                                        }*/
-                                                    }
-                                                } else {
-                                                    let mut name_hashes: Vec<CompoundTag> = Vec::new();
-
-                                                    // Adding vanilla blocks to Runtime Network IDs
-                                                    for i in 0..vanilla_blocks.count() {
-                                                        let vanilla_block = vanilla_blocks.get(i);
-                                                        if let Tag::Compound(mut vanilla_ct) = vanilla_block {
-                                                            vanilla_ct.remove_tag(vec!["version".to_string(), "network_id".to_string()]);
-                                                            name_hashes.push(vanilla_ct);
-                                                        }
-                                                    }
-
-                                                    // Adding custom blocks to Runtime Network IDs
-                                                    for (block_data, properties) in custom_blocks {
-                                                        let parts: Vec<&str> = block_data.split('/').collect();
-                                                        let block_id = parts[0].parse::<i32>().unwrap();
-                                                        let block_name = parts[1].to_string();
-
-                                                        let combinations = block::cartesian_product_enum(&properties);
-                                                        for combo in combinations {
-                                                            let mut state = CompoundTag::new(LinkedHashMap::new());
-                                                            for (k, v) in &combo {
-                                                                match v {
-                                                                    PropertyValue::Int(i) => {
-                                                                        state.set_int(k, *i);
-                                                                    },
-                                                                    PropertyValue::Str(s) => {
-                                                                        state.set_string(k, s.clone());
-                                                                    },
-                                                                    PropertyValue::Byte(b) => {
-                                                                        state.set_byte(k, *b);
-                                                                    }
-                                                                }
-                                                            }
-
-                                                            let mut cct = CompoundTag::new(LinkedHashMap::new());
-                                                            cct.set_string("name", block_name.clone());
-                                                            cct.set_long("name_hash", block::fnv1_64(block_name.as_bytes()) as i64); ///////////////////////////
-                                                            cct.set_int("block_id", block_id);
-                                                            cct.set_tag("states", Tag::Compound(state.clone()));
-                                                            name_hashes.push(cct);
-                                                        }
-                                                    }
-
-                                                    // Sorting blocks
-                                                    name_hashes.sort_by_key(|tag| tag.get_long("name_hash").unwrap() as u64);
-
-
-                                                    // Find air runtime id
-                                                    if let Some(index) = name_hashes.iter().position(|tag| tag.get_string("name").unwrap() == "minecraft:air") {
-                                                        bedrock_handler.air_network_id = index as u32;
-                                                    }
-
-                                                    bedrock_handler.runtime_network_ids = name_hashes.clone();
-                                                }
-
-                                                ////////////////////////////////////////////////////
-                                                ////////////////////////////////////////////////////
-                                                ////////////////////////////////////////////////////
-                                                ////////////////////////////////////////////////////
-
-                                                let palette_event = ClientEvent::GameStarted {
-                                                    hashed_ids: bedrock_handler.hashed_network_ids.clone(),
-                                                    runtime_ids: bedrock_handler.runtime_network_ids.clone(),
-                                                    air_id: bedrock_handler.air_network_id,
-                                                    runtime_id: start_game.actor_runtime_id,
-                                                    unique_id: start_game.actor_unique_id,
-                                                    current_tick: start_game.current_tick,
-                                                    player_position: start_game.player_position.clone(),
-                                                    yaw: start_game.yaw,
-                                                    pitch: start_game.pitch
-                                                };
-                                                tx_to_game.send(palette_event).expect("Main thread koptu");
-
-                                                // REQUEST CHUNK RADIUS PACKET
+                                                // --- HAFİF İŞ (network thread'de kalır) ---
                                                 let mut req_chunk_radius = RequestChunkRadius { radius: 40, max_radius: 40 };
-
-                                                raknet_handler.game.encode(&mut req_chunk_radius, &mut game_body).expect("Something went wrong");
+                                                raknet_handler.game.encode(&mut req_chunk_radius, &mut game_body).expect("encode");
                                                 let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
                                                 send_datagrams(&socket, &mut datagram_out, datagrams).await;
+
+                                                // --- AĞIR İŞ (ayrı thread) ---
+                                                let palette   = start_game.block_palette.clone();
+                                                let hashes    = start_game.block_network_ids_are_hashes;
+                                                let rid       = start_game.actor_runtime_id;
+                                                let uid       = start_game.actor_unique_id;
+                                                let tick      = start_game.current_tick;
+                                                let pos  = start_game.player_position.clone();
+                                                let yaw       = start_game.yaw;
+                                                let pitch     = start_game.pitch;
+                                                let tx        = tx_to_game.clone();
+
+                                                tokio::task::spawn_blocking(move || {
+                                                    let r = build_palette(&palette, hashes);
+                                                    let _ = tx.send(ClientEvent::GameStarted {
+                                                        hashed_ids:  r.hashed_ids,
+                                                        runtime_ids: r.runtime_ids,
+                                                        air_id:      r.air_id,
+                                                        runtime_id:  rid,
+                                                        unique_id:   uid,
+                                                        current_tick: tick,
+                                                        player_position: pos,
+                                                        yaw,
+                                                        pitch,
+                                                    });
+                                                });
                                             },
                                             BedrockPacket::AvailableCommands(_available_commands) => {
                                                 // REQUEST CHUNK RADIUS PACKET
@@ -881,4 +625,173 @@ async fn send_datagrams(socket: &UdpSocket, buf: &mut Writer, datagrams: Vec<Dat
 
 fn lookup_host(hostname: &String) -> io::Result<Vec<SocketAddr>> {
     (hostname.to_string(), 0).to_socket_addrs().map(|addrs| addrs.collect())
+}
+
+pub struct PaletteResult {
+    pub hashed_ids: HashMap<u32, CompoundTag>,
+    pub runtime_ids: Vec<CompoundTag>,
+    pub air_id: u32,
+}
+
+fn build_palette(
+    block_palette: &Vec<BlockPaletteEntry>,
+    ids_are_hashes: bool,
+) -> PaletteResult {
+    let mut hashed_ids: HashMap<u32, CompoundTag> = HashMap::new();
+    let mut runtime_ids: Vec<CompoundTag> = Vec::new();
+    let mut air_id: u32 = 0;
+
+    // --- Collect custom blocks ---
+    let mut custom_blocks = HashMap::new();
+    for entry in block_palette {
+        let root = entry.get_states().get_root();
+        if let Tag::Compound(bct) = root {
+            let vanilla_block_data = bct.get_compound_tag("vanilla_block_data".to_string());
+            let properties = bct.get_list_tag("properties".to_string());
+
+            let mut properties_map = LinkedHashMap::new();
+
+            if let Some(props) = properties {
+                props.get_value().iter().for_each(|property| {
+                    let mut property_enums_map: Vec<PropertyValue> = vec![];
+                    if let Tag::Compound(pct) = property {
+                        let property_name = pct.get_string("name").unwrap();
+                        let property_enums = pct.get_list_tag("enum".to_string()).unwrap();
+                        property_enums.get_value().iter().for_each(|property_enum| {
+                            let id = property_enum.get_id();
+                            if id == NBT::TAG_BYTE {
+                                if let Tag::Byte(pce) = property_enum {
+                                    property_enums_map.push(PropertyValue::Byte(pce.get_value()));
+                                }
+                            } else if id == NBT::TAG_STRING {
+                                if let Tag::String(pce) = property_enum {
+                                    property_enums_map.push(PropertyValue::Str(pce.get_value().clone()));
+                                }
+                            } else if id == NBT::TAG_INT {
+                                if let Tag::Int(pce) = property_enum {
+                                    property_enums_map.push(PropertyValue::Int(pce.get_value()));
+                                }
+                            } else {
+                                println!("Unknown property enum id {:?}", id);
+                            }
+                        });
+                        properties_map.insert(property_name, property_enums_map);
+                    }
+                });
+            }
+
+            let vbd = vanilla_block_data.unwrap();
+            let block_id = vbd.get_int("block_id").unwrap();
+            let block_data = format!("{}/{}", block_id, entry.get_name());
+            custom_blocks.insert(block_data, properties_map);
+        }
+    }
+
+    // --- Vanilla palette'i aç ---
+    let cursor = Cursor::new(VANILLA_BLOCK_PALETTE);
+    let mut decoder = GzDecoder::new(cursor);
+    let mut contents = Vec::new();
+    decoder.read_to_end(&mut contents).unwrap();
+    let mut stream = Reader::new(contents.as_slice());
+
+    let mut nbt_reader = NBTReader::new_big_endian();
+    let mut offset = stream.offset();
+    let nbt_root = nbt_reader.read(stream.get_buffer(), &mut offset, 0);
+    stream.set_offset(offset);
+
+    let ct = nbt_root.must_get_compound_tag().unwrap();
+    let vanilla_blocks = ct.get_list_tag("blocks".to_string()).unwrap();
+
+    if ids_are_hashes {
+        for i in 0..vanilla_blocks.count() {
+            if let Tag::Compound(mut vct) = vanilla_blocks.get(i) {
+                let hashed_network_id = vct.get_int("network_id").unwrap() as u32;
+                vct.remove_tag(vec![
+                    "network_id".to_string(),
+                    "name_hash".to_string(),
+                    "version".to_string(),
+                ]);
+                hashed_ids.insert(hashed_network_id, vct);
+            }
+        }
+
+        for (block_data, properties) in custom_blocks {
+            let parts: Vec<&str> = block_data.split('/').collect();
+            let block_id = parts[0].parse::<i32>().unwrap();
+            let block_name = parts[1];
+
+            for combo in block::cartesian_product_enum(&properties) {
+                let mut state = CompoundTag::new(LinkedHashMap::new());
+                for (k, v) in &combo {
+                    match v {
+                        PropertyValue::Int(i) => { state.set_int(k, *i); },
+                        PropertyValue::Str(s) => { state.set_string(k, s.clone()); },
+                        PropertyValue::Byte(b) => { state.set_byte(k, *b); },
+                    }
+                }
+
+                let mut custom_ct = CompoundTag::new(LinkedHashMap::new());
+                custom_ct.set_string("name", block_name.to_string());
+                custom_ct.set_tag("states", Tag::Compound(state));
+
+                let root = TreeRoot::new(Tag::Compound(custom_ct.clone()), "");
+                let mut writer = NBTWriter::new_little_endian();
+                let data = writer.write(root);
+
+                let mut custom_ct_list = custom_ct;
+                custom_ct_list.set_int("block_id", block_id);
+                hashed_ids.insert(block::fnv1a_32(data), custom_ct_list);
+            }
+        }
+
+        for (id, tag) in &hashed_ids {
+            if tag.get_string("name").unwrap() == "minecraft:air" {
+                air_id = *id;
+                break;
+            }
+        }
+    } else {
+        let mut name_hashes: Vec<CompoundTag> = Vec::new();
+
+        for i in 0..vanilla_blocks.count() {
+            if let Tag::Compound(mut vct) = vanilla_blocks.get(i) {
+                vct.remove_tag(vec!["version".to_string(), "network_id".to_string()]);
+                name_hashes.push(vct);
+            }
+        }
+
+        for (block_data, properties) in custom_blocks {
+            let parts: Vec<&str> = block_data.split('/').collect();
+            let block_id = parts[0].parse::<i32>().unwrap();
+            let block_name = parts[1].to_string();
+
+            for combo in block::cartesian_product_enum(&properties) {
+                let mut state = CompoundTag::new(LinkedHashMap::new());
+                for (k, v) in &combo {
+                    match v {
+                        PropertyValue::Int(i) => { state.set_int(k, *i); },
+                        PropertyValue::Str(s) => { state.set_string(k, s.clone()); },
+                        PropertyValue::Byte(b) => { state.set_byte(k, *b); },
+                    }
+                }
+
+                let mut cct = CompoundTag::new(LinkedHashMap::new());
+                cct.set_string("name", block_name.clone());
+                cct.set_long("name_hash", block::fnv1_64(block_name.as_bytes()) as i64);
+                cct.set_int("block_id", block_id);
+                cct.set_tag("states", Tag::Compound(state));
+                name_hashes.push(cct);
+            }
+        }
+
+        name_hashes.sort_by_key(|tag| tag.get_long("name_hash").unwrap() as u64);
+
+        if let Some(index) = name_hashes.iter().position(|t| t.get_string("name").unwrap() == "minecraft:air") {
+            air_id = index as u32;
+        }
+
+        runtime_ids = name_hashes;
+    }
+
+    PaletteResult { hashed_ids, runtime_ids, air_id }
 }

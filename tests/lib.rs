@@ -31,8 +31,11 @@ mod tests {
         while let Some((packet_name, packet)) = client.next_event().await {
             println!("{}[{}Packet{}] {}{}{}", color_format::COLOR_GRAY, color_format::COLOR_MINECOIN_GOLD, color_format::COLOR_GRAY, color_format::COLOR_BLUE, packet_name, color_format::COLOR_GRAY);
 
-            let packet_json = serde_json::to_string_pretty(&packet).unwrap();
-            println!("{}", packet_json);
+            /*if packet_name != "Voxel Shapes" {
+                let packet_json = serde_json::to_string_pretty(&packet).unwrap();
+                println!("{}", packet_json);
+            }*/
+
             match packet {
                 BedrockPacket::StartGame(start_game) => {
                     client.player_position = start_game.player_position.clone();
@@ -73,8 +76,8 @@ mod tests {
                         client.send_packet(Box::new(my_text) as Box<dyn Packet>);
                     }
                 },
-                BedrockPacket::LevelChunk(level_chunk) => {
-                    if level_chunk.sub_chunk_count != u32::MAX-1 { // 4294967294 = u32Max - 1
+                BedrockPacket::LevelChunk(_level_chunk) => {
+                    /*if level_chunk.sub_chunk_count != u32::MAX-1 { // 4294967294 = u32Max - 1
                         let decoded_chunk = network_decode(
                             client.chunk_air_id,
                             level_chunk.extra_payload.as_slice(),
@@ -88,7 +91,7 @@ mod tests {
                             },
                             Err(e) => eprintln!("Chunk could not be resolved: {}", e),
                         }
-                    }
+                    }*/
                 },
                 BedrockPacket::PlayerList(player_list) => {
                     for entry in &player_list.entries {

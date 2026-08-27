@@ -136,11 +136,12 @@ impl Datagram {
     pub fn split_packet<'a>(body: &[u8], frame_number_cache: &mut FrameNumberCache) -> Vec<Datagram> {
         let mut datagrams: Vec<Datagram> = Vec::new();
         if body.len() > 1300 {
+            //let compound_size = (body.len() + 1299) / 1300;
             let multiple = body.len() / 1300;
             let compound_size = multiple + 1;
 
-            for i in 0..=multiple {
-                let range = if i == multiple {
+            for i in 0..=multiple {//for i in 0..=compound_size {
+            let range = if i == multiple {//let range = if i == compound_size {
                     &body[(i * 1300)..]
                 } else {
                     &body[(i * 1300)..((i + 1) * 1300)]

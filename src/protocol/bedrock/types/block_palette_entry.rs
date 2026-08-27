@@ -1,6 +1,6 @@
 use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 
-#[derive(serde::Serialize, Debug)]
+#[derive(serde::Serialize, Debug, Clone)]
 pub struct BlockPaletteEntry {
     name: String,
     states: CacheableNBT,
