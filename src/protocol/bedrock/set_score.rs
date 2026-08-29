@@ -22,7 +22,7 @@ impl Packet for SetScore {
             match entry.entity_type {
                 Self::TYPE_REMOVE => {
                     stream.put_var_i64(entry.scoreboard_id);
-                    PacketSerializer::write_optional(stream, &entry.objective_name, |s, v| PacketSerializer::put_string(s, v));
+                    PacketSerializer::write_double_optional(stream, &entry.objective_name, |s, v| PacketSerializer::put_string(s, v));
                 },
                 Self::TYPE_PLAYER| Self::TYPE_ENTITY => {
                     stream.put_var_i64(entry.scoreboard_id);
@@ -58,7 +58,7 @@ impl Packet for SetScore {
             let entry = match entity_type {
                 Self::TYPE_REMOVE => {
                     let scoreboard_id = stream.get_var_i64();
-                    let objective_name = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
+                    let objective_name = PacketSerializer::read_double_optional(stream, |s| PacketSerializer::get_string(s));
                     ScoreEntry {
                         scoreboard_id,
                         objective_name,

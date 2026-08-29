@@ -585,10 +585,7 @@ async fn start_network_thread(
                                                     send_datagrams(&socket, &mut datagram_out, datagrams).await;
                                                 }
                                             },
-                                            BedrockPacket::Disconnect(_disconnect) => {
-                                                println!("Program sonlandı client.rs 868");
-                                                should_stop = true;
-                                            }
+                                            BedrockPacket::Disconnect(_) => { should_stop = true; },
                                             _ => {}
                                         }
 
