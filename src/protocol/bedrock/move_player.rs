@@ -6,7 +6,6 @@ use binary_utils::binary::{Reader, Writer};
 #[derive(serde::Serialize, Debug)]
 pub struct MovePlayer {
     pub actor_runtime_id: u64,
-    pub flags: u8,
     pub position: Vec<f32>,
     pub pitch: f32,
     pub yaw: f32,
@@ -26,7 +25,6 @@ impl Packet for MovePlayer {
 
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
-        stream.put_u8(self.flags);
         PacketSerializer::put_vector3(stream, &self.position);
         PacketSerializer::put_rotation_byte(stream, self.pitch);
         PacketSerializer::put_rotation_byte(stream, self.yaw);
@@ -45,7 +43,6 @@ impl Packet for MovePlayer {
 
     fn decode(stream: &mut Reader) -> MovePlayer {
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
-        let flags = stream.get_u8();
         let position = PacketSerializer::get_vector3(stream);
         let pitch = PacketSerializer::get_rotation_byte(stream);
         let yaw = PacketSerializer::get_rotation_byte(stream);
