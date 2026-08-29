@@ -70,8 +70,19 @@ impl PacketSerializer {
     }
 
     pub fn put_uuid(stream: &mut Writer, data: &str) {
-        stream.put_var_u32(data.len() as u32);
-        stream.put(data.as_bytes());
+        let uuid = Uuid::parse_str(data).expect("Invalid UUID format");
+        let bytes = uuid.into_bytes();
+
+        let mut p1 = [0u8; 8];
+        p1.copy_from_slice(&bytes[..8]);
+        p1.reverse();
+
+        let mut p2 = [0u8; 8];
+        p2.copy_from_slice(&bytes[8..]);
+        p2.reverse();
+
+        stream.put(&p1);
+        stream.put(&p2);
     }
 
     pub fn get_actor_unique_id(stream: &mut Reader) -> i64 {

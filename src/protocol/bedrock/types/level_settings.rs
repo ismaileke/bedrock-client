@@ -53,7 +53,7 @@ pub struct LevelSettings {
     pub limited_world_length: i32,
     pub is_new_nether: bool,
     pub edu_shared_uri_resource: EducationUriResource,
-    pub experimental_gameplay_override: bool,
+    pub experimental_gameplay_override: Option<bool>,
     pub chat_restriction_level: u8,
     pub disable_player_interactions: bool,
     pub server_editor_connection_policy: i32,
@@ -107,7 +107,7 @@ impl LevelSettings {
         let limited_world_length = stream.get_i32_le();
         let is_new_nether = stream.get_bool();
         let edu_shared_uri_resource = EducationUriResource::read(stream);
-        let experimental_gameplay_override = stream.get_bool();
+        let experimental_gameplay_override = PacketSerializer::read_optional(stream, |s| s.get_bool());
         let chat_restriction_level = stream.get_u8();
         let disable_player_interactions = stream.get_bool();
         let server_editor_connection_policy = stream.get_var_i32();
@@ -213,7 +213,7 @@ impl LevelSettings {
         stream.put_i32_le(self.limited_world_length);
         stream.put_bool(self.is_new_nether);
         self.edu_shared_uri_resource.write(stream);
-        stream.put_bool(self.experimental_gameplay_override);
+        PacketSerializer::write_optional(stream, &self.experimental_gameplay_override, |s, v| s.put_bool(*v));
         stream.put_u8(self.chat_restriction_level);
         stream.put_bool(self.disable_player_interactions);
         stream.put_var_i32(self.server_editor_connection_policy);
