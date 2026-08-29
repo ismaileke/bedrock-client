@@ -188,7 +188,6 @@ impl LevelSettings {
         stream.put_bool(self.has_confirmed_platform_locked_content);
         stream.put_bool(self.is_multiplayer_game);
         stream.put_bool(self.has_lan_broadcast);
-        stream.put_bool(self.has_lan_broadcast);
         stream.put_var_i32(self.xbox_live_broadcast_mode);
         stream.put_var_i32(self.platform_broadcast_mode);
         stream.put_bool(self.commands_enabled);

@@ -9,9 +9,9 @@ pub struct SkinAnimation {
 }
 
 impl SkinAnimation {
-    pub const TYPE_HEAD: u32 = 1;
+    pub const TYPE_FACE: u32 = 1;
     pub const TYPE_BODY_32: u32 = 2;
-    pub const TYPE_BODY_64: u32 = 3;
+    pub const TYPE_BODY_128: u32 = 3;
 
     pub const EXPRESSION_LINEAR: u32 = 0; //???
     pub const EXPRESSION_BLINKING: u32 = 1;

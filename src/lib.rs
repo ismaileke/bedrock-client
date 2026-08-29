@@ -5,7 +5,7 @@ pub mod protocol;
 pub mod utils;
 
 pub const RAKNET_PROTOCOL_VERSION: u8 = 11;
-pub const BEDROCK_PROTOCOL_VERSION: u32 = 2168;
+pub const BEDROCK_PROTOCOL_VERSION: u32 = 2169;
 const VANILLA_BLOCK_PALETTE: &[u8] = include_bytes!("../resources/block_palette.nbt");
 
 /*use std::ffi::{c_char, CStr, CString};
