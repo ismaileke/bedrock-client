@@ -16,10 +16,10 @@ mod tests {
     #[tokio::test]
     async fn test_client() {
         let mut client = client::create(
-            "127.0.0.1".to_string(),
+            "play.craftersmc.net".to_string(),
             19132,
             "1.26.44".to_string(),
-            false,
+            true,
             |code, url| { println!("Microsoft Auth: {} {}", code, url); }
         ).await.unwrap();
 
