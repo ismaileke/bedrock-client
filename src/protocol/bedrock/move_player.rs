@@ -59,7 +59,6 @@ impl Packet for MovePlayer {
 
         MovePlayer {
             actor_runtime_id,
-            flags,
             position,
             pitch,
             yaw,
