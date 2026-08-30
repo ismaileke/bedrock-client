@@ -11,7 +11,7 @@ pub struct PlayerBlockActionWithBlockInfo {
 
 impl PlayerBlockActionWithBlockInfo {
     pub fn get_action_type(&self) -> i32 {
-        PlayerActionTypes::STOP_BREAK
+        self.action_type
     }
 
     pub fn new(action_type: i32, block_position: Vec<i32>, face: i32) -> PlayerBlockActionWithBlockInfo {
