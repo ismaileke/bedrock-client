@@ -270,6 +270,7 @@ async fn start_network_thread(
     let mut ack_buf = Writer::with_capacity(64);       // ACK/NACK
     let mut game_scratch = vec![0u8; 16 * 1024 * 1024]; // decompress (16 MB)
     let mut should_stop = false;
+    let mut player_runtime_id: u64 = 0;
 
     loop {
         if should_stop { break; }
@@ -520,7 +521,7 @@ async fn start_network_thread(
                                             BedrockPacket::PlayStatus(play_status) => {
                                                 if play_status.status == 3 { // Player Spawn
                                                     // SET LOCAL PLAYER AS INITIALIZED PACKET
-                                                    let mut set_local_player_as_init = SetLocalPlayerAsInitializedPacket{ actor_runtime_id: 0 };
+                                                    let mut set_local_player_as_init = SetLocalPlayerAsInitializedPacket{ actor_runtime_id: player_runtime_id };
 
                                                     raknet_handler.game.encode(&mut set_local_player_as_init, &mut game_body).expect("Something went wrong");
                                                     let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
@@ -528,6 +529,7 @@ async fn start_network_thread(
                                                 }
                                             },
                                             BedrockPacket::StartGame(start_game) => {
+                                                player_runtime_id = start_game.actor_runtime_id;
                                                 // --- HAFİF İŞ (network thread'de kalır) ---
                                                 let mut req_chunk_radius = RequestChunkRadius { radius: 40, max_radius: 40 };
                                                 raknet_handler.game.encode(&mut req_chunk_radius, &mut game_body).expect("encode");
