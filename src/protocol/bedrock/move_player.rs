@@ -26,9 +26,9 @@ impl Packet for MovePlayer {
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
         PacketSerializer::put_vector3(stream, &self.position);
-        PacketSerializer::put_rotation_byte(stream, self.pitch);
-        PacketSerializer::put_rotation_byte(stream, self.yaw);
-        PacketSerializer::put_rotation_byte(stream, self.head_yaw);
+        stream.put_f32_le(self.pitch);
+        stream.put_f32_le(self.yaw);
+        stream.put_f32_le(self.head_yaw);
         stream.put_u8(self.mode);
         stream.put_bool(self.on_ground);
         PacketSerializer::put_actor_runtime_id(stream, self.riding_actor_runtime_id);
@@ -44,9 +44,9 @@ impl Packet for MovePlayer {
     fn decode(stream: &mut Reader) -> MovePlayer {
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let position = PacketSerializer::get_vector3(stream);
-        let pitch = PacketSerializer::get_rotation_byte(stream);
-        let yaw = PacketSerializer::get_rotation_byte(stream);
-        let head_yaw = PacketSerializer::get_rotation_byte(stream);
+        let pitch = stream.get_f32_le();
+        let yaw = stream.get_f32_le();
+        let head_yaw = stream.get_f32_le();
         let mode = stream.get_u8();
         let on_ground = stream.get_bool();
         let riding_actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
