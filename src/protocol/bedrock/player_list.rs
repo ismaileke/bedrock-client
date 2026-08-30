@@ -38,8 +38,15 @@ impl Packet for PlayerList {
         let count = stream.get_var_u32();
         let mut entries: Vec<PlayerListEntry> = Vec::with_capacity(count as usize);
         for _ in 0..count {
-            let _variant = stream.get_var_u32();
-            let action_type = stream.get_u8();
+            let variant = stream.get_var_u32();
+            let _legacy_action = stream.get_u8();
+            let action_type: u8 = if variant == 1 {
+                Self::TYPE_ADD
+            } else if variant == 0 {
+                Self::TYPE_REMOVE
+            } else {
+                panic!("Unknown player list entry variant {}", variant);
+            };
             let uuid = PacketSerializer::get_uuid(stream);
             let entry = if action_type == Self::TYPE_ADD {
                 PlayerListEntry {
