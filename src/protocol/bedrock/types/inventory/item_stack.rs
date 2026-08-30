@@ -8,7 +8,7 @@ pub struct ItemStack {
     pub meta: u32,
     pub count: u16,
     pub block_runtime_id: i32,
-    pub raw_extra_data: String,
+    pub raw_extra_data: Vec<u8>,
 }
 
 impl ItemStack {
@@ -18,7 +18,7 @@ impl ItemStack {
             meta: 0,
             count: 0,
             block_runtime_id: 0,
-            raw_extra_data: String::new(),
+            raw_extra_data: vec![],
         }
     }
 
@@ -27,7 +27,7 @@ impl ItemStack {
         meta: u32,
         count: u16,
         block_runtime_id: i32,
-        raw_extra_data: String,
+        raw_extra_data: Vec<u8>,
     ) -> ItemStack {
         ItemStack {
             id,
@@ -41,7 +41,7 @@ impl ItemStack {
     pub fn get_json_version(&self) -> String {
         let mut base64_encoded_data = String::new();
         general_purpose::STANDARD
-            .encode_string(self.raw_extra_data.as_bytes(), &mut base64_encoded_data);
+            .encode_string(self.raw_extra_data.to_vec(), &mut base64_encoded_data);
 
         let json_data = json!({
             "id": self.id,

@@ -56,6 +56,16 @@ impl PacketSerializer {
         stream.put(data.as_bytes());
     }
 
+    pub fn get_byte_string(stream: &mut Reader) -> Vec<u8> {
+        let length = stream.get_var_u32();
+        stream.get(length as usize).to_vec()
+    }
+
+    pub fn put_byte_string(stream: &mut Writer, data: &[u8]) {
+        stream.put_var_u32(data.len() as u32);
+        stream.put(data);
+    }
+
     pub fn get_uuid(stream: &mut Reader) -> String {
         let mut bytes = [0u8; 16];
 
@@ -298,14 +308,14 @@ impl PacketSerializer {
 
     fn get_item_stack_footer(stream: &mut Reader, id: i32, meta: u32, count: u16) -> ItemStack {
         let block_runtime_id = stream.get_var_i32();
-        let raw_extra_data = PacketSerializer::get_string(stream);
+        let raw_extra_data = PacketSerializer::get_byte_string(stream);
 
         ItemStack::new(id, meta, count, block_runtime_id, raw_extra_data)
     }
 
     fn put_item_stack_footer(stream: &mut Writer, stack: &ItemStack) {
         stream.put_var_i32(stack.block_runtime_id);
-        Self::put_string(stream, &stack.raw_extra_data);
+        Self::put_byte_string(stream, &stack.raw_extra_data);
     }
 
     pub fn get_item_stack_without_stack_id(stream: &mut Reader) -> ItemStack {
@@ -333,7 +343,7 @@ impl PacketSerializer {
             stack_id = stream.get_var_i32();
         }
         let block_runtime_id = stream.get_var_u32();
-        let raw_extra_data = PacketSerializer::get_string(stream);
+        let raw_extra_data = PacketSerializer::get_byte_string(stream);
 
         ItemStackWrapper { stack_id, item_stack: ItemStack {
             id: id as i32,
@@ -354,7 +364,7 @@ impl PacketSerializer {
             stream.put_var_i32(wrapper.stack_id);
         }
         stream.put_var_u32(wrapper.item_stack.block_runtime_id as u32);
-        PacketSerializer::put_string(stream, &wrapper.item_stack.raw_extra_data);
+        PacketSerializer::put_byte_string(stream, &wrapper.item_stack.raw_extra_data);
     }
 
     pub fn get_recipe_ingredient(stream: &mut Reader) -> RecipeIngredient {
