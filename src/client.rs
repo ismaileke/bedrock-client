@@ -279,10 +279,18 @@ async fn start_network_thread(
             // A. OUTBOUND (Giden Paketler - Producer)
             // Oyundan gelen paketleri al, RakNet ile paketle ve gönder
             // ------------------------------------------------------------------
-            Some(mut packet_data) = rx_from_game.recv() => {
-                raknet_handler.game.encode(&mut *packet_data, &mut game_body).expect("Something went wrong");
-                let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
-                send_datagrams(&socket, &mut datagram_out, datagrams).await;
+            packet_data = rx_from_game.recv() => {
+                match packet_data {
+                    Some(mut packet_data) => {
+                        raknet_handler.game.encode(&mut *packet_data, &mut game_body).expect("Something went wrong");
+                        let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
+                        send_datagrams(&socket, &mut datagram_out, datagrams).await;
+                    }
+                    None => {
+                        if debug { println!("Game side dropped the client, stopping session."); }
+                        should_stop = true;
+                    }
+                }
             }
 
             // ------------------------------------------------------------------
@@ -592,11 +600,15 @@ async fn start_network_thread(
                                         }
 
                                         let packet_name = BedrockPacketType::get_packet_name(packet_id as u16).to_string();
-                                        if let Err(_e) = tx_to_game.send(ClientEvent::Packet(packet_name, packet)) { continue };
+                                        // Oyun tarafı alıcıyı bıraktıysa devam etmenin anlamı yok
+                                        if tx_to_game.send(ClientEvent::Packet(packet_name, packet)).is_err() {
+                                            should_stop = true;
+                                            continue;
+                                        }
                                     }
                                 },
                                 PacketType::DisconnectionNotification => {
-                                    println!("{}Disconnect Notification Packet Received{}", COLOR_RED, COLOR_WHITE);
+                                    println!("{}Disconnect Notification Packet Received ({}:{}){}", COLOR_RED, target_address, target_port, COLOR_WHITE);
                                     should_stop = true;
                                 }
                                 _ => {}
