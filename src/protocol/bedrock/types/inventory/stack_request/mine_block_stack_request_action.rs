@@ -1,4 +1,3 @@
-use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
@@ -16,7 +15,7 @@ impl MineBlockStackRequestAction {
     pub fn read(stream: &mut Reader) -> MineBlockStackRequestAction {
         let hotbar_slot = stream.get_var_i32();
         let predicted_durability = stream.get_var_i32();
-        let stack_id = PacketSerializer::read_item_stack_net_id_variant(stream);
+        let stack_id = stream.get_i32_le();
 
         MineBlockStackRequestAction { hotbar_slot, predicted_durability, stack_id }
     }
@@ -24,6 +23,6 @@ impl MineBlockStackRequestAction {
     pub fn write(&self, stream: &mut Writer) {
         stream.put_var_i32(self.hotbar_slot);
         stream.put_var_i32(self.predicted_durability);
-        PacketSerializer::write_item_stack_net_id_variant(stream, self.stack_id);
+        stream.put_i32_le(self.stack_id);
     }
 }

@@ -169,13 +169,7 @@ impl Packet for PlayerAuthInput {
             let mut block_actions_vec = Vec::with_capacity(max as usize);
             for _ in 0..max {
                 let action_type = s.get_var_i32();
-                block_actions_vec.push(if action_type == PlayerActionTypes::STOP_BREAK {
-                    PlayerBlockAction::StopBreak(PlayerBlockActionStopBreak {})
-                } else if PlayerBlockActionWithBlockInfo::is_valid_action_type(action_type) {
-                    PlayerBlockAction::WithBlockInfo(PlayerBlockActionWithBlockInfo::read(s, action_type))
-                } else {
-                    panic!("Unexpected block action type {}", action_type);
-                })
+                block_actions_vec.push(PlayerBlockAction::WithBlockInfo(PlayerBlockActionWithBlockInfo::read(s, action_type)));
             }
             return block_actions_vec;
         });
