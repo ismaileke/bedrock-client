@@ -2,8 +2,8 @@ use crate::protocol::bedrock::types::cacheable_nbt::CacheableNBT;
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct BlockPaletteEntry {
-    name: String,
-    states: CacheableNBT,
+    pub name: String,
+    pub states: CacheableNBT,
 }
 
 impl BlockPaletteEntry {

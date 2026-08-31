@@ -4,13 +4,13 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct EnchantOption {
-    cost: u8,
-    slot_flags: u32,
-    equip_activated_enchantments: Vec<Enchant>,
-    held_activated_enchantments: Vec<Enchant>,
-    self_activated_enchantments: Vec<Enchant>,
-    name: String,
-    option_id: i32,
+    pub cost: u8,
+    pub slot_flags: u32,
+    pub equip_activated_enchantments: Vec<Enchant>,
+    pub held_activated_enchantments: Vec<Enchant>,
+    pub self_activated_enchantments: Vec<Enchant>,
+    pub name: String,
+    pub option_id: i32,
 }
 
 impl EnchantOption {

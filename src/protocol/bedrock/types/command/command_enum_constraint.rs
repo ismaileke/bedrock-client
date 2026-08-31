@@ -2,9 +2,9 @@ use crate::protocol::bedrock::types::command::command_enum::CommandEnum;
 
 #[derive(serde::Serialize, Debug)]
 pub struct CommandEnumConstraint {
-    command_enum: CommandEnum,
-    value_offset: u32,
-    constraints: Vec<u8>,
+    pub command_enum: CommandEnum,
+    pub value_offset: u32,
+    pub constraints: Vec<u8>,
 }
 
 impl CommandEnumConstraint {

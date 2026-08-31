@@ -4,9 +4,9 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct MultiRecipe {
-    type_id: i32,
-    recipe_id: String,
-    recipe_net_id: i32,
+    pub type_id: i32,
+    pub recipe_id: String,
+    pub recipe_net_id: i32,
 }
 
 impl MultiRecipe {

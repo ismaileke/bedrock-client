@@ -3,8 +3,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CraftRecipeStackRequestAction {
-    recipe_id: i32,
-    repetitions: u8,
+    pub recipe_id: i32,
+    pub repetitions: u8,
 }
 
 impl CraftRecipeStackRequestAction {

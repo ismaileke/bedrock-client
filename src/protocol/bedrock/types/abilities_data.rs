@@ -3,10 +3,10 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct AbilitiesData {
-    target_actor_unique_id: i64,
-    player_permission: u8,
-    command_permission: u8,
-    ability_layers: Vec<AbilitiesLayer>,
+    pub target_actor_unique_id: i64,
+    pub player_permission: u8,
+    pub command_permission: u8,
+    pub ability_layers: Vec<AbilitiesLayer>,
 }
 
 impl AbilitiesData {

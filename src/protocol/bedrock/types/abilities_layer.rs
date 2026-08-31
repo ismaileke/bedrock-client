@@ -4,11 +4,11 @@ use log::error;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AbilitiesLayer {
-    layer_id: u16,
-    bool_abilities: HashMap<u32, bool>,
-    fly_speed: Option<f32>,
-    vertical_fly_speed: Option<f32>,
-    walk_speed: Option<f32>,
+    pub layer_id: u16,
+    pub bool_abilities: HashMap<u32, bool>,
+    pub fly_speed: Option<f32>,
+    pub vertical_fly_speed: Option<f32>,
+    pub walk_speed: Option<f32>,
 }
 
 impl AbilitiesLayer {

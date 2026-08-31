@@ -3,7 +3,7 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PresenceInfo {
-    rich_presence_id: Option<String>
+    pub rich_presence_id: Option<String>
 }
 
 impl PresenceInfo {

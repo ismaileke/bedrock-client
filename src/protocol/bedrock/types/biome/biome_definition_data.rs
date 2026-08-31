@@ -5,17 +5,17 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BiomeDefinitionData {
-    name_index: u16,
-    id: u16,
-    temperature: f32,
-    downfall: f32,
-    foliage_snow: f32,
-    depth: f32,
-    scale: f32,
-    map_water_color: Color,
-    rain: bool,
-    tag_indexes: Option<Vec<u16>>,
-    chunk_gen_data: Option<BiomeDefinitionChunkGenData>,
+    pub name_index: u16,
+    pub id: u16,
+    pub temperature: f32,
+    pub downfall: f32,
+    pub foliage_snow: f32,
+    pub depth: f32,
+    pub scale: f32,
+    pub map_water_color: Color,
+    pub rain: bool,
+    pub tag_indexes: Option<Vec<u16>>,
+    pub chunk_gen_data: Option<BiomeDefinitionChunkGenData>,
 }
 
 impl BiomeDefinitionData {

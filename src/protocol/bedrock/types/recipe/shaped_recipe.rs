@@ -7,16 +7,16 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ShapedRecipe {
-    type_id: i32,
-    recipe_id: String,
-    inputs: Vec<Vec<RecipeIngredient>>,
-    outputs: Vec<ItemStack>,
-    uuid: String,
-    block_name: String,
-    priority: i32,
-    symmetric: bool,
-    unlocking_requirement: Option<RecipeUnlockingRequirement>,
-    recipe_net_id: i32,
+    pub type_id: i32,
+    pub recipe_id: String,
+    pub inputs: Vec<Vec<RecipeIngredient>>,
+    pub outputs: Vec<ItemStack>,
+    pub uuid: String,
+    pub block_name: String,
+    pub priority: i32,
+    pub symmetric: bool,
+    pub unlocking_requirement: Option<RecipeUnlockingRequirement>,
+    pub recipe_net_id: i32,
 }
 
 impl ShapedRecipe {

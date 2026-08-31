@@ -4,9 +4,9 @@ use crate::protocol::bedrock::types::recipe::recipe_ingredient::RecipeIngredient
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemStackRequestNetworkItemInstanceDescriptor {
-    ingredient: RecipeIngredient,
-    block_runtime_id: u32,
-    raw_extra_data: Vec<u8>
+    pub ingredient: RecipeIngredient,
+    pub block_runtime_id: u32,
+    pub raw_extra_data: Vec<u8>
 }
 
 impl ItemStackRequestNetworkItemInstanceDescriptor {

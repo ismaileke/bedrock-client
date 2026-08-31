@@ -2,8 +2,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct Enchant {
-    id: u32,
-    level: u8,
+    pub id: u32,
+    pub level: u8,
 }
 
 impl Enchant {

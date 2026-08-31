@@ -4,12 +4,12 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct UpdateSubChunkBlocksEntry {
-    block_position: Vec<i32>,
-    block_runtime_id: u32,
-    flags: u32,
+    pub block_position: Vec<i32>,
+    pub block_runtime_id: u32,
+    pub flags: u32,
     //These two fields are useless 99.9% of the time; they are here to allow this packet to provide UpdateBlockSyncedPacket functionality.
-    synced_update_actor_unique_id: u64,
-    synced_update_type: u32,
+    pub synced_update_actor_unique_id: u64,
+    pub synced_update_type: u32,
 }
 
 impl UpdateSubChunkBlocksEntry {

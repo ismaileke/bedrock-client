@@ -2,7 +2,7 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct SubChunkHeightMapInfo {
-    heights: Vec<i8>,
+    pub heights: Vec<i8>,
 }
 
 impl SubChunkHeightMapInfo {

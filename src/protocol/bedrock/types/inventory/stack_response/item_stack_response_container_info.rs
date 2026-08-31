@@ -4,8 +4,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemStackResponseContainerInfo {
-    container_name: FullContainerName,
-    slots: Vec<ItemStackResponseSlotInfo>,
+    pub container_name: FullContainerName,
+    pub slots: Vec<ItemStackResponseSlotInfo>,
 }
 
 impl ItemStackResponseContainerInfo {

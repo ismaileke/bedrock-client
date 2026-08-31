@@ -3,10 +3,10 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct EntityDiagnosticTimingInfo {
-    display_name: String,
-    entity: String,
-    time_in_ns: u64,
-    percent_of_total: u8,
+    pub display_name: String,
+    pub entity: String,
+    pub time_in_ns: u64,
+    pub percent_of_total: u8,
 }
 
 impl EntityDiagnosticTimingInfo {

@@ -2,10 +2,10 @@ use crate::protocol::bedrock::types::skin::skin_image::SkinImage;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SkinAnimation {
-    image: SkinImage,
-    animation_type: u32,
-    frames: f32,
-    expression_type: u32,
+    pub image: SkinImage,
+    pub animation_type: u32,
+    pub frames: f32,
+    pub expression_type: u32,
 }
 
 impl SkinAnimation {

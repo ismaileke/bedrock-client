@@ -3,8 +3,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SwapStackRequestAction {
-    slot1: ItemStackRequestSlotInfo,
-    slot2: ItemStackRequestSlotInfo,
+    pub slot1: ItemStackRequestSlotInfo,
+    pub slot2: ItemStackRequestSlotInfo,
 }
 
 impl SwapStackRequestAction {

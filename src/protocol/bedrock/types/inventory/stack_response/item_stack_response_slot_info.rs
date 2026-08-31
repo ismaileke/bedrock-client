@@ -3,13 +3,13 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemStackResponseSlotInfo {
-    slot: u8,
-    hotbar_slot: u8,
-    count: u8,
-    item_stack_id: Option<i32>,
-    custom_name: String,
-    filtered_custom_name: Option<String>,
-    durability_correction: i32,
+    pub slot: u8,
+    pub hotbar_slot: u8,
+    pub count: u8,
+    pub item_stack_id: Option<i32>,
+    pub custom_name: String,
+    pub filtered_custom_name: Option<String>,
+    pub durability_correction: i32,
 }
 
 impl ItemStackResponseSlotInfo {

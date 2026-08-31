@@ -1,10 +1,10 @@
 #[derive(serde::Serialize, Debug)]
 pub struct PersonaSkinPiece {
-    piece_id: String,
-    piece_type: i32,
-    pack_id: String,
-    is_default_piece: bool,
-    product_id: String,
+    pub piece_id: String,
+    pub piece_type: i32,
+    pub pack_id: String,
+    pub is_default_piece: bool,
+    pub product_id: String,
 }
 
 impl PersonaSkinPiece {

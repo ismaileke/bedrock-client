@@ -4,9 +4,9 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CreativeGroupEntry {
-    category_id: u8,
-    category_name: String,
-    icon: ItemStack,
+    pub category_id: u8,
+    pub category_name: String,
+    pub icon: ItemStack,
 }
 
 impl CreativeGroupEntry {

@@ -3,8 +3,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct LoomStackRequestAction {
-    pattern_id: String,
-    repetitions: u8,
+    pub pattern_id: String,
+    pub repetitions: u8,
 }
 
 impl LoomStackRequestAction {

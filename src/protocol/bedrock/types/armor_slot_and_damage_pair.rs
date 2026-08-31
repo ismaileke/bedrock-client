@@ -2,8 +2,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ArmorSlotAndDamagePair {
-    slot: u8, // see types/armor_slot.rs
-    damage: u16,
+    pub slot: u8, // see types/armor_slot.rs
+    pub damage: u16,
 }
 
 impl ArmorSlotAndDamagePair {

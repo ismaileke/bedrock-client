@@ -1,8 +1,8 @@
 #[derive(serde::Serialize, Debug)]
 pub struct SkinImage {
-    height: u32,
-    width: u32,
-    data: Vec<u8>
+    pub height: u32,
+    pub width: u32,
+    pub data: Vec<u8>
 }
 
 impl SkinImage {

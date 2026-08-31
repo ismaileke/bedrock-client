@@ -3,8 +3,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct FullContainerName {
-    container_id: u8,
-    dynamic_id: Option<u32>,
+    pub container_id: u8,
+    pub dynamic_id: Option<u32>,
 }
 
 impl FullContainerName {

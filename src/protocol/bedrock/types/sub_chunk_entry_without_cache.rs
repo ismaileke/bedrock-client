@@ -3,7 +3,7 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SubChunkEntryWithoutCache {
-    base: SubChunkEntryCommon,
+    pub base: SubChunkEntryCommon,
 }
 
 impl SubChunkEntryWithoutCache {

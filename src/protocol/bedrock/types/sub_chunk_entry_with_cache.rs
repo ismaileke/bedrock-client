@@ -3,8 +3,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SubChunkEntryWithCache {
-    base: SubChunkEntryCommon,
-    used_blob_hash: u64,
+    pub base: SubChunkEntryCommon,
+    pub used_blob_hash: u64,
 }
 
 impl SubChunkEntryWithCache {

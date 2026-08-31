@@ -6,18 +6,18 @@ use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct UseItemTransactionData {
-    actions: Vec<NetworkInventoryAction>,
-    action_type: i32,
-    trigger_type: u8, //see types/inventory/see trigger_type.rs
-    block_position: Vec<i32>,
-    face: u8,
-    hotbar_slot: i32,
-    item_in_hand: ItemStackWrapper,
-    player_position: Vec<f32>,
-    click_position: Vec<f32>,
-    block_runtime_id: u32,
-    client_interact_prediction: u8, //see types/inventory/predicted_result.rs
-    client_cooldown_state: u8
+    pub actions: Vec<NetworkInventoryAction>,
+    pub action_type: i32,
+    pub trigger_type: u8, //see types/inventory/see trigger_type.rs
+    pub block_position: Vec<i32>,
+    pub face: u8,
+    pub hotbar_slot: i32,
+    pub item_in_hand: ItemStackWrapper,
+    pub player_position: Vec<f32>,
+    pub click_position: Vec<f32>,
+    pub block_runtime_id: u32,
+    pub client_interact_prediction: u8, //see types/inventory/predicted_result.rs
+    pub client_cooldown_state: u8
 }
 
 impl UseItemTransactionData {

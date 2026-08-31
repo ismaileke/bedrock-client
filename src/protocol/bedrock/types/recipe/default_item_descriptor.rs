@@ -3,8 +3,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct DefaultItemDescriptor {
-    name: String,
-    metadata_value: i32,
+    pub name: String,
+    pub metadata_value: i32,
 }
 
 impl DefaultItemDescriptor {

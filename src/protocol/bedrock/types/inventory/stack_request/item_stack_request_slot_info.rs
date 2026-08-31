@@ -4,9 +4,9 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemStackRequestSlotInfo {
-    container_name: FullContainerName,
-    slot_id: u8,
-    stack_id: i32,
+    pub container_name: FullContainerName,
+    pub slot_id: u8,
+    pub stack_id: i32,
 }
 
 impl ItemStackRequestSlotInfo {

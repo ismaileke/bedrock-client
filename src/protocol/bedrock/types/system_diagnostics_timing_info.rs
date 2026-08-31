@@ -3,10 +3,10 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SystemDiagnosticTimingInfo {
-    display_name: String,
-    system_index: u64,
-    time_in_ns: u64,
-    percent_of_total: u8,
+    pub display_name: String,
+    pub system_index: u64,
+    pub time_in_ns: u64,
+    pub percent_of_total: u8,
 }
 
 impl SystemDiagnosticTimingInfo {

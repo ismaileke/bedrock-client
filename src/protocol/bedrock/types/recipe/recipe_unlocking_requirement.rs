@@ -3,8 +3,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct RecipeUnlockingRequirement {
-    unlocking_context: i32,
-    unlocking_ingredients: Option<Vec<RecipeIngredient>>
+    pub unlocking_context: i32,
+    pub unlocking_ingredients: Option<Vec<RecipeIngredient>>
 }
 
 impl RecipeUnlockingRequirement {

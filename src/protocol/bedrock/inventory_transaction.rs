@@ -35,7 +35,7 @@ impl Packet for InventoryTransaction {
         stream.put_u8(1);
         self.tr_data.encode(stream);
     }
-
+    
     fn decode(stream: &mut Reader) -> InventoryTransaction {
         let request_id = PacketSerializer::read_legacy_item_stack_request_id(stream);
         let request_changed_slots = PacketSerializer::read_optional(stream, |s| {

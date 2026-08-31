@@ -2,8 +2,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct InventoryTransactionChangedSlotsHack {
-    container_id: u8,
-    changed_slot_indexes: Vec<u8>,
+    pub container_id: u8,
+    pub changed_slot_indexes: Vec<u8>,
 }
 
 impl InventoryTransactionChangedSlotsHack {

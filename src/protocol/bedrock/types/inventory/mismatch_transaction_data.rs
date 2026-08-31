@@ -3,7 +3,7 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct MismatchTransactionData {
-    actions: Vec<NetworkInventoryAction>,
+    pub actions: Vec<NetworkInventoryAction>,
 }
 
 impl MismatchTransactionData {

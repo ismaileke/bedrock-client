@@ -3,8 +3,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct FeatureRegistryPacketEntry {
-    feature_name: String,
-    feature_json: String,
+    pub feature_name: String,
+    pub feature_json: String,
 }
 
 impl FeatureRegistryPacketEntry {

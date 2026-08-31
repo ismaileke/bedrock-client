@@ -3,8 +3,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientStoreEntrypointConfig {
-    store_id: String,
-    store_name: String,
+    pub store_id: String,
+    pub store_name: String,
 }
 
 impl ClientStoreEntrypointConfig {

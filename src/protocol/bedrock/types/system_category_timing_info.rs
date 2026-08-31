@@ -3,8 +3,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SystemCategoryTimingInfo {
-    category_name: String,
-    system_index: u64
+    pub category_name: String,
+    pub system_index: u64
 }
 
 impl SystemCategoryTimingInfo {

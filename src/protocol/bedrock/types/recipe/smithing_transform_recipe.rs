@@ -6,14 +6,14 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SmithingTransformRecipe {
-    type_id: i32,
-    recipe_id: String,
-    template: RecipeIngredient,
-    input: RecipeIngredient,
-    addition: RecipeIngredient,
-    output: ItemStack,
-    block_name: String,
-    recipe_net_id: i32,
+    pub type_id: i32,
+    pub recipe_id: String,
+    pub template: RecipeIngredient,
+    pub input: RecipeIngredient,
+    pub addition: RecipeIngredient,
+    pub output: ItemStack,
+    pub block_name: String,
+    pub recipe_net_id: i32,
 }
 
 impl SmithingTransformRecipe {

@@ -3,8 +3,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct DeprecatedCraftingResultsStackRequestAction {
-    results: Vec<ItemStackRequestNetworkItemInstanceDescriptor>,
-    iterations: u8,
+    pub results: Vec<ItemStackRequestNetworkItemInstanceDescriptor>,
+    pub iterations: u8,
 }
 
 impl DeprecatedCraftingResultsStackRequestAction {

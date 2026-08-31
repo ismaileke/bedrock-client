@@ -3,8 +3,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct TrimPattern {
-    item_id: String,
-    pattern_id: String,
+    pub item_id: String,
+    pub pattern_id: String,
 }
 
 impl TrimPattern {

@@ -6,13 +6,13 @@ use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
 
 #[derive(serde::Serialize, Debug)]
 pub struct UseItemOnEntityTransactionData {
-    actions: Vec<NetworkInventoryAction>,
-    actor_runtime_id: u64,
-    action_type: i32,
-    hotbar_slot: i32,
-    item_in_hand: ItemStackWrapper,
-    player_position: Vec<f32>,
-    click_position: Vec<f32>,
+    pub actions: Vec<NetworkInventoryAction>,
+    pub actor_runtime_id: u64,
+    pub action_type: i32,
+    pub hotbar_slot: i32,
+    pub item_in_hand: ItemStackWrapper,
+    pub player_position: Vec<f32>,
+    pub click_position: Vec<f32>,
 }
 
 impl UseItemOnEntityTransactionData {

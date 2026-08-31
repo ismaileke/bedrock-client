@@ -5,8 +5,8 @@ use std::fmt::Debug;
 
 #[derive(Debug, serde::Serialize, Clone)]
 pub struct CacheableNBT {
-    nbt_root: Tag,
-    encoded_nbt: Option<Vec<u8>>,
+    pub nbt_root: Tag,
+    pub encoded_nbt: Option<Vec<u8>>,
 }
 
 impl CacheableNBT {

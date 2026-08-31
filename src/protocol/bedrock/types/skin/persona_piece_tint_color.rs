@@ -1,7 +1,7 @@
 #[derive(serde::Serialize, Debug)]
 pub struct PersonaPieceTintColor {
-    piece_type: String,
-    colors: Vec<i32>,
+    pub piece_type: String,
+    pub colors: Vec<i32>,
 }
 
 impl PersonaPieceTintColor {

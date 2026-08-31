@@ -5,9 +5,9 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemInteractionData {
-    request_id: i32,
-    request_changed_slots: Vec<InventoryTransactionChangedSlotsHack>,
-    tr_data: UseItemTransactionData,
+    pub request_id: i32,
+    pub request_changed_slots: Vec<InventoryTransactionChangedSlotsHack>,
+    pub tr_data: UseItemTransactionData,
 }
 
 impl ItemInteractionData {

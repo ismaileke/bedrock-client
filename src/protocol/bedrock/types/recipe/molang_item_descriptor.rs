@@ -3,8 +3,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct MolangItemDescriptor {
-    molang_expression: String,
-    version: i16,
+    pub molang_expression: String,
+    pub version: i16,
 }
 
 impl MolangItemDescriptor {

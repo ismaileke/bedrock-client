@@ -6,11 +6,11 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct SubChunkEntryCommon {
-    offset: SubChunkPositionOffset,
-    request_result: u8,
-    terrain_data: Option<String>,
-    height_map: Option<SubChunkHeightMapInfo>,
-    render_height_map: Option<SubChunkHeightMapInfo>,
+    pub offset: SubChunkPositionOffset,
+    pub request_result: u8,
+    pub terrain_data: Option<String>,
+    pub height_map: Option<SubChunkHeightMapInfo>,
+    pub render_height_map: Option<SubChunkHeightMapInfo>,
 }
 
 impl SubChunkEntryCommon {

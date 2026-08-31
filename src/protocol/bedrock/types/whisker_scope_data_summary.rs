@@ -3,11 +3,11 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct WhiskerScopeDataSummary {
-    label: String,
-    indentation: String,
-    total_high_cost_ns: u64,
-    total_mid_cost_ns: u64,
-    total_low_cost_ns: u64
+    pub label: String,
+    pub indentation: String,
+    pub total_high_cost_ns: u64,
+    pub total_mid_cost_ns: u64,
+    pub total_low_cost_ns: u64
 }
 
 impl WhiskerScopeDataSummary {

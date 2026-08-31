@@ -4,12 +4,12 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct NetworkInventoryAction {
-    source_type: u32,
-    window_id: Option<i8>,
-    source_flags: Option<u32>,
-    inventory_slot: u32,
-    old_item: ItemStackWrapper,
-    new_item: ItemStackWrapper,
+    pub source_type: u32,
+    pub window_id: Option<i8>,
+    pub source_flags: Option<u32>,
+    pub inventory_slot: u32,
+    pub old_item: ItemStackWrapper,
+    pub new_item: ItemStackWrapper,
 }
 
 impl NetworkInventoryAction {

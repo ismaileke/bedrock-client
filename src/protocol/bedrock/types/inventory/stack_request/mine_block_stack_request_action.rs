@@ -3,9 +3,9 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct MineBlockStackRequestAction {
-    hotbar_slot: i32,
-    predicted_durability: i32,
-    stack_id: i32,
+    pub hotbar_slot: i32,
+    pub predicted_durability: i32,
+    pub stack_id: i32,
 }
 
 impl MineBlockStackRequestAction {

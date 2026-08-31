@@ -3,7 +3,7 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct TagItemDescriptor {
-    tag: String,
+    pub tag: String,
 }
 
 impl TagItemDescriptor {

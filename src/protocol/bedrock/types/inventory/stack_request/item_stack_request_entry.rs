@@ -22,10 +22,10 @@ use crate::protocol::bedrock::types::inventory::stack_request::take_stack_reques
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemStackRequestEntry {
-    request_id: i32,
-    actions: Vec<ItemStackRequestAction>,
-    filter_strings: Vec<String>,
-    filter_string_cause: i32,
+    pub request_id: i32,
+    pub actions: Vec<ItemStackRequestAction>,
+    pub filter_strings: Vec<String>,
+    pub filter_string_cause: i32,
 }
 
 impl ItemStackRequestEntry {

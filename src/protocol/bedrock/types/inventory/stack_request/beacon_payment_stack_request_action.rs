@@ -2,8 +2,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct BeaconPaymentStackRequestAction {
-    primary_effect_id: i32,
-    secondary_effect_id: i32,
+    pub primary_effect_id: i32,
+    pub secondary_effect_id: i32,
 }
 
 impl BeaconPaymentStackRequestAction {

@@ -3,9 +3,9 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct DropStackRequestAction {
-    count: u8,
-    source: ItemStackRequestSlotInfo,
-    randomly: bool,
+    pub count: u8,
+    pub source: ItemStackRequestSlotInfo,
+    pub randomly: bool,
 }
 
 impl DropStackRequestAction {

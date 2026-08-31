@@ -4,9 +4,9 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CraftRecipeAutoStackRequestAction {
-    recipe_id: i32,
-    repetitions: u8,
-    ingredients: Vec<RecipeIngredient>,
+    pub recipe_id: i32,
+    pub repetitions: u8,
+    pub ingredients: Vec<RecipeIngredient>,
 }
 
 impl CraftRecipeAutoStackRequestAction {

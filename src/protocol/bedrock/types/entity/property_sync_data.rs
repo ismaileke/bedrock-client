@@ -3,8 +3,8 @@ use std::collections::HashMap;
 
 #[derive(serde::Serialize, Debug)]
 pub struct PropertySyncData {
-    int_properties: HashMap<u32, i32>,
-    float_properties: HashMap<u32, f32>,
+    pub int_properties: HashMap<u32, i32>,
+    pub float_properties: HashMap<u32, f32>,
 }
 
 impl PropertySyncData {

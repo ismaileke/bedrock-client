@@ -3,8 +3,8 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CreativeCreateStackRequestAction {
-    creative_item_id: u32,
-    repetitions: u8,
+    pub creative_item_id: u32,
+    pub repetitions: u8,
 }
 
 impl CreativeCreateStackRequestAction {

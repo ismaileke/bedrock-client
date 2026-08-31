@@ -1,8 +1,8 @@
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct CommandEnum {
-    enum_name: String,
-    enum_values: Vec<String>,
-    is_soft: bool,
+    pub enum_name: String,
+    pub enum_values: Vec<String>,
+    pub is_soft: bool,
 }
 
 impl CommandEnum {

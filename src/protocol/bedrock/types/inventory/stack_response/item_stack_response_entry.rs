@@ -4,9 +4,9 @@ use crate::protocol::bedrock::types::inventory::stack_response::item_stack_respo
 
 #[derive(serde::Serialize, Debug)]
 pub struct ItemStackResponseEntry {
-    status: u8,
-    request_id: i32,
-    container_infos: Vec<ItemStackResponseContainerInfo>,
+    pub status: u8,
+    pub request_id: i32,
+    pub container_infos: Vec<ItemStackResponseContainerInfo>,
 }
 
 impl ItemStackResponseEntry {

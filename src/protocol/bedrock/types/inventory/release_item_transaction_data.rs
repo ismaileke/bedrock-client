@@ -6,11 +6,11 @@ use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
 
 #[derive(serde::Serialize, Debug)]
 pub struct ReleaseItemTransactionData {
-    actions: Vec<NetworkInventoryAction>,
-    action_type: i32,
-    hotbar_slot: i32,
-    item_in_hand: ItemStackWrapper,
-    head_position: Vec<f32>,
+    pub actions: Vec<NetworkInventoryAction>,
+    pub action_type: i32,
+    pub hotbar_slot: i32,
+    pub item_in_hand: ItemStackWrapper,
+    pub head_position: Vec<f32>,
 }
 
 impl ReleaseItemTransactionData {

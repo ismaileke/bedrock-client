@@ -3,9 +3,9 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct TrimMaterial {
-    material_id: String,
-    color: String,
-    item_id: String,
+    pub material_id: String,
+    pub color: String,
+    pub item_id: String,
 }
 
 impl TrimMaterial {

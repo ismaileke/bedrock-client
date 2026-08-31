@@ -4,13 +4,13 @@ use crate::protocol::bedrock::types::command::command_overload::CommandOverload;
 
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct CommandData {
-    name: String,
-    description: String,
-    flags: u16,
-    permission: String,
-    aliases: Option<CommandEnum>,
-    overloads: Vec<CommandOverload>,
-    chained_sub_command_data: Vec<ChainedSubCommandData>,
+    pub name: String,
+    pub description: String,
+    pub flags: u16,
+    pub permission: String,
+    pub aliases: Option<CommandEnum>,
+    pub overloads: Vec<CommandOverload>,
+    pub chained_sub_command_data: Vec<ChainedSubCommandData>,
 }
 
 impl CommandData {

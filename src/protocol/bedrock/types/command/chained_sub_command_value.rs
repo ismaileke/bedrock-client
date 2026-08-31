@@ -1,7 +1,7 @@
 #[derive(serde::Serialize, Debug, Clone)]
 pub struct ChainedSubCommandValue {
-    name: String,
-    arg_type: u16,
+    pub name: String,
+    pub arg_type: u16,
 }
 
 impl ChainedSubCommandValue {

@@ -4,9 +4,9 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PlayerBlockActionWithBlockInfo {
-    action_type: i32,
-    block_position: Vec<i32>,
-    face: i32,
+    pub action_type: i32,
+    pub block_position: Vec<i32>,
+    pub face: i32,
 }
 
 impl PlayerBlockActionWithBlockInfo {

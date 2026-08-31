@@ -3,7 +3,7 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct NormalTransactionData {
-    actions: Vec<NetworkInventoryAction>,
+    pub actions: Vec<NetworkInventoryAction>,
 }
 
 impl NormalTransactionData {

@@ -3,9 +3,9 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct GrindstoneStackRequestAction {
-    recipe_id: i32,
-    repair_cost: i32, //WHY
-    repetitions: u8,
+    pub recipe_id: i32,
+    pub repair_cost: i32, //WHY
+    pub repetitions: u8,
 }
 
 impl GrindstoneStackRequestAction {

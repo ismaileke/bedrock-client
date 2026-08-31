@@ -7,15 +7,15 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct ShapelessRecipe {
-    type_id: i32,
-    recipe_id: String,
-    inputs: Vec<RecipeIngredient>,
-    outputs: Vec<ItemStack>,
-    uuid: String,
-    block_name: String,
-    priority: i32,
-    unlocking_requirement: Option<RecipeUnlockingRequirement>,
-    recipe_net_id: i32,
+    pub type_id: i32,
+    pub recipe_id: String,
+    pub inputs: Vec<RecipeIngredient>,
+    pub outputs: Vec<ItemStack>,
+    pub uuid: String,
+    pub block_name: String,
+    pub priority: i32,
+    pub unlocking_requirement: Option<RecipeUnlockingRequirement>,
+    pub recipe_net_id: i32,
 }
 
 impl ShapelessRecipe {
