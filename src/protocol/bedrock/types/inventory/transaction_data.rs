@@ -68,27 +68,20 @@ impl TransactionData {
     }
 
     pub fn decode(&mut self, stream: &mut Reader) {
-        let has_bool = stream.get_bool();
-        if has_bool {
-            let action_count = stream.get_var_u32();
-            for _ in 0..action_count {
-                let action = NetworkInventoryAction::read(stream);
-                self.get_actions_mut().push(action);
-            }
-            self.decode_data(stream)
+        let action_count = stream.get_var_u32();
+        for _ in 0..action_count {
+            let action = NetworkInventoryAction::read(stream);
+            self.get_actions_mut().push(action);
         }
+        self.decode_data(stream)
     }
 
 
     pub fn encode(&self, stream: &mut Writer) {
-        let has_value = self.get_actions().len() > 0;
-        stream.put_bool(has_value);
-        if has_value {
-            stream.put_var_u32(self.get_actions().len() as u32);
-            for action in self.get_actions() {
-                action.write(stream);
-            }
-            self.encode_data(stream)
+        stream.put_var_u32(self.get_actions().len() as u32);
+        for action in self.get_actions() {
+            action.write(stream);
         }
+        self.encode_data(stream)
     }
 }
