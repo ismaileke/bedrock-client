@@ -5,7 +5,7 @@ use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct CameraSetInstruction {
-    pub preset: Option<u32>,
+    pub preset: u32,
     pub ease: Option<CameraSetInstructionEase>,
     pub camera_position: Option<Vec<f32>>,
     pub rotation: Option<CameraSetInstructionRotation>,
@@ -18,21 +18,15 @@ pub struct CameraSetInstruction {
 
 impl CameraSetInstruction {
     pub fn read(stream: &mut Reader) -> CameraSetInstruction {
-        let preset = PacketSerializer::read_optional(stream, |s| s.get_u32_le());
+        let preset = stream.get_u32_le();
         let ease = PacketSerializer::read_optional(stream, |s| CameraSetInstructionEase::read(s));
-        let camera_position =
-            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
-        let rotation =
-            PacketSerializer::read_optional(stream, |s| CameraSetInstructionRotation::read(s));
-        let facing_position =
-            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
-        let view_offset =
-            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
-        let entity_offset =
-            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
+        let camera_position = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
+        let rotation = PacketSerializer::read_optional(stream, |s| CameraSetInstructionRotation::read(s));
+        let facing_position = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
+        let view_offset = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
+        let entity_offset = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
         let default = PacketSerializer::read_optional(stream, |s| s.get_bool());
-        let ignore_starting_values_component =
-            PacketSerializer::read_optional(stream, |s| s.get_bool());
+        let ignore_starting_values_component = PacketSerializer::read_optional(stream, |s| s.get_bool());
 
         CameraSetInstruction {
             preset,
@@ -48,7 +42,7 @@ impl CameraSetInstruction {
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        PacketSerializer::write_optional(stream, &self.preset, |s, v| s.put_u32_le(*v));
+        stream.put_u32_le(self.preset);
         PacketSerializer::write_optional(stream, &self.ease, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.camera_position, |s, v| PacketSerializer::put_vector3(s, v));
         PacketSerializer::write_optional(stream, &self.rotation, |s, v| v.write(s));

@@ -19,8 +19,7 @@ impl CameraTargetInstruction {
     }
 
     pub fn read(stream: &mut Reader) -> CameraTargetInstruction {
-        let target_center_offset =
-            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
+        let target_center_offset = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
         let actor_unique_id = stream.get_i64_le();
 
         CameraTargetInstruction {
