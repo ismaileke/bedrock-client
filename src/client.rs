@@ -341,13 +341,13 @@ async fn start_network_thread(
                 }
 
                 // SENDING NACK
-                /*if (raknet_handler.last_received_sequence_number + 1) != (seq as i64) {
+                if (raknet_handler.last_received_sequence_number + 1) != (seq as i64) {
                     for seq_num in ((raknet_handler.last_received_sequence_number+1) as u32)..seq {
                         let mut nack = Writer::new();
                         Acknowledge::create(PacketType::NACK, 1, true, Option::from(seq_num), None, None).encode(&mut nack);
                         socket.send(nack.as_slice()).await.expect("NACK Send Error");
                     }
-                }*/
+                }
                 if (seq as i64) > raknet_handler.last_received_sequence_number {
                     raknet_handler.last_received_sequence_number = seq as i64;
                 }
