@@ -25,6 +25,7 @@ p384 = { version = "0.13", features = ["ecdsa"] }
 sha2 = "0.11"
 uuid = "1.24.0"
 snap = "1.1.2"
+reqwest = { version = "0.13.4", default-features = false, features = ["rustls", "http2", "charset"] }
 #once_cell = "1.21.4"
 
 #[lib]

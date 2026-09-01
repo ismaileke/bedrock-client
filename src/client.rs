@@ -22,7 +22,7 @@ use crate::utils::block::PropertyValue;
 use crate::utils::chunk::Chunk;
 use crate::utils::color_format::*;
 use crate::utils::encryption::Encryption;
-use crate::utils::{block, encryption};
+use crate::utils::{block, encryption, resource_pack};
 use crate::*;
 use base64::engine::general_purpose;
 use base64::Engine;
@@ -44,7 +44,9 @@ use std::io;
 use binary_utils::binary::{Reader, Writer};
 use tokio::net::UdpSocket;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
+use crate::protocol::bedrock::resource_pack_chunk_request::ResourcePackChunkRequest;
 use crate::protocol::bedrock::types::block_palette_entry::BlockPaletteEntry;
+use crate::utils::resource_pack::PackDownloader;
 
 pub struct Client {
     // Network
@@ -271,6 +273,7 @@ async fn start_network_thread(
     let mut game_scratch = vec![0u8; 16 * 1024 * 1024]; // decompress (16 MB)
     let mut should_stop = false;
     let mut player_runtime_id: u64 = 0;
+    let mut packs = PackDownloader::new();
 
     loop {
         if should_stop { break; }
@@ -491,26 +494,98 @@ async fn start_network_thread(
                                                 let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
                                                 send_datagrams(&socket, &mut datagram_out, datagrams).await;
                                             },
-                                            BedrockPacket::ResourcePacksInfo(_resource_packs_info) => {
-                                                /*
-                                                let mut rp_uuids = Vec::new();
-                                                for (_, resource_pack) in resource_packs_info.resource_packs.iter().enumerate() {
-                                                    rp_uuids.push(resource_pack.uuid.clone());
-                                                }*/
+                                            BedrockPacket::ResourcePacksInfo(resource_packs_info) => {
+                                                // Is pack downloading enabled? (utils::resource_pack::set_download_dir)
+                                                let list: Vec<(String, String, String, u64, String)> = resource_packs_info.resource_packs.iter().map(|p| (p.uuid.clone(), p.version.clone(), p.encryption_key.clone(), p.size_bytes, p.cdn_url.clone())).collect();
+                                                let want = packs.on_info(&list);
 
-                                                // RESOURCE PACK CLIENT RESPONSE PACKET {HAVE ALL PACKS}
-                                                let mut rp_client_response = ResourcePackClientResponse{ status: ResourcePackClientResponse::HAVE_ALL_PACKS, pack_ids: vec![] };
+                                                // Packs with a cdn_url are served over HTTP instead of the game connection.
+                                                // Download them in the background; blocking here would stop RakNet ACKs.
+                                                for cdn in packs.take_cdn() {
+                                                tokio::spawn(resource_pack::download_cdn(cdn));
+                                                }
 
-                                                raknet_handler.game.encode(&mut rp_client_response, &mut game_body).expect("Something went wrong");
-                                                let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
-                                                send_datagrams(&socket, &mut datagram_out, datagrams).await;
+                                                if !want.is_empty() {
+                                                    println!("[resource pack] {} pack(s) will be downloaded", want.len());
+                                                    let mut rp = ResourcePackClientResponse {
+                                                        status: ResourcePackClientResponse::SEND_PACKS,
+                                                        pack_ids: want,
+                                                    };
+                                                    raknet_handler.game.encode(&mut rp, &mut game_body).expect("Something went wrong");
+                                                    let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
+                                                    send_datagrams(&socket, &mut datagram_out, datagrams).await;
+                                                } else {
+                                                    let mut rp_client_response = ResourcePackClientResponse{ status: ResourcePackClientResponse::HAVE_ALL_PACKS, pack_ids: vec![] };
+                                                    raknet_handler.game.encode(&mut rp_client_response, &mut game_body).expect("Something went wrong");
+                                                    let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
+                                                    send_datagrams(&socket, &mut datagram_out, datagrams).await;
+                                                }
 
                                                 // CLIENT CACHE STATUS PACKET
                                                 let mut client_cache_status = ClientCacheStatus{ enabled: false };
-
                                                 raknet_handler.game.encode(&mut client_cache_status, &mut game_body).expect("Something went wrong");
                                                 let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
                                                 send_datagrams(&socket, &mut datagram_out, datagrams).await;
+                                            },
+                                            // Per-pack metadata: chunk count, size, digest
+                                            BedrockPacket::ResourcePackDataInfo(info) => {
+                                                if let Some(first_batch) = packs.on_data_info(
+                                                    &info.pack_id,
+                                                    info.chunk_count,
+                                                    info.max_chunk_size,
+                                                    info.compressed_pack_size,
+                                                    &info.sha256,
+                                                ) {
+                                                    println!(
+                                                        "[resource pack] downloading {}: {} chunks, {} bytes",
+                                                        info.pack_id, info.chunk_count, info.compressed_pack_size
+                                                    );
+                                                    // Send a whole window of requests, not just one.
+                                                    for idx in first_batch {
+                                                        let mut req = ResourcePackChunkRequest {
+                                                            pack_id: info.pack_id.clone(),
+                                                            chunk_index: idx,
+                                                        };
+                                                        raknet_handler.game.encode(&mut req, &mut game_body).expect("Something went wrong");
+                                                        let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
+                                                        send_datagrams(&socket, &mut datagram_out, datagrams).await;
+                                                    }
+                                                }
+                                            },
+                                            // Raw zip chunks
+                                            BedrockPacket::ResourcePackChunkData(chunk) => {
+                                                let next = packs.on_chunk(
+                                                    &chunk.pack_id,
+                                                    chunk.chunk_index,
+                                                    chunk.offset,
+                                                    &chunk.data,
+                                                );
+                                                match next {
+                                                    Some(i) => {
+                                                        let mut req = ResourcePackChunkRequest {
+                                                            pack_id: chunk.pack_id.clone(),
+                                                            chunk_index: i,
+                                                        };
+                                                        raknet_handler.game.encode(&mut req, &mut game_body).expect("Something went wrong");
+                                                        let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
+                                                        send_datagrams(&socket, &mut datagram_out, datagrams).await;
+                                                    }
+                                                    None => {
+                                                        if packs.all_done() {
+                                                            println!(
+                                                                "[resource pack] all done ({} ok, {} failed)",
+                                                                packs.finished, packs.failed
+                                                            );
+                                                            let mut rp = ResourcePackClientResponse {
+                                                                status: ResourcePackClientResponse::HAVE_ALL_PACKS,
+                                                                pack_ids: vec![],
+                                                            };
+                                                            raknet_handler.game.encode(&mut rp, &mut game_body).expect("Something went wrong");
+                                                            let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
+                                                            send_datagrams(&socket, &mut datagram_out, datagrams).await;
+                                                        }
+                                                    }
+                                                }
                                             },
                                             BedrockPacket::ResourcePackStack(_resource_pack_stack) => {
                                                 /*

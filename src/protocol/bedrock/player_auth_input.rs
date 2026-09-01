@@ -4,10 +4,8 @@ use crate::protocol::bedrock::serializer::bit_set::BitSet;
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_entry::ItemStackRequestEntry;
 use crate::protocol::bedrock::types::item_interaction_data::ItemInteractionData;
-use crate::protocol::bedrock::types::player_action_types::PlayerActionTypes;
 use crate::protocol::bedrock::types::player_auth_input_flags::PlayerAuthInputFlags;
 use crate::protocol::bedrock::types::player_block_action::PlayerBlockAction;
-use crate::protocol::bedrock::types::player_block_action_stop_break::PlayerBlockActionStopBreak;
 use crate::protocol::bedrock::types::player_block_action_with_block_info::PlayerBlockActionWithBlockInfo;
 use binary_utils::binary::{Reader, Writer};
 

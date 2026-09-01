@@ -8,13 +8,14 @@ mod tests {
     //use bedrock_client::protocol::bedrock::player_auth_input::PlayerAuthInput;
     //use bedrock_client::protocol::bedrock::serializer::bit_set::BitSet;
     use bedrock_client::protocol::bedrock::text::Text;
-    use bedrock_client::utils::chunk::{get_dimension_chunk_bounds, network_decode};
+    //use bedrock_client::utils::chunk::{get_dimension_chunk_bounds, network_decode};
     use bedrock_client::utils::color_format;
     use bedrock_client::client;
     //use std::time::{Duration, Instant};
 
     #[tokio::test]
     async fn test_client() {
+        bedrock_client::utils::resource_pack::set_download_dir(Some("resource_packs".into()));
         let mut client = client::create(
             "127.0.0.1".to_string(),
             19132,
