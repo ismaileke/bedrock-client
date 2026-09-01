@@ -28,6 +28,7 @@ pub struct RakNetPacketHandler {
     pub last_received_fragment_packets: HashMap<u16, HashMap<u32, Vec<u8>>>, // split_id: index => buffer
     pub last_received_sequence_number: i64, // i64, u32'yi kapsadığı için kullandım (-1)
     pub last_handled_reliable_frame_index: i64,
+    pub missing_datagrams: HashMap<u32, std::time::Instant>,
 }
 
 impl RakNetPacketHandler {
@@ -40,6 +41,7 @@ impl RakNetPacketHandler {
         let last_received_fragment_packets = HashMap::new();
         let last_received_sequence_number = -1;
         let last_handled_reliable_frame_index = -1;
+        let missing_datagrams = HashMap::new();
 
         RakNetPacketHandler {
             client_guid,
@@ -49,6 +51,7 @@ impl RakNetPacketHandler {
             last_received_fragment_packets,
             last_received_sequence_number,
             last_handled_reliable_frame_index,
+            missing_datagrams,
         }
     }
 

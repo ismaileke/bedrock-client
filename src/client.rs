@@ -48,6 +48,24 @@ use crate::protocol::bedrock::resource_pack_chunk_request::ResourcePackChunkRequ
 use crate::protocol::bedrock::types::block_palette_entry::BlockPaletteEntry;
 use crate::utils::resource_pack::PackDownloader;
 
+/// The shortest time between two NACKs for the same datagram.
+const NACK_INTERVAL: std::time::Duration = std::time::Duration::from_millis(60);
+/// Give up on a datagram that has not arrived after this long. Only applied
+/// while the ordered queue is NOT blocked: if frames are already queued behind
+/// a missing index, giving up would freeze the connection for good.
+const NACK_GIVE_UP: std::time::Duration = std::time::Duration::from_secs(20);
+/// How often pending NACKs are flushed. This MUST be driven by a timer rather
+/// than by the inbound branch: once the ordered queue blocks, nothing arrives
+/// any more, so asking only on receive means never asking again.
+const NACK_TICK: std::time::Duration = std::time::Duration::from_millis(50);
+/// The maximum number of NACKs sent in a single pass.
+const MAX_NACKS_PER_PASS: usize = 16;
+/// How often accumulated ACKs are flushed. Sending one ACK per incoming
+/// datagram costs a syscall and an await each, which slows draining the socket
+/// down enough that a 10 MB resource pack overflows the kernel receive buffer
+/// and thousands of datagrams are dropped silently. Batch them into ranges.
+const ACK_TICK: std::time::Duration = std::time::Duration::from_millis(10);
+
 pub struct Client {
     // Network
     network_sender: UnboundedSender<Box<dyn Packet>>, // Game -> Network
@@ -274,10 +292,69 @@ async fn start_network_thread(
     let mut should_stop = false;
     let mut player_runtime_id: u64 = 0;
     let mut packs = PackDownloader::new();
+    // ACK/NACK
+    let mut pending_acks: Vec<u32> = Vec::with_capacity(512);
+    let mut ack_timer = tokio::time::interval(ACK_TICK);
+    ack_timer.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
+    let mut nack_timer = tokio::time::interval(NACK_TICK);
+    nack_timer.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
 
     loop {
         if should_stop { break; }
         tokio::select! {
+            // Send the accumulated ACKs in batches.
+            _ = ack_timer.tick() => {
+                if !pending_acks.is_empty() {
+                    pending_acks.sort_unstable();
+                    pending_acks.dedup();
+                    let mut i = 0;
+                    while i < pending_acks.len() {
+                        let start = pending_acks[i];
+                        let mut end = start;
+                        while i + 1 < pending_acks.len() && pending_acks[i + 1] == end + 1 {
+                            i += 1;
+                            end = pending_acks[i];
+                        }
+                        ack_buf.clear();
+                        if start == end {
+                            Acknowledge::create(PacketType::ACK, 1, true, Option::from(start), None, None).encode(&mut ack_buf);
+                        } else {
+                            Acknowledge::create(PacketType::ACK, 1, false, None, Option::from(start), Option::from(end)).encode(&mut ack_buf);
+                        }
+                        let _ = socket.send(ack_buf.as_slice()).await;
+                        i += 1;
+                    }
+                    pending_acks.clear();
+                }
+            }
+            // Retrieve missing datagrams
+            _ = nack_timer.tick() => {
+                if !raknet_handler.missing_datagrams.is_empty() {
+                    let now = std::time::Instant::now();
+                    // If there are frames waiting in the queue, it means the stream is blocked; in that case, giving up will permanently terminate the connection, so keep trying.
+                    let blocked = !raknet_handler.last_received_packets.is_empty();
+                    if !blocked {
+                        raknet_handler.missing_datagrams.retain(|_, asked| now.duration_since(*asked) < NACK_GIVE_UP);
+                    }
+
+                    let mut due: Vec<u32> = raknet_handler.missing_datagrams
+                        .iter()
+                        .filter(|(_, asked)| now.duration_since(**asked) >= NACK_INTERVAL)
+                        .map(|(s, _)| *s)
+                        .collect();
+                    due.sort();
+                    due.truncate(MAX_NACKS_PER_PASS);
+
+                    for missing in due {
+                        ack_buf.clear();
+                        Acknowledge::create(PacketType::NACK, 1, true, Option::from(missing), None, None).encode(&mut ack_buf);
+                        let _ = socket.send(ack_buf.as_slice()).await;
+                        if let Some(asked) = raknet_handler.missing_datagrams.get_mut(&missing) {
+                            *asked = now;
+                        }
+                    }
+                }
+            }
             // ------------------------------------------------------------------
             // A. OUTBOUND (Giden Paketler - Producer)
             // Oyundan gelen paketleri al, RakNet ile paketle ve gönder
@@ -314,12 +391,8 @@ async fn start_network_thread(
 
                 let datagram = Datagram::from_binary(stream.get_buffer());
 
-                ////////////////// SENDING ACK
-                ack_buf.clear();
-                Acknowledge::create(PacketType::ACK, 1, true, Option::from(datagram.sequence_number.clone()), None, None).encode(&mut ack_buf);
-                socket.send(ack_buf.as_slice()).await.expect("ACK Send Error");
-                //eprintln!("ACK seq={} bytes={:02X?}", datagram.sequence_number, ack_buf.as_slice());
-                //////////////////
+                // We send ACKs in batches, not immediately
+                pending_acks.push(datagram.sequence_number);
 
                 let seq = datagram.sequence_number;
 
@@ -340,17 +413,16 @@ async fn start_network_thread(
                     }
                 }
 
-                // SENDING NACK
-                if (raknet_handler.last_received_sequence_number + 1) != (seq as i64) {
-                    for seq_num in ((raknet_handler.last_received_sequence_number+1) as u32)..seq {
-                        let mut nack = Writer::new();
-                        Acknowledge::create(PacketType::NACK, 1, true, Option::from(seq_num), None, None).encode(&mut nack);
-                        socket.send(nack.as_slice()).await.expect("NACK Send Error");
-                    }
-                }
+                // Mark the skipped line numbers as missing; the NACK timer will request them again.
                 if (seq as i64) > raknet_handler.last_received_sequence_number {
+                    let start = (raknet_handler.last_received_sequence_number + 1).max(0) as u32;
+                    let now = std::time::Instant::now();
+                    for missing in start..seq {
+                        raknet_handler.missing_datagrams.entry(missing).or_insert(now - NACK_INTERVAL);
+                    }
                     raknet_handler.last_received_sequence_number = seq as i64;
                 }
+                raknet_handler.missing_datagrams.remove(&seq);
 
 
                 let mut sorted_reliable_frame_index: Vec<u32> = raknet_handler.last_received_packets.keys().cloned().collect();
@@ -382,6 +454,7 @@ async fn start_network_thread(
                                             }
                                         }
                                         real_body = result;
+                                        raknet_handler.last_received_fragment_packets.remove(&fragment.compound_id); // birleşen fragmentları serbest bırak
                                     } else {
                                         raknet_handler.last_handled_reliable_frame_index = reliable_frame_index as i64;
                                         raknet_handler.last_received_packets.remove(&reliable_frame_index);
@@ -502,7 +575,7 @@ async fn start_network_thread(
                                                 // Packs with a cdn_url are served over HTTP instead of the game connection.
                                                 // Download them in the background; blocking here would stop RakNet ACKs.
                                                 for cdn in packs.take_cdn() {
-                                                tokio::spawn(resource_pack::download_cdn(cdn));
+                                                    tokio::spawn(resource_pack::download_cdn(cdn));
                                                 }
 
                                                 if !want.is_empty() {
