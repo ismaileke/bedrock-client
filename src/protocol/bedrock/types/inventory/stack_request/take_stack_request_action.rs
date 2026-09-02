@@ -1,11 +1,6 @@
 use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_slot_info::ItemStackRequestSlotInfo;
 use binary_utils::binary::{Reader, Writer};
 
-/// Bir yığından `count` adedini kaynaktan hedefe TAŞIR.
-///
-/// Alanlar (count, source, destination) protokolde hep vardı ama burada boş
-/// bir struct duruyordu: gönderilen her Take/Place eylemi eksik yazılıyor ve
-/// sunucu paketin geri kalanını çözemiyordu.
 #[derive(serde::Serialize, Debug)]
 pub struct TakeStackRequestAction {
     pub count: u8,
