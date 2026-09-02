@@ -355,10 +355,7 @@ async fn start_network_thread(
                     }
                 }
             }
-            // ------------------------------------------------------------------
-            // A. OUTBOUND (Giden Paketler - Producer)
-            // Oyundan gelen paketleri al, RakNet ile paketle ve gönder
-            // ------------------------------------------------------------------
+            
             packet_data = rx_from_game.recv() => {
                 match packet_data {
                     Some(mut packet_data) => {
@@ -373,9 +370,7 @@ async fn start_network_thread(
                 }
             }
 
-            // ------------------------------------------------------------------
-            // B. INBOUND (Gelen Paketler)
-            // ------------------------------------------------------------------
+          
             Ok((size, _addr)) = socket.recv_from(&mut buffer) => {
                 let mut stream = Reader::new(&buffer[..size]);
 
@@ -396,8 +391,6 @@ async fn start_network_thread(
 
                 let seq = datagram.sequence_number;
 
-                // Teslim edilmeye hazır gövdeler: kopyası elenmiş, parçaları
-                // birleştirilmiş, sıra numarasına göre dizilmiş.
                 let mut ready_bodies: Vec<Vec<u8>> = Vec::new();
                 for frame in datagram.frames {
                     if frame.reliable_frame_index.is_some() {
@@ -409,10 +402,6 @@ async fn start_network_thread(
                         let packet_id = stream.get_u8();
                         let packet_type = PacketType::from_byte(packet_id);
 
-                        // Sunucular canlılık yoklamasını GÜVENİLMEZ karede
-                        // yolluyor. Cevapsız kalırsa bağlantıyı ölü sayıp
-                        // düşürüyorlar: paket aşaması bitip trafik durduğunda
-                        // istemci sessizce zaman aşımına uğruyordu.
                         if let PacketType::ConnectedPing = packet_type {
                             let connected_ping = ConnectedPing::decode(stream.get_buffer());
                             if debug { connected_ping.debug(); }
@@ -669,13 +658,13 @@ async fn start_network_thread(
                                             },
                                             BedrockPacket::StartGame(start_game) => {
                                                 player_runtime_id = start_game.actor_runtime_id;
-                                                // --- HAFİF İŞ (network thread'de kalır) ---
+                                           
                                                 let mut req_chunk_radius = RequestChunkRadius { radius: 40, max_radius: 40 };
                                                 raknet_handler.game.encode(&mut req_chunk_radius, &mut game_body).expect("encode");
                                                 let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);
                                                 send_datagrams(&socket, &mut datagram_out, datagrams).await;
 
-                                                // --- AĞIR İŞ (ayrı thread) ---
+                                               
                                                 let palette   = start_game.block_palette.clone();
                                                 let hashes    = start_game.block_network_ids_are_hashes;
                                                 let rid       = start_game.actor_runtime_id;
@@ -731,7 +720,7 @@ async fn start_network_thread(
                                         }
 
                                         let packet_name = BedrockPacketType::get_packet_name(packet_id as u16).to_string();
-                                        // Oyun tarafı alıcıyı bıraktıysa devam etmenin anlamı yok
+                                      
                                         if tx_to_game.send(ClientEvent::Packet(packet_name, packet)).is_err() {
                                             should_stop = true;
                                             continue;
@@ -827,7 +816,6 @@ fn build_palette(
         }
     }
 
-    // --- Vanilla palette'i aç ---
     let cursor = Cursor::new(VANILLA_BLOCK_PALETTE);
     let mut decoder = GzDecoder::new(cursor);
     let mut contents = Vec::new();
