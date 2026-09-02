@@ -30,9 +30,7 @@ impl Packet for InventoryTransaction {
                 changed_slot.write(s);
             }
         });
-        stream.put_u8(1);
         stream.put_var_u32(self.tr_data.get_type_id());
-        stream.put_u8(1);
         self.tr_data.encode(stream);
     }
     
@@ -46,13 +44,7 @@ impl Packet for InventoryTransaction {
             }
             return result;
         });
-        if stream.get_u8() != 1 {
-            panic!("Dummy optional bool for transactionType should always be 1");
-        }
         let tr_type = stream.get_var_u32();
-        if stream.get_u8() != 1 {
-            panic!("Dummy optional bool for trData should always be 1");
-        }
         let mut tr_data = match tr_type {
             Self::TYPE_NORMAL => TransactionData::Normal(NormalTransactionData::new(vec![])),
             Self::TYPE_MISMATCH => TransactionData::Mismatch(MismatchTransactionData::new()),

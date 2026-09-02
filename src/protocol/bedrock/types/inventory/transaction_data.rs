@@ -51,7 +51,7 @@ impl TransactionData {
         match self {
             TransactionData::Normal(r) => r.encode_data(stream),
             TransactionData::Mismatch(r) => r.encode_data(stream),
-            TransactionData::UseItem(r) => r.encode_for_item_interaction(stream), //check again
+            TransactionData::UseItem(r) => r.encode_data(stream),
             TransactionData::ReleaseItem(r) => r.encode_data(stream),
             TransactionData::UseItemOnEntity(r) => r.encode_data(stream),
         }
@@ -61,7 +61,7 @@ impl TransactionData {
         match self {
             TransactionData::Normal(r) => r.decode_data(stream),
             TransactionData::Mismatch(r) => r.decode_data(stream),
-            TransactionData::UseItem(r) => r.decode_from_item_interaction(stream), //check again
+            TransactionData::UseItem(r) => r.decode_data(stream),
             TransactionData::ReleaseItem(r) => r.decode_data(stream),
             TransactionData::UseItemOnEntity(r) => r.decode_data(stream),
         }

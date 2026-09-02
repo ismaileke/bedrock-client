@@ -111,20 +111,16 @@ impl UseItemTransactionData {
         stream.put_u8(self.client_interact_prediction);
         stream.put_u8(self.client_cooldown_state);
     }
-
-    pub fn decode_from_item_interaction(&mut self, stream: &mut Reader) {
-        if stream.get_bool() && stream.get_bool() {
-            let action_count = stream.get_var_u32();
-            for _ in 0..action_count {
-                self.actions.push(NetworkInventoryAction::read(stream));
-            }
+    
+    pub fn decode_with_actions(&mut self, stream: &mut Reader) {
+        let action_count = stream.get_var_u32();
+        for _ in 0..action_count {
+            self.actions.push(NetworkInventoryAction::read(stream));
         }
         self.decode_data(stream);
     }
 
-    pub fn encode_for_item_interaction(&self, stream: &mut Writer) {
-        stream.put_bool(true);
-        stream.put_bool(true);
+    pub fn encode_with_actions(&self, stream: &mut Writer) {
         stream.put_var_u32(self.actions.len() as u32);
         for action in self.actions.iter() {
             action.write(stream);
