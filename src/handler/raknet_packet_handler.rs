@@ -18,7 +18,11 @@ use crate::BEDROCK_PROTOCOL_VERSION;
 use binary_utils::binary::{Reader, Writer};
 use chrono::Utc;
 use rand::{rng, RngExt};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
+
+/// `seen_reliable` bu boyutu aşınca eski kayıtlar atılır.
+const SEEN_RELIABLE_LIMIT: usize = 65_536;
+const SEEN_RELIABLE_KEEP: u32 = 32_768;
 
 pub struct RakNetPacketHandler {
     pub client_guid: i64,
@@ -29,6 +33,14 @@ pub struct RakNetPacketHandler {
     pub last_received_sequence_number: i64, // i64, u32'yi kapsadığı için kullandım (-1)
     pub last_handled_reliable_frame_index: i64,
     pub missing_datagrams: HashMap<u32, std::time::Instant>,
+    /// Görülen reliable frame index'leri — SADECE kopya elemek için.
+    /// RakNet'te bu alan sıralama bildirmez, yalnızca yeniden gönderilen
+    /// kareyi tanımaya yarar.
+    pub seen_reliable: HashSet<u32>,
+    /// Kanal -> (sıra numarası -> hazır gövde). Sıralı teslim kuyruğu.
+    pub ordered_queue: HashMap<u8, HashMap<u32, Vec<u8>>>,
+    /// Kanal -> bir sonraki teslim edilecek sıra numarası
+    pub next_ordered_index: HashMap<u8, u32>,
 }
 
 impl RakNetPacketHandler {
@@ -44,6 +56,9 @@ impl RakNetPacketHandler {
         let missing_datagrams = HashMap::new();
 
         RakNetPacketHandler {
+            seen_reliable: HashSet::new(),
+            ordered_queue: HashMap::new(),
+            next_ordered_index: HashMap::new(),
             client_guid,
             game,
             frame_number_cache,
@@ -53,6 +68,81 @@ impl RakNetPacketHandler {
             last_handled_reliable_frame_index,
             missing_datagrams,
         }
+    }
+
+    /// Gelen bir kareyi alır ve teslim edilmeye HAZIR gövdeleri döner.
+    ///
+    /// RakNet'te üç ayrı iş vardır, kütüphane bunları tek bir "reliable index
+    /// ardışık mı" kuralına indirgemişti:
+    ///   * `reliable_frame_index` — yalnızca KOPYA elemek içindir
+    ///   * `fragment`             — parçalar geliş sırasından bağımsız birleşir
+    ///   * `order`                — teslim sırasını BU alan belirler
+    ///
+    /// Bazı sunucular (DDoS koruması olanlar) parçaları bilerek karışık sırada
+    /// yolluyor: 0, 1, 3, 7, 15, ... sonra sondan geriye. Ardışık reliable
+    /// index bekleyen istemci böyle bir akışta ilk boşlukta kilitlenip
+    /// StartGame'i hiç alamıyor ve sunucu onu zaman aşımından atıyor.
+    pub fn accept_frame(&mut self, frame: &Frame) -> Vec<Vec<u8>> {
+        // 1) Kopya mı?
+        if let Some(reliable_index) = frame.reliable_frame_index {
+            if !self.seen_reliable.insert(reliable_index) {
+                return Vec::new();
+            }
+            // Set sonsuza kadar büyümesin: eski kayıtlar zaten tekrar gelmez.
+            if self.seen_reliable.len() > SEEN_RELIABLE_LIMIT {
+                let keep_from = reliable_index.saturating_sub(SEEN_RELIABLE_KEEP);
+                self.seen_reliable.retain(|i| *i >= keep_from);
+            }
+        }
+
+        // 2) Parçalı mı? Değilse gövde hazır.
+        let body = match &frame.fragment {
+            Some(fragment) => {
+                let parts = self
+                    .last_received_fragment_packets
+                    .entry(fragment.compound_id)
+                    .or_insert_with(HashMap::new);
+                parts.insert(fragment.index, frame.body.clone());
+                if (parts.len() as u32) < fragment.compound_size {
+                    return Vec::new();
+                }
+                let mut indexes: Vec<u32> = parts.keys().cloned().collect();
+                indexes.sort();
+                let mut joined = Vec::new();
+                for index in indexes {
+                    if let Some(part) = parts.get(&index) {
+                        joined.extend_from_slice(part);
+                    }
+                }
+                self.last_received_fragment_packets.remove(&fragment.compound_id);
+                joined
+            }
+            None => frame.body.clone(),
+        };
+
+        // 3) Sıralı kanal mı? Değilse hemen teslim.
+        let Some(order) = &frame.order else {
+            return vec![body];
+        };
+
+        let channel = order.order_channel;
+        let next = *self.next_ordered_index.entry(channel).or_insert(0);
+        if order.ordered_frame_index < next {
+            // Zaten teslim edilmiş bir sıra numarası
+            return Vec::new();
+        }
+
+        let queue = self.ordered_queue.entry(channel).or_insert_with(HashMap::new);
+        queue.insert(order.ordered_frame_index, body);
+
+        let mut ready = Vec::new();
+        let mut cursor = next;
+        while let Some(pending) = queue.remove(&cursor) {
+            ready.push(pending);
+            cursor += 1;
+        }
+        self.next_ordered_index.insert(channel, cursor);
+        ready
     }
 
     pub fn handle_packet<'b>(

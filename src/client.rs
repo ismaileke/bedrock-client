@@ -396,15 +396,36 @@ async fn start_network_thread(
 
                 let seq = datagram.sequence_number;
 
+                // Teslim edilmeye hazır gövdeler: kopyası elenmiş, parçaları
+                // birleştirilmiş, sıra numarasına göre dizilmiş.
+                let mut ready_bodies: Vec<Vec<u8>> = Vec::new();
                 for frame in datagram.frames {
-                    if let Some(reliable_frame_index) = frame.reliable_frame_index {
+                    if frame.reliable_frame_index.is_some() {
                         // RELIABLE PACKET
-                        raknet_handler.last_received_packets.insert(reliable_frame_index, frame);
+                        ready_bodies.extend(raknet_handler.accept_frame(&frame));
                     } else {
                         // UNRELIABLE PACKET + HANDLER
                         let mut stream = Reader::new(frame.body.as_slice());
                         let packet_id = stream.get_u8();
                         let packet_type = PacketType::from_byte(packet_id);
+
+                        // Sunucular canlılık yoklamasını GÜVENİLMEZ karede
+                        // yolluyor. Cevapsız kalırsa bağlantıyı ölü sayıp
+                        // düşürüyorlar: paket aşaması bitip trafik durduğunda
+                        // istemci sessizce zaman aşımına uğruyordu.
+                        if let PacketType::ConnectedPing = packet_type {
+                            let connected_ping = ConnectedPing::decode(stream.get_buffer());
+                            if debug { connected_ping.debug(); }
+
+                            let mut connected_pong = Writer::new();
+                            ConnectedPong::create(connected_ping.ping_time, Utc::now().timestamp() as u64).encode(&mut connected_pong);
+                            let frame = Datagram::create_frame(connected_pong.as_slice(), UNRELIABLE, &raknet_handler.frame_number_cache, None);
+                            let mut datagram = Writer::new();
+                            Datagram::create(vec![frame], &raknet_handler.frame_number_cache).to_binary(&mut datagram);
+                            raknet_handler.frame_number_cache.sequence_number += 1;
+                            let _ = socket.send(datagram.as_slice()).await;
+                            continue;
+                        }
 
                         let response_raknet_packet = raknet_handler.handle_packet(&mut should_stop, debug, target_address.clone(), target_port, packet_type, &mut stream, &mut raknet_out);
                         if !response_raknet_packet.is_empty() {
@@ -425,47 +446,9 @@ async fn start_network_thread(
                 raknet_handler.missing_datagrams.remove(&seq);
 
 
-                let mut sorted_reliable_frame_index: Vec<u32> = raknet_handler.last_received_packets.keys().cloned().collect();
-                sorted_reliable_frame_index.sort();
-
-                // fragment suspect
-                for reliable_frame_index in sorted_reliable_frame_index {
-                    if (reliable_frame_index as i64) <= raknet_handler.last_handled_reliable_frame_index { //////////////////////////////////////////////////////////////////////////////
-                        raknet_handler.last_received_packets.remove(&reliable_frame_index);
-                        continue;
-                    }
-                    if (reliable_frame_index as i64) == raknet_handler.last_handled_reliable_frame_index + 1 {
-                        if let Some(frame) = raknet_handler.last_received_packets.get(&reliable_frame_index) {
-                            let mut real_body = frame.body.to_vec();
-
-                            // FRAGMENT HANDLER
-                            if let Some(fragment) = &frame.fragment {
-                                raknet_handler.last_received_fragment_packets.entry(fragment.compound_id).or_insert_with(HashMap::new).insert(fragment.index, frame.body.to_vec());
-                                if let Some(fragment_data) = raknet_handler.last_received_fragment_packets.get(&fragment.compound_id) {
-                                    if (fragment_data.len() as u32) == fragment.compound_size {
-
-                                        let mut keys: Vec<u32> = fragment_data.keys().cloned().collect();
-                                        keys.sort();
-
-                                        let mut result = Vec::new();
-                                        for key in keys {
-                                            if let Some(value) = fragment_data.get(&key) {
-                                                result.extend_from_slice(value);
-                                            }
-                                        }
-                                        real_body = result;
-                                        raknet_handler.last_received_fragment_packets.remove(&fragment.compound_id); // birleşen fragmentları serbest bırak
-                                    } else {
-                                        raknet_handler.last_handled_reliable_frame_index = reliable_frame_index as i64;
-                                        raknet_handler.last_received_packets.remove(&reliable_frame_index);
-                                        continue;
-                                    }
-                                } else {
-                                    raknet_handler.last_handled_reliable_frame_index = reliable_frame_index as i64;
-                                    raknet_handler.last_received_packets.remove(&reliable_frame_index);
-                                    continue;
-                                }
-                            }
+                for real_body in ready_bodies {
+                    {
+                        {
 
                             // PACKET HANDLER
                             let mut stream = Reader::new(&real_body);
@@ -761,8 +744,6 @@ async fn start_network_thread(
                                 }
                                 _ => {}
                             }
-                            raknet_handler.last_handled_reliable_frame_index = reliable_frame_index as i64;
-                            raknet_handler.last_received_packets.remove(&reliable_frame_index);
                         }
                     }
                 }
