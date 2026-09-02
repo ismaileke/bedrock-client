@@ -111,11 +111,7 @@ impl UseItemTransactionData {
         stream.put_u8(self.client_interact_prediction);
         stream.put_u8(self.client_cooldown_state);
     }
-
-    /// PlayerAuthInput'a gömülü ItemUseTransaction ile InventoryTransaction
-    /// paketindeki gövde AYNI: eylem dizisi + veri. Ayrı bir "item interaction"
-    /// biçimi yok; eskiden buraya iki adet dummy bool yazılıyordu ve sunucu
-    /// paketi çözemiyordu.
+    
     pub fn decode_with_actions(&mut self, stream: &mut Reader) {
         let action_count = stream.get_var_u32();
         for _ in 0..action_count {
