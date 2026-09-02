@@ -85,6 +85,8 @@ pub struct PackDownloader {
     remaining: usize,
     pub finished: usize,
     pub failed: usize,
+    /// Packs that were already on disk and therefore not downloaded again.
+    pub cached: usize,
 }
 
 impl PackDownloader {
@@ -103,10 +105,19 @@ impl PackDownloader {
         }
         self.announced.clear();
         self.cdn.clear();
+        self.cached = 0;
         let mut ids = Vec::new();
         for (uuid, version, key, size, url) in packs {
             self.announced
                 .insert(uuid.clone(), (version.clone(), key.clone(), *size));
+
+            // Already on disk from an earlier session: neither request its chunks
+            // nor fetch it over HTTP again. The file name carries the version, so a
+            // pack update still downloads.
+            if is_cached(uuid, version, key) {
+                self.cached += 1;
+                continue;
+            }
 
             if !url.trim().is_empty() {
                 // Served by an HTTP server: never request chunks for it.
@@ -124,6 +135,9 @@ impl PackDownloader {
             ids.push(format!("{}_{}", uuid, version));
         }
         self.remaining = ids.len();
+        if self.cached > 0 {
+            println!("[resource pack] {} pack(s) already on disk, skipped", self.cached);
+        }
         ids
     }
 
@@ -250,13 +264,12 @@ impl PackDownloader {
 }
 
 /// Writes the finished archive (and its key, if encrypted) to the download directory.
-fn save_pack(uuid: &str, version: &str, key: &str, buf: &[u8]) -> Result<String, ()> {
-    let Some(dir) = download_dir() else { return Err(()) };
-
-    if std::fs::create_dir_all(&dir).is_err() {
-        println!("[resource pack] could not create directory: {}", dir);
-        return Err(());
-    }
+/// Where a pack is stored. `None` when downloading is disabled.
+///
+/// The version is part of the name, so a pack the server bumped is treated as a
+/// different file and downloaded again.
+pub fn pack_path(uuid: &str, version: &str) -> Option<String> {
+    let dir = download_dir()?;
 
     // Keep the file name safe for every filesystem.
     let safe: String = uuid
@@ -268,7 +281,33 @@ fn save_pack(uuid: &str, version: &str, key: &str, buf: &[u8]) -> Result<String,
     } else {
         format!("{}_{}.zip", safe, version.replace('.', "-"))
     };
-    let path = format!("{}/{}", dir.trim_end_matches('/'), name);
+    Some(format!("{}/{}", dir.trim_end_matches('/'), name))
+}
+
+/// Is this pack already downloaded? A pack is only written once every chunk has
+/// arrived and the sha256 matched, so an existing non-empty file is complete.
+pub fn is_cached(uuid: &str, version: &str, key: &str) -> bool {
+    let Some(path) = pack_path(uuid, version) else { return false };
+    let Ok(meta) = std::fs::metadata(&path) else { return false };
+    if !meta.is_file() || meta.len() == 0 {
+        return false;
+    }
+    // Encrypted packs are useless without the key file next to them.
+    if !key.is_empty() && !std::path::Path::new(&format!("{}.key", path)).is_file() {
+        return false;
+    }
+    true
+}
+
+fn save_pack(uuid: &str, version: &str, key: &str, buf: &[u8]) -> Result<String, ()> {
+    let Some(dir) = download_dir() else { return Err(()) };
+
+    if std::fs::create_dir_all(&dir).is_err() {
+        println!("[resource pack] could not create directory: {}", dir);
+        return Err(());
+    }
+
+    let Some(path) = pack_path(uuid, version) else { return Err(()) };
 
     match std::fs::File::create(&path).and_then(|mut f| f.write_all(buf)) {
         Ok(_) => {
@@ -299,6 +338,10 @@ fn save_pack(uuid: &str, version: &str, key: &str, buf: &[u8]) -> Result<String,
 /// ACKs are sent while a large pack downloads and the server drops the connection.
 pub async fn download_cdn(pack: CdnPack) {
     if download_dir().is_none() {
+        return;
+    }
+    if is_cached(&pack.uuid, &pack.version, &pack.key) {
+        println!("[resource pack] {} already on disk, skipping CDN download", pack.uuid);
         return;
     }
     println!("[resource pack] {} via CDN: {}", pack.uuid, pack.url);
