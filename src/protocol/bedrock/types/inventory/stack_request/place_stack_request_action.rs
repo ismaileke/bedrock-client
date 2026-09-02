@@ -1,7 +1,6 @@
 use crate::protocol::bedrock::types::inventory::stack_request::item_stack_request_slot_info::ItemStackRequestSlotInfo;
 use binary_utils::binary::{Reader, Writer};
 
-/// Take ile aynı gövde: `count` adedi kaynaktan hedefe koyar.
 #[derive(serde::Serialize, Debug)]
 pub struct PlaceStackRequestAction {
     pub count: u8,
