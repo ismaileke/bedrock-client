@@ -14,7 +14,7 @@ use binary_utils::binary::{Reader, Writer};
 pub struct InventoryTransaction {
     pub request_id: i32,
     pub request_changed_slots: Option<Vec<InventoryTransactionChangedSlotsHack>>,
-    pub tr_data: TransactionData,
+    pub tr_data: Option<TransactionData>,
 }
 
 impl Packet for InventoryTransaction {
@@ -30,34 +30,35 @@ impl Packet for InventoryTransaction {
                 changed_slot.write(s);
             }
         });
-        stream.put_var_u32(self.tr_data.get_type_id());
-        self.tr_data.encode(stream);
+        PacketSerializer::write_optional(stream, &self.tr_data, |s, v| s.put_var_u32(v.get_type_id()));
+        if let Some(tr_data) = &self.tr_data {
+            tr_data.encode(stream);
+        }
     }
     
     fn decode(stream: &mut Reader) -> InventoryTransaction {
         let request_id = PacketSerializer::read_legacy_item_stack_request_id(stream);
         let request_changed_slots = PacketSerializer::read_optional(stream, |s| {
-            let mut result = Vec::new();
             let slot_count = s.get_var_u32() as usize;
+            let mut result = Vec::with_capacity(slot_count);
             for _ in 0..slot_count {
                 result.push(InventoryTransactionChangedSlotsHack::read(s));
             }
             return result;
         });
-        let tr_type = stream.get_var_u32();
+        let tr_type = PacketSerializer::read_optional(stream, |s| s.get_var_u32());
         let mut tr_data = match tr_type {
-            Self::TYPE_NORMAL => TransactionData::Normal(NormalTransactionData::new(vec![])),
-            Self::TYPE_MISMATCH => TransactionData::Mismatch(MismatchTransactionData::new()),
-            Self::TYPE_USE_ITEM => TransactionData::UseItem(UseItemTransactionData::null()),
-            Self::TYPE_USE_ITEM_ON_ENTITY => {
-                TransactionData::UseItemOnEntity(UseItemOnEntityTransactionData::null())
-            }
-            Self::TYPE_RELEASE_ITEM => {
-                TransactionData::ReleaseItem(ReleaseItemTransactionData::null())
-            }
-            _ => TransactionData::Normal(NormalTransactionData::new(vec![])),
+            Some(Self::TYPE_NORMAL) => Some(TransactionData::Normal(NormalTransactionData::new(vec![]))),
+            Some(Self::TYPE_MISMATCH) => Some(TransactionData::Mismatch(MismatchTransactionData::new())),
+            Some(Self::TYPE_USE_ITEM) => Some(TransactionData::UseItem(UseItemTransactionData::null())),
+            Some(Self::TYPE_USE_ITEM_ON_ENTITY) => Some(TransactionData::UseItemOnEntity(UseItemOnEntityTransactionData::null())),
+            Some(Self::TYPE_RELEASE_ITEM) => Some(TransactionData::ReleaseItem(ReleaseItemTransactionData::null())),
+            None => None,
+            _ => panic!("Unknown transaction type: {:?}", tr_type),
         };
-        tr_data.decode(stream);
+        if let Some(tr_data) = tr_data.as_mut() {
+            tr_data.decode(stream);
+        }
 
         InventoryTransaction { request_id, request_changed_slots, tr_data }
     }

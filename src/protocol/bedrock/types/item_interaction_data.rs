@@ -32,18 +32,14 @@ impl ItemInteractionData {
                 request_changed_slots.push(InventoryTransactionChangedSlotsHack::read(stream));
             }
         }
-        let mut tr_data = TransactionData::UseItem(UseItemTransactionData::null());
-        tr_data.decode(stream);
 
-        let use_item_tr_data = match tr_data {
-            TransactionData::UseItem(data) => data,
-            _ => panic!("Expected UseItemTransactionData, got {:?}", tr_data.get_type_id())
-        };
+        let mut use_item_transaction = UseItemTransactionData::null();
+        use_item_transaction.decode_for_item_interactions(stream);
 
         ItemInteractionData {
             request_id,
             request_changed_slots,
-            tr_data: use_item_tr_data,
+            tr_data: use_item_transaction,
         }
     }
 
@@ -57,7 +53,6 @@ impl ItemInteractionData {
                 slots.write(stream);
             }
         }
-        let tr_data = TransactionData::UseItem(self.tr_data.clone());
-        tr_data.encode(stream);
+        self.tr_data.encode_for_item_interactions(stream);
     }
 }
