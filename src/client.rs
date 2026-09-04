@@ -195,7 +195,7 @@ impl Client {
         match self.network_receiver.recv().await {
             Some(event) => match event {
                 ClientEvent::GameStarted { hashed_ids, runtime_ids, air_id, runtime_id, unique_id, current_tick, player_position, yaw, pitch } => {
-                    if self.debug { println!("Block Palette Synchronized! ({} block)", if runtime_ids.len() != 0 { runtime_ids.len() } else { hashed_ids.len() }); }
+                    if self.debug { println!("Block Palette Synchronized! {} ({} block)", if runtime_ids.len() != 0  { "runtimeId" } else { "hashedId" }, if runtime_ids.len() != 0 { runtime_ids.len() } else { hashed_ids.len() }); }
                     self.chunk_palette_hashed = hashed_ids;
                     self.chunk_palette_runtime = runtime_ids;
                     self.chunk_air_id = air_id;

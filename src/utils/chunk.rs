@@ -1,4 +1,10 @@
 use binary_utils::binary::Reader;
+use linked_hash_map::LinkedHashMap;
+use mojang_nbt::nbt_serializer::{NBTReader, NBTWriter};
+use mojang_nbt::tag::compound_tag::CompoundTag;
+use mojang_nbt::tag::tag::Tag;
+use mojang_nbt::tree_root::TreeRoot;
+use crate::utils::block;
 
 #[derive(Clone)]
 pub struct PaletteSize(pub u8);
@@ -257,12 +263,10 @@ pub fn decode_paletted_storage(buf: &mut Reader) -> Result<Option<PalettedStorag
 
     // Disk/Network Decode
     let palette = if is_runtime {
-        //println!("NetworkDecode:");
-        // VarInt okuyan standart network decode (şu anki kodun)
+        println!("NetworkDecode:");
         decode_palette_network(buf, PaletteSize(block_size))?
     } else {
-        //println!("DiskDecode:");
-        // NBT okuyan disk decode (bunu yazman veya bir NBT kütüphanesi kullanman gerekecek)
+        println!("DiskDecode:");
         decode_palette_disk(buf, PaletteSize(block_size))?
     };
 
@@ -292,26 +296,28 @@ pub fn decode_palette_network(buf: &mut Reader, palette_size: PaletteSize) -> Re
 }
 
 pub fn decode_palette_disk(buf: &mut Reader, palette_size: PaletteSize) -> Result<Palette, String> {
-    let mut palette_count: u32 = 1;
+    let mut palette_count: i32 = 1;
     if palette_size.0 != 0 {
-        palette_count = buf.get_u32_le();
-        if palette_count <= 0 {
-            return Err(format!("Invalid palette entry count {}", palette_count));
-        }
+        palette_count = buf.get_var_i32();
     }
 
-    if palette_count > 4096 {
-        return Err(format!("Invalid palette entry count {}", palette_count));
+    let mut palette = Palette::new(palette_size, vec![0u32; palette_count as usize]);
+    for i in 0..palette_count {
+        palette.values[i as usize] = decode_block_palette(buf)?;
     }
+    if palette_count == 0 {
+        return Err("invalid palette entry count: found 0, but palette with 0 bits per block must have at least 1 value".to_string());
+    }
+    Ok(palette)
 
-    let mut blocks = Vec::<u32>::with_capacity(palette_count as usize);
+    /*let mut blocks = Vec::<u32>::with_capacity(palette_count as usize);
     for _ in 0..palette_count {
-        /*let mut offset = buf.get_offset();
-        let mut nbt_serializer = NBTSerializer::new_network();
-        let nbt_root = nbt_serializer.read(Vec::from(buf.get_buffer()), &mut offset, 0);
+        let mut offset = buf.offset();
+        let mut nbt_serializer = NBTReader::new_network();
+        let nbt_root = nbt_serializer.read(buf.get_buffer(), &mut offset, 0);
         buf.set_offset(offset);
         let test = CacheableNBT::new(Tag::Compound(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error"), ));
-        */
+        println!("{:?}", test);
 
         let runtime_id = 0; // Gerçek implementasyonda NBT'den çevrilmiş ID olacak
         blocks.push(runtime_id);
@@ -322,7 +328,83 @@ pub fn decode_palette_disk(buf: &mut Reader, palette_size: PaletteSize) -> Resul
         last_index: 0,
         size: palette_size,
         values: blocks,
-    })
+    })*/
+}
+
+pub fn decode_block_palette(buf: &mut Reader) -> Result<u32, String> {
+    let mut offset = buf.offset();
+    let mut nbt_serializer = NBTReader::new_network();
+    let nbt_root = nbt_serializer.read(buf.get_buffer(), &mut offset, 0);
+    buf.set_offset(offset);
+
+    // CompoundTag { value: {"name": String(StringTag { value: "air" }), "version": Int(IntTag { value: 18166272 }), "states": CompoundTag { value: {} } })
+    let compound_tag = nbt_root.must_get_compound_tag().expect("Decode Block Palette TreeRoot to CompoundTag conversion error");
+
+    let name = compound_tag.get_string("name").unwrap();
+    let version = compound_tag.get_int("version").unwrap();
+    let mut state = compound_tag.get_compound_tag("states".to_string());
+
+    if version < 17_694_723 {
+        // This entry is a pre-1.13 block state,
+        // so decode the meta value instead.
+        /*let meta = compound_tag.get_short("val").unwrap_or(0);
+
+        // Upgrade the pre-1.13 state into a post-1.13 state.
+        let legacy = upgrade_legacy_entry(&name, meta).ok_or_else(|| {
+            format!("cannot find mapping for legacy block entry: {}, {}", name, meta)
+        })?;
+
+        // Update the name, state, and version.
+        name = legacy.name;
+        state = Some(legacy.state);
+        version = legacy.version;*/
+
+    } else if state.is_none() {
+        // The state is a post-1.13 block state,
+        // but the states field is missing.
+        state = Some(CompoundTag::new(LinkedHashMap::new()));
+    }
+
+    let state = state.ok_or_else(|| { "invalid state in block entry".to_string() })?;
+
+    /*
+    // Upgrade the block state if necessary.
+    let upgraded = blockupgrader::upgrade(BlockState {
+        name,
+        properties: state,
+        version,
+    });
+
+
+    let runtime_id = self
+        .blocks
+        .state_to_runtime_id(
+            &upgraded.name,
+            &upgraded.properties,
+        )
+        .ok_or_else(|| {
+            format!(
+                "cannot get runtime ID of block state {}{:?} {}",
+                upgraded.name,
+                upgraded.properties,
+                upgraded.version
+            )
+        })?;
+    */
+
+    let mut custom_ct = CompoundTag::new(LinkedHashMap::new());
+    custom_ct.set_string("name", name);
+    custom_ct.set_tag("states", Tag::Compound(state));
+
+    let root = TreeRoot::new(Tag::Compound(custom_ct.clone()), "");
+    let mut writer = NBTWriter::new_little_endian();
+    let data = writer.write(root);
+
+    let runtime_id = block::fnv1a_32(data);
+
+    //println!("{:?}", runtime_id);
+
+    Ok(runtime_id)
 }
 
 pub fn get_dimension_chunk_bounds(dimension_id: i32) -> (isize, isize) {

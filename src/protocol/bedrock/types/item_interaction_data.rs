@@ -1,5 +1,4 @@
 use crate::protocol::bedrock::types::inventory::inventory_transaction_changed_slots_hack::InventoryTransactionChangedSlotsHack;
-use crate::protocol::bedrock::types::inventory::transaction_data::TransactionData;
 use crate::protocol::bedrock::types::inventory::use_item_transaction_data::UseItemTransactionData;
 use binary_utils::binary::{Reader, Writer};
 

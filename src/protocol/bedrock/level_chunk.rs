@@ -82,8 +82,7 @@ impl Packet for LevelChunk {
             used_blob_hashes.push(stream.get_u64_le());
         }
 
-        let length = stream.get_var_u32();
-        let extra_payload = stream.get(length as usize).to_vec();
+        let extra_payload = PacketSerializer::get_byte_string(stream);
 
         LevelChunk {
             chunk_x,
