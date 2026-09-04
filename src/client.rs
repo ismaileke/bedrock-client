@@ -36,7 +36,7 @@ use mojang_nbt::tag::tag::Tag;
 use mojang_nbt::tree_root::TreeRoot;
 use mojang_nbt::nbt_serializer::{NBTReader, NBTWriter};
 use serde_json::Value;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::io::{Cursor, Read};
 use std::net::{SocketAddr, ToSocketAddrs};
 use std::sync::{Arc, Mutex};
@@ -78,6 +78,7 @@ pub struct Client {
     // In Game
     pub chunk_palette_hashed: HashMap<u32, CompoundTag>,
     pub chunk_palette_runtime: Vec<CompoundTag>,
+    pub pending_chunks: VecDeque<BedrockPacket>,
     pub chunk_air_id: u32,
     pub runtime_id: u64,
     pub unique_id: i64,
@@ -174,6 +175,7 @@ where
         auth_callback,
         chunk_palette_hashed: HashMap::new(),
         chunk_palette_runtime: vec![],
+        pending_chunks: VecDeque::new(),
         chunk_air_id: 0,
         runtime_id: 0,
         unique_id: 0,
@@ -192,6 +194,13 @@ impl Client {
     }
 
     pub async fn next_event(&mut self) -> Option<(String, BedrockPacket)> {
+        let palette_ready = !self.chunk_palette_hashed.is_empty() || !self.chunk_palette_runtime.is_empty();
+        if palette_ready {
+            if let Some(chunk_packet) = self.pending_chunks.pop_front() {
+                return Some(("Level Chunk".to_string(), chunk_packet));
+            }
+        }
+
         match self.network_receiver.recv().await {
             Some(event) => match event {
                 ClientEvent::GameStarted { hashed_ids, runtime_ids, air_id, runtime_id, unique_id, current_tick, player_position, yaw, pitch } => {
@@ -207,7 +216,16 @@ impl Client {
                     self.pitch = pitch;
                     None
                 },
-                ClientEvent::Packet(name, pkt) => Some((name, pkt)),
+                ClientEvent::Packet(name, pkt) => {
+                    let is_ready = !self.chunk_palette_hashed.is_empty() || !self.chunk_palette_runtime.is_empty();
+                    if let BedrockPacket::LevelChunk(_) = &pkt {
+                        if !is_ready {
+                            self.pending_chunks.push_back(pkt);
+                            return None;
+                        }
+                    }
+                    Some((name, pkt))
+                }
             },
             None => None,
         }
@@ -658,7 +676,7 @@ async fn start_network_thread(
                                             },
                                             BedrockPacket::StartGame(start_game) => {
                                                 player_runtime_id = start_game.actor_runtime_id;
-                                           
+
                                                 let mut req_chunk_radius = RequestChunkRadius { radius: 40, max_radius: 40 };
                                                 raknet_handler.game.encode(&mut req_chunk_radius, &mut game_body).expect("encode");
                                                 let datagrams = Datagram::split_packet(game_body.as_slice(), &mut raknet_handler.frame_number_cache);

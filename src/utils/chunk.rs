@@ -263,10 +263,10 @@ pub fn decode_paletted_storage(buf: &mut Reader) -> Result<Option<PalettedStorag
 
     // Disk/Network Decode
     let palette = if is_runtime {
-        println!("NetworkDecode:");
+        //println!("NetworkDecode:");
         decode_palette_network(buf, PaletteSize(block_size))?
     } else {
-        println!("DiskDecode:");
+        //println!("DiskDecode:");
         decode_palette_disk(buf, PaletteSize(block_size))?
     };
 
@@ -341,7 +341,7 @@ pub fn decode_block_palette(buf: &mut Reader) -> Result<u32, String> {
     let compound_tag = nbt_root.must_get_compound_tag().expect("Decode Block Palette TreeRoot to CompoundTag conversion error");
 
     let name = compound_tag.get_string("name").unwrap();
-    let version = compound_tag.get_int("version").unwrap();
+    let version = compound_tag.get_int("version").unwrap_or(17_694_724); // LOL
     let mut state = compound_tag.get_compound_tag("states".to_string());
 
     if version < 17_694_723 {
