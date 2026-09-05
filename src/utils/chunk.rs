@@ -389,7 +389,7 @@ pub fn decode_block_palette(buf: &mut Reader, registry: &BlockRegistry) -> Resul
     let data = writer.write(root);
 
     // Hash'i hesapla (64-bit kullanmak çakışmaları önler)
-    let state_hash = fnv1_64(&data);
+    let state_hash = fnv1_64(data);
 
     // Registry'den gerçek Runtime ID'yi bul
     if let Some(&runtime_id) = registry.nbt_to_id.get(&state_hash) {
