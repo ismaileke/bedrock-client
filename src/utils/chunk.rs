@@ -329,7 +329,11 @@ pub fn decode_block_palette(buf: &mut Reader, registry: &BlockRegistry) -> Resul
     let compound_tag = nbt_root.must_get_compound_tag().expect("Decode Block Palette TreeRoot to CompoundTag conversion error");
 
     let name = compound_tag.get_string("name").unwrap();
-    //let version = compound_tag.get_int("version").unwrap_or(17_694_724); // LOL
+    let version = compound_tag.get_int("version");
+    if version.is_none() {
+        println!("Cannot find 'version', NBT data: {:?}", compound_tag);
+    }
+
     let mut state = compound_tag.get_compound_tag("states".to_string());
 
     /*if version < 17_694_723 {
@@ -391,14 +395,12 @@ pub fn decode_block_palette(buf: &mut Reader, registry: &BlockRegistry) -> Resul
     let mut writer = NBTWriter::new_little_endian();
     let data = writer.write(root);
 
-    // Hash'i hesapla (64-bit kullanmak çakışmaları önler)
     let state_hash = fnv1_64(data);
 
-    // Registry'den gerçek Runtime ID'yi bul
     if let Some(&runtime_id) = registry.nbt_to_id.get(&state_hash) {
         Ok(runtime_id)
     } else {
-        println!("Unknown block: {}", name);
+        //println!("Unknown block: {}", name);
         Ok(registry.air_id)
     }
 }
