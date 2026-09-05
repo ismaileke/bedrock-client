@@ -1,10 +1,11 @@
+use std::collections::HashMap;
 use binary_utils::binary::Reader;
 use linked_hash_map::LinkedHashMap;
 use mojang_nbt::nbt_serializer::{NBTReader, NBTWriter};
 use mojang_nbt::tag::compound_tag::CompoundTag;
 use mojang_nbt::tag::tag::Tag;
 use mojang_nbt::tree_root::TreeRoot;
-use crate::utils::block;
+use crate::utils::block::fnv1_64;
 
 #[derive(Clone)]
 pub struct PaletteSize(pub u8);
@@ -62,6 +63,13 @@ pub struct Palette {
     pub size: PaletteSize,
     // Values is a map of values. A PalettedStorage points to the index to this value.
     pub values: Vec<u32>
+}
+
+#[derive(Clone)]
+pub struct BlockRegistry {
+    pub air_id: u32,
+    // NBT verisinin FNV1-64 hash'i -> Runtime/Hashed ID
+    pub nbt_to_id: HashMap<u64, u32>,
 }
 
 impl PalettedStorage {
@@ -152,15 +160,15 @@ impl Palette {
     }
 }
 
-pub fn network_decode(air: u32, data: &[u8], sub_chunk_count: u32, range: (isize, isize)) -> Result<Chunk, String> {
-    let mut chunk = Chunk::new(air, range);
+pub fn network_decode(registry: &BlockRegistry, data: &[u8], sub_chunk_count: u32, range: (isize, isize)) -> Result<Chunk, String> {
+    let mut chunk = Chunk::new(registry.air_id, range);
     let mut buf = Reader::new(data);
     let n = (((range.1 - range.0) >> 4) + 1) as u8;
 
     for i in 0..sub_chunk_count {
         let mut index = i as u8;
 
-        let sub_chunk = decode_sub_chunk(&mut buf, &chunk, &mut index)?;
+        let sub_chunk = decode_sub_chunk(&mut buf, registry, &chunk, &mut index)?;
 
         if index > n {
             return Err("index out of range".to_string());
@@ -190,7 +198,7 @@ pub fn network_decode(air: u32, data: &[u8], sub_chunk_count: u32, range: (isize
     Ok(chunk)
 }
 
-pub fn decode_sub_chunk(buf: &mut Reader, chunk: &Chunk, index: &mut u8) -> Result<SubChunk, String> {
+pub fn decode_sub_chunk(buf: &mut Reader, registry: &BlockRegistry, chunk: &Chunk, index: &mut u8) -> Result<SubChunk, String> {
     let version = buf.get_u8();
 
     let mut sub_chunk = SubChunk::new(chunk.air);
@@ -198,7 +206,7 @@ pub fn decode_sub_chunk(buf: &mut Reader, chunk: &Chunk, index: &mut u8) -> Resu
     match version {
         1 => {
             // Version 1 only has one layer for each sub chunk but uses the format with palettes.
-            let storage = decode_paletted_storage(buf)?; // NetworkEncoding, BlockPaletteEncoding
+            let storage = decode_paletted_storage(buf, registry)?; // NetworkEncoding, BlockPaletteEncoding
 
             if let Some(s) = storage {
                 sub_chunk.storages.push(s);
@@ -216,7 +224,7 @@ pub fn decode_sub_chunk(buf: &mut Reader, chunk: &Chunk, index: &mut u8) -> Resu
 
             sub_chunk.storages = Vec::<PalettedStorage>::with_capacity(storage_count as usize);
             for i in 0..storage_count {
-                let storage = decode_paletted_storage(buf)?;
+                let storage = decode_paletted_storage(buf, registry)?;
                 if let Some(s) = storage {
                     sub_chunk.storages.insert(i as usize, s);
                 }
@@ -229,7 +237,7 @@ pub fn decode_sub_chunk(buf: &mut Reader, chunk: &Chunk, index: &mut u8) -> Resu
     Ok(sub_chunk)
 }
 
-pub fn decode_paletted_storage(buf: &mut Reader) -> Result<Option<PalettedStorage>, String> {
+pub fn decode_paletted_storage(buf: &mut Reader, registry: &BlockRegistry) -> Result<Option<PalettedStorage>, String> {
     let raw_block_size = buf.get_u8();
 
     let block_size = raw_block_size >> 1;
@@ -267,7 +275,7 @@ pub fn decode_paletted_storage(buf: &mut Reader) -> Result<Option<PalettedStorag
         decode_palette_network(buf, PaletteSize(block_size))?
     } else {
         //println!("DiskDecode:");
-        decode_palette_disk(buf, PaletteSize(block_size))?
+        decode_palette_disk(buf, PaletteSize(block_size), registry)?
     };
 
     Ok(Some(PalettedStorage::new(uint32s, palette)))
@@ -295,7 +303,7 @@ pub fn decode_palette_network(buf: &mut Reader, palette_size: PaletteSize) -> Re
     })
 }
 
-pub fn decode_palette_disk(buf: &mut Reader, palette_size: PaletteSize) -> Result<Palette, String> {
+pub fn decode_palette_disk(buf: &mut Reader, palette_size: PaletteSize, registry: &BlockRegistry) -> Result<Palette, String> {
     let mut palette_count: i32 = 1;
     if palette_size.0 != 0 {
         palette_count = buf.get_var_i32();
@@ -303,35 +311,15 @@ pub fn decode_palette_disk(buf: &mut Reader, palette_size: PaletteSize) -> Resul
 
     let mut palette = Palette::new(palette_size, vec![0u32; palette_count as usize]);
     for i in 0..palette_count {
-        palette.values[i as usize] = decode_block_palette(buf)?;
+        palette.values[i as usize] = decode_block_palette(buf, registry)?;
     }
     if palette_count == 0 {
         return Err("invalid palette entry count: found 0, but palette with 0 bits per block must have at least 1 value".to_string());
     }
     Ok(palette)
-
-    /*let mut blocks = Vec::<u32>::with_capacity(palette_count as usize);
-    for _ in 0..palette_count {
-        let mut offset = buf.offset();
-        let mut nbt_serializer = NBTReader::new_network();
-        let nbt_root = nbt_serializer.read(buf.get_buffer(), &mut offset, 0);
-        buf.set_offset(offset);
-        let test = CacheableNBT::new(Tag::Compound(nbt_root.must_get_compound_tag().expect("StartGamePacket TreeRoot to CompoundTag conversion error"), ));
-        println!("{:?}", test);
-
-        let runtime_id = 0; // Gerçek implementasyonda NBT'den çevrilmiş ID olacak
-        blocks.push(runtime_id);
-    }
-
-    Ok(Palette {
-        last: 0,
-        last_index: 0,
-        size: palette_size,
-        values: blocks,
-    })*/
 }
 
-pub fn decode_block_palette(buf: &mut Reader) -> Result<u32, String> {
+pub fn decode_block_palette(buf: &mut Reader, registry: &BlockRegistry) -> Result<u32, String> {
     let mut offset = buf.offset();
     let mut nbt_serializer = NBTReader::new_network();
     let nbt_root = nbt_serializer.read(buf.get_buffer(), &mut offset, 0);
@@ -393,18 +381,23 @@ pub fn decode_block_palette(buf: &mut Reader) -> Result<u32, String> {
     */
 
     let mut custom_ct = CompoundTag::new(LinkedHashMap::new());
-    custom_ct.set_string("name", name);
+    custom_ct.set_string("name", name.clone());
     custom_ct.set_tag("states", Tag::Compound(state));
 
     let root = TreeRoot::new(Tag::Compound(custom_ct.clone()), "");
     let mut writer = NBTWriter::new_little_endian();
     let data = writer.write(root);
 
-    let runtime_id = block::fnv1a_32(data);
+    // Hash'i hesapla (64-bit kullanmak çakışmaları önler)
+    let state_hash = fnv1_64(&data);
 
-    //println!("{:?}", runtime_id);
-
-    Ok(runtime_id)
+    // Registry'den gerçek Runtime ID'yi bul
+    if let Some(&runtime_id) = registry.nbt_to_id.get(&state_hash) {
+        Ok(runtime_id)
+    } else {
+        println!("Unknown block: {}", name);
+        Ok(registry.air_id)
+    }
 }
 
 pub fn get_dimension_chunk_bounds(dimension_id: i32) -> (isize, isize) {

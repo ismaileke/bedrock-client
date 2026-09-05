@@ -19,7 +19,7 @@ use crate::protocol::raknet::game_packet::GamePacket;
 use crate::protocol::raknet::open_conn_req1::OpenConnReq1;
 use crate::protocol::raknet::packet_ids::{PacketType, MAGIC};
 use crate::utils::block::PropertyValue;
-use crate::utils::chunk::Chunk;
+use crate::utils::chunk::{BlockRegistry, Chunk};
 use crate::utils::color_format::*;
 use crate::utils::encryption::Encryption;
 use crate::utils::{block, encryption, resource_pack};
@@ -79,7 +79,7 @@ pub struct Client {
     pub chunk_palette_hashed: HashMap<u32, CompoundTag>,
     pub chunk_palette_runtime: Vec<CompoundTag>,
     pub pending_chunks: VecDeque<BedrockPacket>,
-    pub chunk_air_id: u32,
+    pub block_registry: Option<BlockRegistry>,
     pub runtime_id: u64,
     pub unique_id: i64,
     pub current_tick: u64,
@@ -93,7 +93,7 @@ pub enum ClientEvent {
     GameStarted {
         hashed_ids: HashMap<u32, CompoundTag>,
         runtime_ids: Vec<CompoundTag>,
-        air_id: u32,
+        block_registry: Option<BlockRegistry>,
         runtime_id: u64,
         unique_id: i64,
         current_tick: u64,
@@ -176,7 +176,7 @@ where
         chunk_palette_hashed: HashMap::new(),
         chunk_palette_runtime: vec![],
         pending_chunks: VecDeque::new(),
-        chunk_air_id: 0,
+        block_registry: None,
         runtime_id: 0,
         unique_id: 0,
         current_tick: 0,
@@ -203,11 +203,11 @@ impl Client {
 
         match self.network_receiver.recv().await {
             Some(event) => match event {
-                ClientEvent::GameStarted { hashed_ids, runtime_ids, air_id, runtime_id, unique_id, current_tick, player_position, yaw, pitch } => {
+                ClientEvent::GameStarted { block_registry, hashed_ids, runtime_ids, runtime_id, unique_id, current_tick, player_position, yaw, pitch } => {
                     if self.debug { println!("Block Palette Synchronized! {} ({} block)", if runtime_ids.len() != 0  { "runtimeId" } else { "hashedId" }, if runtime_ids.len() != 0 { runtime_ids.len() } else { hashed_ids.len() }); }
+                    self.block_registry = block_registry;
                     self.chunk_palette_hashed = hashed_ids;
                     self.chunk_palette_runtime = runtime_ids;
-                    self.chunk_air_id = air_id;
                     self.runtime_id = runtime_id;
                     self.unique_id = unique_id;
                     self.current_tick = current_tick;
@@ -696,15 +696,15 @@ async fn start_network_thread(
                                                 tokio::task::spawn_blocking(move || {
                                                     let r = build_palette(&palette, hashes);
                                                     let _ = tx.send(ClientEvent::GameStarted {
-                                                        hashed_ids:  r.hashed_ids,
-                                                        runtime_ids: r.runtime_ids,
-                                                        air_id:      r.air_id,
-                                                        runtime_id:  rid,
-                                                        unique_id:   uid,
-                                                        current_tick: tick,
-                                                        player_position: pos,
-                                                        yaw,
-                                                        pitch,
+                                                    hashed_ids:  r.hashed_ids,
+                                                    runtime_ids: r.runtime_ids,
+                                                    block_registry: Some(r.registry),
+                                                    runtime_id:  rid,
+                                                    unique_id:   uid,
+                                                    current_tick: tick,
+                                                    player_position: pos,
+                                                    yaw,
+                                                    pitch,
                                                     });
                                                 });
                                             },
@@ -777,7 +777,7 @@ fn lookup_host(hostname: &String) -> io::Result<Vec<SocketAddr>> {
 pub struct PaletteResult {
     pub hashed_ids: HashMap<u32, CompoundTag>,
     pub runtime_ids: Vec<CompoundTag>,
-    pub air_id: u32,
+    pub registry: BlockRegistry,
 }
 
 fn build_palette(
@@ -939,5 +939,46 @@ fn build_palette(
         runtime_ids = name_hashes;
     }
 
-    PaletteResult { hashed_ids, runtime_ids, air_id }
+    let mut nbt_to_id = HashMap::new();
+
+    if ids_are_hashes {
+        for (id, tag) in &hashed_ids {
+            let mut clean_ct = CompoundTag::new(LinkedHashMap::new());
+            clean_ct.set_string("name", tag.get_string("name").unwrap_or_else(|| "minecraft:air".to_string()));
+
+            if let Some(states) = tag.get_compound_tag("states".to_string()) {
+                clean_ct.set_tag("states", Tag::Compound(states));
+            } else {
+                clean_ct.set_tag("states", Tag::Compound(CompoundTag::new(LinkedHashMap::new())));
+            }
+
+            let root = TreeRoot::new(Tag::Compound(clean_ct), "");
+            let mut writer = NBTWriter::new_little_endian();
+            let data = writer.write(root);
+            nbt_to_id.insert(block::fnv1_64(&data), *id);
+        }
+    } else {
+        for (index, tag) in runtime_ids.iter().enumerate() {
+            let mut clean_ct = CompoundTag::new(LinkedHashMap::new());
+            clean_ct.set_string("name", tag.get_string("name").unwrap_or_else(|| "minecraft:air".to_string()));
+
+            if let Some(states) = tag.get_compound_tag("states".to_string()) {
+                clean_ct.set_tag("states", Tag::Compound(states));
+            } else {
+                clean_ct.set_tag("states", Tag::Compound(CompoundTag::new(LinkedHashMap::new())));
+            }
+
+            let root = TreeRoot::new(Tag::Compound(clean_ct), "");
+            let mut writer = NBTWriter::new_little_endian();
+            let data = writer.write(root);
+            nbt_to_id.insert(block::fnv1_64(&data), index as u32);
+        }
+    }
+
+    let registry = BlockRegistry {
+        air_id,
+        nbt_to_id,
+    };
+
+    PaletteResult { hashed_ids, runtime_ids, registry }
 }
