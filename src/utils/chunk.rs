@@ -329,10 +329,10 @@ pub fn decode_block_palette(buf: &mut Reader, registry: &BlockRegistry) -> Resul
     let compound_tag = nbt_root.must_get_compound_tag().expect("Decode Block Palette TreeRoot to CompoundTag conversion error");
 
     let name = compound_tag.get_string("name").unwrap();
-    let version = compound_tag.get_int("version").unwrap_or(17_694_724); // LOL
+    //let version = compound_tag.get_int("version").unwrap_or(17_694_724); // LOL
     let mut state = compound_tag.get_compound_tag("states".to_string());
 
-    if version < 17_694_723 {
+    /*if version < 17_694_723 {
         // This entry is a pre-1.13 block state,
         // so decode the meta value instead.
         /*let meta = compound_tag.get_short("val").unwrap_or(0);
@@ -347,7 +347,7 @@ pub fn decode_block_palette(buf: &mut Reader, registry: &BlockRegistry) -> Resul
         state = Some(legacy.state);
         version = legacy.version;*/
 
-    } else if state.is_none() {
+    } else */if state.is_none() {
         // The state is a post-1.13 block state,
         // but the states field is missing.
         state = Some(CompoundTag::new(LinkedHashMap::new()));
