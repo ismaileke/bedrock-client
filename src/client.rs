@@ -76,7 +76,7 @@ pub struct Client {
     pub debug: bool,
     pub auth_callback: Arc<Mutex<Option<Box<dyn Fn(&str, &str) + Send>>>>,
     // In Game
-    pub chunk_palette_hashed: HashMap<usize, CompoundTag>,
+    pub chunk_palette_hashed: HashMap<u32, CompoundTag>,
     pub chunk_palette_runtime: Vec<CompoundTag>,
     pub pending_chunks: VecDeque<BedrockPacket>,
     pub block_registry: Option<BlockRegistry>,
@@ -91,7 +91,7 @@ pub struct Client {
 pub enum ClientEvent {
     Packet(String, BedrockPacket),
     GameStarted {
-        hashed_ids: HashMap<usize, CompoundTag>,
+        hashed_ids: HashMap<u32, CompoundTag>,
         runtime_ids: Vec<CompoundTag>,
         block_registry: Option<BlockRegistry>,
         runtime_id: u64,
@@ -258,7 +258,7 @@ impl Client {
                                 let block_info = if !self.chunk_palette_hashed.is_empty() {
                                     self.chunk_palette_hashed.get(&block_id)
                                 } else {
-                                    self.chunk_palette_runtime.get(block_id)
+                                    self.chunk_palette_runtime.get(block_id as usize)
                                 };
 
                                 if let Some(tag) = block_info {
@@ -775,7 +775,7 @@ fn lookup_host(hostname: &String) -> io::Result<Vec<SocketAddr>> {
 }
 
 pub struct PaletteResult {
-    pub hashed_ids: HashMap<usize, CompoundTag>,
+    pub hashed_ids: HashMap<u32, CompoundTag>,
     pub runtime_ids: Vec<CompoundTag>,
     pub registry: BlockRegistry,
 }
@@ -784,7 +784,7 @@ fn build_palette(
     block_palette: &Vec<BlockPaletteEntry>,
     ids_are_hashes: bool,
 ) -> PaletteResult {
-    let mut hashed_ids: HashMap<usize, CompoundTag> = HashMap::new();
+    let mut hashed_ids: HashMap<u32, CompoundTag> = HashMap::new();
     let mut runtime_ids: Vec<CompoundTag> = Vec::new();
     let mut air_id: u32 = 0;
 
@@ -851,7 +851,7 @@ fn build_palette(
     if ids_are_hashes {
         for i in 0..vanilla_blocks.count() {
             if let Tag::Compound(mut vct) = vanilla_blocks.get(i) {
-                let hashed_network_id = vct.get_int("network_id").unwrap() as u32 as usize;
+                let hashed_network_id = vct.get_int("network_id").unwrap() as u32;
                 vct.remove_tag(vec![
                     "network_id".to_string(),
                     "name_hash".to_string(),
@@ -886,13 +886,13 @@ fn build_palette(
 
                 let mut custom_ct_list = custom_ct;
                 custom_ct_list.set_int("block_id", block_id);
-                hashed_ids.insert(block::fnv1a_32(data) as usize, custom_ct_list);
+                hashed_ids.insert(block::fnv1a_32(data), custom_ct_list);
             }
         }
 
         for (id, tag) in &hashed_ids {
             if tag.get_string("name").unwrap() == "minecraft:air" {
-                air_id = *id as u32;
+                air_id = *id;
                 break;
             }
         }
@@ -971,7 +971,7 @@ fn build_palette(
             let root = TreeRoot::new(Tag::Compound(clean_ct), "");
             let mut writer = NBTWriter::new_little_endian();
             let data = writer.write(root);
-            nbt_to_id.insert(block::fnv1_64(data), index);
+            nbt_to_id.insert(block::fnv1_64(data), index as u32);
         }
     }
 

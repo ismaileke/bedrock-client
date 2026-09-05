@@ -62,14 +62,14 @@ pub struct Palette {
     pub last_index: i16,
     pub size: PaletteSize,
     // Values is a map of values. A PalettedStorage points to the index to this value.
-    pub values: Vec<usize>
+    pub values: Vec<u32>
 }
 
 #[derive(Clone)]
 pub struct BlockRegistry {
     pub air_id: u32,
     // NBT verisinin FNV1-64 hash'i -> Runtime/Hashed ID
-    pub nbt_to_id: HashMap<u64, usize>,
+    pub nbt_to_id: HashMap<u64, u32>,
 }
 
 impl PalettedStorage {
@@ -90,7 +90,7 @@ impl PalettedStorage {
 
 
     // At returns the value of the PalettedStorage at a given x, y and z.
-    pub fn at(&self, x: u8, y: u8, z: u8) -> usize {
+    pub fn at(&self, x: u8, y: u8, z: u8) -> u32 {
         self.palette.value(self.palette_index(x&15, y&15, z&15))
     }
 
@@ -151,11 +151,11 @@ impl SubChunk {
 
 impl Palette {
 
-    pub fn new(size: PaletteSize, values: Vec<usize>) -> Self {
+    pub fn new(size: PaletteSize, values: Vec<u32>) -> Self {
         Palette{size, values, last: u32::MAX, last_index: 0 }
     }
 
-    pub fn value(&self, value: u16) -> usize {
+    pub fn value(&self, value: u16) -> u32 {
         self.values[value as usize]
     }
 }
@@ -290,10 +290,10 @@ pub fn decode_palette_network(buf: &mut Reader, palette_size: PaletteSize) -> Re
         }
     }
 
-    let mut blocks = Vec::<usize>::with_capacity(palette_count as usize);
+    let mut blocks = Vec::<u32>::with_capacity(palette_count as usize);
     for _ in 0..palette_count {
         let temp = buf.get_var_i32();
-        blocks.push(temp as u32 as usize);
+        blocks.push(temp as u32);
     }
     Ok(Palette{
         last: 0,
@@ -309,7 +309,7 @@ pub fn decode_palette_disk(buf: &mut Reader, palette_size: PaletteSize, registry
         palette_count = buf.get_var_i32();
     }
 
-    let mut palette = Palette::new(palette_size, vec![0usize; palette_count as usize]);
+    let mut palette = Palette::new(palette_size, vec![0u32; palette_count as usize]);
     for i in 0..palette_count {
         palette.values[i as usize] = decode_block_palette(buf, registry)?;
     }
@@ -319,7 +319,7 @@ pub fn decode_palette_disk(buf: &mut Reader, palette_size: PaletteSize, registry
     Ok(palette)
 }
 
-pub fn decode_block_palette(buf: &mut Reader, registry: &BlockRegistry) -> Result<usize, String> {
+pub fn decode_block_palette(buf: &mut Reader, registry: &BlockRegistry) -> Result<u32, String> {
     let mut offset = buf.offset();
     let mut nbt_serializer = NBTReader::new_network();
     let nbt_root = nbt_serializer.read(buf.get_buffer(), &mut offset, 0);
@@ -381,7 +381,7 @@ pub fn decode_block_palette(buf: &mut Reader, registry: &BlockRegistry) -> Resul
     */
 
     let mut custom_ct = CompoundTag::new(LinkedHashMap::new());
-    custom_ct.set_string("name", name.clone());
+    custom_ct.set_string("name", format!("minecraft:{}", name));
     custom_ct.set_tag("states", Tag::Compound(state));
 
     let root = TreeRoot::new(Tag::Compound(custom_ct.clone()), "");
@@ -396,7 +396,7 @@ pub fn decode_block_palette(buf: &mut Reader, registry: &BlockRegistry) -> Resul
         Ok(runtime_id)
     } else {
         println!("Unknown block: {}", name);
-        Ok(registry.air_id as usize)
+        Ok(registry.air_id)
     }
 }
 
