@@ -381,7 +381,10 @@ pub fn decode_block_palette(buf: &mut Reader, registry: &BlockRegistry) -> Resul
     */
 
     let mut custom_ct = CompoundTag::new(LinkedHashMap::new());
-    custom_ct.set_string("name", format!("minecraft:{}", name));
+    custom_ct.set_string(
+        "name",
+        if name.contains(':') { name.clone() } else { format!("minecraft:{}", name) },
+    );
     custom_ct.set_tag("states", Tag::Compound(state));
 
     let root = TreeRoot::new(Tag::Compound(custom_ct.clone()), "");
