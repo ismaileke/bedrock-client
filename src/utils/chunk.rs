@@ -293,7 +293,7 @@ pub fn decode_palette_network(buf: &mut Reader, palette_size: PaletteSize) -> Re
     let mut blocks = Vec::<usize>::with_capacity(palette_count as usize);
     for _ in 0..palette_count {
         let temp = buf.get_var_i32();
-        blocks.push(temp as usize);
+        blocks.push(temp as u32 as usize);
     }
     Ok(Palette{
         last: 0,

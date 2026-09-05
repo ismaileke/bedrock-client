@@ -851,7 +851,7 @@ fn build_palette(
     if ids_are_hashes {
         for i in 0..vanilla_blocks.count() {
             if let Tag::Compound(mut vct) = vanilla_blocks.get(i) {
-                let hashed_network_id = vct.get_int("network_id").unwrap() as usize;
+                let hashed_network_id = vct.get_int("network_id").unwrap() as u32 as usize;
                 vct.remove_tag(vec![
                     "network_id".to_string(),
                     "name_hash".to_string(),
