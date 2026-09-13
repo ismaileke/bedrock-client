@@ -14,10 +14,13 @@ use crate::protocol::raknet::acknowledge::Acknowledge;
 use crate::protocol::raknet::connected_ping::ConnectedPing;
 use crate::protocol::raknet::connected_pong::ConnectedPong;
 use crate::protocol::raknet::frame_set;
-use crate::protocol::raknet::frame_set::{Datagram, RELIABLE_ORDERED, UNRELIABLE};
+use crate::protocol::raknet::frame_set::{Datagram, RELIABLE_ORDERED};
 use crate::protocol::raknet::game_packet::GamePacket;
 use crate::protocol::raknet::open_conn_req1::OpenConnReq1;
 use crate::protocol::raknet::packet_ids::{PacketType, MAGIC};
+use crate::protocol::bedrock::resource_pack_chunk_request::ResourcePackChunkRequest;
+use crate::protocol::bedrock::types::block_palette_entry::BlockPaletteEntry;
+use crate::utils::resource_pack::PackDownloader;
 use crate::utils::block::PropertyValue;
 use crate::utils::chunk::{BlockRegistry, Chunk};
 use crate::utils::color_format::*;
@@ -26,7 +29,6 @@ use crate::utils::{block, encryption, resource_pack};
 use crate::*;
 use base64::engine::general_purpose;
 use base64::Engine;
-use chrono::Utc;
 use flate2::read::GzDecoder;
 use linked_hash_map::LinkedHashMap;
 use minecraft_auth::bedrock;
@@ -44,9 +46,7 @@ use std::io;
 use binary_utils::binary::{Reader, Writer};
 use tokio::net::UdpSocket;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
-use crate::protocol::bedrock::resource_pack_chunk_request::ResourcePackChunkRequest;
-use crate::protocol::bedrock::types::block_palette_entry::BlockPaletteEntry;
-use crate::utils::resource_pack::PackDownloader;
+
 
 /// The shortest time between two NACKs for the same datagram.
 const NACK_INTERVAL: std::time::Duration = std::time::Duration::from_millis(60);
@@ -426,10 +426,10 @@ async fn start_network_thread(
 
                 let mut ready_bodies: Vec<Vec<u8>> = Vec::new();
                 for frame in datagram.frames {
-                    if frame.reliable_frame_index.is_some() {
+                    //if frame.reliable_frame_index.is_some() {
                         // RELIABLE PACKET
                         ready_bodies.extend(raknet_handler.accept_frame(&frame));
-                    } else {
+                    /*} else {
                         // UNRELIABLE PACKET + HANDLER
                         let mut stream = Reader::new(frame.body.as_slice());
                         let packet_id = stream.get_u8();
@@ -467,7 +467,7 @@ async fn start_network_thread(
                         if !response_raknet_packet.is_empty() {
                             socket.send(&response_raknet_packet).await.expect("RakNet Packet Error");
                         }
-                    }
+                    }*/
                 }
 
                 // Mark the skipped line numbers as missing; the NACK timer will request them again.
