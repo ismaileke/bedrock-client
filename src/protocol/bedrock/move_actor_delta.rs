@@ -15,7 +15,8 @@ pub struct MoveActorDelta {
     pub on_ground: bool,
     pub force_move: bool,
     pub force_move_local_entity: bool,
-    pub force_completion: bool
+    pub force_completion: bool,
+    pub ticks: u64
 }
 
 impl Packet for MoveActorDelta {
@@ -35,6 +36,7 @@ impl Packet for MoveActorDelta {
         stream.put_bool(self.force_move);
         stream.put_bool(self.force_move_local_entity);
         stream.put_bool(self.force_completion);
+        stream.put_var_u64(self.ticks);
     }
 
     fn decode(stream: &mut Reader) -> MoveActorDelta {
@@ -49,6 +51,7 @@ impl Packet for MoveActorDelta {
         let force_move = stream.get_bool();
         let force_move_local_entity = stream.get_bool();
         let force_completion = stream.get_bool();
+        let ticks = stream.get_var_u64();
 
         MoveActorDelta {
             actor_runtime_id,
@@ -61,7 +64,8 @@ impl Packet for MoveActorDelta {
             on_ground,
             force_move,
             force_move_local_entity,
-            force_completion
+            force_completion,
+            ticks
         }
     }
 }

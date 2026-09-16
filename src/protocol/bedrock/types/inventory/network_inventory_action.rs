@@ -44,8 +44,8 @@ impl NetworkInventoryAction {
 
     pub fn read(stream: &mut Reader) -> NetworkInventoryAction {
         let source_type = stream.get_var_u32();
-        let window_id = PacketSerializer::read_double_optional(stream, |s| s.get_i8());
-        let source_flags = PacketSerializer::read_double_optional(stream, |s| s.get_var_u32());
+        let window_id = PacketSerializer::read_optional(stream, |s| s.get_i8());
+        let source_flags = PacketSerializer::read_optional(stream, |s| s.get_var_u32());
         let inventory_slot = stream.get_var_u32();
         let old_item = PacketSerializer::get_network_item_stack_descriptor(stream);
         let new_item = PacketSerializer::get_network_item_stack_descriptor(stream);
@@ -62,8 +62,8 @@ impl NetworkInventoryAction {
 
     pub fn write(&self, stream: &mut Writer) {
         stream.put_var_u32(self.source_type);
-        PacketSerializer::write_double_optional(stream, &self.window_id, |s, v| s.put_i8(*v));
-        PacketSerializer::write_double_optional(stream, &self.source_flags, |s, v| s.put_var_u32(*v));
+        PacketSerializer::write_optional(stream, &self.window_id, |s, v| s.put_i8(*v));
+        PacketSerializer::write_optional(stream, &self.source_flags, |s, v| s.put_var_u32(*v));
         stream.put_var_u32(self.inventory_slot);
         PacketSerializer::put_network_item_stack_descriptor(stream, &self.old_item);
         PacketSerializer::put_network_item_stack_descriptor(stream, &self.new_item);

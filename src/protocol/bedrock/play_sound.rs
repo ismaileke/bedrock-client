@@ -12,7 +12,9 @@ pub struct PlaySound {
     pub volume: f32,
     pub pitch: f32,
     pub loop_count: i32,
+    pub bypass_listener_range_check: bool,
     pub server_sound_handle: Option<u64>,
+    pub playback_position_seconds: Option<f32>,
 }
 
 impl Packet for PlaySound {
@@ -33,7 +35,10 @@ impl Packet for PlaySound {
         stream.put_f32_le(self.volume);
         stream.put_f32_le(self.pitch);
         stream.put_var_i32(self.loop_count);
+        stream.put_bool(self.bypass_listener_range_check);
         PacketSerializer::write_optional(stream, &self.server_sound_handle, |s, v| s.put_u64_le(*v));
+        PacketSerializer::write_optional(stream, &self.playback_position_seconds, |s, v| s.put_f32_le(*v));
+
     }
 
     fn decode(stream: &mut Reader) -> PlaySound {
@@ -45,8 +50,10 @@ impl Packet for PlaySound {
         let y = (block_pos[1] as f32) / 8.0;
         let z = (block_pos[2] as f32) / 8.0;
         let loop_count = stream.get_var_i32();
+        let bypass_listener_range_check = stream.get_bool();
         let server_sound_handle = PacketSerializer::read_optional(stream, |s| s.get_u64_le());
+        let playback_position_seconds = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
 
-        PlaySound { sound_name, x, y, z, volume, pitch, loop_count, server_sound_handle }
+        PlaySound { sound_name, x, y, z, volume, pitch, loop_count, bypass_listener_range_check, server_sound_handle, playback_position_seconds }
     }
 }

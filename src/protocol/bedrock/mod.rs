@@ -232,3 +232,5 @@ pub mod server_presence_info;
 pub mod client_bound_update_sound_data;
 pub mod party_destination_cookie_response;
 pub mod send_party_destination_cookie;
+pub mod record_started;
+pub mod set_player_furnace_options;

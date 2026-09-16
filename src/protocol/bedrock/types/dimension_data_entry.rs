@@ -3,32 +3,35 @@ use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 
 #[derive(serde::Serialize, Debug)]
 pub struct DimensionDataEntry {
-    pub max_height: i32,
-    pub min_height: i32,
+    pub minimum_y: i32,
+    pub height_range: i32,
     pub generator: i32,
     pub dimension_type: i32,
-    pub pack_id: String
+    pub pack_id: String,
+    pub default_biome: String
 }
 
 impl DimensionDataEntry {
-    pub fn new(max_height: i32, min_height: i32, generator: i32, dimension_type: i32, pack_id: String) -> DimensionDataEntry {
-        DimensionDataEntry { max_height, min_height, generator, dimension_type, pack_id }
+    pub fn new(minimum_y: i32, height_range: i32, generator: i32, dimension_type: i32, pack_id: String, default_biome: String) -> DimensionDataEntry {
+        DimensionDataEntry { minimum_y, height_range, generator, dimension_type, pack_id, default_biome }
     }
 
     pub fn read(stream: &mut Reader) -> DimensionDataEntry {
-        let max_height = stream.get_var_i32();
-        let min_height = stream.get_var_i32();
+        let minimum_y = stream.get_var_i32();
+        let height_range = stream.get_var_i32();
         let generator = stream.get_var_i32();
         let dimension_type = stream.get_var_i32();
         let pack_id = PacketSerializer::get_uuid(stream);
+        let default_biome = PacketSerializer::get_string(stream);
 
-        DimensionDataEntry { max_height, min_height, generator, dimension_type, pack_id }
+        DimensionDataEntry { minimum_y, height_range, generator, dimension_type, pack_id, default_biome }
     }
 
     pub fn write(&self, stream: &mut Writer) {
-        stream.put_var_i32(self.max_height);
-        stream.put_var_i32(self.min_height);
+        stream.put_var_i32(self.minimum_y);
+        stream.put_var_i32(self.height_range);
         stream.put_var_i32(self.generator);
         PacketSerializer::put_uuid(stream, &self.pack_id);
+        PacketSerializer::put_string(stream, &self.default_biome);
     }
 }

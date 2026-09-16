@@ -1,8 +1,8 @@
+use uuid::Uuid;
 use crate::protocol::bedrock::types::skin::persona_piece_tint_color::PersonaPieceTintColor;
 use crate::protocol::bedrock::types::skin::persona_skin_piece::PersonaSkinPiece;
 use crate::protocol::bedrock::types::skin::skin_animation::SkinAnimation;
 use crate::protocol::bedrock::types::skin::skin_image::SkinImage;
-use uuid::Uuid;
 
 #[derive(serde::Serialize, Debug)]
 pub struct SkinData {
@@ -69,6 +69,8 @@ impl SkinData {
     pub const TRUSTED_SKIN_FLAG_FALSE: &'static str = "false";
     pub const TRUSTED_SKIN_FLAG_TRUE: &'static str = "true";
 
+    pub const EMPTY_GEOMETRY_DATA: &'static str = "{}";
+
     pub fn default(
         skin_id: String,
         play_fab_id: String,
@@ -82,8 +84,8 @@ impl SkinData {
             skin_image,
             animations: vec![],
             cape_image: Some(SkinImage::new(0, 0, vec![])),
-            geometry_data: String::new(),
-            geometry_data_engine_version: String::from("1.26.45"),
+            geometry_data: Self::EMPTY_GEOMETRY_DATA.to_string(),
+            geometry_data_engine_version: String::from("1.26.50"),
             animation_data: String::new(),
             cape_id: String::new(),
             full_skin_id: Some(Uuid::new_v4().to_string()),

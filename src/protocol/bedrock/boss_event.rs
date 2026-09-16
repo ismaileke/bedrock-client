@@ -6,7 +6,6 @@ use binary_utils::binary::{Reader, Writer};
 #[derive(serde::Serialize, Debug)]
 pub struct BossEvent {
     pub boss_actor_unique_id: i64,
-    pub player_actor_unique_id: i64,
     pub event_type: u8,
     pub title: String,
     pub filtered_title: String,
@@ -52,7 +51,6 @@ impl Packet for BossEvent {
 
     fn encode(&mut self, stream: &mut Writer) {
         PacketSerializer::put_actor_unique_id(stream, self.boss_actor_unique_id);
-        PacketSerializer::put_actor_unique_id(stream, self.player_actor_unique_id);
         stream.put_u8(self.event_type);
         PacketSerializer::put_string(stream, &self.title);
         PacketSerializer::put_string(stream, &self.filtered_title);
@@ -63,7 +61,6 @@ impl Packet for BossEvent {
 
     fn decode(stream: &mut Reader) -> BossEvent {
         let boss_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
-        let player_actor_unique_id = PacketSerializer::get_actor_unique_id(stream);
         let event_type = stream.get_u8();
         let title = PacketSerializer::get_string(stream);
         let filtered_title = PacketSerializer::get_string(stream);
@@ -73,7 +70,6 @@ impl Packet for BossEvent {
 
         BossEvent {
             boss_actor_unique_id,
-            player_actor_unique_id,
             event_type,
             title,
             filtered_title,

@@ -1,3 +1,5 @@
+use binary_utils::binary::Reader;
+use serde::Serialize;
 use crate::protocol::bedrock::actor_event::ActorEvent;
 use crate::protocol::bedrock::actor_pick_request::ActorPickRequest;
 use crate::protocol::bedrock::add_actor::AddActor;
@@ -229,8 +231,8 @@ use crate::protocol::bedrock::server_store_info::ServerStoreInfo;
 use crate::protocol::bedrock::client_bound_update_sound_data::ClientBoundUpdateSoundData;
 use crate::protocol::bedrock::send_party_destination_cookie::SendPartyDestinationCookie;
 use crate::protocol::bedrock::party_destination_cookie_response::PartyDestinationCookieResponse;
-use binary_utils::binary::Reader;
-use serde::Serialize;
+use crate::protocol::bedrock::record_started::RecordStarted;
+use crate::protocol::bedrock::set_player_furnace_options::SetPlayerFurnaceOptions;
 
 #[repr(u16)]
 pub enum BedrockPacketType {
@@ -464,6 +466,8 @@ pub enum BedrockPacketType {
     IDClientBoundUpdateSoundData,
     IDSendPartyDestinationCookie,
     IDPartyDestinationCookieResponse,
+    IDSetPlayerFurnaceOptions,
+    IDRecordStarted,
     IDUnknown,
 }
 
@@ -699,6 +703,8 @@ impl BedrockPacketType {
             0x15c => BedrockPacketType::IDClientBoundUpdateSoundData,
             0x15d => BedrockPacketType::IDSendPartyDestinationCookie,
             0x15e => BedrockPacketType::IDPartyDestinationCookieResponse,
+            0x15f => BedrockPacketType::IDSetPlayerFurnaceOptions,
+            0x160 => BedrockPacketType::IDRecordStarted,
             _ => BedrockPacketType::IDUnknown,
         }
     }
@@ -933,6 +939,8 @@ impl BedrockPacketType {
             BedrockPacketType::IDClientBoundUpdateSoundData => 0x15c,
             BedrockPacketType::IDSendPartyDestinationCookie => 0x15d,
             BedrockPacketType::IDPartyDestinationCookieResponse => 0x15e,
+            BedrockPacketType::IDSetPlayerFurnaceOptions => 0x15f,
+            BedrockPacketType::IDRecordStarted => 0x160,
             _ => 0,
         }
     }
@@ -1167,6 +1175,8 @@ impl BedrockPacketType {
             0x15c => "Client Bound Update Sound Data",
             0x15d => "Send Party Destination Cookie",
             0x15e => "Party Destination Cookie Response",
+            0x15f => "Set Player Furnace Options",
+            0x160 => "Record Started",
             _ => "Unknown Packet",
         }
     }
@@ -1402,6 +1412,8 @@ impl BedrockPacketType {
             0x15c => BedrockPacket::ClientBoundUpdateSoundData(ClientBoundUpdateSoundData::decode(stream)),
             0x15d => BedrockPacket::SendPartyDestinationCookie(SendPartyDestinationCookie::decode(stream)),
             0x15e => BedrockPacket::PartyDestinationCookieResponse(PartyDestinationCookieResponse::decode(stream)),
+            0x15f => BedrockPacket::SetPlayerFurnaceOptions(SetPlayerFurnaceOptions::decode(stream)),
+            0x160 => BedrockPacket::RecordStarted(RecordStarted::decode(stream)),
             _ => BedrockPacket::Unknown(Unknown::decode(stream)),
         }
     }
@@ -1638,5 +1650,7 @@ pub enum BedrockPacket {
     ClientBoundUpdateSoundData(ClientBoundUpdateSoundData),
     SendPartyDestinationCookie(SendPartyDestinationCookie),
     PartyDestinationCookieResponse(PartyDestinationCookieResponse),
+    SetPlayerFurnaceOptions(SetPlayerFurnaceOptions),
+    RecordStarted(RecordStarted),
     Unknown(Unknown),
 }

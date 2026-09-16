@@ -14,7 +14,7 @@ use binary_utils::binary::{Reader, Writer};
 pub struct InventoryTransaction {
     pub request_id: i32,
     pub request_changed_slots: Option<Vec<InventoryTransactionChangedSlotsHack>>,
-    pub tr_data: Option<TransactionData>,
+    pub tr_data: TransactionData,
 }
 
 impl Packet for InventoryTransaction {
@@ -30,10 +30,8 @@ impl Packet for InventoryTransaction {
                 changed_slot.write(s);
             }
         });
-        PacketSerializer::write_optional(stream, &self.tr_data, |s, v| s.put_var_u32(v.get_type_id()));
-        if let Some(tr_data) = &self.tr_data {
-            tr_data.encode(stream);
-        }
+        stream.put_var_u32(self.tr_data.get_type_id());
+        self.tr_data.encode(stream);
     }
     
     fn decode(stream: &mut Reader) -> InventoryTransaction {
@@ -46,19 +44,16 @@ impl Packet for InventoryTransaction {
             }
             return result;
         });
-        let tr_type = PacketSerializer::read_optional(stream, |s| s.get_var_u32());
+        let tr_type = stream.get_var_u32();
         let mut tr_data = match tr_type {
-            Some(Self::TYPE_NORMAL) => Some(TransactionData::Normal(NormalTransactionData::new(vec![]))),
-            Some(Self::TYPE_MISMATCH) => Some(TransactionData::Mismatch(MismatchTransactionData::new())),
-            Some(Self::TYPE_USE_ITEM) => Some(TransactionData::UseItem(UseItemTransactionData::null())),
-            Some(Self::TYPE_USE_ITEM_ON_ENTITY) => Some(TransactionData::UseItemOnEntity(UseItemOnEntityTransactionData::null())),
-            Some(Self::TYPE_RELEASE_ITEM) => Some(TransactionData::ReleaseItem(ReleaseItemTransactionData::null())),
-            None => None,
+            Self::TYPE_NORMAL => TransactionData::Normal(NormalTransactionData::new(vec![])),
+            Self::TYPE_MISMATCH => TransactionData::Mismatch(MismatchTransactionData::new()),
+            Self::TYPE_USE_ITEM => TransactionData::UseItem(UseItemTransactionData::null()),
+            Self::TYPE_USE_ITEM_ON_ENTITY => TransactionData::UseItemOnEntity(UseItemOnEntityTransactionData::null()),
+            Self::TYPE_RELEASE_ITEM => TransactionData::ReleaseItem(ReleaseItemTransactionData::null()),
             _ => panic!("Unknown transaction type: {:?}", tr_type),
         };
-        if let Some(tr_data) = tr_data.as_mut() {
-            tr_data.decode(stream);
-        }
+        tr_data.decode(stream);
 
         InventoryTransaction { request_id, request_changed_slots, tr_data }
     }

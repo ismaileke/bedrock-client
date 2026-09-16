@@ -125,3 +125,6 @@ pub mod map_image;
 pub mod map_tracked_object;
 pub mod sound;
 pub mod system_category_timing_info;
+pub mod furnace;
+pub mod string_array_pack_setting;
+mod noise_alignment;

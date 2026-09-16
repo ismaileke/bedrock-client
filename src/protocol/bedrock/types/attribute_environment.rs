@@ -1,6 +1,7 @@
 use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::attribute_value::AttributeValue;
+use crate::protocol::bedrock::types::noise_alignment::NoiseAlignment;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AttributeEnvironment {
@@ -13,6 +14,7 @@ pub struct AttributeEnvironment {
     pub ease_type: String,
     pub local_transition_ticks: u32,
     pub noise_transition: bool,
+    pub noise_alignment: NoiseAlignment
 }
 
 impl AttributeEnvironment {
@@ -26,6 +28,7 @@ impl AttributeEnvironment {
         ease_type: String,
         local_transition_ticks: u32,
         noise_transition: bool,
+        noise_alignment: NoiseAlignment
     ) -> AttributeEnvironment {
         AttributeEnvironment {
             name,
@@ -37,6 +40,7 @@ impl AttributeEnvironment {
             ease_type,
             local_transition_ticks,
             noise_transition,
+            noise_alignment
         }
     }
 
@@ -50,6 +54,7 @@ impl AttributeEnvironment {
         let ease_type = PacketSerializer::get_string(stream);
         let local_transition_ticks = stream.get_u32_le();
         let noise_transition = stream.get_bool();
+        let noise_alignment = NoiseAlignment::read(stream);
 
         AttributeEnvironment {
             name,
@@ -61,6 +66,7 @@ impl AttributeEnvironment {
             ease_type,
             local_transition_ticks,
             noise_transition,
+            noise_alignment
         }
     }
 
@@ -74,5 +80,6 @@ impl AttributeEnvironment {
         PacketSerializer::put_string(stream, &self.ease_type);
         stream.put_u32_le(self.local_transition_ticks);
         stream.put_bool(self.noise_transition);
+        self.noise_alignment.write(stream);
     }
 }

@@ -33,7 +33,7 @@ impl ItemInteractionData {
         }
 
         let mut use_item_transaction = UseItemTransactionData::null();
-        use_item_transaction.decode_for_item_interactions(stream);
+        use_item_transaction.decode_data(stream);
 
         ItemInteractionData {
             request_id,
@@ -52,6 +52,6 @@ impl ItemInteractionData {
                 slots.write(stream);
             }
         }
-        self.tr_data.encode_for_item_interactions(stream);
+        self.tr_data.encode_data(stream);
     }
 }

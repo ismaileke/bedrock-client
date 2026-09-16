@@ -102,7 +102,6 @@ impl Packet for PlayerAuthInput {
 
         // Input Flags
         //self.input_flags.write(stream);
-        stream.put_bool(self.input_flags.get_length() > 0);
         let mut flags = vec![];
         for i in 0..PlayerAuthInputFlags::NUMBER_OF_FLAGS {
             if self.input_flags.get(i) {
@@ -121,17 +120,17 @@ impl Packet for PlayerAuthInput {
         PacketSerializer::put_vector2(stream, &self.interact_rotation);
         stream.put_var_u64(self.tick);
         PacketSerializer::put_vector3(stream, &self.delta);
-        PacketSerializer::write_double_optional(stream, &self.item_interaction_data, |s, v| v.write(s));
-        PacketSerializer::write_double_optional(stream, &self.item_stack_request, |s, v| v.write(s));
-        PacketSerializer::write_double_optional(stream, &self.block_actions, |s, v| {
+        PacketSerializer::write_optional(stream, &self.item_interaction_data, |s, v| v.write(s));
+        PacketSerializer::write_optional(stream, &self.item_stack_request, |s, v| v.write(s));
+        PacketSerializer::write_optional(stream, &self.block_actions, |s, v| {
             s.put_var_u32(v.len() as u32);
             for block_action in v {
                 s.put_var_i32(block_action.get_action_type());
                 block_action.write(s);
             }
         });
-        PacketSerializer::write_double_optional(stream, &self.vehicle_rotation, |s, v| PacketSerializer::put_vector2(s, v));
-        PacketSerializer::write_double_optional(stream, &self.client_predicted_vehicle, |s, v| PacketSerializer::put_actor_unique_id(s, *v));
+        PacketSerializer::write_optional(stream, &self.vehicle_rotation, |s, v| PacketSerializer::put_vector2(s, v));
+        PacketSerializer::write_optional(stream, &self.client_predicted_vehicle, |s, v| PacketSerializer::put_actor_unique_id(s, *v));
         PacketSerializer::put_vector2(stream, &self.analog_move_vec);
         PacketSerializer::put_vector3(stream, &self.camera_orientation);
         PacketSerializer::put_vector2(stream, &self.raw_move);
@@ -144,15 +143,13 @@ impl Packet for PlayerAuthInput {
         let move_vec = PacketSerializer::get_vector2(stream);
         let head_yaw = stream.get_f32_le();
         let mut input_flags = BitSet::new(PlayerAuthInputFlags::NUMBER_OF_FLAGS, vec![]);
-        if stream.get_bool() {
-            let count = stream.get_var_u32();
-            for _ in 0..count {
-                let flag = stream.get_var_i32();
-                if flag < 0 || flag >= PlayerAuthInputFlags::NUMBER_OF_FLAGS as i32 {
-                    panic!("Unknown input flag {}", flag);
-                }
-                input_flags.set(flag as usize, true);
+        let count = stream.get_var_u32();
+        for _ in 0..count {
+            let flag = stream.get_var_i32();
+            if flag < 0 || flag >= PlayerAuthInputFlags::NUMBER_OF_FLAGS as i32 {
+                panic!("Unknown input flag {}", flag);
             }
+            input_flags.set(flag as usize, true);
         }
         let input_mode = stream.get_var_u32();
         let play_mode = stream.get_var_u32();
@@ -160,9 +157,9 @@ impl Packet for PlayerAuthInput {
         let interact_rotation = PacketSerializer::get_vector2(stream);
         let tick = stream.get_var_u64();
         let delta = PacketSerializer::get_vector3(stream);
-        let item_interaction_data = PacketSerializer::read_double_optional(stream, |s| ItemInteractionData::read(s));
-        let item_stack_request = PacketSerializer::read_double_optional(stream, |s| ItemStackRequestEntry::read(s));
-        let block_actions = PacketSerializer::read_double_optional(stream, |s| {
+        let item_interaction_data = PacketSerializer::read_optional(stream, |s| ItemInteractionData::read(s));
+        let item_stack_request = PacketSerializer::read_optional(stream, |s| ItemStackRequestEntry::read(s));
+        let block_actions = PacketSerializer::read_optional(stream, |s| {
             let max = s.get_var_u32();
             let mut block_actions_vec = Vec::with_capacity(max as usize);
             for _ in 0..max {
@@ -171,8 +168,8 @@ impl Packet for PlayerAuthInput {
             }
             return block_actions_vec;
         });
-        let vehicle_rotation = PacketSerializer::read_double_optional(stream, |s| PacketSerializer::get_vector2(s));
-        let client_predicted_vehicle = PacketSerializer::read_double_optional(stream, |s| PacketSerializer::get_actor_unique_id(s));
+        let vehicle_rotation = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
+        let client_predicted_vehicle = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_actor_unique_id(s));
         let analog_move_vec = PacketSerializer::get_vector2(stream);
         let camera_orientation = PacketSerializer::get_vector3(stream);
         let raw_move = PacketSerializer::get_vector2(stream);

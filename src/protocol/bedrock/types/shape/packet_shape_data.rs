@@ -110,7 +110,7 @@ impl PacketShapeData {
         }
     }
 
-    pub fn text(network_id: u64, location: Vec<f32>, text: String, use_rotation: bool, background_color: Option<Color>, depth_test: bool, show_backface: bool, show_text_backface: bool, color: Option<Color>, dimension_id: Option<i32>, attached_to_entity_id: Option<u64>) -> PacketShapeData {
+    pub fn text(network_id: u64, location: Vec<f32>, text: String, use_rotation: bool, background_color: Option<Color>, line_gap_height: f32, depth_test: bool, show_backface: bool, show_text_backface: bool, color: Option<Color>, dimension_id: Option<i32>, attached_to_entity_id: Option<u64>) -> PacketShapeData {
         PacketShapeData {
             network_id,
             shape_type: Some(PrimitiveShapeType::TEXT),
@@ -122,7 +122,7 @@ impl PacketShapeData {
             color,
             dimension_id,
             attached_to_entity_id,
-            payload: Some(PrimitiveShapePayload::Text(PrimitiveShapeTextPayload::new(text, use_rotation, background_color, depth_test, show_backface, show_text_backface))),
+            payload: Some(PrimitiveShapePayload::Text(PrimitiveShapeTextPayload::new(text, use_rotation, background_color, line_gap_height, depth_test, show_backface, show_text_backface))),
         }
     }
 

@@ -1,7 +1,7 @@
+use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::types::inventory::network_inventory_action::NetworkInventoryAction;
-use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
 
 #[derive(serde::Serialize, Debug, Clone)]
@@ -12,6 +12,7 @@ pub struct UseItemTransactionData {
     pub block_position: Vec<i32>,
     pub face: u8,
     pub hotbar_slot: i32,
+    pub hand_slot: u8,
     pub item_in_hand: ItemStackWrapper,
     pub player_position: Vec<f32>,
     pub click_position: Vec<f32>,
@@ -26,6 +27,9 @@ impl UseItemTransactionData {
     pub const ACTION_BREAK_BLOCK: i32 = 2;
     pub const ACTION_USE_AS_ATTACK: i32 = 3;
 
+    pub const MAIN_HAND: u8 = 0;
+    pub const OFF_HAND: u8 = 1;
+
     pub fn new(
         actions: Vec<NetworkInventoryAction>,
         action_type: i32,
@@ -33,6 +37,7 @@ impl UseItemTransactionData {
         block_position: Vec<i32>,
         face: u8,
         hotbar_slot: i32,
+        hand_slot: u8,
         item_in_hand: ItemStackWrapper,
         player_position: Vec<f32>,
         click_position: Vec<f32>,
@@ -47,6 +52,7 @@ impl UseItemTransactionData {
             block_position,
             face,
             hotbar_slot,
+            hand_slot,
             item_in_hand,
             player_position,
             click_position,
@@ -64,6 +70,7 @@ impl UseItemTransactionData {
             block_position: vec![],
             face: 0,
             hotbar_slot: 0,
+            hand_slot: 0,
             item_in_hand: ItemStackWrapper {
                 stack_id: 0,
                 item_stack: ItemStack::null(),
@@ -90,6 +97,7 @@ impl UseItemTransactionData {
         self.block_position = PacketSerializer::get_block_pos(stream);
         self.face = stream.get_u8();
         self.hotbar_slot = stream.get_var_i32();
+        self.hand_slot = stream.get_u8();
         self.item_in_hand = PacketSerializer::get_network_item_stack_descriptor(stream);
         self.player_position = PacketSerializer::get_vector3(stream);
         self.click_position = PacketSerializer::get_vector3(stream);
@@ -104,34 +112,12 @@ impl UseItemTransactionData {
         PacketSerializer::put_block_pos(stream, &self.block_position);
         stream.put_u8(self.face);
         stream.put_var_i32(self.hotbar_slot);
+        stream.put_u8(self.hand_slot);
         PacketSerializer::put_network_item_stack_descriptor(stream, &self.item_in_hand);
         PacketSerializer::put_vector3(stream, &self.player_position);
         PacketSerializer::put_vector3(stream, &self.click_position);
         stream.put_var_u32(self.block_runtime_id);
         stream.put_u8(self.client_interact_prediction);
         stream.put_u8(self.client_cooldown_state);
-    }
-    
-    pub fn decode_for_item_interactions(&mut self, stream: &mut Reader) {
-        let has_actions = stream.get_bool();
-        let has_transaction_data = stream.get_bool();
-
-        if has_actions && has_transaction_data {
-            let action_count = stream.get_var_u32();
-            for _ in 0..action_count {
-                self.actions.push(NetworkInventoryAction::read(stream));
-            }
-        }
-        self.decode_data(stream);
-    }
-
-    pub fn encode_for_item_interactions(&self, stream: &mut Writer) {
-        stream.put_bool(true);
-        stream.put_bool(true);
-        stream.put_var_u32(self.actions.len() as u32);
-        for action in self.actions.iter() {
-            action.write(stream);
-        }
-        self.encode_data(stream);
     }
 }

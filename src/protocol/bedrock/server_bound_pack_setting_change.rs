@@ -6,6 +6,7 @@ use crate::protocol::bedrock::types::float_pack_setting::FloatPackSetting;
 use crate::protocol::bedrock::types::pack_setting::PackSetting;
 use crate::protocol::bedrock::types::pack_setting_type::PackSettingType;
 use crate::protocol::bedrock::types::string_pack_setting::StringPackSetting;
+use crate::protocol::bedrock::types::string_array_pack_setting::StringArrayPackSetting;
 use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
@@ -34,6 +35,7 @@ impl Packet for ServerBoundPackSettingChange {
             PackSettingType::FLOAT => PackSetting::Float(FloatPackSetting::read(stream, name)),
             PackSettingType::BOOL => PackSetting::Bool(BoolPackSetting::read(stream, name)),
             PackSettingType::STRING => PackSetting::String(StringPackSetting::read(stream, name)),
+            PackSettingType::STRING_ARRAY => PackSetting::StringArray(StringArrayPackSetting::read(stream, name)),
             _ => {
                 panic!("Unknown pack id: {}", id);
             }

@@ -97,12 +97,9 @@ impl ItemStackResponseEntry {
         let mut container_infos = Vec::new();
         let has_containers = stream.get_bool();
         if has_containers {
-            let containers_present = stream.get_bool();
-            if containers_present {
-                let len = stream.get_var_u32();
-                for _ in 0..len {
-                    container_infos.push(ItemStackResponseContainerInfo::read(stream));
-                }
+            let len = stream.get_var_u32();
+            for _ in 0..len {
+                container_infos.push(ItemStackResponseContainerInfo::read(stream));
             }
         }
 
@@ -115,13 +112,9 @@ impl ItemStackResponseEntry {
         let has_containers = self.container_infos.len() != 0;
         stream.put_bool(has_containers);
         if has_containers {
-            let containers_present = self.container_infos.len() != 0;
-            stream.put_bool(containers_present);
-            if containers_present {
-                stream.put_var_u32(self.container_infos.len() as u32);
-                for container_info in self.container_infos.iter() {
-                    container_info.write(stream);
-                }
+            stream.put_var_u32(self.container_infos.len() as u32);
+            for container_info in self.container_infos.iter() {
+                container_info.write(stream);
             }
         }
     }

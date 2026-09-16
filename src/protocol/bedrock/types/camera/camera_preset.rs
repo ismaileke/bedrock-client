@@ -26,6 +26,8 @@ pub struct CameraPreset {
     pub player_effects: Option<bool>,
     pub aim_assist: Option<CameraPresetAimAssist>,
     pub control_scheme: Option<u8>, //see types/control_scheme.rs
+    pub apply_inherited_starting_rotation: bool,
+    pub starting_rotation: Option<Vec<f32>>,
 }
 
 impl CameraPreset {
@@ -55,6 +57,8 @@ impl CameraPreset {
         player_effects: Option<bool>,
         aim_assist: Option<CameraPresetAimAssist>,
         control_scheme: Option<u8>,
+        apply_inherited_starting_rotation: bool,
+        starting_rotation: Option<Vec<f32>>,
     ) -> CameraPreset {
         CameraPreset {
             name,
@@ -79,6 +83,8 @@ impl CameraPreset {
             player_effects,
             aim_assist,
             control_scheme,
+            apply_inherited_starting_rotation,
+            starting_rotation,
         }
     }
 
@@ -92,24 +98,21 @@ impl CameraPreset {
         let yaw = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let rotation_seed = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let snap_to_target = PacketSerializer::read_optional(stream, |s| s.get_bool());
-        let horizontal_rotation_limit =
-            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
-        let vertical_rotation_limit =
-            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
+        let horizontal_rotation_limit = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
+        let vertical_rotation_limit = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
         let continue_targeting = PacketSerializer::read_optional(stream, |s| s.get_bool());
         let block_listening_radius = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
-        let view_offset =
-            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
-        let entity_offset =
-            PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
+        let view_offset = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
+        let entity_offset = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
         let radius = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let yaw_limit_min = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let yaw_limit_max = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let audio_listener_type = PacketSerializer::read_optional(stream, |s| s.get_u8());
         let player_effects = PacketSerializer::read_optional(stream, |s| s.get_bool());
-        let aim_assist =
-            PacketSerializer::read_optional(stream, |s| CameraPresetAimAssist::read(s));
+        let aim_assist = PacketSerializer::read_optional(stream, |s| CameraPresetAimAssist::read(s));
         let control_scheme = PacketSerializer::read_optional(stream, |s| s.get_u8());
+        let apply_inherited_starting_rotation = stream.get_bool();
+        let starting_rotation = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector2(s));
 
         CameraPreset {
             name,
@@ -134,6 +137,8 @@ impl CameraPreset {
             player_effects,
             aim_assist,
             control_scheme,
+            apply_inherited_starting_rotation,
+            starting_rotation,
         }
     }
 
@@ -160,5 +165,7 @@ impl CameraPreset {
         PacketSerializer::write_optional(stream, &self.player_effects, |s, v| s.put_bool(*v));
         PacketSerializer::write_optional(stream, &self.aim_assist, |s, v| v.write(s));
         PacketSerializer::write_optional(stream, &self.control_scheme, |s, v| s.put_u8(*v));
+        stream.put_bool(self.apply_inherited_starting_rotation);
+        PacketSerializer::write_optional(stream, &self.starting_rotation, |s, v| PacketSerializer::put_vector2(s, v));
     }
 }
