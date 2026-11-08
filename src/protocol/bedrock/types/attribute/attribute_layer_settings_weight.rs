@@ -1,5 +1,5 @@
-use crate::protocol::bedrock::types::attribute_layer_settings_weight_float::AttributeLayerSettingsWeightFloat;
-use crate::protocol::bedrock::types::attribute_layer_settings_weight_string::AttributeLayerSettingsWeightString;
+use crate::protocol::bedrock::types::attribute::attribute_layer_settings_weight_float::AttributeLayerSettingsWeightFloat;
+use crate::protocol::bedrock::types::attribute::attribute_layer_settings_weight_string::AttributeLayerSettingsWeightString;
 use binary_utils::binary::Writer;
 use std::fmt::Debug;
 

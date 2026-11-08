@@ -41,4 +41,5 @@ impl WindowTypes {
     pub const CHEST_BOAT: u8 = 34;
     pub const DECORATED_POT: u8 = 35;
     pub const CRAFTER: u8 = 36;
+    pub const RESERVED_CONTAINER_TYPE: u8 = 38;
 }

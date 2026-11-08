@@ -1,7 +1,7 @@
+use crate::protocol::bedrock::types::attribute::attribute_layer_settings_weight::AttributeLayerSettingsWeight;
+use crate::protocol::bedrock::types::attribute::attribute_layer_settings_weight_float::AttributeLayerSettingsWeightFloat;
+use crate::protocol::bedrock::types::attribute::attribute_layer_settings_weight_string::AttributeLayerSettingsWeightString;
 use binary_utils::binary::{Reader, Writer};
-use crate::protocol::bedrock::types::attribute_layer_settings_weight::AttributeLayerSettingsWeight;
-use crate::protocol::bedrock::types::attribute_layer_settings_weight_float::AttributeLayerSettingsWeightFloat;
-use crate::protocol::bedrock::types::attribute_layer_settings_weight_string::AttributeLayerSettingsWeightString;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AttributeLayerSettings {

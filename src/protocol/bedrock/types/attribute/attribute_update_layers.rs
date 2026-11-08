@@ -1,4 +1,4 @@
-use crate::protocol::bedrock::types::attribute_layer::AttributeLayer;
+use crate::protocol::bedrock::types::attribute::attribute_layer::AttributeLayer;
 use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]

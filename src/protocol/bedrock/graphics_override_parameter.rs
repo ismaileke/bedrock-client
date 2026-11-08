@@ -7,8 +7,8 @@ use binary_utils::binary::{Reader, Writer};
 #[derive(serde::Serialize, Debug)]
 pub struct GraphicsOverrideParameter {
     pub values: Vec<ParameterKeyframeValue>,
-    pub unknown_float: Option<f32>,
-    pub unknown_vector3: Option<Vec<f32>>,
+    pub float_value: Option<f32>,
+    pub vec3_value: Option<Vec<f32>>,
     pub biome_identifier: String,
     pub player_identifier: Option<String>,
     pub parameter_type: u8,
@@ -25,8 +25,8 @@ impl Packet for GraphicsOverrideParameter {
         for value in &self.values {
             value.write(stream);
         }
-        PacketSerializer::write_optional(stream, &self.unknown_float, |s, v| s.put_f32_le(*v));
-        PacketSerializer::write_optional(stream, &self.unknown_vector3, |s, v| PacketSerializer::put_vector3(s, v));
+        PacketSerializer::write_optional(stream, &self.float_value, |s, v| s.put_f32_le(*v));
+        PacketSerializer::write_optional(stream, &self.vec3_value, |s, v| PacketSerializer::put_vector3(s, v));
         PacketSerializer::put_string(stream, &self.biome_identifier);
         PacketSerializer::write_optional(stream, &self.player_identifier, |s, v| PacketSerializer::put_string(s, v));
         stream.put_u8(self.parameter_type);
@@ -39,14 +39,14 @@ impl Packet for GraphicsOverrideParameter {
         for _ in 0..count {
             values.push(ParameterKeyframeValue::read(stream));
         }
-        let unknown_float = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
-        let unknown_vector3 = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
+        let float_value = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
+        let vec3_value = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
         let biome_identifier = PacketSerializer::get_string(stream);
         let player_identifier = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
         let parameter_type = stream.get_u8();
         let reset = stream.get_bool();
 
-        GraphicsOverrideParameter { values, unknown_float, unknown_vector3, biome_identifier, player_identifier, parameter_type, reset }
+        GraphicsOverrideParameter { values, float_value, vec3_value, biome_identifier, player_identifier, parameter_type, reset }
     }
 }
 

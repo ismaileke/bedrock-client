@@ -1,8 +1,5 @@
-use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::shape::primitive_shape_type::PrimitiveShapeType;
 use crate::protocol::bedrock::types::shape::primitive_shape_payload::PrimitiveShapePayload;
-use crate::utils::color::Color;
-use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::types::shape::primitive_shape_arrow_payload::PrimitiveShapeArrowPayload;
 use crate::protocol::bedrock::types::shape::primitive_shape_box_payload::PrimitiveShapeBoxPayload;
 use crate::protocol::bedrock::types::shape::primitive_shape_circle_or_sphere_payload::PrimitiveShapeCircleOrSpherePayload;
@@ -12,6 +9,9 @@ use crate::protocol::bedrock::types::shape::primitive_shape_ellipsoid_payload::P
 use crate::protocol::bedrock::types::shape::primitive_shape_line_payload::PrimitiveShapeLinePayload;
 use crate::protocol::bedrock::types::shape::primitive_shape_pyramid_payload::PrimitiveShapePyramidPayload;
 use crate::protocol::bedrock::types::shape::primitive_shape_text_payload::PrimitiveShapeTextPayload;
+use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use crate::utils::color::Color;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct PacketShapeData {
@@ -24,7 +24,7 @@ pub struct PacketShapeData {
     pub maximum_render_distance: Option<f32>,
     pub color: Option<Color>,
     pub dimension_id: Option<i32>,
-    pub attached_to_entity_id: Option<u64>,
+    pub attached_to_entity_id: Option<i64>,
     pub payload: Option<PrimitiveShapePayload>
 }
 
@@ -46,7 +46,7 @@ impl PacketShapeData {
         }
     }
 
-    pub fn line(network_id: u64, location: Vec<f32>, line_end_location: Vec<f32>, color: Option<Color>, dimension_id: Option<i32>, attached_to_entity_id: Option<u64>) -> PacketShapeData {
+    pub fn line(network_id: u64, location: Vec<f32>, line_end_location: Vec<f32>, color: Option<Color>, dimension_id: Option<i32>, attached_to_entity_id: Option<i64>) -> PacketShapeData {
         PacketShapeData {
             network_id,
             shape_type: Some(PrimitiveShapeType::LINE),
@@ -62,7 +62,7 @@ impl PacketShapeData {
         }
     }
 
-    pub fn shape_box(network_id: u64, location: Vec<f32>, box_bound: Vec<f32>, scale: Option<f32>, color: Option<Color>, dimension_id: Option<i32>, attached_to_entity_id: Option<u64>) -> PacketShapeData {
+    pub fn shape_box(network_id: u64, location: Vec<f32>, box_bound: Vec<f32>, scale: Option<f32>, color: Option<Color>, dimension_id: Option<i32>, attached_to_entity_id: Option<i64>) -> PacketShapeData {
         PacketShapeData {
             network_id,
             shape_type: Some(PrimitiveShapeType::BOX),
@@ -78,7 +78,7 @@ impl PacketShapeData {
         }
     }
 
-    pub fn sphere(network_id: u64, location: Vec<f32>, scale: Option<f32>, color: Option<Color>, segments: u8, dimension_id: Option<i32>, attached_to_entity_id: Option<u64>) -> PacketShapeData {
+    pub fn sphere(network_id: u64, location: Vec<f32>, scale: Option<f32>, color: Option<Color>, segments: u8, dimension_id: Option<i32>, attached_to_entity_id: Option<i64>) -> PacketShapeData {
         PacketShapeData {
             network_id,
             shape_type: Some(PrimitiveShapeType::SPHERE),
@@ -94,7 +94,7 @@ impl PacketShapeData {
         }
     }
 
-    pub fn circle(network_id: u64, location: Vec<f32>, scale: Option<f32>, color: Option<Color>, segments: u8, dimension_id: Option<i32>, attached_to_entity_id: Option<u64>) -> PacketShapeData {
+    pub fn circle(network_id: u64, location: Vec<f32>, scale: Option<f32>, color: Option<Color>, segments: u8, dimension_id: Option<i32>, attached_to_entity_id: Option<i64>) -> PacketShapeData {
         PacketShapeData {
             network_id,
             shape_type: Some(PrimitiveShapeType::CIRCLE),
@@ -110,7 +110,7 @@ impl PacketShapeData {
         }
     }
 
-    pub fn text(network_id: u64, location: Vec<f32>, text: String, use_rotation: bool, background_color: Option<Color>, line_gap_height: f32, depth_test: bool, show_backface: bool, show_text_backface: bool, color: Option<Color>, dimension_id: Option<i32>, attached_to_entity_id: Option<u64>) -> PacketShapeData {
+    pub fn text(network_id: u64, location: Vec<f32>, text: String, use_rotation: bool, background_color: Option<Color>, line_gap_height: f32, depth_test: bool, show_backface: bool, show_text_backface: bool, color: Option<Color>, dimension_id: Option<i32>, attached_to_entity_id: Option<i64>) -> PacketShapeData {
         PacketShapeData {
             network_id,
             shape_type: Some(PrimitiveShapeType::TEXT),
@@ -126,7 +126,7 @@ impl PacketShapeData {
         }
     }
 
-    pub fn arrow(network_id: u64, location: Vec<f32>, line_end_location: Vec<f32>, scale: Option<f32>, color: Option<Color>, arrow_head_length: Option<f32>, arrow_head_radius: Option<f32>, segments: Option<u8>, dimension_id: Option<i32>, attached_to_entity_id: Option<u64>) -> PacketShapeData {
+    pub fn arrow(network_id: u64, location: Vec<f32>, line_end_location: Vec<f32>, scale: Option<f32>, color: Option<Color>, arrow_head_length: Option<f32>, arrow_head_radius: Option<f32>, segments: Option<u8>, dimension_id: Option<i32>, attached_to_entity_id: Option<i64>) -> PacketShapeData {
         PacketShapeData {
             network_id,
             shape_type: Some(PrimitiveShapeType::ARROW),
@@ -142,7 +142,7 @@ impl PacketShapeData {
         }
     }
 
-    pub fn cylinder(network_id: u64, location: Vec<f32>, scale: Option<f32>, color: Option<Color>, radius_x: Vec<f32>, radius_z: Vec<f32>, height: f32, segments: u8,  dimension_id: Option<i32>, attached_to_entity_id: Option<u64>) -> PacketShapeData {
+    pub fn cylinder(network_id: u64, location: Vec<f32>, scale: Option<f32>, color: Option<Color>, radius_x: Vec<f32>, radius_z: Vec<f32>, height: f32, segments: u8,  dimension_id: Option<i32>, attached_to_entity_id: Option<i64>) -> PacketShapeData {
         PacketShapeData {
             network_id,
             shape_type: Some(PrimitiveShapeType::CYLINDER),
@@ -158,7 +158,7 @@ impl PacketShapeData {
         }
     }
 
-    pub fn pyramid(network_id: u64, location: Vec<f32>, width: f32, height: f32, depth: Option<f32>, color: Option<Color>, dimension_id: Option<i32>, attached_to_entity_id: Option<u64>) -> PacketShapeData {
+    pub fn pyramid(network_id: u64, location: Vec<f32>, width: f32, height: f32, depth: Option<f32>, color: Option<Color>, dimension_id: Option<i32>, attached_to_entity_id: Option<i64>) -> PacketShapeData {
         PacketShapeData {
             network_id,
             shape_type: Some(PrimitiveShapeType::PYRAMID),
@@ -174,7 +174,7 @@ impl PacketShapeData {
         }
     }
 
-    pub fn ellipsoid(network_id: u64, location: Vec<f32>, radii: Vec<f32>, segments_per_axis: u8, color: Option<Color>, dimension_id: Option<i32>, attached_to_entity_id: Option<u64>) -> PacketShapeData {
+    pub fn ellipsoid(network_id: u64, location: Vec<f32>, radii: Vec<f32>, segments_per_axis: u8, color: Option<Color>, dimension_id: Option<i32>, attached_to_entity_id: Option<i64>) -> PacketShapeData {
         PacketShapeData {
             network_id,
             shape_type: Some(PrimitiveShapeType::ELLIPSOID),
@@ -190,7 +190,7 @@ impl PacketShapeData {
         }
     }
 
-    pub fn cone(network_id: u64, location: Vec<f32>, radii: Vec<f32>, height: f32, segments: u8, color: Option<Color>, dimension_id: Option<i32>, attached_to_entity_id: Option<u64>) -> PacketShapeData {
+    pub fn cone(network_id: u64, location: Vec<f32>, radii: Vec<f32>, height: f32, segments: u8, color: Option<Color>, dimension_id: Option<i32>, attached_to_entity_id: Option<i64>) -> PacketShapeData {
         PacketShapeData {
             network_id,
             shape_type: Some(PrimitiveShapeType::CONE),
@@ -216,7 +216,7 @@ impl PacketShapeData {
         let maximum_render_distance = PacketSerializer::read_optional(stream, |s| s.get_f32_le());
         let color = PacketSerializer::read_optional(stream, |s| Color::from_argb(s.get_u32_le()));
         let dimension_id = PacketSerializer::read_optional(stream, |s| s.get_var_i32());
-        let attached_to_entity_id = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_actor_runtime_id(s));
+        let attached_to_entity_id = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_actor_unique_id(s));
         let payload_type = stream.get_var_u32();
 
         //WTF IS THIS HORROR SHOW
@@ -264,7 +264,7 @@ impl PacketShapeData {
         PacketSerializer::write_optional(stream, &self.maximum_render_distance, |s, v| s.put_f32_le(*v));
         PacketSerializer::write_optional(stream, &self.color, |s, v| s.put_u32_le(v.to_argb()));
         PacketSerializer::write_optional(stream, &self.dimension_id, |s, v| s.put_var_i32(*v));
-        PacketSerializer::write_optional(stream, &self.attached_to_entity_id, |s, v| PacketSerializer::put_actor_runtime_id(s, *v));
+        PacketSerializer::write_optional(stream, &self.attached_to_entity_id, |s, v| PacketSerializer::put_actor_unique_id(s, *v));
         if let Some(payload) = &self.payload {
             stream.put_var_u32(payload.id());
             payload.write(stream);

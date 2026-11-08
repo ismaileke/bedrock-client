@@ -16,6 +16,7 @@ use crate::protocol::bedrock::types::inventory::stack_request::mine_block_stack_
 use crate::protocol::bedrock::types::inventory::stack_request::place_stack_request_action::PlaceStackRequestAction;
 use crate::protocol::bedrock::types::inventory::stack_request::swap_stack_request_action::SwapStackRequestAction;
 use crate::protocol::bedrock::types::inventory::stack_request::take_stack_request_action::TakeStackRequestAction;
+use crate::protocol::bedrock::types::inventory::stack_request::reserved_stack_request_action::ReservedStackRequestAction;
 use binary_utils::binary::Writer;
 use std::fmt::Debug;
 
@@ -36,6 +37,7 @@ pub enum ItemStackRequestAction {
     CraftRecipeOptional(CraftRecipeOptionalStackRequestAction),
     Grindstone(GrindstoneStackRequestAction),
     Loom(LoomStackRequestAction),
+    Reserved(ReservedStackRequestAction),
     DeprecatedCraftingNonImplemented(DeprecatedCraftingNonImplementedStackRequestAction),
     DeprecatedCraftingResults(DeprecatedCraftingResultsStackRequestAction),
 }
@@ -48,34 +50,19 @@ impl ItemStackRequestAction {
             ItemStackRequestAction::Swap(_) => ItemStackRequestActionType::SWAP,
             ItemStackRequestAction::Drop(_) => ItemStackRequestActionType::DROP,
             ItemStackRequestAction::Destroy(_) => ItemStackRequestActionType::DESTROY,
-            ItemStackRequestAction::CraftingConsumeInput(_) => {
-                ItemStackRequestActionType::CRAFTING_CONSUME_INPUT
-            }
-            ItemStackRequestAction::LabTableCombine(_) => {
-                ItemStackRequestActionType::LAB_TABLE_COMBINE
-            }
+            ItemStackRequestAction::CraftingConsumeInput(_) => ItemStackRequestActionType::CRAFTING_CONSUME_INPUT,
+            ItemStackRequestAction::LabTableCombine(_) => ItemStackRequestActionType::LAB_TABLE_COMBINE,
             ItemStackRequestAction::BeaconPayment(_) => ItemStackRequestActionType::BEACON_PAYMENT,
             ItemStackRequestAction::MineBlock(_) => ItemStackRequestActionType::MINE_BLOCK,
             ItemStackRequestAction::CraftRecipe(_) => ItemStackRequestActionType::CRAFTING_RECIPE,
-            ItemStackRequestAction::CraftRecipeAuto(_) => {
-                ItemStackRequestActionType::CRAFTING_RECIPE_AUTO
-            }
-            ItemStackRequestAction::CreativeCreate(_) => {
-                ItemStackRequestActionType::CREATIVE_CREATE
-            }
-            ItemStackRequestAction::CraftRecipeOptional(_) => {
-                ItemStackRequestActionType::CRAFTING_RECIPE_OPTIONAL
-            }
-            ItemStackRequestAction::Grindstone(_) => {
-                ItemStackRequestActionType::CRAFTING_GRINDSTONE
-            }
+            ItemStackRequestAction::CraftRecipeAuto(_) => ItemStackRequestActionType::CRAFTING_RECIPE_AUTO,
+            ItemStackRequestAction::CreativeCreate(_) => ItemStackRequestActionType::CREATIVE_CREATE,
+            ItemStackRequestAction::CraftRecipeOptional(_) => ItemStackRequestActionType::CRAFTING_RECIPE_OPTIONAL,
+            ItemStackRequestAction::Grindstone(_) => ItemStackRequestActionType::CRAFTING_GRINDSTONE,
             ItemStackRequestAction::Loom(_) => ItemStackRequestActionType::CRAFTING_LOOM,
-            ItemStackRequestAction::DeprecatedCraftingNonImplemented(_) => {
-                ItemStackRequestActionType::CRAFTING_NON_IMPLEMENTED_DEPRECATED_ASK_TY_LAING
-            }
-            ItemStackRequestAction::DeprecatedCraftingResults(_) => {
-                ItemStackRequestActionType::CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING
-            }
+            ItemStackRequestAction::Reserved(_) => ItemStackRequestActionType::CRAFTING_RESERVED,
+            ItemStackRequestAction::DeprecatedCraftingNonImplemented(_) => ItemStackRequestActionType::CRAFTING_NON_IMPLEMENTED_DEPRECATED_ASK_TY_LAING,
+            ItemStackRequestAction::DeprecatedCraftingResults(_) => ItemStackRequestActionType::CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING,
         }
     }
 
@@ -96,6 +83,7 @@ impl ItemStackRequestAction {
             ItemStackRequestAction::CraftRecipeOptional(r) => r.write(stream),
             ItemStackRequestAction::Grindstone(r) => r.write(stream),
             ItemStackRequestAction::Loom(r) => r.write(stream),
+            ItemStackRequestAction::Reserved(r) => r.write(stream),
             ItemStackRequestAction::DeprecatedCraftingNonImplemented(r) => r.write(stream),
             ItemStackRequestAction::DeprecatedCraftingResults(r) => r.write(stream),
         }

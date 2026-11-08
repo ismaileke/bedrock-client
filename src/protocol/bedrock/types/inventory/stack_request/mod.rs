@@ -19,4 +19,5 @@ pub mod mine_block_stack_request_action;
 pub mod place_stack_request_action;
 pub mod swap_stack_request_action;
 pub mod take_stack_request_action;
-mod item_stack_request_network_item_instance_descriptor;
+pub mod item_stack_request_network_item_instance_descriptor;
+pub mod reserved_stack_request_action;

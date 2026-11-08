@@ -108,4 +108,5 @@ impl ParticleIDS {
     pub const ORANGE_POPLAR_LEAVES: u32= 102;
     pub const RED_POPLAR_LEAVES: u32 = 103;
     pub const YELLOW_POPLAR_LEAVES: u32 = 104;
+    pub const ICE_BALL_BREAK: u32 = 105;
 }

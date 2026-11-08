@@ -17,8 +17,9 @@ impl ItemStackRequestActionType {
     pub const CRAFTING_RECIPE_OPTIONAL: u32 = 13; //anvil/cartography table rename
     pub const CRAFTING_GRINDSTONE: u32 = 14;
     pub const CRAFTING_LOOM: u32 = 15;
-    pub const CRAFTING_NON_IMPLEMENTED_DEPRECATED_ASK_TY_LAING: u32 = 16;
-    pub const CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING: u32 = 17; //no idea what this is for
+    pub const CRAFTING_RESERVED: u32 = 16;
+    pub const CRAFTING_NON_IMPLEMENTED_DEPRECATED_ASK_TY_LAING: u32 = 17;
+    pub const CRAFTING_RESULTS_DEPRECATED_ASK_TY_LAING: u32 = 18; //no idea what this is for
 
     /**
      * The legacy IDs still contain the gap left by the removal of PLACE_IN_ITEM_CONTAINER (7) and

@@ -36,7 +36,8 @@ impl PersonaSkinPiece {
     pub const PIECE_TYPE_CAPES: i32 = 25;
     pub const PIECE_TYPE_CLASSIC_SKIN: i32 = 26;
     pub const PIECE_TYPE_EMOTE: i32 = 27;
-    pub const PIECE_TYPE_UNSUPPORTED: i32 = 28;
+    pub const PIECE_TYPE_COCO: i32 = 28;
+    pub const PIECE_TYPE_UNSUPPORTED: i32 = 29;
 
     pub fn new(
         piece_id: String,

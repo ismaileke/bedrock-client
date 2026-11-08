@@ -7,12 +7,12 @@ pub struct EntityDiagnosticTimingInfo {
     pub entity: String,
     pub time_in_ns: u64,
     pub percent_of_total: u8,
-    pub position: Vec<f32>,
-    pub dimension: String
+    pub position: Option<Vec<f32>>,
+    pub dimension: Option<String>
 }
 
 impl EntityDiagnosticTimingInfo {
-    pub fn new(display_name: String, entity: String, time_in_ns: u64, percent_of_total: u8, position: Vec<f32>, dimension: String) -> EntityDiagnosticTimingInfo {
+    pub fn new(display_name: String, entity: String, time_in_ns: u64, percent_of_total: u8, position: Option<Vec<f32>>, dimension: Option<String>) -> EntityDiagnosticTimingInfo {
         EntityDiagnosticTimingInfo { display_name, entity, time_in_ns, percent_of_total, position, dimension }
     }
 
@@ -21,8 +21,8 @@ impl EntityDiagnosticTimingInfo {
         let entity = PacketSerializer::get_string(stream);
         let time_in_ns = stream.get_u64_le();
         let percent_of_total = stream.get_u8();
-        let position = PacketSerializer::get_vector3(stream);
-        let dimension = PacketSerializer::get_string(stream);
+        let position = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_vector3(s));
+        let dimension = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
 
         EntityDiagnosticTimingInfo { display_name, entity, time_in_ns, percent_of_total, position, dimension }
     }
@@ -32,7 +32,7 @@ impl EntityDiagnosticTimingInfo {
         PacketSerializer::put_string(stream, &self.entity);
         stream.put_u64_le(self.time_in_ns);
         stream.put_u8(self.percent_of_total);
-        PacketSerializer::put_vector3(stream, &self.position);
-        PacketSerializer::put_string(stream, &self.dimension);
+        PacketSerializer::write_optional(stream, &self.position, |s, v| PacketSerializer::put_vector3(s, v));
+        PacketSerializer::write_optional(stream, &self.dimension, |s, v| PacketSerializer::put_string(s, v));
     }
 }

@@ -1,8 +1,8 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use crate::protocol::bedrock::types::attribute::attribute_value_color_array::AttributeValueColorArray;
+use crate::protocol::bedrock::types::attribute::attribute_value_color_string::AttributeValueColorString;
+use crate::protocol::bedrock::types::attribute::attribute_value_color_value::AttributeValueColorValue;
 use binary_utils::binary::{Reader, Writer};
-use crate::protocol::bedrock::types::attribute_value_color_array::AttributeValueColorArray;
-use crate::protocol::bedrock::types::attribute_value_color_string::AttributeValueColorString;
-use crate::protocol::bedrock::types::attribute_value_color_value::AttributeValueColorValue;
 
 #[derive(serde::Serialize, Debug)]
 pub struct AttributeValueColor {

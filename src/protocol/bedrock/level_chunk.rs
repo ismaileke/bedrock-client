@@ -1,7 +1,7 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct LevelChunk {
@@ -13,6 +13,7 @@ pub struct LevelChunk {
     pub cache_enabled: bool,
     pub used_blob_hashes: Vec<u64>,
     pub extra_payload: Vec<u8>,
+    pub client_biome_update: bool,
 }
 
 impl LevelChunk {
@@ -38,6 +39,7 @@ impl Packet for LevelChunk {
         }
         stream.put_var_u32(self.extra_payload.len() as u32);
         stream.put(self.extra_payload.as_slice());
+        stream.put_bool(self.client_biome_update);
         /*stream.put_var_i32(self.chunk_x);
         stream.put_var_i32(self.chunk_z);
         stream.put_var_i32(self.dimension_id);
@@ -83,6 +85,7 @@ impl Packet for LevelChunk {
         }
 
         let extra_payload = PacketSerializer::get_byte_string(stream);
+        let client_biome_update = stream.get_bool();
 
         LevelChunk {
             chunk_x,
@@ -93,6 +96,7 @@ impl Packet for LevelChunk {
             cache_enabled,
             used_blob_hashes,
             extra_payload,
+            client_biome_update,
         }
     }
 }

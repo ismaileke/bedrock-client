@@ -221,6 +221,9 @@ use crate::protocol::bedrock::client_bound_data_driven_ui_show_screen::ClientBou
 use crate::protocol::bedrock::client_bound_texture_shift::ClientBoundTextureShift;
 use crate::protocol::bedrock::voxel_shapes::VoxelShapes;
 use crate::protocol::bedrock::client_bound_attribute_layer_sync::ClientBoundAttributeLayerSync;
+use crate::protocol::bedrock::client_bound_matchmaking_state::ClientBoundMatchmakingState;
+use crate::protocol::bedrock::client_bound_play_audio_content::ClientBoundPlayAudioContent;
+use crate::protocol::bedrock::client_bound_stonecutter_set_recipe::ClientBoundStonecutterSetRecipe;
 use crate::protocol::bedrock::locator_bar::LocatorBar;
 use crate::protocol::bedrock::party_changed::PartyChanged;
 use crate::protocol::bedrock::resource_packs_ready_for_validation::ResourcePacksReadyForValidation;
@@ -232,6 +235,11 @@ use crate::protocol::bedrock::client_bound_update_sound_data::ClientBoundUpdateS
 use crate::protocol::bedrock::send_party_destination_cookie::SendPartyDestinationCookie;
 use crate::protocol::bedrock::party_destination_cookie_response::PartyDestinationCookieResponse;
 use crate::protocol::bedrock::record_started::RecordStarted;
+use crate::protocol::bedrock::server_bound_cursor_item_drag::ServerBoundCursorItemDrag;
+use crate::protocol::bedrock::server_bound_matchmaking_cancel::ServerBoundMatchmakingCancel;
+use crate::protocol::bedrock::server_bound_register_audio_content::ServerBoundRegisterAudioContent;
+use crate::protocol::bedrock::server_bound_stonecutter_set_recipe::ServerBoundStonecutterSetRecipe;
+use crate::protocol::bedrock::set_passenger_of_block::SetPassengerOfBlock;
 use crate::protocol::bedrock::set_player_furnace_options::SetPlayerFurnaceOptions;
 
 #[repr(u16)]
@@ -468,6 +476,14 @@ pub enum BedrockPacketType {
     IDPartyDestinationCookieResponse,
     IDSetPlayerFurnaceOptions,
     IDRecordStarted,
+    IDClientBoundMatchmakingState,
+    IDClientBoundStonecutterSetRecipe,
+    IDServerBoundStonecutterSetRecipe,
+    IDServerBoundMatchmakingCancel,
+    IDSetPassengerOfBlock,
+    IDServerBoundCursorItemDrag,
+    IDClientBoundPlayAudioContent,
+    IDServerBoundRegisterAudioContent,
     IDUnknown,
 }
 
@@ -705,6 +721,14 @@ impl BedrockPacketType {
             0x15e => BedrockPacketType::IDPartyDestinationCookieResponse,
             0x15f => BedrockPacketType::IDSetPlayerFurnaceOptions,
             0x160 => BedrockPacketType::IDRecordStarted,
+            0x161 => BedrockPacketType::IDClientBoundMatchmakingState,
+            0x162 => BedrockPacketType::IDClientBoundStonecutterSetRecipe,
+            0x163 => BedrockPacketType::IDServerBoundStonecutterSetRecipe,
+            0x164 => BedrockPacketType::IDServerBoundMatchmakingCancel,
+            0x165 => BedrockPacketType::IDSetPassengerOfBlock,
+            0x166 => BedrockPacketType::IDServerBoundCursorItemDrag,
+            0x167 => BedrockPacketType::IDClientBoundPlayAudioContent,
+            0x168 => BedrockPacketType::IDServerBoundRegisterAudioContent,
             _ => BedrockPacketType::IDUnknown,
         }
     }
@@ -941,6 +965,14 @@ impl BedrockPacketType {
             BedrockPacketType::IDPartyDestinationCookieResponse => 0x15e,
             BedrockPacketType::IDSetPlayerFurnaceOptions => 0x15f,
             BedrockPacketType::IDRecordStarted => 0x160,
+            BedrockPacketType::IDClientBoundMatchmakingState => 0x161,
+            BedrockPacketType::IDClientBoundStonecutterSetRecipe => 0x162,
+            BedrockPacketType::IDServerBoundStonecutterSetRecipe => 0x163,
+            BedrockPacketType::IDServerBoundMatchmakingCancel => 0x164,
+            BedrockPacketType::IDSetPassengerOfBlock => 0x165,
+            BedrockPacketType::IDServerBoundCursorItemDrag => 0x166,
+            BedrockPacketType::IDClientBoundPlayAudioContent => 0x167,
+            BedrockPacketType::IDServerBoundRegisterAudioContent => 0x168,
             _ => 0,
         }
     }
@@ -1177,6 +1209,14 @@ impl BedrockPacketType {
             0x15e => "Party Destination Cookie Response",
             0x15f => "Set Player Furnace Options",
             0x160 => "Record Started",
+            0x161 => "Client Bound Matchmaking State",
+            0x162 => "Client Bound Stonecutter Set Recipe",
+            0x163 => "Server Bound Stonecutter Set Recipe",
+            0x164 => "Server Bound Matchmaking Cancel",
+            0x165 => "Set Passenger Of Block",
+            0x166 => "ServerBound Cursor Item Drag",
+            0x167 => "Client Bound Play Audio Content",
+            0x168 => "Server Bound Register Audio Content",
             _ => "Unknown Packet",
         }
     }
@@ -1414,6 +1454,14 @@ impl BedrockPacketType {
             0x15e => BedrockPacket::PartyDestinationCookieResponse(PartyDestinationCookieResponse::decode(stream)),
             0x15f => BedrockPacket::SetPlayerFurnaceOptions(SetPlayerFurnaceOptions::decode(stream)),
             0x160 => BedrockPacket::RecordStarted(RecordStarted::decode(stream)),
+            0x161 => BedrockPacket::ClientBoundMatchmakingState(ClientBoundMatchmakingState::decode(stream)),
+            0x162 => BedrockPacket::ClientBoundStonecutterSetRecipe(ClientBoundStonecutterSetRecipe::decode(stream)),
+            0x163 => BedrockPacket::ServerBoundStonecutterSetRecipe(ServerBoundStonecutterSetRecipe::decode(stream)),
+            0x164 => BedrockPacket::ServerBoundMatchmakingCancel(ServerBoundMatchmakingCancel::decode(stream)),
+            0x165 => BedrockPacket::SetPassengerOfBlock(SetPassengerOfBlock::decode(stream)),
+            0x166 => BedrockPacket::ServerBoundCursorItemDrag(ServerBoundCursorItemDrag::decode(stream)),
+            0x167 => BedrockPacket::ClientBoundPlayAudioContent(ClientBoundPlayAudioContent::decode(stream)),
+            0x168 => BedrockPacket::ServerBoundRegisterAudioContent(ServerBoundRegisterAudioContent::decode(stream)),
             _ => BedrockPacket::Unknown(Unknown::decode(stream)),
         }
     }
@@ -1652,5 +1700,13 @@ pub enum BedrockPacket {
     PartyDestinationCookieResponse(PartyDestinationCookieResponse),
     SetPlayerFurnaceOptions(SetPlayerFurnaceOptions),
     RecordStarted(RecordStarted),
+    ClientBoundMatchmakingState(ClientBoundMatchmakingState),
+    ClientBoundStonecutterSetRecipe(ClientBoundStonecutterSetRecipe),
+    ServerBoundStonecutterSetRecipe(ServerBoundStonecutterSetRecipe),
+    ServerBoundMatchmakingCancel(ServerBoundMatchmakingCancel),
+    SetPassengerOfBlock(SetPassengerOfBlock),
+    ServerBoundCursorItemDrag(ServerBoundCursorItemDrag),
+    ClientBoundPlayAudioContent(ClientBoundPlayAudioContent),
+    ServerBoundRegisterAudioContent(ServerBoundRegisterAudioContent),
     Unknown(Unknown),
 }

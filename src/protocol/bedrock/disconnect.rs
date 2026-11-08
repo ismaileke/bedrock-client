@@ -195,4 +195,5 @@ impl Disconnect {
     pub const EDITOR_NOT_ALLOWED: i32 = 147;
     pub const MISSING_STRUCTURE_DATA: i32 = 148;
     pub const UNSUPPORTED_TRANSPORT: i32 = 149;
+    pub const SUB_CLIENT_LOGIN_NOT_BOUND: i32 = 150;
 }

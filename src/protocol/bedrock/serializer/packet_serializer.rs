@@ -460,7 +460,6 @@ impl PacketSerializer {
 
     pub fn get_skin(stream: &mut Reader) -> SkinData {
         let skin_id = PacketSerializer::get_string(stream);
-        let play_fab_id = PacketSerializer::get_string(stream);
         let resource_patch = PacketSerializer::get_string(stream);
         let skin_image = PacketSerializer::get_skin_image(stream);
         let animation_count = stream.get_var_u32();
@@ -521,7 +520,6 @@ impl PacketSerializer {
 
         SkinData {
             skin_id,
-            play_fab_id,
             resource_patch,
             skin_image,
             animations,
@@ -548,7 +546,6 @@ impl PacketSerializer {
 
     pub fn put_skin(stream: &mut Writer, skin: &SkinData) {
         PacketSerializer::put_string(stream, &skin.skin_id);
-        PacketSerializer::put_string(stream, &skin.play_fab_id);
         PacketSerializer::put_string(stream, &skin.resource_patch);
         PacketSerializer::put_skin_image(stream, &skin.skin_image);
         stream.put_var_u32(skin.animations.len() as u32);

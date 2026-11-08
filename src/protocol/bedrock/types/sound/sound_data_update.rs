@@ -20,15 +20,15 @@ pub enum SoundDataUpdate {
 }
 
 impl SoundDataUpdate {
-    pub const STOP: u32 = 0;
-    pub const SET_VOLUME: u32 = 1;
-    pub const SET_PITCH: u32 = 2;
-    pub const FADE: u32 = 3;
-    pub const SEEK_TO: u32 = 4;
-    pub const PAUSE: u32 = 5;
-    pub const RESUME: u32 = 6;
+    pub const STOP: u8 = 0;
+    pub const SET_VOLUME: u8 = 1;
+    pub const SET_PITCH: u8 = 2;
+    pub const FADE: u8 = 3;
+    pub const SEEK_TO: u8 = 4;
+    pub const PAUSE: u8 = 5;
+    pub const RESUME: u8 = 6;
 
-    pub fn id(&self) -> u32 {
+    pub fn id(&self) -> u8 {
         match self {
             SoundDataUpdate::Stop(_) => Self::STOP,
             SoundDataUpdate::SetVolume(_) => Self::SET_VOLUME,
@@ -41,8 +41,12 @@ impl SoundDataUpdate {
     }
 
     pub fn read(stream: &mut Reader) -> SoundDataUpdate {
-        let sound_type = stream.get_var_u32();
-        match sound_type {
+        let variant = stream.get_var_u32();
+        let event = stream.get_u8();
+        if variant != event as u32 {
+            panic!("Sound data variant index {} does not match event type {}", variant, event);
+        }
+        match event {
             SoundDataUpdate::STOP => SoundDataUpdate::Stop(StopSoundData::read(stream)),
             SoundDataUpdate::SET_VOLUME => SoundDataUpdate::SetVolume(SetVolumeSoundData::read(stream)),
             SoundDataUpdate::SET_PITCH => SoundDataUpdate::SetPitch(SetPitchSoundData::read(stream)),
@@ -50,11 +54,13 @@ impl SoundDataUpdate {
             SoundDataUpdate::SEEK_TO => SoundDataUpdate::SeekTo(SeekToSoundData::read(stream)),
             SoundDataUpdate::PAUSE => SoundDataUpdate::Pause(PauseSoundData::read(stream)),
             SoundDataUpdate::RESUME => SoundDataUpdate::Resume(ResumeSoundData::read(stream)),
-            _ => panic!("Sound type not handled: {}", sound_type),
+            _ => panic!("Sound type not handled: {}", event),
         }
     }
 
     pub fn write(&self, stream: &mut Writer) {
+        stream.put_var_u32(self.id() as u32);
+        stream.put_u8(self.id());
         match self {
             SoundDataUpdate::Stop(r) => r.write(stream),
             SoundDataUpdate::SetVolume(r) => r.write(stream),

@@ -4,19 +4,19 @@ use binary_utils::binary::{Reader, Writer};
 #[derive(serde::Serialize, Debug)]
 pub struct AttributeRemoveEnvironment {
     pub name: String,
-    pub dimension: u32,
+    pub dimension: i32,
     pub attributes: Vec<String>
 }
 
 impl AttributeRemoveEnvironment {
 
-    pub fn new(name: String, dimension: u32, attributes: Vec<String>) -> AttributeRemoveEnvironment {
+    pub fn new(name: String, dimension: i32, attributes: Vec<String>) -> AttributeRemoveEnvironment {
         AttributeRemoveEnvironment { name, dimension, attributes }
     }
 
     pub fn read(stream: &mut Reader) -> AttributeRemoveEnvironment {
         let name = PacketSerializer::get_string(stream);
-        let dimension = stream.get_var_u32();
+        let dimension = stream.get_var_i32();
         let len = stream.get_var_u32();
         let mut attributes = Vec::with_capacity(len as usize);
         for _ in 0..len {
@@ -28,7 +28,7 @@ impl AttributeRemoveEnvironment {
 
     pub fn write(&self, stream: &mut Writer) {
         PacketSerializer::put_string(stream, &self.name);
-        stream.put_var_u32(self.dimension);
+        stream.put_var_i32(self.dimension);
         stream.put_var_u32(self.attributes.len() as u32);
         for attribute in &self.attributes {
             PacketSerializer::put_string(stream, attribute);

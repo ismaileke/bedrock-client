@@ -68,4 +68,8 @@ impl ContainerUIIds {
     pub const RECIPE_FOOD_CONTAINER: u8 = 64;
     pub const RECIPE_BLOCKS_CONTAINER: u8 = 65;
     pub const RECIPE_FURNACE_ITEMS_CONTAINER: u8 = 66;
+    pub const RESERVED_A: u8 = 67;
+    pub const RESERVED_B: u8 = 68;
+    pub const RESERVED_C: u8 = 69;
+    pub const RESERVED_D: u8 = 70;
 }

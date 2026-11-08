@@ -19,6 +19,7 @@ pub struct LevelSettings {
     pub editor_world_type: i32,
     pub created_in_editor_mode: bool,
     pub exported_from_editor_mode: bool,
+    pub editor_level_migration_version: i8,
     pub time: i32,
     pub edu_edition_offer: u32,
     pub has_edu_features_enabled: bool,
@@ -61,6 +62,9 @@ pub struct LevelSettings {
 }
 
 impl LevelSettings {
+    pub const EDITOR_LEVEL_MIGRATION_VERSION_LEGACY: i8 = 0;
+    pub const EDITOR_LEVEL_MIGRATION_VERSION_EDITOR_ACHIEVEMENTS: i8 = 1;
+
     pub fn read(stream: &mut Reader) -> LevelSettings {
         let seed = stream.get_u64_le();
         let spawn_settings = SpawnSettings::read(stream);
@@ -73,6 +77,7 @@ impl LevelSettings {
         let editor_world_type = stream.get_var_i32();
         let created_in_editor_mode = stream.get_bool();
         let exported_from_editor_mode = stream.get_bool();
+        let editor_level_migration_version = stream.get_i8();
         let time = stream.get_var_i32();
         let edu_edition_offer = stream.get_var_u32();
         let has_edu_features_enabled = stream.get_bool();
@@ -125,6 +130,7 @@ impl LevelSettings {
             editor_world_type,
             created_in_editor_mode,
             exported_from_editor_mode,
+            editor_level_migration_version,
             time,
             edu_edition_offer,
             has_edu_features_enabled,
@@ -179,6 +185,7 @@ impl LevelSettings {
         stream.put_var_i32(self.editor_world_type);
         stream.put_bool(self.created_in_editor_mode);
         stream.put_bool(self.exported_from_editor_mode);
+        stream.put_i8(self.editor_level_migration_version);
         stream.put_var_i32(self.time);
         stream.put_var_u32(self.edu_edition_offer);
         stream.put_bool(self.has_edu_features_enabled);

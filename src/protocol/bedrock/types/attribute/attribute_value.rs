@@ -1,6 +1,6 @@
-use crate::protocol::bedrock::types::attribute_value_bool::AttributeValueBool;
-use crate::protocol::bedrock::types::attribute_value_color::AttributeValueColor;
-use crate::protocol::bedrock::types::attribute_value_float::AttributeValueFloat;
+use crate::protocol::bedrock::types::attribute::attribute_value_bool::AttributeValueBool;
+use crate::protocol::bedrock::types::attribute::attribute_value_color::AttributeValueColor;
+use crate::protocol::bedrock::types::attribute::attribute_value_float::AttributeValueFloat;
 use binary_utils::binary::{Reader, Writer};
 use std::fmt::Debug;
 

@@ -5,6 +5,7 @@ use crate::protocol::bedrock::types::entity::attribute::Attribute;
 use crate::protocol::bedrock::types::entity::entity_link::EntityLink;
 use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty;
 use crate::protocol::bedrock::types::entity::property_sync_data::PropertySyncData;
+use crate::protocol::bedrock::types::passenger_of_block_data::PassengerOfBlockData;
 use binary_utils::binary::{Reader, Writer};
 use std::collections::HashMap;
 
@@ -23,6 +24,7 @@ pub struct AddActor {
     pub metadata: HashMap<u32, MetadataProperty>,
     pub synced_properties: PropertySyncData,
     pub links: Vec<EntityLink>,
+    pub passenger_of_block: Option<PassengerOfBlockData>
 }
 
 impl Packet for AddActor {
@@ -53,6 +55,7 @@ impl Packet for AddActor {
         for link in self.links.iter() {
             PacketSerializer::put_entity_link(stream, link);
         }
+        PacketSerializer::write_optional(stream, &self.passenger_of_block, |s, v| v.write(s));
     }
 
     fn decode(stream: &mut Reader) -> AddActor {
@@ -81,6 +84,7 @@ impl Packet for AddActor {
         for _ in 0..link_count {
             links.push(PacketSerializer::get_entity_link(stream));
         }
+        let passenger_of_block = PacketSerializer::read_optional(stream, |s| PassengerOfBlockData::read(s));
 
         AddActor {
             actor_unique_id,
@@ -96,6 +100,7 @@ impl Packet for AddActor {
             metadata,
             synced_properties,
             links,
+            passenger_of_block
         }
     }
 }

@@ -1,12 +1,11 @@
 use crate::protocol::bedrock::bedrock_packet_ids::BedrockPacketType;
 use crate::protocol::bedrock::packet::Packet;
-use crate::protocol::bedrock::types::attribute_remove_environment::AttributeRemoveEnvironment;
-use crate::protocol::bedrock::types::attribute_update_environment::AttributeUpdateEnvironment;
-use crate::protocol::bedrock::types::attribute_update_layer_settings::AttributeUpdateLayerSettings;
-use crate::protocol::bedrock::types::attribute_update_layers::AttributeUpdateLayers;
-use crate::protocol::bedrock::types::attribute_layer_sync_payload::AttributeLayerSyncPayload;
+use crate::protocol::bedrock::types::attribute::attribute_layer_sync_payload::AttributeLayerSyncPayload;
+use crate::protocol::bedrock::types::attribute::attribute_remove_environment::AttributeRemoveEnvironment;
+use crate::protocol::bedrock::types::attribute::attribute_update_environment::AttributeUpdateEnvironment;
+use crate::protocol::bedrock::types::attribute::attribute_update_layer_settings::AttributeUpdateLayerSettings;
+use crate::protocol::bedrock::types::attribute::attribute_update_layers::AttributeUpdateLayers;
 use binary_utils::binary::{Reader, Writer};
-
 
 #[derive(serde::Serialize, Debug)]
 pub struct ClientBoundAttributeLayerSync {

@@ -5,6 +5,7 @@ use crate::protocol::bedrock::types::entity_diagnostics_timing_info::EntityDiagn
 use crate::protocol::bedrock::types::system_diagnostics_timing_info::SystemDiagnosticTimingInfo;
 use crate::protocol::bedrock::types::system_category_timing_info::SystemCategoryTimingInfo;
 use crate::protocol::bedrock::types::whisker_scope_data_summary::WhiskerScopeDataSummary;
+use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
@@ -21,7 +22,7 @@ pub struct ServerBoundDiagnostics {
     pub memory_category_values: Vec<MemoryCategoryCounter>,
     pub entity_diagnostics: Vec<EntityDiagnosticTimingInfo>,
     pub system_diagnostics: Vec<SystemDiagnosticTimingInfo>,
-    pub system_categories: Vec<SystemCategoryTimingInfo>,
+    pub system_categories: Option<Vec<SystemCategoryTimingInfo>>,
     pub whisker_scopes: Vec<WhiskerScopeDataSummary>
 }
 
@@ -52,10 +53,12 @@ impl Packet for ServerBoundDiagnostics {
         for system_diagnostics_value in &self.system_diagnostics {
             system_diagnostics_value.write(stream);
         }
-        stream.put_var_u32(self.system_categories.len() as u32);
-        for system_categories_value in &self.system_categories {
-            system_categories_value.write(stream);
-        }
+        PacketSerializer::write_optional(stream, &self.system_categories, |s, v| {
+            s.put_var_u32(v.len() as u32);
+            for system_categories_value in v {
+                system_categories_value.write(s);
+            }
+        });
         stream.put_var_u32(self.whisker_scopes.len() as u32);
         for whisker_scopes_value in &self.whisker_scopes {
             whisker_scopes_value.write(stream);
@@ -87,11 +90,14 @@ impl Packet for ServerBoundDiagnostics {
         for _ in 0..count {
             system_diagnostics.push(SystemDiagnosticTimingInfo::read(stream));
         }
-        count = stream.get_var_u32();
-        let mut system_categories = Vec::with_capacity(count as usize);
-        for _ in 0..count {
-            system_categories.push(SystemCategoryTimingInfo::read(stream));
-        }
+        let system_categories = PacketSerializer::read_optional(stream, |s| {
+            count = s.get_var_u32();
+            let mut system_categories = Vec::with_capacity(count as usize);
+            for _ in 0..count {
+                system_categories.push(SystemCategoryTimingInfo::read(s));
+            }
+            return system_categories
+        });
         count = stream.get_var_u32();
         let mut whisker_scopes = Vec::with_capacity(count as usize);
         for _ in 0..count {

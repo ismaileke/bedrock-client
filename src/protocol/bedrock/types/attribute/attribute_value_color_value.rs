@@ -1,5 +1,5 @@
-use crate::protocol::bedrock::types::attribute_value_color_array::AttributeValueColorArray;
-use crate::protocol::bedrock::types::attribute_value_color_string::AttributeValueColorString;
+use crate::protocol::bedrock::types::attribute::attribute_value_color_array::AttributeValueColorArray;
+use crate::protocol::bedrock::types::attribute::attribute_value_color_string::AttributeValueColorString;
 use binary_utils::binary::Writer;
 use std::fmt::Debug;
 

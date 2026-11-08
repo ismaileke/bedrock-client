@@ -629,4 +629,5 @@ impl LevelSoundEvent {
     pub const MOUNT: &'static str = "mount";
     pub const DISMOUNT: &'static str = "dismount";
     pub const STRAW_BED_BREAK_LEAVE: &'static str = "straw_bed.break_leave";
+    pub const ICE_BALL_BREAK: &'static str = "ice_ball.break";
 }

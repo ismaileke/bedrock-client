@@ -11,11 +11,15 @@ pub struct ReleaseItemTransactionData {
     pub hotbar_slot: i32,
     pub item_in_hand: ItemStackWrapper,
     pub head_position: Vec<f32>,
+    pub hand_slot: u8
 }
 
 impl ReleaseItemTransactionData {
     pub const ACTION_RELEASE: i32 = 0; //bow shoot
     pub const ACTION_CONSUME: i32 = 1; //eat food, drink potion
+
+    pub const MAIN_HAND: u8 = 0;
+    pub const OFF_HAND: u8 = 1;
 
     pub fn new(
         actions: Vec<NetworkInventoryAction>,
@@ -23,6 +27,7 @@ impl ReleaseItemTransactionData {
         hotbar_slot: i32,
         item_in_hand: ItemStackWrapper,
         head_position: Vec<f32>,
+        hand_slot: u8
     ) -> ReleaseItemTransactionData {
         ReleaseItemTransactionData {
             actions,
@@ -30,6 +35,7 @@ impl ReleaseItemTransactionData {
             hotbar_slot,
             item_in_hand,
             head_position,
+            hand_slot
         }
     }
     
@@ -43,6 +49,7 @@ impl ReleaseItemTransactionData {
                 item_stack: ItemStack::null()
             },
             head_position: vec![],
+            hand_slot: 0
         }
     }
 
@@ -59,6 +66,7 @@ impl ReleaseItemTransactionData {
         self.hotbar_slot = stream.get_var_i32();
         self.item_in_hand = PacketSerializer::get_network_item_stack_descriptor(stream);
         self.head_position = PacketSerializer::get_vector3(stream);
+        self.hand_slot = stream.get_u8();
     }
 
     pub fn encode_data(&self, stream: &mut Writer) {
@@ -66,5 +74,6 @@ impl ReleaseItemTransactionData {
         stream.put_var_i32(self.hotbar_slot);
         PacketSerializer::put_network_item_stack_descriptor(stream, &self.item_in_hand);
         PacketSerializer::put_vector3(stream, &self.head_position);
+        stream.put_u8(self.hand_slot);
     }
 }

@@ -6,6 +6,7 @@ use crate::protocol::bedrock::types::entity::metadata_property::MetadataProperty
 use crate::protocol::bedrock::types::entity::property_sync_data::PropertySyncData;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::update_abilities::UpdateAbilities;
+use crate::protocol::bedrock::types::passenger_of_block_data::PassengerOfBlockData;
 use binary_utils::binary::{Reader, Writer};
 use std::collections::HashMap;
 
@@ -26,6 +27,7 @@ pub struct AddPlayer {
     pub synced_properties: PropertySyncData,
     pub abilities_packet: UpdateAbilities,
     pub links: Vec<EntityLink>,
+    pub passenger_of_block: Option<PassengerOfBlockData>,
     pub device_id: String,
     pub build_platform: i32,
 }
@@ -54,6 +56,7 @@ impl Packet for AddPlayer {
         for link in &self.links {
             PacketSerializer::put_entity_link(stream, &link);
         }
+        PacketSerializer::write_optional(stream, &self.passenger_of_block, |s, v| v.write(s));
         PacketSerializer::put_string(stream, &self.device_id);
         stream.put_i32_le(self.build_platform);
     }
@@ -78,6 +81,7 @@ impl Packet for AddPlayer {
         for _ in 0..links_count {
             links.push(PacketSerializer::get_entity_link(stream));
         }
+        let passenger_of_block = PacketSerializer::read_optional(stream, |s| PassengerOfBlockData::read(s));
         let device_id = PacketSerializer::get_string(stream);
         let build_platform = stream.get_i32_le();
 
@@ -97,6 +101,7 @@ impl Packet for AddPlayer {
             synced_properties,
             abilities_packet,
             links,
+            passenger_of_block,
             device_id,
             build_platform,
         }

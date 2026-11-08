@@ -1,8 +1,8 @@
 use crate::protocol::bedrock::serializer::packet_serializer::PacketSerializer;
 use crate::protocol::bedrock::types::inventory::item_stack_wrapper::ItemStackWrapper;
 use crate::protocol::bedrock::types::inventory::network_inventory_action::NetworkInventoryAction;
-use binary_utils::binary::{Reader, Writer};
 use crate::protocol::bedrock::types::inventory::item_stack::ItemStack;
+use binary_utils::binary::{Reader, Writer};
 
 #[derive(serde::Serialize, Debug)]
 pub struct UseItemOnEntityTransactionData {
@@ -10,6 +10,7 @@ pub struct UseItemOnEntityTransactionData {
     pub actor_runtime_id: u64,
     pub action_type: i32,
     pub hotbar_slot: i32,
+    pub hand_slot: u8,
     pub item_in_hand: ItemStackWrapper,
     pub player_position: Vec<f32>,
     pub click_position: Vec<f32>,
@@ -20,11 +21,15 @@ impl UseItemOnEntityTransactionData {
     pub const ACTION_ATTACK: i32 = 1;
     pub const ACTION_ITEM_INTERACT: i32 = 2;
 
+    pub const MAIN_HAND: u8 = 0;
+    pub const OFF_HAND: u8 = 1;
+
     pub fn new(
         actions: Vec<NetworkInventoryAction>,
         actor_runtime_id: u64,
         action_type: i32,
         hotbar_slot: i32,
+        hand_slot: u8,
         item_in_hand: ItemStackWrapper,
         player_position: Vec<f32>,
         click_position: Vec<f32>,
@@ -34,6 +39,7 @@ impl UseItemOnEntityTransactionData {
             actor_runtime_id,
             action_type,
             hotbar_slot,
+            hand_slot,
             item_in_hand,
             player_position,
             click_position,
@@ -46,6 +52,7 @@ impl UseItemOnEntityTransactionData {
             actor_runtime_id: 0,
             action_type: 0,
             hotbar_slot: 0,
+            hand_slot: 0,
             item_in_hand: ItemStackWrapper {
                 stack_id: 0,
                 item_stack: ItemStack::null(),
@@ -67,6 +74,7 @@ impl UseItemOnEntityTransactionData {
         self.actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         self.action_type = stream.get_var_i32();
         self.hotbar_slot = stream.get_var_i32();
+        self.hand_slot = stream.get_u8();
         self.item_in_hand = PacketSerializer::get_network_item_stack_descriptor(stream);
         self.player_position = PacketSerializer::get_vector3(stream);
         self.click_position = PacketSerializer::get_vector3(stream);
@@ -76,6 +84,7 @@ impl UseItemOnEntityTransactionData {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
         stream.put_var_i32(self.action_type);
         stream.put_var_i32(self.hotbar_slot);
+        stream.put_u8(self.hand_slot);
         PacketSerializer::put_network_item_stack_descriptor(stream, &self.item_in_hand);
         PacketSerializer::put_vector3(stream, &self.player_position);
         PacketSerializer::put_vector3(stream, &self.click_position);

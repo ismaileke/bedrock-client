@@ -30,6 +30,7 @@ impl EntityIds {
     pub const COW: &'static str = "minecraft:cow";
     pub const CREAKING: &'static str = "minecraft:creaking";
     pub const CREEPER: &'static str = "minecraft:creeper";
+    pub const CUSHION: &'static str = "minecraft:cushion";
     pub const DOLPHIN: &'static str = "minecraft:dolphin";
     pub const DONKEY: &'static str = "minecraft:donkey";
     pub const DRAGON_FIREBALL: &'static str = "minecraft:dragon_fireball";
@@ -51,6 +52,7 @@ impl EntityIds {
     pub const FISHING_HOOK: &'static str = "minecraft:fishing_hook";
     pub const FOX: &'static str = "minecraft:fox";
     pub const FROG: &'static str = "minecraft:frog";
+    pub const FROSTBITE: &'static str = "minecraft:frostbite";
     pub const GHAST: &'static str = "minecraft:ghast";
     pub const GLOW_SQUID: &'static str = "minecraft:glow_squid";
     pub const GOAT: &'static str = "minecraft:goat";
@@ -60,6 +62,7 @@ impl EntityIds {
     pub const HOPPER_MINECART: &'static str = "minecraft:hopper_minecart";
     pub const HORSE: &'static str = "minecraft:horse";
     pub const HUSK: &'static str = "minecraft:husk";
+    pub const ICE_BALL: &'static str = "minecraft:ice_ball";
     pub const ICE_BOMB: &'static str = "minecraft:ice_bomb";
     pub const IRON_GOLEM: &'static str = "minecraft:iron_golem";
     pub const ITEM: &'static str = "minecraft:item";

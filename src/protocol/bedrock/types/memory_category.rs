@@ -111,4 +111,5 @@ impl MemoryCategory {
     pub const GAMEFACE_SCRIPT_ENGINE: u8 = 107;
     pub const GAMEFACE_SCRIPT: u8 = 108;
     pub const GAMEFACE_LAYOUT: u8 = 109;
+    pub const EXECUTABLE: u8 = 110;
 }

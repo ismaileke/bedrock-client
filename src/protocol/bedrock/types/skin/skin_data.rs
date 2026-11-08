@@ -7,7 +7,6 @@ use crate::protocol::bedrock::types::skin::skin_image::SkinImage;
 #[derive(serde::Serialize, Debug)]
 pub struct SkinData {
     pub skin_id: String,
-    pub play_fab_id: String,
     pub resource_patch: String,
     pub skin_image: SkinImage,
     pub animations: Vec<SkinAnimation>,
@@ -73,19 +72,17 @@ impl SkinData {
 
     pub fn default(
         skin_id: String,
-        play_fab_id: String,
         resource_patch: String,
         skin_image: SkinImage,
     ) -> SkinData {
         SkinData {
             skin_id,
-            play_fab_id,
             resource_patch,
             skin_image,
             animations: vec![],
             cape_image: Some(SkinImage::new(0, 0, vec![])),
             geometry_data: Self::EMPTY_GEOMETRY_DATA.to_string(),
-            geometry_data_engine_version: String::from("1.26.50"),
+            geometry_data_engine_version: String::from("1.26.60"),
             animation_data: String::new(),
             cape_id: String::new(),
             full_skin_id: Some(Uuid::new_v4().to_string()),

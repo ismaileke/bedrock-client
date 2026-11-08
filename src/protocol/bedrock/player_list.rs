@@ -24,6 +24,7 @@ impl Packet for PlayerList {
             PacketSerializer::put_actor_unique_id(stream, entry.actor_unique_id);
             PacketSerializer::put_string(stream, &entry.username);
             PacketSerializer::put_string(stream, &entry.xbox_user_id);
+            PacketSerializer::put_string(stream, &entry.play_fab_id);
             PacketSerializer::put_string(stream, &entry.platform_chat_id);
             stream.put_i32_le(entry.build_platform);
             PacketSerializer::put_skin(stream, &entry.skin_data);
@@ -55,6 +56,7 @@ impl Packet for PlayerList {
                     actor_unique_id: PacketSerializer::get_actor_unique_id(stream),
                     username: PacketSerializer::get_string(stream),
                     xbox_user_id: PacketSerializer::get_string(stream),
+                    play_fab_id: PacketSerializer::get_string(stream),
                     platform_chat_id: PacketSerializer::get_string(stream),
                     build_platform: stream.get_i32_le(),
                     skin_data: PacketSerializer::get_skin(stream),

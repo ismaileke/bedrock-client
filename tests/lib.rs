@@ -3,14 +3,15 @@
 mod tests {
     extern crate bedrock_client;
 
+    use bedrock_client::client;
     use bedrock_client::protocol::bedrock::bedrock_packet_ids::BedrockPacket;
     use bedrock_client::protocol::bedrock::packet::Packet;
     //use bedrock_client::protocol::bedrock::player_auth_input::PlayerAuthInput;
     //use bedrock_client::protocol::bedrock::serializer::bit_set::BitSet;
     use bedrock_client::protocol::bedrock::text::Text;
+    use bedrock_client::utils::chunk::{get_dimension_chunk_bounds, network_decode};
     //use bedrock_client::utils::chunk::{get_dimension_chunk_bounds, network_decode};
     use bedrock_client::utils::color_format;
-    use bedrock_client::client;
     //use std::time::{Duration, Instant};
 
     #[tokio::test]
@@ -19,7 +20,7 @@ mod tests {
         let mut client = client::create(
             "127.0.0.1".to_string(),
             19132,
-            "1.26.45".to_string(),
+            "1.26.60".to_string(),
             true,
             |code, url| { println!("Microsoft Auth: {} {}", code, url); }
         ).await.unwrap();
@@ -32,7 +33,7 @@ mod tests {
         while let Some((packet_name, packet)) = client.next_event().await {
             println!("{}[{}Packet{}] {}{}{}", color_format::COLOR_GRAY, color_format::COLOR_MINECOIN_GOLD, color_format::COLOR_GRAY, color_format::COLOR_BLUE, packet_name, color_format::COLOR_GRAY);
 
-            /*if packet_name != "Voxel Shapes" {
+            /*if packet_name != "Resource Pack Chunk Data" {
                 let packet_json = serde_json::to_string_pretty(&packet).unwrap();
                 println!("{}", packet_json);
             }*/
@@ -77,22 +78,28 @@ mod tests {
                         client.send_packet(Box::new(my_text) as Box<dyn Packet>);
                     }
                 },
-                BedrockPacket::LevelChunk(_level_chunk) => {
-                    /*if level_chunk.sub_chunk_count != u32::MAX-1 { // 4294967294 = u32Max - 1
-                        let decoded_chunk = network_decode(
-                            client.chunk_air_id,
-                            level_chunk.extra_payload.as_slice(),
-                            level_chunk.sub_chunk_count,
-                            get_dimension_chunk_bounds(0)
-                        );
+                BedrockPacket::LevelChunk(level_chunk) => {
+                    println!("Chunk: {} {} {} {} {}", level_chunk.chunk_x, level_chunk.chunk_z, level_chunk.sub_chunk_count, level_chunk.cache_enabled, level_chunk.used_blob_hashes.len());
+                    if level_chunk.sub_chunk_count != u32::MAX-1 { // 4294967294 = u32Max - 1
+                        if let Some(block_registry) = &client.block_registry {
+                            let decoded_chunk = network_decode(
+                                block_registry,
+                                level_chunk.extra_payload.as_slice(),
+                                level_chunk.sub_chunk_count,
+                                get_dimension_chunk_bounds(0)
+                            );
 
-                        match decoded_chunk {
-                            Ok(_chunk) => {
-                                //client.print_chunk(level_chunk.chunk_x, level_chunk.chunk_z, chunk);
-                            },
-                            Err(e) => eprintln!("Chunk could not be resolved: {}", e),
+                            match decoded_chunk {
+                                Ok(chunk) => {
+                                    client.print_chunk(level_chunk.chunk_x, level_chunk.chunk_z, chunk);
+                                },
+                                Err(e) => eprintln!("Chunk could not be resolved: {}", e),
+                            }
                         }
-                    }*/
+
+                    } else {
+                        println!("Chunk is full");
+                    }
                 },
                 BedrockPacket::PlayerList(player_list) => {
                     for entry in &player_list.entries {

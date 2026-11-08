@@ -9,6 +9,7 @@ pub struct Animate {
     pub actor_runtime_id: u64,
     pub data: f32,
     pub swing_source: Option<String>,
+    pub hand_slot: u8
 }
 
 impl Animate {
@@ -16,6 +17,9 @@ impl Animate {
     pub const ACTION_STOP_SLEEP: u8 = 3;
     pub const ACTION_CRITICAL_HIT: u8 = 4;
     pub const ACTION_MAGICAL_CRITICAL_HIT: u8 = 5;
+
+    pub const MAIN_HAND: u8 = 0;
+    pub const OFF_HAND: u8 = 1;
 }
 
 impl Packet for Animate {
@@ -28,6 +32,7 @@ impl Packet for Animate {
         PacketSerializer::put_actor_runtime_id(stream, self.actor_runtime_id);
         stream.put_f32_le(self.data);
         PacketSerializer::write_optional(stream, &self.swing_source, |s, v| PacketSerializer::put_string(s, v));
+        stream.put_u8(self.hand_slot);
     }
 
     fn decode(stream: &mut Reader) -> Animate {
@@ -35,7 +40,8 @@ impl Packet for Animate {
         let actor_runtime_id = PacketSerializer::get_actor_runtime_id(stream);
         let data = stream.get_f32_le();
         let swing_source = PacketSerializer::read_optional(stream, |s| PacketSerializer::get_string(s));
+        let hand_slot = stream.get_u8();
 
-        Animate { action, actor_runtime_id, data, swing_source }
+        Animate { action, actor_runtime_id, data, swing_source, hand_slot }
     }
 }
